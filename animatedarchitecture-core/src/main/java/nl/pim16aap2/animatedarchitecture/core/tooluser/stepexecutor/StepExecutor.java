@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor;
 
+import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,6 +11,7 @@ import java.util.function.BiFunction;
  * Represents an executor for a single step in a larger procedure.
  */
 @Flogger
+@ToString
 public abstract class StepExecutor
 {
     /**
@@ -20,8 +22,11 @@ public abstract class StepExecutor
      *
      * @param input
      *     The object to give to the provided function.
+     * @throws IllegalArgumentException
+     *     If the input object is not of the expected type.
      */
     public final CompletableFuture<Boolean> apply(@Nullable Object input)
+        throws IllegalArgumentException
     {
         if (validInput(input))
         {
@@ -32,10 +37,10 @@ public abstract class StepExecutor
         }
         else
         {
-            log.atFine().log("Trying to pass a(n) %s into %s! This is an invalid operation!",
-                (input == null ? "null" : input.getClass().getSimpleName()),
-                getInputClass().getSimpleName());
-            return CompletableFuture.completedFuture(false);
+            throw new IllegalArgumentException(
+                "Invalid input type!" +
+                    " Expected: '" + getInputClass().getSimpleName() +
+                    "', Got: '" + (input == null ? "null" : input.getClass().getSimpleName()) + "'");
         }
     }
 

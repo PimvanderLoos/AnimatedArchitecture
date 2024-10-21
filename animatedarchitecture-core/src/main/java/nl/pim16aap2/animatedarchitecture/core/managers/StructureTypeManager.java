@@ -179,7 +179,7 @@ public final class StructureTypeManager implements IDebuggable
             return;
         }
 
-        structureTypeFromFullName.put(structureType.getFullName(), structureType);
+        structureTypeFromFullName.put(structureType.getFullKey(), structureType);
     }
 
     /**

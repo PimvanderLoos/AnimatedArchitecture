@@ -7,6 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithRotationPoint;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -22,9 +23,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Windmill extends AbstractStructure implements IHorizontalAxisAligned, IPerpetualMover
+public class Windmill
+    extends AbstractStructure
+    implements IHorizontalAxisAligned, IPerpetualMover, IStructureWithRotationPoint
 {
-    @EqualsAndHashCode.Exclude @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
@@ -33,12 +37,6 @@ public class Windmill extends AbstractStructure implements IHorizontalAxisAligne
     {
         super(base, StructureTypeWindmill.get());
         this.lock = getLock();
-    }
-
-    @Override
-    public boolean canSkipAnimation()
-    {
-        return false;
     }
 
     @Override
@@ -80,9 +78,9 @@ public class Windmill extends AbstractStructure implements IHorizontalAxisAligne
     {
         final MovementDirection openDir = getOpenDir();
         return openDir.equals(MovementDirection.NORTH) ? MovementDirection.EAST :
-               openDir.equals(MovementDirection.EAST) ? MovementDirection.SOUTH :
-               openDir.equals(MovementDirection.SOUTH) ? MovementDirection.WEST :
-               MovementDirection.NORTH;
+            openDir.equals(MovementDirection.EAST) ? MovementDirection.SOUTH :
+                openDir.equals(MovementDirection.SOUTH) ? MovementDirection.WEST :
+                    MovementDirection.NORTH;
     }
 
     @Override

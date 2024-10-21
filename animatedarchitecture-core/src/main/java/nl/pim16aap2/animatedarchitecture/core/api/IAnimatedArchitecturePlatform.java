@@ -178,7 +178,7 @@ public interface IAnimatedArchitecturePlatform
      *
      * @return The {@link StructureRegistry}.
      */
-    StructureRegistry getDoorRegistry();
+    StructureRegistry getStructureRegistry();
 
     /**
      * @return The instance of the {@link IConfig} for this platform.
@@ -197,21 +197,21 @@ public interface IAnimatedArchitecturePlatform
      *
      * @return The {@link StructureActivityManager} instance.
      */
-    StructureActivityManager getDoorActivityManager();
+    StructureActivityManager getStructureActivityManager();
 
     /**
      * Gets the {@link StructureSpecificationManager} instance.
      *
      * @return The {@link StructureSpecificationManager} instance.
      */
-    StructureSpecificationManager getDoorSpecificationManager();
+    StructureSpecificationManager getStructureSpecificationManager();
 
     /**
      * Gets the {@link StructureTypeManager} instance.
      *
      * @return The {@link StructureTypeManager} instance.
      */
-    StructureTypeManager getDoorTypeManager();
+    StructureTypeManager getStructureTypeManager();
 
     /**
      * Gets the {@link ToolUserManager} instance.

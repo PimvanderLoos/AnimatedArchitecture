@@ -28,6 +28,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
@@ -414,7 +415,12 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_BLOCKS_TO_MOVE, "commands.set_blocks_to_move.description")
                 .argument(IntegerArgument.of("blocksToMove"))
-                .argument(defaultStructureArgument(false, StructureAttribute.BLOCKS_TO_MOVE).build())
+                .argument(
+                    defaultStructureArgument(
+                        false,
+                        StructureAttribute.BLOCKS_TO_MOVE,
+                        Property.BLOCKS_TO_MOVE
+                    ).build())
                 .handler(commandExecutor::setBlocksToMove)
         );
     }
@@ -437,7 +443,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.SET_OPEN_STATUS, "commands.set_open_status.description")
                 .argument(defaultOpenStatusArgument(true).build())
-                .argument(defaultStructureArgument(false, StructureAttribute.OPEN_STATUS).build())
+                .argument(defaultStructureArgument(false, StructureAttribute.OPEN_STATUS, Property.OPEN_STATUS).build())
                 .argument(newHiddenSendInfoArgument().build())
                 .handler(commandExecutor::setOpenStatus)
         );
@@ -494,7 +500,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, "open", CommandDefinition.TOGGLE, "commands.open.description")
-                .argument(defaultStructureArgument(true, StructureAttribute.TOGGLE).build())
+                .argument(defaultStructureArgument(true, StructureAttribute.TOGGLE, Property.OPEN_STATUS).build())
                 .handler(commandExecutor::open)
         );
     }
@@ -505,7 +511,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, "close", CommandDefinition.TOGGLE, "commands.close.description")
-                .argument(defaultStructureArgument(true, StructureAttribute.TOGGLE).build())
+                .argument(defaultStructureArgument(true, StructureAttribute.TOGGLE, Property.OPEN_STATUS).build())
                 .handler(commandExecutor::close)
         );
     }
@@ -551,13 +557,32 @@ public final class CommandManager
         );
     }
 
+    /**
+     * Creates a new {@link StructureArgument} with the default values.
+     *
+     * @param required
+     *     True if the argument is required, false otherwise.
+     * @param structureAttribute
+     *     The {@link StructureAttribute} to use for the permission level.
+     * @param properties
+     *     The (optional) properties that the structure must have.
+     *     <p>
+     *     When provided, structures without these properties will be filtered out of the suggestions.
+     * @return A new {@link StructureArgument} with the default values.
+     */
     private StructureArgument.StructureArgumentBuilder defaultStructureArgument(
         boolean required,
-        StructureAttribute structureAttribute)
+        StructureAttribute structureAttribute,
+        Property<?>... properties)
     {
-        return StructureArgument.builder().required(required).name("structureRetriever")
-            .asyncSuggestions(asyncCompletions).executor(executor)
+        return StructureArgument
+            .builder()
+            .required(required)
+            .name("structureRetriever")
+            .asyncSuggestions(asyncCompletions)
+            .executor(executor)
             .structureRetrieverFactory(structureRetrieverFactory)
+            .properties(properties)
             .maxPermission(structureAttribute.getPermissionLevel());
     }
 

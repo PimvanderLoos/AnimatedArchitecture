@@ -18,10 +18,19 @@ public class CreatorBigDoor extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeBigDoor.get();
 
+    protected CreatorBigDoor(
+        ToolUser.Context context,
+        StructureType structureType,
+        IPlayer player,
+        @Nullable String name)
+    {
+        super(context, structureType, player, name);
+        init();
+    }
+
     public CreatorBigDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
-        super(context, player, name);
-        init();
+        this(context, STRUCTURE_TYPE, player, name);
     }
 
     @Override
@@ -66,11 +75,5 @@ public class CreatorBigDoor extends Creator
     protected synchronized AbstractStructure constructStructure()
     {
         return new BigDoor(constructStructureData());
-    }
-
-    @Override
-    protected StructureType getStructureType()
-    {
-        return STRUCTURE_TYPE;
     }
 }

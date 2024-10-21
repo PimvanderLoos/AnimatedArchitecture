@@ -13,6 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextComponent;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
@@ -22,6 +23,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigo
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -214,11 +216,16 @@ class AttributeButtonFactory
             .exceptionally(FutureUtil::exceptionally);
     }
 
-    private GuiElement openStatusButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
+    private @Nullable GuiElement openStatusButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
     {
+        if (!(structure instanceof IStructureWithOpenStatus structureWithOpenStatus))
+            return null;
+
+        final boolean isOpen = structureWithOpenStatus.isOpen();
+
         final GuiStateElement element = new GuiStateElement(
             slotChar,
-            () -> structure.isOpen() ? "isOpen" : "isClosed",
+            () -> isOpen ? "isOpen" : "isClosed",
             new GuiStateElement.State(
                 change -> isOpenButtonExecute(true, change, structure, player),
                 "isOpen",
@@ -236,7 +243,7 @@ class AttributeButtonFactory
                     localizer.getMessage(structure.getType().getLocalizationKey()))
             )
         );
-        element.setState(structure.isOpen() ? "isOpen" : "isClosed");
+        element.setState(isOpen ? "isOpen" : "isClosed");
         return element;
     }
 
@@ -352,7 +359,11 @@ class AttributeButtonFactory
     /**
      * Creates a new GuiElement for the provided attribute.
      */
-    public GuiElement of(StructureAttribute attribute, AbstractStructure structure, PlayerSpigot player, char slotChar)
+    public @Nullable GuiElement of(
+        StructureAttribute attribute,
+        AbstractStructure structure,
+        PlayerSpigot player,
+        char slotChar)
     {
         return switch (attribute)
         {

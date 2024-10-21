@@ -18,10 +18,18 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeRevolvingDoor.get();
 
+    protected CreatorRevolvingDoor(
+        ToolUser.Context context,
+        StructureType structureType,
+        IPlayer player,
+        @Nullable String name)
+    {
+        super(context, structureType, player, name);
+    }
+
     public CreatorRevolvingDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
-        super(context, player, name);
-        init();
+        this(context, STRUCTURE_TYPE, player, name);
     }
 
     @Override
@@ -65,11 +73,5 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
     protected synchronized AbstractStructure constructStructure()
     {
         return new RevolvingDoor(constructStructureData());
-    }
-
-    @Override
-    protected StructureType getStructureType()
-    {
-        return STRUCTURE_TYPE;
     }
 }

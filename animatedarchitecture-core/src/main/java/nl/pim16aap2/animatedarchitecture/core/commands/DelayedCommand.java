@@ -114,7 +114,8 @@ public abstract class DelayedCommand<T>
         log.atFinest().log(
             "Creating delayed command for command '%s' with command sender: '%s' for StructureRetriever: %s",
             getCommandDefinition(),
-            commandSender, structureRetriever
+            commandSender,
+            structureRetriever
         );
 
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;

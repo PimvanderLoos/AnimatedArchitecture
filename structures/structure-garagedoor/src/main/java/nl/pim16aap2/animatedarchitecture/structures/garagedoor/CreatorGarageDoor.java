@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
@@ -45,10 +46,19 @@ public class CreatorGarageDoor extends Creator
     @GuardedBy("this")
     private @Nullable Boolean northSouthAnimated;
 
+    protected CreatorGarageDoor(
+        ToolUser.Context context,
+        StructureType structureType,
+        IPlayer player,
+        @Nullable String name)
+    {
+        super(context, structureType, player, name);
+        init();
+    }
+
     public CreatorGarageDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
-        super(context, player, name);
-        init();
+        this(context, STRUCTURE_TYPE, player, name);
     }
 
     @Override
@@ -93,7 +103,7 @@ public class CreatorGarageDoor extends Creator
                 northSouthAnimated = null; // The garage door is flat, so the alignment is not yet known.
             else
                 northSouthAnimated = cuboidDims.z() == 1;
-            setOpen(cuboidDims.y() == 1);
+            setProperty(Property.OPEN_STATUS, cuboidDims.y() == 1);
             return super.provideSecondPos(loc);
         }
 
@@ -104,7 +114,7 @@ public class CreatorGarageDoor extends Creator
     @Override
     public synchronized Set<MovementDirection> getValidOpenDirections()
     {
-        if (isOpen())
+        if (getRequiredProperty(Property.OPEN_STATUS))
             return getStructureType().getValidMovementDirections();
 
         if (northSouthAnimated == null)
@@ -165,7 +175,7 @@ public class CreatorGarageDoor extends Creator
         else if (movementDirection == MovementDirection.WEST)
             newX = cuboid.getMax().x() + 1;
 
-        setRotationPoint(new Vector3Di(newX, newY, newZ));
+        setProperty(Property.ROTATION_POINT, new Vector3Di(newX, newY, newZ));
     }
 
     @Override
@@ -177,12 +187,6 @@ public class CreatorGarageDoor extends Creator
             constructStructureData(),
             Util.requireNonNull(northSouthAnimated, "northSouthAnimated")
         );
-    }
-
-    @Override
-    protected StructureType getStructureType()
-    {
-        return STRUCTURE_TYPE;
     }
 
     @SuppressWarnings("unused") // It is used by the generated toString method.

@@ -1,11 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
-import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
-import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.creator.CreatorTestsUtil;
-import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,11 +13,12 @@ import org.mockito.Mockito;
 
 import java.util.OptionalInt;
 
-@WithLogCapture
 @Timeout(1)
 class CreatorPortcullisTest extends CreatorTestsUtil
 {
     private static final int blocksToMove = 11;
+
+    private final StructureType type = StructureTypePortcullis.get();
 
     @BeforeEach
     public void setup()
@@ -27,11 +27,9 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     }
 
     @Test
-    void createPortcullis(LogCaptor logCaptor)
+    void createPortcullis()
     {
-        logCaptor.setLogLevelToInfo();
-
-        rotationPoint = new Cuboid(min, max).getCenterBlock();
+        final boolean isOpen = false;
         openDirection = MovementDirection.UP;
 
         setEconomyEnabled(true);
@@ -39,15 +37,20 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         setBuyStructure(true);
 
         final CreatorPortcullis creator = new CreatorPortcullis(context, player, null);
-        final Portcullis actualStructure =
-            new Portcullis(constructStructureBase(getTemporaryUid(creator)), blocksToMove);
+        final Portcullis actualStructure = new Portcullis(
+            constructStructureBase(
+                type,
+                getTemporaryUid(creator),
+                Property.OPEN_STATUS, isOpen,
+                Property.BLOCKS_TO_MOVE, blocksToMove
+            ));
 
         testCreation(creator, actualStructure,
             structureName,
             min.toLocation(locationFactory, world),
             max.toLocation(locationFactory, world),
             powerblock.toLocation(locationFactory, world),
-            false,
+            isOpen,
             openDirection,
             blocksToMove,
             true,
@@ -56,10 +59,8 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     }
 
     @Test
-    void testBlocksToMove(LogCaptor logCaptor)
+    void testBlocksToMove()
     {
-        logCaptor.setLogLevelToInfo();
-
         final CreatorPortcullis creator = new CreatorPortcullis(context, player, null);
         final int blocksToMoveLimit = blocksToMove - 1;
         Mockito.when(config.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMoveLimit));

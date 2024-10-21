@@ -10,6 +10,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureFinder;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -41,12 +43,18 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
         boolean asyncSuggestions,
         IExecutor executor,
         StructureRetrieverFactory structureRetrieverFactory,
-        PermissionLevel maxPermission)
+        PermissionLevel maxPermission,
+        Property<?>... properties)
     {
         super(
             required,
             name,
-            new StructureArgumentParser(asyncSuggestions, structureRetrieverFactory, maxPermission, executor),
+            new StructureArgumentParser(
+                asyncSuggestions,
+                structureRetrieverFactory,
+                maxPermission,
+                executor,
+                properties),
             Objects.requireNonNullElse(defaultValue, ""),
             StructureRetriever.class,
             suggestionsProvider,
@@ -60,17 +68,20 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
         private final boolean asyncSuggestions;
         private final PermissionLevel maxPermission;
         private final IExecutor executor;
+        private final Set<Property<?>> properties;
 
         public StructureArgumentParser(
             boolean asyncSuggestions,
             StructureRetrieverFactory structureRetrieverFactory,
             PermissionLevel maxPermission,
-            IExecutor executor)
+            IExecutor executor,
+            Property<?>... properties)
         {
             this.asyncSuggestions = asyncSuggestions;
             this.structureRetrieverFactory = structureRetrieverFactory;
             this.maxPermission = maxPermission;
             this.executor = executor;
+            this.properties = Set.of(properties);
         }
 
         @Override
@@ -88,14 +99,18 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
             return ArgumentParseResult.success(result);
         }
 
-
         @Override
         public List<String> suggestions(CommandContext<ICommandSender> commandContext, String input)
         {
             if (input.isBlank())
                 return Collections.emptyList();
 
-            final var search = structureRetrieverFactory.search(commandContext.getSender(), input, maxPermission);
+            final var search = structureRetrieverFactory.search(
+                commandContext.getSender(),
+                input,
+                maxPermission,
+                properties
+            );
 
             if (asyncSuggestions)
                 return getAsyncSuggestions(commandContext, input, search);

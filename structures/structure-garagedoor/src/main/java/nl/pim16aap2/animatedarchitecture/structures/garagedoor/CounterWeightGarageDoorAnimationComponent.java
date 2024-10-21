@@ -9,6 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.BlockFace;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -24,6 +25,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 public class CounterWeightGarageDoorAnimationComponent implements IAnimationComponent
 {
     protected final StructureSnapshot snapshot;
+    protected final Vector3Di rotationPoint;
     protected final boolean northSouth;
     protected final Cuboid oldCuboid;
     protected final Cuboid mergedCuboid;
@@ -46,6 +48,7 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
         this.oldCuboid = snapshot.getCuboid();
         this.wasVertical = this.oldCuboid.getDimensions().y() > 1;
         this.northSouth = movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.SOUTH;
+        this.rotationPoint = this.snapshot.getRequiredPropertyValue(Property.ROTATION_POINT);
 
         final int quarterCircles = 1; // Placeholder
         switch (movementDirection)
@@ -83,7 +86,7 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
         directionVec = BlockFace.getDirection(this.animationDirectionFace);
 
         this.mergedCuboid = getMergedCuboid(oldCuboid, directionVec, wasVertical);
-        this.mergedCuboidRadius = mergedCuboid.getDimensions().multiply(directionVec.absolute()).getMax() / 2.0D;
+        this.mergedCuboidRadius = mergedCuboid.getDimensions().multiply(directionVec.absolute()).max() / 2.0D;
         this.newCuboid = data.getNewCuboid();
 
         this.rotationCenter = mergedCuboid.getCenter();
@@ -103,7 +106,7 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
         }
         else
         {
-            final int height = oldCuboid.getDimensions().multiply(directionVec.absolute()).getMax();
+            final int height = oldCuboid.getDimensions().multiply(directionVec.absolute()).max();
             return oldCuboid.grow(1, 0, 1).add(0, -height - 1, 0);
         }
     }
@@ -137,8 +140,8 @@ public class CounterWeightGarageDoorAnimationComponent implements IAnimationComp
             return 1 + height - yAxis;
         }
 
-        final int dX = Math.abs(xAxis - snapshot.getRotationPoint().x());
-        final int dZ = Math.abs(zAxis - snapshot.getRotationPoint().z());
+        final int dX = Math.abs(xAxis - rotationPoint.x());
+        final int dZ = Math.abs(zAxis - rotationPoint.z());
         return Math.abs(dX * directionVec.x() + dZ * directionVec.z());
     }
 }

@@ -8,9 +8,9 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithBlocksToMove;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IDiscreteMovement;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 
 import java.util.concurrent.CompletableFuture;
@@ -59,7 +59,7 @@ public class SetBlocksToMove extends StructureTargetCommand
     @Override
     protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
-        if (!(structure instanceof IDiscreteMovement))
+        if (!(structure instanceof IStructureWithBlocksToMove withBlocksToMove))
         {
             getCommandSender().sendMessage(textFactory.newText().append(
                 localizer.getMessage("commands.set_blocks_to_move.error.invalid_structure_type"),
@@ -70,7 +70,7 @@ public class SetBlocksToMove extends StructureTargetCommand
             return CompletableFuture.completedFuture(null);
         }
 
-        ((IDiscreteMovement) structure).setBlocksToMove(blocksToMove);
+        withBlocksToMove.setBlocksToMove(blocksToMove);
         return structure.syncData().thenAccept(this::handleDatabaseActionResult);
     }
 

@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import lombok.Getter;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 
 /**
  * Represent the possible outcomes of trying to toggle a structure.
@@ -31,6 +32,11 @@ public enum StructureToggleResult
      * Some undefined error occurred while attempting to toggle this {@link StructureBase}.
      */
     ERROR("constants.structure_toggle_result.generic_toggle_failure"),
+
+    /**
+     * The structure could not be opened/closed because it does not have {@link Property#OPEN_STATUS}.
+     */
+    MISSING_REQUIRED_PROPERTY_OPEN_STATUS(ERROR.localizationKey),
 
     /**
      * The {@link StructureBase} could not be toggled because it could not find the target coordinates to move to.
