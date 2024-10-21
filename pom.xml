@@ -34,7 +34,7 @@
         <dependency.jcalculator.version>1.10</dependency.jcalculator.version>
         <dependency.jdbc-sqlite.version>3.46.1.3</dependency.jdbc-sqlite.version>
         <dependency.jimfs.version>1.3.0</dependency.jimfs.version>
-        <dependency.junit.version>5.11.2</dependency.junit.version>
+        <dependency.junit.version>5.11.3</dependency.junit.version>
         <dependency.log4j.version>2.24.1</dependency.log4j.version>
         <dependency.logcaptor.version>2.9.3</dependency.logcaptor.version>
         <dependency.lombok-plugin.version>1.18.20.0</dependency.lombok-plugin.version>
