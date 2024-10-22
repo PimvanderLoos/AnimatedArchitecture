@@ -25,7 +25,7 @@
         <dependency.errorprone.version>2.34.0</dependency.errorprone.version>
         <dependency.failsafe.version>3.2.5</dependency.failsafe.version>
         <dependency.fastjson.version>2.0.53</dependency.fastjson.version>
-        <dependency.fastutil.version>8.5.14</dependency.fastutil.version>
+        <dependency.fastutil.version>8.5.15</dependency.fastutil.version>
         <dependency.flogger.version>0.8</dependency.flogger.version>
         <dependency.flyway.version>10.20.0</dependency.flyway.version>
         <dependency.git-commit-id.version>9.0.1</dependency.git-commit-id.version>
