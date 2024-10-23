@@ -22,6 +22,12 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithRotationPoint;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
@@ -61,13 +67,11 @@ final class StructureBase
     @Getter
     private final IWorld world;
 
+    @GuardedBy("lock")
+    private final PropertyContainer propertyContainer;
+
     @EqualsAndHashCode.Exclude
     private final StructureAnimationRequestBuilder structureToggleRequestBuilder;
-
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read("lock"))
-    @Setter(onMethod_ = @Locked.Write("lock"))
-    private Vector3Di rotationPoint;
 
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read("lock"))
@@ -82,11 +86,6 @@ final class StructureBase
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read("lock"))
     private Cuboid cuboid;
-
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read("lock"))
-    @Setter(onMethod_ = @Locked.Write("lock"))
-    private boolean isOpen;
 
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read("lock"))
@@ -155,14 +154,13 @@ final class StructureBase
         @Assisted long uid,
         @Assisted String name,
         @Assisted Cuboid cuboid,
-        @Assisted("rotationPoint") Vector3Di rotationPoint,
         @Assisted("powerBlock") Vector3Di powerBlock,
         @Assisted IWorld world,
-        @Assisted("isOpen") boolean isOpen,
         @Assisted("isLocked") boolean isLocked,
         @Assisted MovementDirection openDir,
         @Assisted StructureOwner primeOwner,
         @Assisted @Nullable Map<UUID, StructureOwner> owners,
+        @Assisted PropertyContainer propertyContainer,
         ILocalizer localizer,
         DatabaseManager databaseManager,
         StructureRegistry structureRegistry,
@@ -178,13 +176,12 @@ final class StructureBase
         this.uid = uid;
         this.name = name;
         this.cuboid = cuboid;
-        this.rotationPoint = rotationPoint;
         this.powerBlock = powerBlock;
         this.world = world;
-        this.isOpen = isOpen;
         this.isLocked = isLocked;
         this.openDir = openDir;
         this.primeOwner = primeOwner;
+        this.propertyContainer = propertyContainer;
         this.redstoneManager = redstoneManager;
         this.structureActivityManager = structureActivityManager;
         this.chunkLoader = chunkLoader;
@@ -260,8 +257,13 @@ final class StructureBase
             return;
 
         final Vector3Di powerBlock = getPowerBlock();
-        if (!isChunkLoaded(powerBlock) || !isChunkLoaded(getRotationPoint()))
+        if (!isChunkLoaded(powerBlock))
             return;
+
+        if (structure instanceof IStructureWithRotationPoint withRotationPoint &&
+            !isChunkLoaded(withRotationPoint.getRotationPoint()))
+            return;
+
         verifyRedstoneState(structure, powerBlock);
     }
 
@@ -304,13 +306,18 @@ final class StructureBase
             }
             actionType = StructureActionType.TOGGLE;
         }
-        else if (isPowered && structure.isOpenable())
+        else if (structure instanceof IStructureWithOpenStatus openable)
         {
-            actionType = StructureActionType.OPEN;
-        }
-        else if (!isPowered && structure.isCloseable())
-        {
-            actionType = StructureActionType.CLOSE;
+            if (isPowered && openable.isOpenable())
+                actionType = StructureActionType.OPEN;
+            else if (!isPowered && openable.isCloseable())
+                actionType = StructureActionType.CLOSE;
+            else
+            {
+                log.atFinest().log("Aborted toggle attempt with %s redstone for openable structure: %s",
+                    (isPowered ? "powered" : "unpowered"), structure);
+                return;
+            }
         }
         else
         {
@@ -364,6 +371,36 @@ final class StructureBase
         cuboid = newCuboid;
     }
 
+    @Locked.Read("lock")
+    public PropertyContainerSnapshot newPropertyContainerSnapshot()
+    {
+        return propertyContainer.snapshot();
+    }
+
+    @Locked.Read("lock")
+    public <T> IPropertyValue<T> getPropertyValue(Property<T> property)
+    {
+        return propertyContainer.getPropertyValue(property);
+    }
+
+    @Locked.Read("lock")
+    public boolean hasProperty(Property<?> property)
+    {
+        return propertyContainer.hasProperty(property);
+    }
+
+    @Locked.Read("lock")
+    public boolean hasProperties(Collection<Property<?>> properties)
+    {
+        return propertyContainer.hasProperties(properties);
+    }
+
+    @Locked.Write("lock")
+    public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
+    {
+        return propertyContainer.setPropertyValue(property, value);
+    }
+
     /**
      * @return String with (almost) all data of this structure.
      */
@@ -373,13 +410,13 @@ final class StructureBase
     {
         return uid + ": " + name + "\n"
             + formatLine("Cuboid", getCuboid())
-            + formatLine("Rotation Point", this.getRotationPoint())
             + formatLine("PowerBlock Position: ", getPowerBlock())
             + formatLine("PowerBlock Hash: ", LocationUtil.getChunkId(getPowerBlock()))
             + formatLine("World", getWorld())
             + formatLine("This structure is ", (isLocked ? "locked" : "unlocked"))
-            + formatLine("This structure is ", (isOpen ? "open" : "closed"))
-            + formatLine("OpenDir", openDir.name());
+            + formatLine("OpenDir", openDir.name()
+            + formatLine("Properties", propertyContainer)
+        );
     }
 
     @Locked.Read("lock")
@@ -407,14 +444,13 @@ final class StructureBase
             long structureUID,
             String name,
             Cuboid cuboid,
-            @Assisted("rotationPoint") Vector3Di rotationPoint,
             @Assisted("powerBlock") Vector3Di powerBlock,
             @Assisted IWorld world,
-            @Assisted("isOpen") boolean isOpen,
             @Assisted("isLocked") boolean isLocked,
             MovementDirection openDir,
             StructureOwner primeOwner,
-            @Nullable Map<UUID, StructureOwner> structureOwners
+            @Nullable Map<UUID, StructureOwner> structureOwners,
+            PropertyContainer propertyContainer
         );
     }
 }

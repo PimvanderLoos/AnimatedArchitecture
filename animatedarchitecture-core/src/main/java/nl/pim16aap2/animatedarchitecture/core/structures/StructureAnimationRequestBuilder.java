@@ -65,7 +65,8 @@ public class StructureAnimationRequestBuilder
     public StructureAnimationRequestBuilder(
         StructureAnimationRequest.IFactory structureToggleRequestFactory,
         @Named("MessageableServer") IMessageable messageableServer,
-        IPlayerFactory playerFactory, IConfig config)
+        IPlayerFactory playerFactory,
+        IConfig config)
     {
         this.structureToggleRequestFactory = structureToggleRequestFactory;
         this.messageableServer = messageableServer;

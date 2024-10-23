@@ -3,7 +3,9 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.experimental.Delegate;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
@@ -33,19 +35,20 @@ public final class StructureSnapshot implements IStructureConst
     private final long uid;
     private final IWorld world;
     private final Rectangle animationRange;
-    private Vector3Di rotationPoint;
     private Vector3Di powerBlock;
     private String name;
     private Cuboid cuboid;
-    private boolean isOpen;
     private MovementDirection openDir;
     private boolean isLocked;
     private final StructureOwner primeOwner;
     private final Map<UUID, StructureOwner> ownersMap;
     private final StructureType type;
+    @Delegate
+    @Getter
+    private final IPropertyContainerConst propertyContainerSnapshot;
 
     @Getter(AccessLevel.NONE)
-    private final Map<String, Object> propertyMap;
+    private final Map<String, Object> persistentVariableMap;
 
     StructureSnapshot(AbstractStructure structure)
     {
@@ -53,17 +56,16 @@ public final class StructureSnapshot implements IStructureConst
             structure.getUid(),
             structure.getWorld(),
             structure.getAnimationRange(),
-            structure.getRotationPoint(),
             structure.getPowerBlock(),
             structure.getName(),
             structure.getCuboid(),
-            structure.isOpen(),
             structure.getOpenDir(),
             structure.isLocked(),
             structure.getPrimeOwner(),
             Map.copyOf(structure.getOwnersView()),
             structure.getType(),
-            getPropertyMap(structure)
+            structure.getPropertyContainerSnapshot(),
+            getPersistentVariableMap(structure)
         );
     }
 
@@ -107,9 +109,9 @@ public final class StructureSnapshot implements IStructureConst
      *     The key of the property.
      * @return The value of the property, or {@link Optional#empty()} if the property does not exist.
      */
-    public Optional<Object> getProperty(String key)
+    public Optional<Object> getPersistentVariable(String key)
     {
-        return Optional.ofNullable(propertyMap.get(key));
+        return Optional.ofNullable(persistentVariableMap.get(key));
     }
 
     /**
@@ -120,11 +122,11 @@ public final class StructureSnapshot implements IStructureConst
      * @return The property map of the structure.
      */
     @VisibleForTesting
-    public static Map<String, Object> getPropertyMap(AbstractStructure structure)
+    public static Map<String, Object> getPersistentVariableMap(AbstractStructure structure)
     {
         try
         {
-            return structure.getType().getStructureSerializer().getPropertyMap(structure);
+            return structure.getType().getStructureSerializer().getPersistentVariableMap(structure);
         }
         catch (Exception e)
         {

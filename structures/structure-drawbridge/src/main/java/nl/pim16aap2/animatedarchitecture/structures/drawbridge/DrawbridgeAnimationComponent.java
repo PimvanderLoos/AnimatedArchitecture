@@ -8,12 +8,13 @@ import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.TriFunction;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -24,13 +25,13 @@ import java.util.function.Consumer;
 public class DrawbridgeAnimationComponent implements IAnimationComponent
 {
     private final Vector3Dd rotationCenter;
+    private final Vector3Di rotationPoint;
     private final boolean northSouth;
     private final TriFunction<Vector3Dd, Vector3Dd, Double, Vector3Dd> rotator;
-    private final StructureSnapshot snapshot;
-    private final double angle;
+    private final double resultAngle;
     private final double step;
     private final MovementDirection movementDirection;
-    private final int quarterCircles;
+    private final int effectiveQuarterCircles;
 
     public DrawbridgeAnimationComponent(
         AnimationRequestData data,
@@ -38,42 +39,47 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
         boolean isNorthSouthAligned,
         int quarterCircles)
     {
-        this.quarterCircles = quarterCircles;
-        this.snapshot = data.getStructureSnapshot();
-        this.northSouth = isNorthSouthAligned;
-        this.rotationCenter = snapshot.getRotationPoint().toDouble();
-        this.movementDirection = movementDirection;
+        final var snapshot = data.getStructureSnapshot();
 
+        this.northSouth = isNorthSouthAligned;
+        this.rotationPoint = snapshot.getRequiredPropertyValue(Property.ROTATION_POINT);
+        this.rotationCenter = rotationPoint.toDouble();
+        this.movementDirection = movementDirection;
+        this.effectiveQuarterCircles = quarterCircles % 4;
+
+        final double quarterCircleAngle;
         switch (movementDirection)
         {
             case NORTH ->
             {
-                angle = quarterCircles * -MathUtil.HALF_PI;
+                quarterCircleAngle = -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
             }
             case SOUTH ->
             {
-                angle = quarterCircles * MathUtil.HALF_PI;
+                quarterCircleAngle = MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundXAxis;
             }
             case EAST ->
             {
-                angle = quarterCircles * MathUtil.HALF_PI;
+                quarterCircleAngle = MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
             }
             case WEST ->
             {
-                angle = quarterCircles * -MathUtil.HALF_PI;
+                quarterCircleAngle = -MathUtil.HALF_PI;
                 rotator = Vector3Dd::rotateAroundZAxis;
             }
             default -> throw new IllegalArgumentException(
-                "Movement direction \"" + movementDirection.name() + "\" is not valid for this type!");
+                "Movement direction '" + movementDirection.name() + "' is not valid for this type!");
         }
 
-        final int animationDuration =
+        this.resultAngle = effectiveQuarterCircles * quarterCircleAngle;
+
+        final int animationStepCount =
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
 
-        this.step = angle / animationDuration;
+        this.step = quarterCircles * quarterCircleAngle / animationStepCount;
     }
 
     @Override
@@ -115,7 +121,7 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     @Override
     public RotatedPosition getFinalPosition(int xAxis, int yAxis, int zAxis)
     {
-        return getGoalPos(null, MathUtil.clampAngleRad(angle), xAxis, yAxis, zAxis);
+        return getGoalPos(null, MathUtil.clampAngleRad(resultAngle), xAxis, yAxis, zAxis);
     }
 
     @Override
@@ -140,12 +146,14 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
     @Override
     public float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        return getRadius(northSouth, snapshot.getRotationPoint(), xAxis, yAxis, zAxis);
+        return getRadius(northSouth, rotationPoint, xAxis, yAxis, zAxis);
     }
 
     @Override
     public @Nullable Consumer<IAnimatedBlockData> getBlockDataRotator()
     {
-        return blockData -> blockData.rotateBlock(movementDirection, quarterCircles);
+        if (effectiveQuarterCircles == 0)
+            return null;
+        return blockData -> blockData.rotateBlock(movementDirection, effectiveQuarterCircles);
     }
 }

@@ -114,9 +114,9 @@ public final class Step
     /**
      * @return The {@link StepExecutor} for the current step.
      */
-    public Optional<StepExecutor> getStepExecutor()
+    public StepExecutor getStepExecutor()
     {
-        return Optional.of(stepExecutor);
+        return stepExecutor;
     }
 
     /**

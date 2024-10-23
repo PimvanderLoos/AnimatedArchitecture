@@ -7,10 +7,12 @@ import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.WorldTime;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.structures.drawbridge.DrawbridgeAnimationComponent;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,6 +51,11 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
      */
     private final int angleDirectionMultiplier;
 
+    /**
+     * The point around which the clock rotates.
+     */
+    private final Vector3Di rotationPoint;
+
     private final StructureSnapshot snapshot;
 
     public ClockAnimationComponent(
@@ -58,6 +65,7 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
     {
         super(data, movementDirection, isNorthSouthAligned, 4);
         this.snapshot = data.getStructureSnapshot();
+        this.rotationPoint = this.snapshot.getRequiredPropertyValue(Property.ROTATION_POINT);
 
         isHourArm = isNorthSouthAligned ? this::isHourArmNorthSouth : this::isHourArmEastWest;
         angleDirectionMultiplier =
@@ -71,7 +79,7 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
      */
     private boolean isHourArmNorthSouth(IAnimatedBlock animatedBlock)
     {
-        return MathUtil.floor(animatedBlock.getStartX()) == snapshot.getRotationPoint().x();
+        return MathUtil.floor(animatedBlock.getStartX()) == rotationPoint.x();
     }
 
     /**
@@ -81,7 +89,7 @@ public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
      */
     private boolean isHourArmEastWest(IAnimatedBlock animatedBlock)
     {
-        return MathUtil.floor(animatedBlock.getStartZ()) == snapshot.getRotationPoint().z();
+        return MathUtil.floor(animatedBlock.getStartZ()) == rotationPoint.z();
     }
 
     @Override

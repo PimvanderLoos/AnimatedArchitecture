@@ -39,8 +39,6 @@ public final class CommandFactory
     @Delegate
     private final RemoveOwner.IFactory removeOwnerFactory;
     @Delegate
-    private final Toggle.IFactory toggleFactory;
-    @Delegate
     private final SetOpenStatus.IFactory setOpenStatusFactory;
     @Delegate
     private final SetOpenDirection.IFactory setOpenDirectionFactory;
@@ -91,7 +89,6 @@ public final class CommandFactory
         SetOpenDirection.IFactory setOpenDirectionFactory, SetOpenDirectionDelayed setOpenDirectionDelayed,
         Specify.IFactory specifyFactory,
         StopStructures.IFactory stopDoorsFactory,
-        Toggle.IFactory toggleFactory,
         Version.IFactory versionFactory)
     {
         this.addOwnerFactory = addOwnerFactory;
@@ -111,7 +108,6 @@ public final class CommandFactory
         this.menuFactory = menuFactory;
         this.updateCreatorFactory = updateCreatorFactory;
         this.removeOwnerFactory = removeOwnerFactory;
-        this.toggleFactory = toggleFactory;
         this.setOpenDirectionFactory = setOpenDirectionFactory;
         this.stopDoorsFactory = stopDoorsFactory;
         this.lockFactory = lockFactory;

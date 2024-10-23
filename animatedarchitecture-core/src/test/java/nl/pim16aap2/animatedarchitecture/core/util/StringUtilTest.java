@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
+import it.unimi.dsi.fastutil.ints.IntImmutableList;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -112,5 +114,20 @@ public class StringUtilTest
         //noinspection RedundantOperationOnEmptyContainer
         result = items.stream().collect(collector);
         assertEquals("{}", result);
+    }
+
+    @Test
+    void testGetVariableIndicesMissingCharacter()
+    {
+        Assertions.assertTrue(StringUtil.getVariableIndices("Hello, World!", 'q').isEmpty());
+    }
+
+    @Test
+    void testGetVariableIndices()
+    {
+        Assertions.assertEquals(
+            IntImmutableList.of(4, 8),
+            StringUtil.getVariableIndices("Hello, World!", 'o')
+        );
     }
 }

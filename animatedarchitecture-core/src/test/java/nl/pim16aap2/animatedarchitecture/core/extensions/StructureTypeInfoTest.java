@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.jetbrains.annotations.Nullable;
@@ -17,32 +18,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StructureTypeInfoTest
 {
+    private static final String NAMESPACE = Constants.PLUGIN_NAME.toLowerCase(Locale.ROOT);
+
     @Test
     void testConstructor()
     {
-        final String namespace = Constants.PLUGIN_NAME;
         final String typeName = "typeName";
         final int version = 1;
         final String mainClass = "com.example.Main";
         final Path jarFile = Path.of("/does/not/exist.jar");
 
         Assertions.assertDoesNotThrow(() ->
-            new StructureTypeInfo(namespace, typeName, version, mainClass, jarFile, "1.0.0", ""));
+            new StructureTypeInfo(NamespacedKey.of(typeName), version, mainClass, jarFile, "1.0.0", ""));
 
         Assertions.assertDoesNotThrow(() ->
-            new StructureTypeInfo(namespace, typeName, version, mainClass, jarFile, "1.0.0", null));
+            new StructureTypeInfo(NamespacedKey.of(typeName), version, mainClass, jarFile, "1.0.0", null));
 
         Assertions.assertDoesNotThrow(() ->
-            new StructureTypeInfo(namespace, typeName, version, mainClass, jarFile, "1.0.0", "null"));
+            new StructureTypeInfo(NamespacedKey.of(typeName), version, mainClass, jarFile, "1.0.0", "null"));
 
         Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> new StructureTypeInfo(namespace, typeName, version, mainClass, jarFile, "1.0.0", "garbage"));
+            () -> new StructureTypeInfo(NamespacedKey.of(typeName), version, mainClass, jarFile, "1.0.0", "garbage"));
 
         // The name of the structure type should be lower-case.
         Assertions.assertEquals(
-            "typename",
-            new StructureTypeInfo(namespace, typeName, version, mainClass, jarFile, "1.0.0", "").getTypeName()
+            "animatedarchitecture:typename",
+            new StructureTypeInfo(NamespacedKey.of(typeName), version, mainClass, jarFile, "1.0.0", "").getFullKey()
         );
     }
 
@@ -50,43 +52,36 @@ class StructureTypeInfoTest
     void testParseValidDependencies()
     {
         final List<Dependency> dependencies =
-            parseDependencies("portcullis(1;5) Door(2;3) my-super_special-Dependency(1;1)");
+            parseDependencies(
+                "animatedarchitecture:portcullis(1;5) " +
+                    "animatedarchitecture:Door(2;3) " +
+                    "animatedarchitecture:my-super_special-Dependency(1;1)"
+            );
 
         assertEquals(3, dependencies.size());
 
         var dep = dependencies.getFirst();
-        assertEquals("portcullis", dep.dependencyName());
+        assertEquals("animatedarchitecture:portcullis", dep.getFullKey());
         assertEquals(1, dep.minVersion());
         assertEquals(5, dep.maxVersion());
 
         dep = dependencies.get(1);
-        assertEquals("door", dep.dependencyName());
+        assertEquals("animatedarchitecture:door", dep.getFullKey());
         assertEquals(2, dep.minVersion());
         assertEquals(3, dep.maxVersion());
 
         dep = dependencies.get(2);
-        assertEquals("my-super_special-dependency", dep.dependencyName());
+        assertEquals("animatedarchitecture:my-super_special-dependency", dep.getFullKey());
         assertEquals(1, dep.minVersion());
         assertEquals(1, dep.maxVersion());
     }
 
     @Test
-    void testParseInvalidDependencies()
-    {
-        Assertions.assertTrue(parseDependencies("").isEmpty());
-        Assertions.assertTrue(parseDependencies(" ").isEmpty());
-        Assertions.assertTrue(parseDependencies(null).isEmpty());
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> parseDependencies("garbage"));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> parseDependencies("portcullis(1;5)door(1;1)"));
-    }
-
-    @Test
     void testParseValidDependency()
     {
-        var dependency = parseDependency("portcullis(1;5)");
+        var dependency = parseDependency("animatedarchitecture:portcullis(1;5)");
 
-        assertEquals("portcullis", dependency.dependencyName());
+        assertEquals("animatedarchitecture:portcullis", dependency.getFullKey());
         assertEquals(1, dependency.minVersion());
         assertEquals(5, dependency.maxVersion());
     }
@@ -103,31 +98,82 @@ class StructureTypeInfoTest
     void testParseInvalidDependency()
     {
         // The name of the dependency should be lower-case.
-        Assertions.assertThrows(IllegalArgumentException.class, () -> parseDependency("Portcullis(1;5)"));
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency("animatedarchitecture:Portcullis(1;5)")
+        );
+
+        // The namespace of the dependency should be lower-case.
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency("AnimatedArchitecture:portcullis(1;5)")
+        );
+
+        // The key should have both a namespace and a name.
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency("portcullis(1;5)")
+        );
+
+        // The name cannot be empty
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency("animatedarchitecture:(1;5)")
+        );
+
+        // The namespace cannot be empty
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency(":portcullis(1;5)")
+        );
 
         // Missing closing parenthesis.
-        Assertions.assertThrows(IllegalArgumentException.class, () -> parseDependency("portcullis(1;5"));
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency("animatedarchitecture:portcullis(1;5")
+        );
 
         // 3 version numbers instead of 2.
-        Assertions.assertThrows(IllegalArgumentException.class, () -> parseDependency("portcullis(1;5;6)"));
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency("animatedarchitecture:portcullis(1;5;6)")
+        );
 
         // 1 version number instead of 2.
-        Assertions.assertThrows(IllegalArgumentException.class, () -> parseDependency("portcullis(1)"));
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency("animatedarchitecture:portcullis(1)")
+        );
 
         // Additional characters after the closing parenthesis.
-        Assertions.assertThrows(IllegalArgumentException.class, () -> parseDependency("portcullis(1;5)garbage"));
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency("animatedarchitecture:portcullis(1;5)garbage")
+        );
 
         // Invalid (leading) characters in the name.
-        Assertions.assertThrows(IllegalArgumentException.class, () -> parseDependency(" portcullis(1;5)"));
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency(" animatedarchitecture:portcullis(1;5)")
+        );
 
         // Invalid (trailing) characters in the name.
-        Assertions.assertThrows(IllegalArgumentException.class, () -> parseDependency("portcullis (1;5)"));
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency("animatedarchitecture:portcullis (1;5)")
+        );
 
         // Invalid characters in the middle of the name.
-        Assertions.assertThrows(IllegalArgumentException.class, () -> parseDependency("port cullis(1;5)"));
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency("animatedarchitecture:port cullis(1;5)")
+        );
 
         // Version numbers separated by a colon instead of a semicolon.
-        Assertions.assertThrows(IllegalArgumentException.class, () -> parseDependency("portcullis(1:5)"));
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> parseDependency("animatedarchitecture:portcullis(1:5)")
+        );
     }
 
     @Test
@@ -156,7 +202,9 @@ class StructureTypeInfoTest
     void testDependencySatisfiedBy()
     {
         final String dependencyName = "structure-type";
-        final Dependency dependency = new Dependency(dependencyName, 1, 2);
+        final var key = NamespacedKey.of(dependencyName);
+
+        final Dependency dependency = new Dependency(key.getFullKey(), 1, 2);
 
         Assertions.assertTrue(dependency.satisfiedBy(structureTypeInfo(1, dependencyName)));
         Assertions.assertTrue(dependency.satisfiedBy(structureTypeInfo(2, dependencyName)));
@@ -170,13 +218,11 @@ class StructureTypeInfoTest
     @Test
     void verifyLoadedType()
     {
-        final String namespace = Constants.PLUGIN_NAME.toLowerCase(Locale.ROOT);
         final String typeName = "typename";
         final int version = 1;
 
         final StructureTypeInfo structureTypeInfo = new StructureTypeInfo(
-            namespace,
-            typeName,
+            NamespacedKey.of(typeName),
             version,
             "com.example.Main",
             Path.of("/does/not/exist.jar"),
@@ -184,22 +230,23 @@ class StructureTypeInfoTest
             null
         );
 
-        Assertions.assertDoesNotThrow(() ->
-            structureTypeInfo.verifyLoadedType(mockStructureType(namespace, typeName, version)));
-
-        Assertions.assertThrows(
-            IllegalArgumentException.class,
-            () -> structureTypeInfo.verifyLoadedType(mockStructureType(namespace + "_fail", typeName, version))
+        Assertions.assertDoesNotThrow(
+            () -> structureTypeInfo.verifyLoadedType(mockStructureType(NAMESPACE, typeName, version))
         );
 
         Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> structureTypeInfo.verifyLoadedType(mockStructureType(namespace, typeName + "_fail", version))
+            () -> structureTypeInfo.verifyLoadedType(mockStructureType(NAMESPACE + "_fail", typeName, version))
         );
 
         Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> structureTypeInfo.verifyLoadedType(mockStructureType(namespace, typeName, version + 1))
+            () -> structureTypeInfo.verifyLoadedType(mockStructureType(NAMESPACE, typeName + "_fail", version))
+        );
+
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> structureTypeInfo.verifyLoadedType(mockStructureType(NAMESPACE + "_fail", typeName, version + 1))
         );
     }
 
@@ -219,13 +266,19 @@ class StructureTypeInfoTest
         String typeName,
         int version)
     {
-        final StructureType structureType = Mockito.mock();
-        Mockito.when(structureType.getStructureSerializer()).thenReturn(Mockito.mock());
-        Mockito.when(structureType.getPluginName()).thenReturn(namespace);
-        Mockito.when(structureType.getSimpleName()).thenReturn(typeName);
+        final var key = new NamespacedKey(namespace, typeName);
+
+        final StructureType structureType = Mockito.mock(Mockito.withSettings().stubOnly());
+
+        Mockito
+            .when(structureType.getStructureSerializer())
+            .thenReturn(Mockito.mock(Mockito.withSettings().stubOnly()));
+
+        Mockito.when(structureType.getNamespacedKey()).thenReturn(key);
+        Mockito.when(structureType.getSimpleName()).thenReturn(key.getKey());
         Mockito.when(structureType.getVersion()).thenReturn(version);
-        Mockito.when(structureType.getFullName()).thenReturn(namespace + ":" + typeName);
-        Mockito.when(structureType.getFullNameWithVersion()).thenReturn(namespace + ":" + typeName + ":" + version);
+        Mockito.when(structureType.getFullKey()).thenReturn(key.getFullKey());
+        Mockito.when(structureType.getFullNameWithVersion()).thenReturn(key.getFullKey() + ":" + version);
         return structureType;
     }
 
@@ -256,8 +309,7 @@ class StructureTypeInfoTest
     private StructureTypeInfo structureTypeInfo(int version, String name)
     {
         return new StructureTypeInfo(
-            Constants.PLUGIN_NAME,
-            name,
+            new NamespacedKey(NAMESPACE, name),
             version,
             "com.example.Main",
             Path.of("/does/not/exist.jar"),

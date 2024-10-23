@@ -23,6 +23,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
@@ -113,9 +114,9 @@ public class SQLiteJDBCDriverConnectionTest
 
     private SQLiteJDBCDriverConnection storage;
 
-    private AbstractStructure structure1;
-    private AbstractStructure structure2;
-    private AbstractStructure structure3;
+    private BigDoor structure1;
+    private Drawbridge structure2;
+    private Portcullis structure3;
 
     static
     {
@@ -252,9 +253,6 @@ public class SQLiteJDBCDriverConnectionTest
         registerStructureTypes();
         resetLogCaptor(logCaptor);
 
-        logCaptor.setLogLevelToTrace();
-        logCaptor.enableConsoleOutput();
-
         insertStructures();
         resetLogCaptor(logCaptor);
 
@@ -262,6 +260,9 @@ public class SQLiteJDBCDriverConnectionTest
         resetLogCaptor(logCaptor);
 
         partialIdentifiersFromName();
+        resetLogCaptor(logCaptor);
+
+        partialIdentifiersFromNameWithProperty();
         resetLogCaptor(logCaptor);
 
         auxiliaryMethods();
@@ -280,6 +281,9 @@ public class SQLiteJDBCDriverConnectionTest
         resetLogCaptor(logCaptor);
 
         partialIdentifiersFromId();
+        resetLogCaptor(logCaptor);
+
+        partialIdentifiersFromIdWithProperty();
         resetLogCaptor(logCaptor);
     }
 
@@ -348,19 +352,80 @@ public class SQLiteJDBCDriverConnectionTest
         testRetrieval(structure3);
     }
 
+    public void partialIdentifiersFromNameWithProperty()
+    {
+        // The portcullis type (structure 3) has the 'BLOCKS_TO_MOVE' property, whereas
+        // the big door type (structure 1) and drawbridge type (structure 2) do not.
+        Assertions.assertEquals(
+            List.of(new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 3L, "popular_door_name")),
+            storage.getPartialIdentifiers(
+                "popular_",
+                null,
+                PermissionLevel.NO_PERMISSION,
+                List.of(Property.BLOCKS_TO_MOVE))
+        );
+
+        // The drawbridge type (structure 2) has the 'QUARTER_CIRCLES' property, whereas
+        // the portcullis type (structure 3) does not. The big door entry with UID 1 has a name that does not match, so
+        // it should not be included.
+        Assertions.assertEquals(
+            List.of(new DatabaseManager.StructureIdentifier(StructureTypeDrawbridge.get(), 2L, "popular_door_name")),
+            storage.getPartialIdentifiers(
+                "popular_",
+                null,
+                PermissionLevel.NO_PERMISSION,
+                List.of(Property.QUARTER_CIRCLES))
+        );
+
+        // Including the owner should not change the result.
+        final IPlayer player1 = createPlayer(PLAYER_DATA_1);
+        Assertions.assertEquals(
+            List.of(new DatabaseManager.StructureIdentifier(StructureTypeDrawbridge.get(), 2L, "popular_door_name")),
+            storage.getPartialIdentifiers(
+                "popular_",
+                player1,
+                PermissionLevel.NO_PERMISSION,
+                List.of(Property.QUARTER_CIRCLES))
+        );
+    }
+
     public void partialIdentifiersFromName()
     {
         Assertions.assertEquals(
             List.of(
-                new DatabaseManager.StructureIdentifier(2L, "popular_door_name"),
-                new DatabaseManager.StructureIdentifier(3L, "popular_door_name")),
-            storage.getPartialIdentifiers("popular_", null, PermissionLevel.NO_PERMISSION)
+                new DatabaseManager.StructureIdentifier(StructureTypeDrawbridge.get(), 2L, "popular_door_name"),
+                new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 3L, "popular_door_name")),
+            storage.getPartialIdentifiers("popular_", null, PermissionLevel.NO_PERMISSION, List.of())
         );
 
         final IPlayer player1 = createPlayer(PLAYER_DATA_1);
         Assertions.assertEquals(
-            List.of(new DatabaseManager.StructureIdentifier(2L, "popular_door_name")),
-            storage.getPartialIdentifiers("popular_", player1, PermissionLevel.NO_PERMISSION)
+            List.of(new DatabaseManager.StructureIdentifier(StructureTypeDrawbridge.get(), 2L, "popular_door_name")),
+            storage.getPartialIdentifiers("popular_", player1, PermissionLevel.NO_PERMISSION, List.of())
+        );
+    }
+
+    public void partialIdentifiersFromIdWithProperty()
+    {
+        // The BigDoor type (structure 1) has the 'QUARTER_CIRCLES' property, so it should be included.
+        final IPlayer player1 = createPlayer(PLAYER_DATA_1);
+        Assertions.assertEquals(
+            List.of(new DatabaseManager.StructureIdentifier(StructureTypeBigDoor.get(), 1L, "random_door_name")),
+            storage.getPartialIdentifiers(
+                "1",
+                player1,
+                PermissionLevel.NO_PERMISSION,
+                List.of(Property.QUARTER_CIRCLES))
+        );
+
+        // The BigDoor type (structure 1) does not have the 'BLOCKS_TO_MOVE' property, so it should not be included.
+        Assertions.assertEquals(
+            List.of(),
+            storage.getPartialIdentifiers(
+                "1",
+                player1,
+                PermissionLevel.NO_PERMISSION,
+                List.of(Property.BLOCKS_TO_MOVE))
         );
     }
 
@@ -368,19 +433,19 @@ public class SQLiteJDBCDriverConnectionTest
     {
         Assertions.assertEquals(
             List.of(
-                new DatabaseManager.StructureIdentifier(1L, "random_door_name"),
-                new DatabaseManager.StructureIdentifier(15L, "popular_door_name"),
-                new DatabaseManager.StructureIdentifier(16L, "popular_door_name"),
-                new DatabaseManager.StructureIdentifier(17L, "popular_door_name"),
-                new DatabaseManager.StructureIdentifier(18L, "popular_door_name"),
-                new DatabaseManager.StructureIdentifier(19L, "popular_door_name")),
-            storage.getPartialIdentifiers("1", null, PermissionLevel.NO_PERMISSION)
+                new DatabaseManager.StructureIdentifier(StructureTypeBigDoor.get(), 1L, "random_door_name"),
+                new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 15L, "popular_door_name"),
+                new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 16L, "popular_door_name"),
+                new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 17L, "popular_door_name"),
+                new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 18L, "popular_door_name"),
+                new DatabaseManager.StructureIdentifier(StructureTypePortcullis.get(), 19L, "popular_door_name")),
+            storage.getPartialIdentifiers("1", null, PermissionLevel.NO_PERMISSION, List.of())
         );
 
         final IPlayer player1 = createPlayer(PLAYER_DATA_1);
         Assertions.assertEquals(
-            List.of(new DatabaseManager.StructureIdentifier(1L, "random_door_name")),
-            storage.getPartialIdentifiers("1", player1, PermissionLevel.NO_PERMISSION)
+            List.of(new DatabaseManager.StructureIdentifier(StructureTypeBigDoor.get(), 1L, "random_door_name")),
+            storage.getPartialIdentifiers("1", player1, PermissionLevel.NO_PERMISSION, List.of())
         );
     }
 
@@ -390,11 +455,11 @@ public class SQLiteJDBCDriverConnectionTest
     public void auxiliaryMethods()
     {
         // Check simple methods.
-        Assertions.assertEquals(1, storage.getStructuresOfType(StructureTypeBigDoor.get().getFullName()).size());
+        Assertions.assertEquals(1, storage.getStructuresOfType(StructureTypeBigDoor.get().getFullKey()).size());
         Assertions.assertEquals(
             1,
             storage.getStructuresOfType(
-                StructureTypePortcullis.get().getFullName(),
+                StructureTypePortcullis.get().getFullKey(),
                 StructureTypePortcullis.get().getVersion()).size()
         );
         Assertions.assertEquals(1, storage.getStructureCountForPlayer(PLAYER_DATA_1.getUUID(), STRUCTURE_1_NAME));
@@ -414,8 +479,8 @@ public class SQLiteJDBCDriverConnectionTest
 
         Assertions.assertEquals(1, storage.getOwnerCountOfStructure(1L));
 
-        long chunkId = LocationUtil.getChunkId(structure1.getPowerBlock());
-        Assertions.assertEquals(3, storage.getStructuresInChunk(chunkId).size());
+        long chunkId = LocationUtil.getChunkId(structure1.getCuboid().getCenterBlock());
+        Assertions.assertEquals(2, storage.getStructuresInChunk(chunkId).size());
 
         // Check if adding owners works correctly.
         UnitTestUtil.optionalEquals(1, storage.getStructure(1L), (structure) -> structure.getOwners().size());
@@ -595,19 +660,21 @@ public class SQLiteJDBCDriverConnectionTest
         {
             structure3.setLocked(true);
             Assertions.assertTrue(
-                storage.syncStructureData(structure3.getSnapshot(), serializer.serialize(structure3)));
+                storage.syncStructureData(
+                    structure3.getSnapshot(),
+                    serializer.serializeTypeData(structure3)));
             UnitTestUtil.optionalEquals(true, storage.getStructure(3L), AbstractStructure::isLocked);
 
             structure3.setLocked(false);
             Assertions.assertTrue(
-                storage.syncStructureData(structure3.getSnapshot(), serializer.serialize(structure3)));
+                storage.syncStructureData(
+                    structure3.getSnapshot(),
+                    serializer.serializeTypeData(structure3)));
             UnitTestUtil.optionalEquals(false, storage.getStructure(3L), AbstractStructure::isLocked);
         }
 
         // Test syncing all data.
         {
-            Portcullis pc = ((Portcullis) structure3);
-
             // Save the current data
             final MovementDirection oldDir = structure3.getOpenDir();
             final MovementDirection newDir = MovementDirection.getOpposite(oldDir);
@@ -633,20 +700,22 @@ public class SQLiteJDBCDriverConnectionTest
 
             // update some general data.
             structure3.setLocked(!isLocked);
-            structure3.setOpen(!isOpen);
+            structure3.setOpenStatus(!isOpen);
             structure3.setPowerBlock(newPowerBlock);
             structure3.setCoordinates(newMin, newMax);
             structure3.setOpenDir(newDir);
 
 
             // Update some type-specific data
-            final int blocksToMove = pc.getBlocksToMove();
+            final int blocksToMove = structure3.getBlocksToMove();
             final int newBlocksToMove = blocksToMove * 2;
             Assertions.assertNotSame(0, blocksToMove);
-            pc.setBlocksToMove(newBlocksToMove);
+            structure3.setBlocksToMove(newBlocksToMove);
 
             Assertions.assertTrue(
-                storage.syncStructureData(structure3.getSnapshot(), serializer.serialize(structure3)));
+                storage.syncStructureData(
+                    structure3.getSnapshot(),
+                    serializer.serializeTypeData(structure3)));
 
             Optional<AbstractStructure> retrievedOpt = storage.getStructure(3L);
             Assertions.assertTrue(retrievedOpt.isPresent());
@@ -666,16 +735,18 @@ public class SQLiteJDBCDriverConnectionTest
 
             // reset base data
             structure3.setLocked(isLocked);
-            structure3.setOpen(isOpen);
+            structure3.setOpenStatus(isOpen);
             structure3.setPowerBlock(oldPowerBlock);
             structure3.setCoordinates(oldMin, oldMax);
             structure3.setOpenDir(oldDir);
 
             // Reset type-specific data
-            pc.setBlocksToMove(blocksToMove);
+            structure3.setBlocksToMove(blocksToMove);
 
             Assertions.assertTrue(
-                storage.syncStructureData(structure3.getSnapshot(), serializer.serialize(structure3)));
+                storage.syncStructureData(
+                    structure3.getSnapshot(),
+                    serializer.serializeTypeData(structure3)));
         }
     }
 
@@ -751,13 +822,17 @@ public class SQLiteJDBCDriverConnectionTest
                 .uid(1L)
                 .name(STRUCTURE_1_NAME)
                 .cuboid(min, max)
-                .rotationPoint(rotationPoint)
                 .powerBlock(powerBlock)
                 .world(WORLD)
-                .isOpen(false)
                 .isLocked(false)
                 .openDir(MovementDirection.EAST)
                 .primeOwner(new StructureOwner(1L, PermissionLevel.CREATOR, PLAYER_DATA_1))
+                .ownersOfStructure(null)
+                .propertiesOfStructure(
+                    StructureTypeBigDoor.get(),
+                    Property.ROTATION_POINT, rotationPoint,
+                    Property.OPEN_STATUS, false
+                )
                 .build()
         );
 
@@ -772,19 +847,22 @@ public class SQLiteJDBCDriverConnectionTest
                 .uid(2L)
                 .name(STRUCTURES_2_3_NAME)
                 .cuboid(min, max)
-                .rotationPoint(rotationPoint)
                 .powerBlock(powerBlock)
                 .world(WORLD)
-                .isOpen(false)
                 .isLocked(false)
                 .openDir(MovementDirection.NONE)
                 .primeOwner(new StructureOwner(2L, PermissionLevel.CREATOR, PLAYER_DATA_1))
+                .ownersOfStructure(null)
+                .propertiesOfStructure(
+                    StructureTypeDrawbridge.get(),
+                    Property.ROTATION_POINT, rotationPoint,
+                    Property.OPEN_STATUS, false
+                )
                 .build()
         );
 
         min = new Vector3Di(144, 70, 168);
         max = new Vector3Di(144, 151, 112);
-        rotationPoint = new Vector3Di(144, 75, 153);
         powerBlock = new Vector3Di(144, 75, 153);
         int blocksToMove = 8;
         structure3 = new Portcullis(
@@ -793,15 +871,18 @@ public class SQLiteJDBCDriverConnectionTest
                 .uid(3L)
                 .name(STRUCTURES_2_3_NAME)
                 .cuboid(min, max)
-                .rotationPoint(rotationPoint)
                 .powerBlock(powerBlock)
                 .world(WORLD)
-                .isOpen(false)
                 .isLocked(false)
                 .openDir(MovementDirection.UP)
                 .primeOwner(new StructureOwner(3L, PermissionLevel.CREATOR, PLAYER_DATA_2))
-                .build(),
-            blocksToMove
+                .ownersOfStructure(null)
+                .propertiesOfStructure(
+                    StructureTypePortcullis.get(),
+                    Property.OPEN_STATUS, false,
+                    Property.BLOCKS_TO_MOVE, blocksToMove
+                )
+                .build()
         );
     }
 

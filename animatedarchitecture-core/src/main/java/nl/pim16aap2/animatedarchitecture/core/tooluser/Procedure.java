@@ -174,20 +174,21 @@ public final class Procedure
      * @param obj
      *     The input to apply.
      * @return True if the application was successful.
+     *
+     * @throws IllegalArgumentException
+     *     If the input object is not of the expected type.
      */
     public CompletableFuture<Boolean> applyStepExecutor(@Nullable Object obj)
+        throws IllegalArgumentException
     {
         final var currentStep0 = this.getCurrentStep();
         if (currentStep0 == null)
-        {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
-                "Cannot apply step executor because there is no active step!");
-            return CompletableFuture.failedFuture(new IllegalStateException("No active step!"));
-        }
+            return CompletableFuture.failedFuture(new IllegalStateException(
+                "Cannot apply step executor because there is no active step!"));
+
         return currentStep0
             .getStepExecutor()
-            .map(stepExecutor -> stepExecutor.apply(obj))
-            .orElse(CompletableFuture.completedFuture(false))
+            .apply(obj)
             .exceptionally(e ->
             {
                 throw new IllegalStateException(

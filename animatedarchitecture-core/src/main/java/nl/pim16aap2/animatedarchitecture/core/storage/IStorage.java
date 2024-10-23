@@ -10,9 +10,11 @@ import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -212,7 +214,7 @@ public interface IStorage
      * Obtains all structures of a given type.
      *
      * @param typeName
-     *     The name of the type. See {@link StructureType#getFullName()}.
+     *     The name of the type. See {@link StructureType#getFullKey()}.
      * @return All structures of the given type.
      */
     List<AbstractStructure> getStructuresOfType(String typeName);
@@ -221,7 +223,7 @@ public interface IStorage
      * Obtains all structures of a specific version of a given type.
      *
      * @param typeName
-     *     The name of the type. See {@link StructureType#getFullName()}.
+     *     The name of the type. See {@link StructureType#getFullKey()}.
      * @param version
      *     The version of the type.
      * @return All structures of the given type.
@@ -267,7 +269,7 @@ public interface IStorage
      * @param structure
      *     The {@link IStructureConst} that describes the data of structure.
      * @param typeData
-     *     The type-specific data of this structure.
+     *     The serialized type data of the structure.
      * @return True if the update was successful.
      */
     boolean syncStructureData(IStructureConst structure, String typeData);
@@ -284,12 +286,16 @@ public interface IStorage
      *     The player that should own the structures. May be null to disregard ownership.
      * @param maxPermission
      *     The maximum level of ownership (inclusive) this player has over the structures.
+     * @param properties
+     *     The properties that the structures must have. When specified, only structures that have all of these
+     *     properties will be returned.
      * @return All {@link DatabaseManager.StructureIdentifier}s that start with the provided input.
      */
     List<DatabaseManager.StructureIdentifier> getPartialIdentifiers(
         String input,
         @Nullable IPlayer player,
-        PermissionLevel maxPermission
+        PermissionLevel maxPermission,
+        Collection<Property<?>> properties
     );
 
     /**
@@ -337,28 +343,10 @@ public interface IStorage
      *     The {@link AbstractStructure}.
      * @return The flag value of a {@link AbstractStructure}.
      */
-    default long getFlag(AbstractStructure structure)
+    default long getFlag(IStructureConst structure)
     {
         long flag = 0;
-        flag = IBitFlag.changeFlag(StructureFlag.getFlagValue(StructureFlag.IS_OPEN), structure.isOpen(), flag);
         flag = IBitFlag.changeFlag(StructureFlag.getFlagValue(StructureFlag.IS_LOCKED), structure.isLocked(), flag);
-        return flag;
-    }
-
-    /**
-     * Gets the flag value of various boolean properties of a {@link AbstractStructure}.
-     *
-     * @param isOpen
-     *     Whether the structure is currently open.
-     * @param isLocked
-     *     Whether the structure is currently locked.
-     * @return The flag value of a {@link AbstractStructure}.
-     */
-    default long getFlag(boolean isOpen, boolean isLocked)
-    {
-        long flag = 0;
-        flag = IBitFlag.changeFlag(StructureFlag.getFlagValue(StructureFlag.IS_OPEN), isOpen, flag);
-        flag = IBitFlag.changeFlag(StructureFlag.getFlagValue(StructureFlag.IS_LOCKED), isLocked, flag);
         return flag;
     }
 
@@ -411,19 +399,9 @@ public interface IStorage
     enum StructureFlag implements IBitFlag
     {
         /**
-         * Consider a structure to be opened if this flag is enabled.
-         */
-        IS_OPEN(0b00000001),
-
-        /**
          * Consider a structure to be locked if this flag is enabled.
          */
         IS_LOCKED(0b00000010),
-
-        /**
-         * Consider a structure switched on if this flag is enabled. Used in cases of perpetual movement.
-         */
-        IS_SWITCHED_ON(0b00000100),
         ;
 
         /**

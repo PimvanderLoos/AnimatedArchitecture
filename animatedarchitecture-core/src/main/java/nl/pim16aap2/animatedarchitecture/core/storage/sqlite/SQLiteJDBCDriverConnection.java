@@ -31,6 +31,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSerializer;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
@@ -248,10 +250,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         if (registeredStructure.isPresent())
             return registeredStructure;
 
-        final Optional<MovementDirection> openDirection =
-            Optional.ofNullable(MovementDirection.valueOf(structureBaseRS.getInt("openDirection")));
+        final Optional<MovementDirection> animationDirection =
+            Optional.ofNullable(MovementDirection.valueOf(structureBaseRS.getInt("animationDirection")));
 
-        if (openDirection.isEmpty())
+        if (animationDirection.isEmpty())
             return Optional.empty();
 
         final Vector3Di min = new Vector3Di(
@@ -264,11 +266,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             structureBaseRS.getInt("yMax"),
             structureBaseRS.getInt("zMax")
         );
-        final Vector3Di rotationPoint = new Vector3Di(
-            structureBaseRS.getInt("rotationPointX"),
-            structureBaseRS.getInt("rotationPointY"),
-            structureBaseRS.getInt("rotationPointZ")
-        );
         final Vector3Di powerBlock = new Vector3Di(
             structureBaseRS.getInt("powerBlockX"),
             structureBaseRS.getInt("powerBlockY"),
@@ -278,7 +275,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final IWorld world = worldFactory.create(structureBaseRS.getString("world"));
 
         final long bitflag = structureBaseRS.getLong("bitflag");
-        final boolean isOpen = IBitFlag.hasFlag(StructureFlag.getFlagValue(StructureFlag.IS_OPEN), bitflag);
         final boolean isLocked = IBitFlag.hasFlag(StructureFlag.getFlagValue(StructureFlag.IS_LOCKED), bitflag);
 
         final String name = structureBaseRS.getString("name");
@@ -301,25 +297,31 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         );
 
         final Map<UUID, StructureOwner> ownersOfStructure = getOwnersOfStructure(structureUID);
-        final AbstractStructure.BaseHolder structureData =
+        final var structureData =
             structureBaseBuilder
                 .builder()
                 .uid(structureUID)
                 .name(name)
                 .cuboid(new Cuboid(min, max))
-                .rotationPoint(rotationPoint)
                 .powerBlock(powerBlock)
                 .world(world)
-                .isOpen(isOpen)
                 .isLocked(isLocked)
-                .openDir(openDirection.get())
+                .openDir(animationDirection.get())
                 .primeOwner(primeOwner)
-                .ownersOfStructure(ownersOfStructure)
-                .build();
+                .ownersOfStructure(ownersOfStructure);
 
         final String rawTypeData = structureBaseRS.getString("typeData");
+        final String rawProperties = structureBaseRS.getString("properties");
         final int typeVersion = structureBaseRS.getInt("typeVersion");
-        return Optional.of(serializer.deserialize(structureRegistry, structureData, typeVersion, rawTypeData));
+
+        return Optional.of(
+            serializer.deserialize(
+                structureRegistry,
+                structureData,
+                typeVersion,
+                rawTypeData,
+                rawProperties
+            ));
     }
 
     @Override
@@ -330,7 +332,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             conn -> executeUpdate(
                 SQLStatement.DELETE_STRUCTURE_TYPE
                     .constructDelayedPreparedStatement()
-                    .setNextString(structureType.getFullName())) > 0,
+                    .setNextString(structureType.getFullKey())) > 0,
             false
         );
 
@@ -344,7 +346,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         Connection conn,
         AbstractStructure structure,
         StructureType structureType,
-        String typeSpecificData)
+        String typeSpecificData,
+        String propertiesData)
     {
         final PlayerData playerData = structure.getPrimeOwner().playerData();
         insertOrIgnorePlayer(conn, playerData);
@@ -363,19 +366,17 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .setNextInt(structure.getMaximum().x())
                 .setNextInt(structure.getMaximum().y())
                 .setNextInt(structure.getMaximum().z())
-                .setNextInt(structure.getRotationPoint().x())
-                .setNextInt(structure.getRotationPoint().y())
-                .setNextInt(structure.getRotationPoint().z())
-                .setNextLong(LocationUtil.getChunkId(structure.getRotationPoint()))
+                .setNextLong(LocationUtil.getChunkId(structure.getCuboid().getCenterBlock()))
                 .setNextInt(structure.getPowerBlock().x())
                 .setNextInt(structure.getPowerBlock().y())
                 .setNextInt(structure.getPowerBlock().z())
                 .setNextLong(LocationUtil.getChunkId(structure.getPowerBlock()))
                 .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
                 .setNextLong(getFlag(structure))
-                .setNextString(structureType.getFullName())
+                .setNextString(structureType.getFullKey())
                 .setNextInt(structureType.getVersion())
-                .setNextString(typeSpecificData),
+                .setNextString(typeSpecificData)
+                .setNextString(propertiesData),
             resultSet ->
             {
                 if (resultSet.next())
@@ -411,10 +412,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         try
         {
-            final String typeData = serializer.serialize(structure);
+            final String typeData = serializer.serializeTypeData(structure);
+            final String properties = PropertyContainerSerializer.serialize(structure);
 
             final long structureUID = executeTransaction(
-                conn -> insert(conn, structure, structure.getType(), typeData),
+                conn -> insert(conn, structure, structure.getType(), typeData, properties),
                 -1L
             );
 
@@ -427,17 +429,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                         .uid(structureUID)
                         .name(structure.getName())
                         .cuboid(structure.getCuboid())
-                        .rotationPoint(structure.getRotationPoint())
                         .powerBlock(structure.getPowerBlock())
                         .world(structure.getWorld())
-                        .isOpen(structure.isOpen())
                         .isLocked(structure.isLocked())
                         .openDir(structure.getOpenDir())
                         .primeOwner(remapStructureOwner(structure.getPrimeOwner(), structureUID))
-                        .ownersOfStructure(remapStructureOwners(structure.getOwners(), structureUID))
-                        .build(),
+                        .ownersOfStructure(remapStructureOwners(structure.getOwners(), structureUID)),
                     structure.getType().getVersion(),
-                    typeData)
+                    typeData,
+                    properties)
                 );
             }
         }
@@ -486,6 +486,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Write
     public boolean syncStructureData(IStructureConst structure, String typeData)
     {
+        final String serializedProperties = PropertyContainerSerializer.serialize(structure);
+
         return executeUpdate(SQLStatement.UPDATE_STRUCTURE_BASE
             .constructDelayedPreparedStatement()
             .setNextString(structure.getName())
@@ -499,10 +501,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             .setNextInt(structure.getCuboid().getMax().y())
             .setNextInt(structure.getCuboid().getMax().z())
 
-            .setNextInt(structure.getRotationPoint().x())
-            .setNextInt(structure.getRotationPoint().y())
-            .setNextInt(structure.getRotationPoint().z())
-            .setNextLong(LocationUtil.getChunkId(structure.getRotationPoint()))
+            .setNextLong(LocationUtil.getChunkId(structure.getCuboid().getCenterBlock()))
 
             .setNextInt(structure.getPowerBlock().x())
             .setNextInt(structure.getPowerBlock().y())
@@ -510,9 +509,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             .setNextLong(LocationUtil.getChunkId(structure.getPowerBlock()))
 
             .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
-            .setNextLong(getFlag(structure.isOpen(), structure.isLocked()))
+            .setNextLong(getFlag(structure))
             .setNextInt(structure.getType().getVersion())
             .setNextString(typeData)
+            .setNextString(serializedProperties)
 
             .setNextLong(structure.getUid())) > 0;
     }
@@ -522,7 +522,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     public List<DatabaseManager.StructureIdentifier> getPartialIdentifiers(
         String input,
         @Nullable IPlayer player,
-        PermissionLevel maxPermission)
+        PermissionLevel maxPermission,
+        Collection<Property<?>> properties
+    )
     {
         final DelayedPreparedStatement query;
         if (MathUtil.isNumerical(input))
@@ -540,6 +542,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         query.setNextString(uuid);
         query.setNextString(uuid);
 
+        final var stringBuilder = new StringBuilder();
+        for (final var property : properties)
+            stringBuilder
+                .append(" AND json_extract(properties, '$.")
+                .append(property.getNamespacedKey().getFullKey())
+                .append("') IS NOT NULL");
+
+        query.setNextRawString(stringBuilder.toString());
+
         return executeQuery(query, this::collectIdentifiers, Collections.emptyList());
     }
 
@@ -550,7 +561,23 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final List<DatabaseManager.StructureIdentifier> ret = new ArrayList<>();
 
         while (resultSet.next())
-            ret.add(new DatabaseManager.StructureIdentifier(resultSet.getLong("id"), resultSet.getString("name")));
+        {
+            final @Nullable String structureTypeResult = resultSet.getString("type");
+            final Optional<StructureType> structureType = structureTypeManager.getFromFullName(structureTypeResult);
+
+            if (!structureType.map(structureTypeManager::isRegistered).orElse(false))
+            {
+                log.atSevere().withStackTrace(StackSize.FULL).log(
+                    "Type with ID: '%s' has not been registered (yet)!", structureTypeResult);
+                continue;
+            }
+
+            ret.add(new DatabaseManager.StructureIdentifier(
+                structureType.get(),
+                resultSet.getLong("id"),
+                resultSet.getString("name")
+            ));
+        }
 
         return ret;
     }

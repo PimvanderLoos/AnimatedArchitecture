@@ -5,6 +5,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,18 +96,26 @@ final class Localizer implements ILocalizer
         if (classLoader == null)
         {
             log.atWarning().log("Failed to find localization key '%s'! Reason: ClassLoader is null!", key);
-            return KEY_NOT_FOUND_MESSAGE + key;
+            return formatKeyNotFoundMessage(key);
         }
 
         try
         {
-            final String msg = ResourceBundle.getBundle(baseName, locale, classLoader).getString(key);
+            final var bundle = ResourceBundle.getBundle(baseName, locale, classLoader);
+
+            if (!bundle.containsKey(key))
+            {
+                log.atWarning().log("Failed to find localization key '%s'! Reason: Key does not exist!", key);
+                return formatKeyNotFoundMessage(key);
+            }
+
+            final String msg = bundle.getString(key);
             return args.length == 0 ? msg : MessageFormat.format(msg, args);
         }
         catch (MissingResourceException e)
         {
-            log.atWarning().log("Failed to find localization key '%s'! Reason: Key does not exist!", key);
-            return KEY_NOT_FOUND_MESSAGE + key;
+            log.atWarning().log("Failed to find localization key '%s'! Reason: Bundle does not exist!", key);
+            return formatKeyNotFoundMessage(key);
         }
     }
 
@@ -151,6 +160,19 @@ final class Localizer implements ILocalizer
             classLoader = null;
             localeList = Collections.emptyList();
         }
+    }
+
+    /**
+     * Formats a message for when a key is not found.
+     *
+     * @param key
+     *     The key that was not found.
+     * @return The formatted message.
+     */
+    @VisibleForTesting
+    static String formatKeyNotFoundMessage(String key)
+    {
+        return KEY_NOT_FOUND_MESSAGE + key;
     }
 
     private static URLClassLoader getNewURLClassLoader(Path bundlePath, String baseName)
