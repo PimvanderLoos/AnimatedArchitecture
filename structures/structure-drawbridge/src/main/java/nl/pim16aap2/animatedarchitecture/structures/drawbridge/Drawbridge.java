@@ -1,10 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.drawbridge;
 
-import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.Locked;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
@@ -12,6 +9,9 @@ import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithQuarterCircles;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithRotationPoint;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -29,35 +29,35 @@ import java.util.stream.Stream;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Flogger
-public class Drawbridge extends AbstractStructure implements IHorizontalAxisAligned
+public class Drawbridge
+    extends AbstractStructure
+    implements
+    IHorizontalAxisAligned,
+    IStructureWithOpenStatus,
+    IStructureWithQuarterCircles,
+    IStructureWithRotationPoint
 {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    /**
-     * The number of quarter circles (so 90 degree rotations) this structure will make before stopping.
-     *
-     * @return The number of quarter circles this structure will rotate.
-     */
-    @PersistentVariable(value = "quarterCircles")
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read("lock"))
-    @Setter(onMethod_ = @Locked.Write("lock"))
-    private int quarterCircles;
-
     @Deserialization
-    public Drawbridge(BaseHolder base, @PersistentVariable(value = "quarterCircles") int quarterCircles)
+    public Drawbridge(BaseHolder base)
     {
         super(base, StructureTypeDrawbridge.get());
         this.lock = getLock();
-        this.quarterCircles = quarterCircles;
     }
 
-    public Drawbridge(BaseHolder base)
+    /**
+     * Deprecated constructor for deserialization of version 1 where {@code quarterCircles} was a persistent variable.
+     */
+    @Deprecated
+    @Deserialization(version = 1)
+    public Drawbridge(BaseHolder base, @PersistentVariable(value = "quarterCircles") int quarterCircles)
     {
-        this(base, 1);
+        this(base);
+        setQuarterCircles(quarterCircles);
     }
 
     @Override
@@ -81,6 +81,8 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
         final Cuboid cuboid = getCuboid();
         final Vector3Di rotationPoint = getRotationPoint();
 
+        final int quarterCircles = getQuarterCircles();
+
         final double angle;
         if (movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.WEST)
             angle = quarterCircles * -MathUtil.HALF_PI;
@@ -102,7 +104,12 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     @Locked.Read("lock")
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
-        return new DrawbridgeAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAnimated(), quarterCircles);
+        return new DrawbridgeAnimationComponent(
+            data,
+            getCurrentToggleDir(),
+            isNorthSouthAnimated(),
+            getQuarterCircles()
+        );
     }
 
     @Override
@@ -117,7 +124,7 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
     protected double calculateAnimationCycleDistance()
     {
         final double maxRadius = getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint());
-        return quarterCircles * maxRadius * MathUtil.HALF_PI;
+        return getQuarterCircles() * maxRadius * MathUtil.HALF_PI;
     }
 
     @Override

@@ -8,7 +8,8 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
-import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSerializer;
 import nl.pim16aap2.util.SafeStringBuilder;
 import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -111,6 +112,11 @@ import java.util.Set;
 public final class StructureSerializer<T extends AbstractStructure>
 {
     /**
+     * The type of the structure.
+     */
+    private final StructureType structureType;
+
+    /**
      * The target class.
      */
     private final Class<T> structureClass;
@@ -131,8 +137,9 @@ public final class StructureSerializer<T extends AbstractStructure>
     private final @Nullable DeserializationConstructor defaultConstructor;
 
     @VisibleForTesting
-    public StructureSerializer(Class<T> structureClass, int currentTypeVersion)
+    StructureSerializer(StructureType structureType, Class<T> structureClass, int currentTypeVersion)
     {
+        this.structureType = structureType;
         this.structureClass = structureClass;
         this.currentTypeVersion = currentTypeVersion;
 
@@ -147,7 +154,7 @@ public final class StructureSerializer<T extends AbstractStructure>
     public StructureSerializer(StructureType type)
     {
         //noinspection unchecked
-        this((Class<T>) type.getStructureClass(), type.getVersion());
+        this(type, (Class<T>) type.getStructureClass(), type.getVersion());
     }
 
     private static Int2ObjectMap<DeserializationConstructor> getConstructors(Class<?> structureClass)
@@ -155,7 +162,8 @@ public final class StructureSerializer<T extends AbstractStructure>
         final List<Constructor<?>> annotatedCtors = ReflectionBuilder
             .findConstructor(structureClass)
             .withAnnotations(Deserialization.class)
-            .setAccessible().getAll();
+            .setAccessible()
+            .getAll();
 
         if (annotatedCtors.isEmpty())
             throw new IllegalStateException(
@@ -223,15 +231,17 @@ public final class StructureSerializer<T extends AbstractStructure>
         throws UnsupportedOperationException
     {
         final List<AnnotatedField> fields = ReflectionBuilder
-            .findField().inClass(structureClass)
+            .findField()
+            .inClass(structureClass)
             .withAnnotations(PersistentVariable.class)
             .checkSuperClasses()
             .setAccessible()
-            .get().stream()
+            .get()
+            .stream()
             .map(AnnotatedField::of)
             .toList();
 
-        final Set<String> namedFields = new HashSet<>(MathUtil.ceil(1.25 * fields.size()));
+        final Set<String> namedFields = HashSet.newHashSet(fields.size());
         for (final AnnotatedField field : fields)
             if (!namedFields.add(field.name))
                 throw new IllegalArgumentException(
@@ -252,10 +262,10 @@ public final class StructureSerializer<T extends AbstractStructure>
      * @throws Exception
      *     If an error occurs while getting the value of a field.
      */
-    public Map<String, Object> getPropertyMap(AbstractStructure structure)
+    Map<String, Object> getPersistentVariableMap(AbstractStructure structure)
         throws Exception
     {
-        final HashMap<String, Object> values = new HashMap<>(MathUtil.ceil(1.25 * fields.size()));
+        final HashMap<String, Object> values = HashMap.newHashMap(fields.size());
         for (final AnnotatedField field : fields)
             try
             {
@@ -276,10 +286,10 @@ public final class StructureSerializer<T extends AbstractStructure>
      *     The structure.
      * @return The serialized type-specific data represented as a json string.
      */
-    public String serialize(AbstractStructure structure)
+    public String serializeTypeData(AbstractStructure structure)
         throws Exception
     {
-        final Map<String, Object> values = getPropertyMap(structure);
+        final Map<String, Object> values = getPersistentVariableMap(structure);
         try
         {
             return JSON.toJSONString(values);
@@ -297,33 +307,59 @@ public final class StructureSerializer<T extends AbstractStructure>
      *
      * @param registry
      *     The registry to use for any potential registration.
-     * @param structure
+     * @param structureBuilder
      *     The base structure data.
      * @param version
      *     The version of the type to deserialize. See {@link StructureType#getVersion()}.
-     * @param json
+     * @param persistentVariablesJson
      *     The serialized type-specific data represented as a json string.
+     * @param propertiesJson
+     *     The serialized {@link PropertyContainer} of the structure.
      * @return The newly created instance.
      */
-    public T deserialize(StructureRegistry registry, AbstractStructure.BaseHolder structure, int version, String json)
+    public T deserialize(
+        StructureRegistry registry,
+        StructureBaseBuilder.IBuilderProperties structureBuilder,
+        int version,
+        String persistentVariablesJson,
+        String propertiesJson)
     {
         //noinspection unchecked
-        return (T) registry.computeIfAbsent(structure.get().getUid(), () -> deserialize(structure, version, json));
+        return (T) registry.computeIfAbsent(
+            structureBuilder.getUID(),
+            () -> deserialize(structureBuilder, version, persistentVariablesJson, propertiesJson));
     }
 
     @VisibleForTesting
-    T deserialize(AbstractStructure.BaseHolder structure, int version, String json)
+    T deserialize(
+        StructureBaseBuilder.IBuilderProperties structureBuilder,
+        int version,
+        String persistentVariablesJson,
+        String propertiesJson)
     {
-        @Nullable Map<String, Object> dataAsMap = null;
+        final AbstractStructure.BaseHolder structureBase;
         try
         {
-            //noinspection unchecked
-            dataAsMap = JSON.parseObject(json, HashMap.class);
-            return instantiate(structure, version, dataAsMap);
+            final var propertyContainer = PropertyContainerSerializer.deserialize(structureType, propertiesJson);
+            structureBase = structureBuilder.propertiesOfStructure(propertyContainer).build();
         }
         catch (Exception e)
         {
-            throw new RuntimeException("Failed to deserialize structure " + structure + "\nWith Data: " + dataAsMap, e);
+            throw new RuntimeException("Failed to build structure base from builder: " + structureBuilder, e);
+        }
+
+
+        @Nullable Map<String, Object> typeDataMap = null;
+        try
+        {
+            //noinspection unchecked
+            typeDataMap = JSON.parseObject(persistentVariablesJson, HashMap.class);
+            return instantiate(structureBase, version, typeDataMap);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(
+                "Failed to deserialize structure " + structureBase + "\nWith Data: " + typeDataMap, e);
         }
     }
 
@@ -341,24 +377,37 @@ public final class StructureSerializer<T extends AbstractStructure>
     }
 
     @VisibleForTesting
-    T instantiate(AbstractStructure.BaseHolder structureBase, int version, Map<String, Object> values)
+    T instantiate(
+        AbstractStructure.BaseHolder structureBase,
+        int version,
+        Map<String, Object> typeDataMap)
         throws Exception
     {
-        if (values.size() != fields.size())
-            log.atWarning().log("Expected %d arguments but received %d for type %s",
-                fields.size(), values.size(), getStructureTypeName());
-
         if (version > currentTypeVersion)
             throw new IllegalArgumentException(
-                String.format("Failed to deserialize structure %d! Data version %d is higher than type version %d!",
-                    structureBase.get().getUid(), version, this.currentTypeVersion));
+                String.format(
+                    "Failed to deserialize structure %d! Data version %d is higher than type version %d!",
+                    structureBase.getUid(),
+                    version,
+                    this.currentTypeVersion)
+            );
 
         final DeserializationConstructor deserializationCtor = getDeserializationConstructor(version);
 
         @Nullable Object @Nullable [] deserializedParameters = null;
         try
         {
-            deserializedParameters = deserializeParameters(deserializationCtor, structureBase, values);
+            final int expectedPersistentVariables = deserializationCtor.parameters.size() - 1; // -1 for the base holder
+            if (typeDataMap.size() != expectedPersistentVariables)
+                log.atWarning().log(
+                    "Expected %d arguments but received %d for type %s (version %d).",
+                    expectedPersistentVariables,
+                    typeDataMap.size(),
+                    getStructureTypeName(),
+                    version
+                );
+
+            deserializedParameters = deserializeParameters(deserializationCtor, structureBase, typeDataMap);
             //noinspection unchecked
             return (T) deserializationCtor.ctor.newInstance(deserializedParameters);
         }
@@ -375,7 +424,7 @@ public final class StructureSerializer<T extends AbstractStructure>
         AbstractStructure.BaseHolder base,
         Map<String, Object> values)
     {
-        final Map<Class<?>, Object> classes = new HashMap<>(MathUtil.ceil(1.25 * values.size()));
+        final Map<Class<?>, Object> classes = HashMap.newHashMap(values.size());
         for (final var entry : values.entrySet())
             classes.put(entry.getValue().getClass(), entry.getValue());
 

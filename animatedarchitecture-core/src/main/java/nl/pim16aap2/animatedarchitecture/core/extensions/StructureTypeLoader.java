@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.extensions;
 import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
@@ -159,7 +160,7 @@ public final class StructureTypeLoader extends Restartable
         return structureTypeManager
             .getRegisteredStructureTypes()
             .stream()
-            .map(StructureType::getFullName)
+            .map(StructureType::getFullKey)
             .collect(Collectors.toSet());
     }
 
@@ -193,14 +194,14 @@ public final class StructureTypeLoader extends Restartable
         Set<String> alreadyLoadedTypes,
         StructureTypeInfo typeInfo)
     {
-        if (alreadyLoadedTypes.contains(typeInfo.getFullName()))
+        if (alreadyLoadedTypes.contains(typeInfo.getFullKey()))
             return PreloadCheckResult.ALREADY_LOADED;
 
         if (!isSupported(currentApiVersion, typeInfo.getSupportedApiVersions()))
         {
             log.atSevere().log(
                 "The API version of the extension '%s' is not supported by the current API version: %s",
-                typeInfo.getTypeName(),
+                typeInfo.getFullKey(),
                 currentApiVersion
             );
             return PreloadCheckResult.API_VERSION_NOT_SUPPORTED;
@@ -222,11 +223,11 @@ public final class StructureTypeLoader extends Restartable
         switch (preloadCheck)
         {
             case PASS:
-                log.atInfo().log("Loading structure type: %s", structureTypeInfo.getTypeName());
+                log.atInfo().log("Loading structure type: %s", structureTypeInfo.getFullKey());
                 break;
 
             case ALREADY_LOADED:
-                log.atInfo().log("Structure type '%s' is already loaded, skipping.", structureTypeInfo.getTypeName());
+                log.atInfo().log("Structure type '%s' is already loaded, skipping.", structureTypeInfo.getFullKey());
                 break;
 
             case API_VERSION_NOT_SUPPORTED:
@@ -234,7 +235,7 @@ public final class StructureTypeLoader extends Restartable
                     "Current API version '%s' out of the supported range '%s' for structure type: '%s'",
                     CURRENT_EXTENSION_API_VERSION,
                     structureTypeInfo.getSupportedApiVersions(),
-                    structureTypeInfo.getTypeName()
+                    structureTypeInfo.getFullKey()
                 );
                 break;
 
@@ -242,7 +243,7 @@ public final class StructureTypeLoader extends Restartable
                 log.atSevere().log(
                     "Unknown preload check result '%s' for structure type '%s'.",
                     preloadCheck,
-                    structureTypeInfo.getTypeName()
+                    structureTypeInfo.getFullKey()
                 );
         }
     }
@@ -325,7 +326,7 @@ public final class StructureTypeLoader extends Restartable
         final Path structureTypePath =
             zipFileSystem.getPath(structureTypeInfo.getJarFile().toAbsolutePath().toString());
 
-        final Path targetPath = extensionsDirectory.resolve(structureTypeInfo.getTypeName() + ".jar");
+        final Path targetPath = extensionsDirectory.resolve(structureTypeInfo.getFullKey() + ".jar");
 
         try (InputStream is = Files.newInputStream(structureTypePath))
         {
@@ -335,7 +336,7 @@ public final class StructureTypeLoader extends Restartable
         {
             log.atSevere().withCause(e).log(
                 "Failed to extract embedded structure type '%s' from jar: '%s' to: '%s'",
-                structureTypeInfo.getTypeName(),
+                structureTypeInfo.getFullKey(),
                 jarFile,
                 targetPath
             );
@@ -475,9 +476,11 @@ public final class StructureTypeLoader extends Restartable
             Util.requireNonNull(manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS), "Main-Class");
 
         return Optional.of(new StructureTypeInfo(
-            Util.requireNonNull(attributes.getValue("Namespace"), "Namespace"),
-            Util.requireNonNull(attributes.getValue("TypeName"), "TypeName"),
-            MathUtil.parseInt(attributes.getValue("Version"))
+            new NamespacedKey(
+                attributes.getValue("Namespace"),
+                attributes.getValue("TypeName")),
+            MathUtil
+                .parseInt(attributes.getValue("Version"))
                 .orElseThrow(() -> new NoSuchElementException("Version not found")),
             className,
             file,

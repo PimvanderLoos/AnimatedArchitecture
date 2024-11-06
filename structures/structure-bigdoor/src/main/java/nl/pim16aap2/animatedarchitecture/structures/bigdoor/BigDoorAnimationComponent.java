@@ -9,49 +9,58 @@ import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
+/**
+ * Represents a {@link IAnimationComponent} for {@link BigDoor}s.
+ */
 @Flogger
 public class BigDoorAnimationComponent implements IAnimationComponent
 {
     private final MovementDirection movementDirection;
-    private final StructureSnapshot snapshot;
+    private final Vector3Di rotationPoint;
     private final Vector3Dd rotationCenter;
     private final double resultAngle;
     private final double step;
-    private final int quarterCircles;
+    private final int effectiveQuarterCircles;
 
     public BigDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection, int quarterCircles)
     {
-        this.snapshot = data.getStructureSnapshot();
+        final StructureSnapshot snapshot = data.getStructureSnapshot();
+
         this.movementDirection = movementDirection;
-        this.quarterCircles = quarterCircles;
+        this.rotationPoint = snapshot.getRequiredPropertyValue(Property.ROTATION_POINT);
+        this.effectiveQuarterCircles = quarterCircles % 4;
 
-        resultAngle =
-            movementDirection == MovementDirection.CLOCKWISE ? quarterCircles * MathUtil.HALF_PI :
-                movementDirection == MovementDirection.COUNTERCLOCKWISE ? quarterCircles * -MathUtil.HALF_PI :
-                    0.0D;
+        final double quarterCircleAngle = switch (movementDirection)
+        {
+            case CLOCKWISE -> MathUtil.HALF_PI;
+            case COUNTERCLOCKWISE -> -MathUtil.HALF_PI;
+            default -> throw new IllegalArgumentException(
+                "Movement direction '" + movementDirection.name() + "' is not valid for this type!");
+        };
 
-        if (resultAngle == 0.0D)
-            log.atSevere().log(
-                "Invalid open direction '%s' for structure: %d", movementDirection.name(), snapshot.getUid());
+        resultAngle = effectiveQuarterCircles * quarterCircleAngle;
 
+        final Vector3Di rotationPoint = snapshot.getRequiredPropertyValue(Property.ROTATION_POINT);
         rotationCenter = new Vector3Dd(
-            snapshot.getRotationPoint().x(),
+            rotationPoint.x(),
             snapshot.getCuboid().getMin().y(),
-            snapshot.getRotationPoint().z()
+            rotationPoint.z()
         );
 
-        final int animationDuration =
+        final int animationStepCount =
             AnimationUtil.getAnimationTicks(data.getAnimationTime(), data.getServerTickTime());
 
-        this.step = this.resultAngle / animationDuration;
+        this.step = quarterCircles * quarterCircleAngle / animationStepCount;
     }
 
     @Override
@@ -134,12 +143,14 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     @Override
     public float getRadius(int xAxis, int yAxis, int zAxis)
     {
-        return getRadius(snapshot.getRotationPoint(), xAxis, zAxis);
+        return getRadius(rotationPoint, xAxis, zAxis);
     }
 
     @Override
     public @Nullable Consumer<IAnimatedBlockData> getBlockDataRotator()
     {
-        return blockData -> blockData.rotateBlock(movementDirection, quarterCircles);
+        if (effectiveQuarterCircles == 0)
+            return null;
+        return blockData -> blockData.rotateBlock(movementDirection, effectiveQuarterCircles);
     }
 }

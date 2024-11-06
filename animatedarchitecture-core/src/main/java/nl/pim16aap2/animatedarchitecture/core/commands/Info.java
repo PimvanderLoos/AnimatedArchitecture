@@ -13,6 +13,9 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyAccessLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyValuePair;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
@@ -20,8 +23,10 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
 import nl.pim16aap2.animatedarchitecture.core.text.TextArgumentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -158,10 +163,14 @@ public class Info extends StructureTargetCommand
 
     private void decorateOpenStatus(StructureSnapshot structure, Text text)
     {
+        final @Nullable Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
+        if (isOpen == null)
+            return;
+
         final String localizedOpenStatus =
-            localizer.getMessage(structure.isOpen() ? "constants.open_status.open" : "constants.open_status.closed");
+            localizer.getMessage(isOpen ? "constants.open_status.open" : "constants.open_status.closed");
         final String oppositeLocalizedOpenStatus =
-            localizer.getMessage(structure.isOpen() ? "constants.open_status.closed" : "constants.open_status.open");
+            localizer.getMessage(isOpen ? "constants.open_status.closed" : "constants.open_status.open");
 
         final var openStatusArgument = text.getTextArgumentFactory().clickable(
             localizedOpenStatus,
@@ -206,13 +215,16 @@ public class Info extends StructureTargetCommand
 
     private void decorateBlocksToMove(StructureSnapshot structure, Text text)
     {
-        structure.getProperty("blocksToMove")
-            .ifPresent(blocksToMove -> text.append(
-                    localizer.getMessage("commands.info.output.blocks_to_move"),
-                    TextType.INFO,
-                    arg -> arg.highlight(blocksToMove))
-                .append('\n')
-            );
+        final var value = structure.getPropertyValue(Property.BLOCKS_TO_MOVE);
+        final @Nullable Integer blocksToMove = value.value();
+        if (blocksToMove == null)
+            return;
+
+        text.append(
+                localizer.getMessage("commands.info.output.blocks_to_move"),
+                TextType.INFO,
+                arg -> arg.highlight(blocksToMove))
+            .append('\n');
     }
 
     private void decoratePowerBlock(StructureSnapshot structure, Text text)
@@ -225,6 +237,50 @@ public class Info extends StructureTargetCommand
             .append('\n');
     }
 
+    /**
+     * Decorates a property of the structure.
+     *
+     * @param text
+     *     The {@link Text} object to append the property to.
+     * @param propertyValuePair
+     *     The property-value pair to decorate.
+     */
+    // TODO: Remove this placeholder method and implement a decorator pattern for properties.
+    private void decorateProperty(Text text, PropertyValuePair<?> propertyValuePair)
+    {
+        // These properties are handled separately.
+        if (propertyValuePair.property().equals(Property.OPEN_STATUS) ||
+            propertyValuePair.property().equals(Property.BLOCKS_TO_MOVE))
+            return;
+
+        text.append(
+                propertyValuePair.property().getFullKey() + ": {0}",
+                TextType.INFO,
+                arg -> arg.highlight(Objects.toString(propertyValuePair.propertyValue())))
+            .append('\n');
+    }
+
+    /**
+     * Decorates the properties of the structure.
+     * <p>
+     * The properties that are handled separately are ignored (i.e. {@link Property#OPEN_STATUS} and
+     * {@link Property#BLOCKS_TO_MOVE}).
+     *
+     * @param structure
+     *     The structure to decorate the properties for.
+     * @param text
+     *     The {@link Text} object to append the properties to.
+     */
+    private void decorateProperties(StructureSnapshot structure, Text text)
+    {
+        structure
+            .getPropertyContainerSnapshot()
+            .stream()
+            .filter(entry -> entry.property().getPropertyAccessLevel() != PropertyAccessLevel.HIDDEN)
+            .forEach(entry -> decorateProperty(text, entry));
+    }
+
+    // TODO: Implement a decorator pattern properties.
     protected void sendInfoMessage(StructureSnapshot structure)
     {
         final Text output = textFactory.newText();
@@ -238,6 +294,8 @@ public class Info extends StructureTargetCommand
         decorateBlocksToMove(structure, output);
         decoratePowerBlock(structure, output);
 
+        decorateProperties(structure, output);
+
         getCommandSender().sendMessage(output);
     }
 
@@ -245,7 +303,11 @@ public class Info extends StructureTargetCommand
     {
         if (!(getCommandSender() instanceof IPlayer player))
         {
-            log.atFinest().withStackTrace(StackSize.FULL).log("Not highlighting blocks for non-player command sender.");
+            // Most parts of the command can be handled for any type of command sender, so this is not an error.
+            log.atFinest().withStackTrace(StackSize.FULL).log(
+                "Not highlighting blocks for non-player command sender '%s'.",
+                getCommandSender()
+            );
             return;
         }
         glowingBlockSpawner.spawnHighlightedBlocks(structure, player, Duration.ofSeconds(3));

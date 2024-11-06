@@ -4,6 +4,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithRotationPoint;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
@@ -83,15 +84,16 @@ public abstract class HighlightedBlockSpawner
             Color.GOLD
         );
 
-        spawnHighlightedBlock(
-            player,
-            world,
-            duration,
-            structure.getRotationPoint().x() + 0.5,
-            structure.getRotationPoint().y(),
-            structure.getRotationPoint().z() + 0.5,
-            Color.DARK_PURPLE
-        );
+        if (structure instanceof IStructureWithRotationPoint withRotationPoint)
+            spawnHighlightedBlock(
+                player,
+                world,
+                duration,
+                withRotationPoint.getRotationPoint().x() + 0.5,
+                withRotationPoint.getRotationPoint().y(),
+                withRotationPoint.getRotationPoint().z() + 0.5,
+                Color.DARK_PURPLE
+            );
 
         spawnHighlightedBlock(
             player,

@@ -116,14 +116,16 @@ class DelayedCommandTest
     @Test
     void exception(LogCaptor logCaptor)
     {
-        Mockito.when(delayedFunction.apply(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito
+            .when(delayedFunction.apply(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenThrow(RuntimeException.class);
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
         delayedCommand.runDelayed(commandSender, structureRetriever);
         LogAssertionsUtil.assertThrowingCount(logCaptor, 0);
 
         Assertions.assertDoesNotThrow(
-            () -> delayedCommand.provideDelayedInput(commandSender, new Object()).get(1, TimeUnit.SECONDS));
+            () -> delayedCommand.provideDelayedInput(commandSender, new Object()).get(1, TimeUnit.SECONDS)
+        );
 
         LogAssertionsUtil.assertThrowableLogged(logCaptor, -1, null, RuntimeException.class);
         LogAssertionsUtil.assertLogged(

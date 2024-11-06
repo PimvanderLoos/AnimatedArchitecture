@@ -14,6 +14,8 @@ import nl.pim16aap2.animatedarchitecture.core.data.cache.RollingCache;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -27,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -134,6 +137,17 @@ public final class StructureFinder
     private final Deque<String> postponedInputs = new ArrayDeque<>();
 
     /**
+     * The properties that the structures must have.
+     * <p>
+     * Structures that do not have all of these properties will be filtered out.
+     * <p>
+     * Changing this set in subsequent calls to the finder will result in a new search being performed if the new set of
+     * properties is a superset of the previous set.
+     */
+    @GuardedBy("lock")
+    private final HashSet<Property<?>> properties;
+
+    /**
      * The cache of structure descriptions.
      * <p>
      * The cache requires an initial set of structure descriptions to be seeded. This is done by querying the database
@@ -168,13 +182,16 @@ public final class StructureFinder
         DatabaseManager databaseManager,
         ICommandSender commandSender,
         String input,
-        PermissionLevel maxPermission)
+        PermissionLevel maxPermission,
+        Collection<Property<?>> properties
+    )
     {
         this.structureRetrieverFactory = structureRetrieverFactory;
         this.databaseManager = databaseManager;
         this.commandSender = commandSender;
         lastInput = input;
         this.maxPermission = maxPermission;
+        this.properties = new HashSet<>(properties);
         restartSearch(input);
     }
 
@@ -182,9 +199,10 @@ public final class StructureFinder
         StructureRetrieverFactory structureRetrieverFactory,
         DatabaseManager databaseManager,
         ICommandSender commandSender,
-        String input)
+        String input
+    )
     {
-        this(structureRetrieverFactory, databaseManager, commandSender, input, PermissionLevel.CREATOR);
+        this(structureRetrieverFactory, databaseManager, commandSender, input, PermissionLevel.CREATOR, Set.of());
     }
 
     /**
@@ -198,11 +216,20 @@ public final class StructureFinder
      *
      * @param input
      *     The input to process.
+     * @param properties
      * @return The current instance of this class.
      */
     @Locked.Write("lock")
-    public StructureFinder processInput(String input)
+    public StructureFinder processInput(String input, Collection<Property<?>> properties)
     {
+        if (propertiesChanged(properties))
+        {
+            this.properties.clear();
+            this.properties.addAll(properties);
+            restartSearch(input);
+            return this;
+        }
+
         if (input.length() <= lastInput.length())
         {
             if (input.equalsIgnoreCase(lastInput))
@@ -216,6 +243,22 @@ public final class StructureFinder
 
         lastInput = input;
         return this;
+    }
+
+    /**
+     * Checks if the properties have changed.
+     *
+     * @param newProperties
+     *     The new properties to compare against the current properties.
+     * @return True if the properties have changed.
+     */
+    @GuardedBy("lock")
+    boolean propertiesChanged(Collection<Property<?>> newProperties)
+    {
+        if (newProperties.size() != this.properties.size())
+            return true;
+
+        return !this.properties.containsAll(newProperties);
     }
 
     /**
@@ -614,14 +657,14 @@ public final class StructureFinder
     {
         final @Nullable IPlayer player = commandSender.getPlayer().orElse(null);
         return databaseManager
-            .getIdentifiersFromPartial(input, player, maxPermission)
+            .getIdentifiersFromPartial(input, player, maxPermission, properties)
             .thenApply(ids ->
             {
                 final List<MinimalStructureDescription> descriptions = new ArrayList<>(ids.size());
                 for (final var id : ids)
                 {
                     final String targetId = MathUtil.isNumerical(input) ? String.valueOf(id.uid()) : id.name();
-                    descriptions.add(new MinimalStructureDescription(id.uid(), targetId));
+                    descriptions.add(new MinimalStructureDescription(id.type(), id.uid(), targetId));
                 }
                 return descriptions;
             });
@@ -767,10 +810,14 @@ public final class StructureFinder
     }
 
     /**
+     * Represents a minimal description of a structure.
+     *
+     * @param type
+     *     The type of the structure.
      * @param uid
      *     The UID of the structure.
      * @param id
      *     The target identifier of the structure that we're looking for. This may either be its UID or its name.
      */
-    public record MinimalStructureDescription(long uid, String id) {}
+    public record MinimalStructureDescription(StructureType type, long uid, String id) {}
 }

@@ -1,8 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
-import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.Locked;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
@@ -11,7 +9,8 @@ import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
 import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IDiscreteMovement;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithBlocksToMove;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
@@ -25,32 +24,38 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Portcullis extends AbstractStructure implements IDiscreteMovement
+public class Portcullis
+    extends AbstractStructure
+    implements IStructureWithBlocksToMove, IStructureWithOpenStatus
 {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
-    @PersistentVariable(value = "blocksToMove")
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read("lock"))
-    protected int blocksToMove;
-
     protected Portcullis(
         BaseHolder base,
-        StructureType type,
-        @PersistentVariable(value = "blocksToMove") int blocksToMove)
+        StructureType type)
     {
         super(base, type);
         this.lock = getLock();
-        this.blocksToMove = blocksToMove;
     }
 
     @Deserialization
-    public Portcullis(BaseHolder base, @PersistentVariable(value = "blocksToMove") int blocksToMove)
+    public Portcullis(BaseHolder base)
     {
-        this(base, StructureTypePortcullis.get(), blocksToMove);
+        this(base, StructureTypePortcullis.get());
+    }
+
+    /**
+     * Deprecated constructor for deserialization of version 1 where {@code blocksToMove} was a persistent variable.
+     */
+    @Deprecated
+    @Deserialization(version = 1)
+    public Portcullis(AbstractStructure.BaseHolder base, @PersistentVariable(value = "blocksToMove") int blocksToMove)
+    {
+        this(base);
+        setBlocksToMove(blocksToMove);
     }
 
     @Override
@@ -60,10 +65,9 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
     }
 
     @Override
-    @Locked.Read("lock")
     protected double calculateAnimationCycleDistance()
     {
-        return blocksToMove;
+        return getBlocksToMove();
     }
 
     @Override
@@ -80,6 +84,7 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
 
+        final int blocksToMove = getBlocksToMove();
         return new Cuboid(min.add(0, -blocksToMove, 0), max.add(0, blocksToMove, 0)).asFlatRectangle();
     }
 
@@ -117,13 +122,5 @@ public class Portcullis extends AbstractStructure implements IDiscreteMovement
     protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
     {
         return new VerticalAnimationComponent(data, getDirectedBlocksToMove());
-    }
-
-    @Override
-    @Locked.Write("lock")
-    public void setBlocksToMove(int blocksToMove)
-    {
-        this.blocksToMove = blocksToMove;
-        super.invalidateAnimationData();
     }
 }

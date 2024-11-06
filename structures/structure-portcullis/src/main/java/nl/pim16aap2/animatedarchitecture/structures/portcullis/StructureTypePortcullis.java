@@ -1,21 +1,22 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioDescription;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.List;
 
 public final class StructureTypePortcullis extends StructureType
 {
-    private static final int TYPE_VERSION = 1;
+    private static final int TYPE_VERSION = 2;
 
     private static final StructureTypePortcullis INSTANCE = new StructureTypePortcullis();
 
@@ -27,12 +28,17 @@ public final class StructureTypePortcullis extends StructureType
     private StructureTypePortcullis()
     {
         super(
-            Constants.PLUGIN_NAME,
-            "Portcullis",
+            NamespacedKey.of("Portcullis"),
             TYPE_VERSION,
-            Arrays.asList(
+            List.of(
                 MovementDirection.UP,
                 MovementDirection.DOWN),
+            List.of(
+                Property.ANIMATION_SPEED_MULTIPLIER,
+                Property.BLOCKS_TO_MOVE,
+                Property.OPEN_STATUS,
+                Property.REDSTONE_MODE
+            ),
             "structure.type.portcullis"
         );
     }

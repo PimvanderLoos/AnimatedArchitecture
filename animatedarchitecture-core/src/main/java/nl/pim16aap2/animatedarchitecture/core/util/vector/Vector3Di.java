@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Contract;
  * <p>
  * This class is thread-safe, as all modifications return a new instance.
  */
-@SuppressWarnings("unused")
 public record Vector3Di(int x, int y, int z) implements IVector3D
 {
     public Vector3Di(IVector3D other)
@@ -29,20 +28,23 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di toInteger()
     {
         return this;
     }
 
     @Override
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd toDouble()
     {
         return Vector3Dd.fromInteger(this);
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     static Vector3Di fromDouble(Vector3Dd doubleVec)
     {
         return new Vector3Di(round(doubleVec.x()), round(doubleVec.y()), round(doubleVec.z()));
@@ -59,7 +61,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The z value to add to the current z value.
      * @return A new {@link Vector3Di} with the added values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di add(int x, int y, int z)
     {
         return new Vector3Di(this.x + x, this.y + y, this.z + z);
@@ -76,7 +79,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The z value to add to the current z value.
      * @return A new {@link Vector3Dd} with the added values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd add(double x, double y, double z)
     {
         return new Vector3Dd(this.x + x, this.y + y, this.z + z);
@@ -89,7 +93,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The other {@link Vector3Di} to add to the current one.
      * @return A new {@link Vector3Di} with the added values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di add(Vector3Di other)
     {
         return add(other.x, other.y, other.z);
@@ -102,7 +107,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The other {@link Vector3Dd} to add to the current one.
      * @return A new {@link Vector3Dd} with the added values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd add(Vector3Dd other)
     {
         return add(other.x(), other.y(), other.z());
@@ -115,7 +121,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The integer value to add to the x, y, and z values.
      * @return A new {@link Vector3Di} with the value added to the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di add(int val)
     {
         return add(val, val, val);
@@ -128,7 +135,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The floating point value to add to the x, y, and z values.
      * @return A new {@link Vector3Dd} with the value added to the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd add(double val)
     {
         return add(val, val, val);
@@ -146,7 +154,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The z value to subtract from the current z value.
      * @return A new {@link Vector3Di} with the subtracted values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di subtract(int x, int y, int z)
     {
         return add(-x, -y, -z);
@@ -163,7 +172,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The z value to subtract from the current z value.
      * @return A new {@link Vector3Dd} with the subtracted values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd subtract(double x, double y, double z)
     {
         return add(-x, -y, -z);
@@ -176,7 +186,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The other {@link Vector3Dd} to subtract from the x, y, and z values.
      * @return The new {@link Vector3Dd} with the value subtracted from the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd subtract(Vector3Dd other)
     {
         return subtract(other.x(), other.y(), other.z());
@@ -189,7 +200,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The other {@link Vector3Di} to subtract from the x, y, and z values.
      * @return The new {@link Vector3Di} with the value subtracted from the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di subtract(Vector3Di other)
     {
         return subtract(other.x, other.y, other.z);
@@ -202,7 +214,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The value to subtract from the x, y, and z values.
      * @return A new {@link Vector3Di} with the value subtracted from the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di subtract(int val)
     {
         return subtract(val, val, val);
@@ -215,7 +228,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The floating point  value to subtract from the x, y, and z values.
      * @return A new {@link Vector3Dd} with the value subtracted from the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd subtract(double val)
     {
         return subtract(val, val, val);
@@ -233,7 +247,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The z value to multiply with the current z value.
      * @return A new {@link Vector3Di} with the multiplied values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di multiply(int x, int y, int z)
     {
         return new Vector3Di(this.x * x, this.y * y, this.z * z);
@@ -246,7 +261,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The other {@link Vector3Di} to multiply with the x, y, and z values.
      * @return The new {@link Vector3Di} with the value multiplied with the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di multiply(Vector3Di other)
     {
         return multiply(other.x, other.y, other.z);
@@ -259,7 +275,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The value to multiply from the x, y, and z values.
      * @return A new {@link Vector3Di} with the value multiplied with the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di multiply(int val)
     {
         return multiply(val, val, val);
@@ -277,7 +294,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The z value to multiply with the current z value.
      * @return A new {@link Vector3Dd} with the multiplied values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd multiply(double x, double y, double z)
     {
         return new Vector3Dd(this.x * x, this.y * y, this.z * z);
@@ -290,7 +308,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The other {@link Vector3Dd} to multiply with the x, y, and z values.
      * @return The new {@link Vector3Dd} with the value multiplied with the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd multiply(Vector3Dd other)
     {
         return multiply(other.x(), other.y(), other.z());
@@ -303,7 +322,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The value to multiply from the x, y, and z values.
      * @return A new {@link Vector3Dd} with the value multiplied with the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Dd multiply(double val)
     {
         return multiply(val, val, val);
@@ -319,7 +339,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The y value to use as divisor for the current y value.
      * @return A new {@link Vector3Di} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di divide(int x, int y, int z)
     {
         return new Vector3Di(round(this.x / (double) x), round(this.y / (double) y), round(this.z / (double) z));
@@ -333,7 +354,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The other {@link Vector3Di} to use as divisor for the current x and the y values.
      * @return A new {@link Vector3Di} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di divide(Vector3Di other)
     {
         return divide(other.x, other.y, other.z);
@@ -346,7 +368,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The value to use as divisor for the x, y, and z values.
      * @return A new {@link Vector3Di} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di divide(int val)
     {
         return divide(val, val, val);
@@ -364,7 +387,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The z value to use as divisor for the current z value.
      * @return A new {@link Vector3Di} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di divide(double x, double y, double z)
     {
         return new Vector3Di(round(this.x / x), round(this.y / y), round(this.z / z));
@@ -378,7 +402,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The other {@link Vector3Dd} to use as divisor for the current x and the y values.
      * @return A new {@link Vector3Di} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di divide(Vector3Dd other)
     {
         return divide(other.x(), other.y(), other.z());
@@ -391,7 +416,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The value to use as divisor for the x, y, and z values.
      * @return A new {@link Vector3Di} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di divide(double val)
     {
         return divide(val, val, val);
@@ -402,7 +428,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *
      * @return A new, normalized, {@link Vector3Di}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di normalized()
     {
         final double length = Math.sqrt((double) x * x + y * y + z * z);
@@ -423,7 +450,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     How far to rotate this point (in radians).
      * @return A new {@link Vector3Di} rotated around the pivot point.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di rotateAroundXAxis(IVector3D pivotPoint, double radians)
     {
         return fromDouble(Vector3DUtil.rotateAroundXAxis(this, pivotPoint, radians));
@@ -438,7 +466,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     How far to rotate this point (in radians).
      * @return A new {@link Vector3Di} rotated around the pivot point.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di rotateAroundYAxis(IVector3D pivotPoint, double radians)
     {
         return fromDouble(Vector3DUtil.rotateAroundYAxis(this, pivotPoint, radians));
@@ -453,13 +482,15 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     How far to rotate this point (in radians).
      * @return A new {@link Vector3Di} rotated around the pivot point.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di rotateAroundZAxis(IVector3D pivotPoint, double radians)
     {
         return fromDouble(Vector3DUtil.rotateAroundZAxis(this, pivotPoint, radians));
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     private static int round(double val)
     {
         return MathUtil.round(val);
@@ -472,7 +503,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The number of bits to shift the values.
      * @return A new {@link Vector3Di}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di leftShift(int bits)
     {
         return new Vector3Di(x << bits, y << bits, z << bits);
@@ -485,7 +517,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *     The number of bits to shift the values.
      * @return A new {@link Vector3Di}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di rightShift(int bits)
     {
         return new Vector3Di(x >> bits, y >> bits, z >> bits);
@@ -496,7 +529,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
      *
      * @return A new {@link Vector3Di}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector3Di absolute()
     {
         return new Vector3Di(Math.abs(x), Math.abs(y), Math.abs(z));
@@ -505,8 +539,9 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     /**
      * @return The highest value in this vector.
      */
-    @CheckReturnValue @Contract(pure = true)
-    public int getMax()
+    @CheckReturnValue
+    @Contract(pure = true)
+    public int max()
     {
         return Math.max(x, Math.max(y, z));
     }
@@ -514,8 +549,9 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     /**
      * @return The lowest value in this vector.
      */
-    @CheckReturnValue @Contract(pure = true)
-    public int getMin()
+    @CheckReturnValue
+    @Contract(pure = true)
+    public int min()
     {
         return Math.min(x, Math.min(y, z));
     }

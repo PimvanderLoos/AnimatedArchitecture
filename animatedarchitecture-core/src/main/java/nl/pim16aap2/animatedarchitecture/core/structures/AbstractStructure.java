@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -12,6 +13,12 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyScope;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -43,7 +50,7 @@ import java.util.function.Supplier;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Flogger
 @ThreadSafe
-public abstract class AbstractStructure implements IStructureConst
+public abstract class AbstractStructure implements IStructureConst, IPropertyHolder
 {
     /**
      * The lock as used by both the {@link StructureBase} and this class.
@@ -59,17 +66,19 @@ public abstract class AbstractStructure implements IStructureConst
     private final LazyValue<Rectangle> lazyAnimationRange;
     private final LazyValue<Double> lazyAnimationCycleDistance;
     private final LazyValue<StructureSnapshot> lazyStructureSnapshot;
+    private final LazyValue<PropertyContainerSnapshot> lazyPropertyContainerSnapshot;
 
     private AbstractStructure(StructureBase base, StructureType type)
     {
         this.type = type;
-        serializer = getType().getStructureSerializer();
+        this.serializer = getType().getStructureSerializer();
         this.lock = base.getLock();
         this.base = Objects.requireNonNull(base);
 
         lazyAnimationRange = new LazyValue<>(this::calculateAnimationRange);
         lazyAnimationCycleDistance = new LazyValue<>(this::calculateAnimationCycleDistance);
         lazyStructureSnapshot = new LazyValue<>(this::createNewSnapshot);
+        lazyPropertyContainerSnapshot = new LazyValue<>(this.base::newPropertyContainerSnapshot);
     }
 
     protected AbstractStructure(BaseHolder holder, StructureType type)
@@ -359,7 +368,7 @@ public abstract class AbstractStructure implements IStructureConst
         {
             return base
                 .getDatabaseManager()
-                .syncStructureData(getSnapshot(), serializer.serialize(this))
+                .syncStructureData(getSnapshot(), serializer.serializeTypeData(this))
                 .exceptionally(ex -> FutureUtil.exceptionally(ex, DatabaseManager.ActionResult.FAIL));
         }
         catch (Exception e)
@@ -471,7 +480,7 @@ public abstract class AbstractStructure implements IStructureConst
     @Locked.Read("lock")
     public String getBasicInfo()
     {
-        return getUid() + " (" + getPrimeOwner() + ") - " + getType().getSimpleName() + ": " + getName();
+        return getUid() + " (" + getPrimeOwner() + ") - " + getType().getFullKey() + ": " + getName();
     }
 
     @Override
@@ -485,7 +494,7 @@ public abstract class AbstractStructure implements IStructureConst
 
         try
         {
-            ret += serializer.serialize(this);
+            ret += serializer.serializeTypeData(this);
         }
         catch (Exception e)
         {
@@ -556,19 +565,6 @@ public abstract class AbstractStructure implements IStructureConst
     }
 
     /**
-     * Updates the position of the rotation point.
-     *
-     * @param pos
-     *     The new position.
-     */
-    public void setRotationPoint(Vector3Di pos)
-    {
-        assertWriteLockable();
-        invalidateAnimationData();
-        base.setRotationPoint(pos);
-    }
-
-    /**
      * Updates the position of the powerblock.
      *
      * @param pos
@@ -593,20 +589,6 @@ public abstract class AbstractStructure implements IStructureConst
         assertWriteLockable();
         invalidateBasicData();
         base.setName(name);
-    }
-
-    /**
-     * Changes the open-status of this structure. True if open, False if closed.
-     *
-     * @param open
-     *     The new open-status of the structure.
-     */
-    public void setOpen(boolean open)
-    {
-        assertWriteLockable();
-        invalidateAnimationData();
-        base.setOpen(open);
-        verifyRedstoneState();
     }
 
     /**
@@ -652,12 +634,6 @@ public abstract class AbstractStructure implements IStructureConst
     }
 
     @Override
-    public Vector3Di getRotationPoint()
-    {
-        return base.getRotationPoint();
-    }
-
-    @Override
     public Vector3Di getPowerBlock()
     {
         return base.getPowerBlock();
@@ -667,12 +643,6 @@ public abstract class AbstractStructure implements IStructureConst
     public String getName()
     {
         return base.getName();
-    }
-
-    @Override
-    public boolean isOpen()
-    {
-        return base.isOpen();
     }
 
     @Override
@@ -724,15 +694,95 @@ public abstract class AbstractStructure implements IStructureConst
         setCoordinates(new Cuboid(posA, posB));
     }
 
+    @Override
+    public IPropertyContainerConst getPropertyContainerSnapshot()
+    {
+        return lazyPropertyContainerSnapshot.get();
+    }
+
+    @Override
+    @Locked.Read("lock")
+    public <T> IPropertyValue<T> getPropertyValue(Property<T> property)
+    {
+        return base.getPropertyValue(property);
+    }
+
+    @Override
+    @Locked.Read("lock")
+    public boolean hasProperty(Property<?> property)
+    {
+        return base.hasProperty(property);
+    }
+
+    @Override
+    @Locked.Read("lock")
+    public boolean hasProperties(Collection<Property<?>> properties)
+    {
+        return base.hasProperties(properties);
+    }
+
+    @Override
+    public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
+    {
+        assertWriteLockable();
+        return setPropertyValue0(property, value);
+    }
+
+    @Locked.Write("lock")
+    private <T> IPropertyValue<T> setPropertyValue0(Property<T> property, @Nullable T value)
+    {
+        final var ret = base.setPropertyValue(property, value);
+        handlePropertyChange(property);
+        return ret;
+    }
+
+    /**
+     * Handles a change in a property.
+     * <p>
+     * This will invalidate any cached data in the scope of the property.
+     *
+     * @param property
+     *     The property that changed.
+     */
+    @GuardedBy("lock")
+    private void handlePropertyChange(Property<?> property)
+    {
+        lazyPropertyContainerSnapshot.reset();
+        property.getPropertyScopes().forEach(this::handlePropertyScopeChange);
+        invalidateBasicData();
+    }
+
+    /**
+     * Handles a change in a property scope.
+     *
+     * @param scope
+     *     The scope that changed.
+     */
+    @GuardedBy("lock")
+    private void handlePropertyScopeChange(PropertyScope scope)
+    {
+        switch (scope)
+        {
+            case REDSTONE -> verifyRedstoneState();
+            case ANIMATION -> invalidateAnimationData();
+            default -> throw new IllegalArgumentException("Unknown property scope: '" + scope + "'!");
+        }
+    }
+
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
     @EqualsAndHashCode
     public static final class BaseHolder
     {
         private final StructureBase base;
 
-        StructureBase get()
+        /**
+         * Gets the UID of the structure this holder is for.
+         *
+         * @return The UID of the structure.
+         */
+        public long getUid()
         {
-            return base;
+            return base.getUid();
         }
 
         @Override

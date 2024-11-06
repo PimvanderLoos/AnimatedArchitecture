@@ -1,36 +1,37 @@
 package nl.pim16aap2.animatedarchitecture.core.storage;
 
+import it.unimi.dsi.fastutil.ints.IntImmutableList;
+import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 
 /**
  * Represents an SQL statement.
  */
 @SuppressWarnings("unused")
+@Getter
 public enum SQLStatement
 {
     UPDATE_STRUCTURE_BASE("""
         UPDATE Structure SET
-        name           = ?,
-        world          = ?,
-        xMin           = ?,
-        yMin           = ?,
-        zMin           = ?,
-        xMax           = ?,
-        yMax           = ?,
-        zMax           = ?,
-        rotationPointX = ?,
-        rotationPointY = ?,
-        rotationPointZ = ?,
-        rotationPointChunkId = ?,
-        powerBlockX    = ?,
-        powerBlockY    = ?,
-        powerBlockZ    = ?,
-        powerBlockChunkId = ?,
-        openDirection  = ?,
-        bitflag        = ?,
-        typeVersion    = ?,
-        typeData       = ?
-        WHERE id       = ?;
+        name                 = ?,
+        world                = ?,
+        xMin                 = ?,
+        yMin                 = ?,
+        zMin                 = ?,
+        xMax                 = ?,
+        yMax                 = ?,
+        zMax                 = ?,
+        centerPointChunkId   = ?,
+        powerBlockX          = ?,
+        powerBlockY          = ?,
+        powerBlockZ          = ?,
+        powerBlockChunkId    = ?,
+        animationDirection   = ?,
+        bitflag              = ?,
+        typeVersion          = ?,
+        typeData             = ?,
+        properties           = ?
+        WHERE id             = ?;
         """
     ),
 
@@ -91,21 +92,23 @@ public enum SQLStatement
     ),
 
     GET_IDENTIFIERS_FROM_PARTIAL_NAME_MATCH_WITH_OWNER("""
-        SELECT S.id, S.name
+        SELECT S.type, S.id, S.name
         FROM Structure AS S
         INNER JOIN StructureOwnerPlayer AS O ON S.id = O.structureUID
         INNER JOIN Player AS P ON O.playerID = P.id
         WHERE S.name like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
+        ?
         GROUP BY S.id;
         """
     ),
 
     GET_IDENTIFIERS_FROM_PARTIAL_UID_MATCH_WITH_OWNER("""
-        SELECT S.id, S.name
+        SELECT S.type, S.id, S.name
         FROM Structure AS S
         INNER JOIN StructureOwnerPlayer AS O ON S.id = O.structureUID
         INNER JOIN Player AS P ON O.playerID = P.id
         WHERE S.id like ? || '%' AND O.permission <= ? AND (? IS NULL OR P.playerUUID IS ?)
+        ?
         GROUP BY S.id;
         """
     ),
@@ -180,14 +183,14 @@ public enum SQLStatement
     ),
 
     /**
-     * Obtains the structures whose rotationPoint's chunk hash value has a certain value.
+     * Obtains the structures whose center point's chunk hash value has a certain value.
      */
     GET_STRUCTURES_IN_CHUNK("""
         SELECT Structure.*, Player.*, StructureOwnerPlayer.permission
         FROM Structure
         INNER JOIN StructureOwnerPlayer ON Structure.id = StructureOwnerPlayer.structureUID
         INNER JOIN Player ON StructureOwnerPlayer.playerID = Player.id
-        WHERE Structure.rotationPointChunkId = ?;
+        WHERE Structure.centerPointChunkId = ?;
         """
     ),
 
@@ -254,10 +257,10 @@ public enum SQLStatement
 
     INSERT_STRUCTURE_BASE("""
         INSERT INTO Structure
-        (name, world, xMin, yMin, zMin, xMax, yMax, zMax, rotationPointX, rotationPointY, rotationPointZ,
-         rotationPointChunkId, powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection,
-         bitflag, type, typeVersion, typeData)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (name, world, xMin, yMin, zMin, xMax, yMax, zMax, centerPointChunkId,
+         powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, animationDirection,
+         bitflag, type, typeVersion, typeData, properties)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING id;
         """
     ),
@@ -277,13 +280,26 @@ public enum SQLStatement
 
     ;
 
+    /**
+     * The statement this {@link SQLStatement} represents.
+     */
     private final String statement;
+
+    /**
+     * The indices of the variables in the statement.
+     */
+    private final IntImmutableList variableIndices;
+
+    /**
+     * The number of variables in the statement.
+     */
     private final int variableCount;
 
     SQLStatement(String statement)
     {
         this.statement = statement;
-        variableCount = StringUtil.countPatternOccurrences(DelayedPreparedStatement.QUESTION_MARK, statement);
+        this.variableIndices = StringUtil.getVariableIndices(statement, '?');
+        this.variableCount = this.variableIndices.size();
     }
 
     /**
@@ -329,6 +345,6 @@ public enum SQLStatement
      */
     public DelayedPreparedStatement constructDelayedPreparedStatement()
     {
-        return new DelayedPreparedStatement(variableCount, statement);
+        return new DelayedPreparedStatement(this);
     }
 }

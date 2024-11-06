@@ -17,7 +17,7 @@
         <typeName>Clock</typeName>
         <version>1</version>
         <supportedApiVersions>1.*</supportedApiVersions>
-        <TypeDependencies>windmill(1;1)</TypeDependencies>
+        <TypeDependencies>animatedarchitecture:windmill(1;1)</TypeDependencies>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
     </properties>
 

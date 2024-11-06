@@ -1,19 +1,17 @@
 package nl.pim16aap2.animatedarchitecture.structures.slidingdoor;
 
-import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorInteger;
-import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -21,18 +19,27 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Implementation of the {@link Creator} class for the {@link SlidingDoor} structure.
+ */
 @ToString(callSuper = true)
 public class CreatorSlidingDoor extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeSlidingDoor.get();
 
-    @GuardedBy("this")
-    private int blocksToMove;
+    protected CreatorSlidingDoor(
+        ToolUser.Context context,
+        StructureType structureType,
+        IPlayer player,
+        @Nullable String name)
+    {
+        super(context, structureType, player, name);
+        init();
+    }
 
     public CreatorSlidingDoor(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
-        super(context, player, name);
-        init();
+        this(context, STRUCTURE_TYPE, player, name);
     }
 
     @Override
@@ -46,7 +53,7 @@ public class CreatorSlidingDoor extends Creator
                 TextType.INFO,
                 getStructureArg()))
             .propertyName(localizer.getMessage("creator.base.property.blocks_to_move"))
-            .propertyValueSupplier(this::getBlocksToMove)
+            .propertyValueSupplier(() -> getProperty(Property.BLOCKS_TO_MOVE))
             .updatable(true)
             .stepExecutor(new StepExecutorInteger(this::provideBlocksToMove))
             .stepPreparation(this::prepareSetBlocksToMove)
@@ -104,7 +111,7 @@ public class CreatorSlidingDoor extends Creator
             return false;
         }
 
-        this.blocksToMove = blocksToMove;
+        setProperty(Property.BLOCKS_TO_MOVE, blocksToMove);
         return true;
     }
 
@@ -117,19 +124,6 @@ public class CreatorSlidingDoor extends Creator
     @Override
     protected synchronized AbstractStructure constructStructure()
     {
-        final Cuboid cuboid = Util.requireNonNull(getCuboid(), "cuboid");
-        setRotationPoint(cuboid.getCenterBlock());
-        return new SlidingDoor(constructStructureData(), blocksToMove);
-    }
-
-    @Override
-    protected StructureType getStructureType()
-    {
-        return STRUCTURE_TYPE;
-    }
-
-    protected final synchronized int getBlocksToMove()
-    {
-        return blocksToMove;
+        return new SlidingDoor(constructStructureData());
     }
 }

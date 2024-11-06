@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
@@ -28,10 +29,19 @@ public class CreatorFlag extends Creator
     @GuardedBy("this")
     private boolean northSouthAnimated;
 
+    protected CreatorFlag(
+        ToolUser.Context context,
+        StructureType structureType,
+        IPlayer player,
+        @Nullable String name)
+    {
+        super(context, structureType, player, name);
+        init();
+    }
+
     public CreatorFlag(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
-        super(context, player, name);
-        init();
+        this(context, STRUCTURE_TYPE, player, name);
     }
 
     @Override
@@ -107,7 +117,7 @@ public class CreatorFlag extends Creator
     protected synchronized AbstractStructure constructStructure()
     {
         final Cuboid cuboid = Util.requireNonNull(getCuboid(), "cuboid");
-        final Vector3Di rotationPoint = Util.requireNonNull(getRotationPoint(), "rotationPoint");
+        final Vector3Di rotationPoint = getRequiredProperty(Property.ROTATION_POINT);
 
         if (northSouthAnimated)
             setMovementDirection(
@@ -117,12 +127,6 @@ public class CreatorFlag extends Creator
                 rotationPoint.x() == cuboid.getMin().x() ? MovementDirection.EAST : MovementDirection.WEST);
 
         return new Flag(constructStructureData(), northSouthAnimated);
-    }
-
-    @Override
-    protected StructureType getStructureType()
-    {
-        return STRUCTURE_TYPE;
     }
 
     /**

@@ -1,14 +1,15 @@
 package nl.pim16aap2.animatedarchitecture.structures.flag;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
+import java.util.List;
 
 public final class StructureTypeFlag extends StructureType
 {
@@ -18,7 +19,15 @@ public final class StructureTypeFlag extends StructureType
 
     private StructureTypeFlag()
     {
-        super(Constants.PLUGIN_NAME, "Flag", TYPE_VERSION, Collections.emptyList(), "structure.type.flag");
+        super(
+            NamespacedKey.of("Flag"),
+            TYPE_VERSION,
+            List.of(),
+            List.of(
+                Property.ROTATION_POINT
+            ),
+            "structure.type.flag"
+        );
     }
 
     /**

@@ -97,7 +97,8 @@
         <!--
         The dependencies of the structure type.
         This is a string that contains a space-separated list of dependencies in the format
-        `<typeName>(minVersion;maxVersion)`. For example: `portcullis(1;5) door(1;1)`. (Without the backticks.)
+        `<namespace>:<typeName>(minVersion;maxVersion)`.
+        For example: `animatedarchitecture:portcullis(1;5) animatedarchitecture:door(1;1)`. (Without the backticks.)
 
         Both the minimum and the maximum versions of the dependency are inclusive.
 

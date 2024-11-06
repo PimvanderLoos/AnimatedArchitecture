@@ -1,21 +1,19 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
 
-import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorInteger;
-import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -23,19 +21,28 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Implementation of the {@link Creator} class for the {@link Portcullis} structure.
+ */
 @ToString(callSuper = true)
 @Flogger
 public class CreatorPortcullis extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypePortcullis.get();
 
-    @GuardedBy("this")
-    private int blocksToMove;
+    protected CreatorPortcullis(
+        ToolUser.Context context,
+        StructureType structureType,
+        IPlayer player,
+        @Nullable String name)
+    {
+        super(context, structureType, player, name);
+        init();
+    }
 
     public CreatorPortcullis(ToolUser.Context context, IPlayer player, @Nullable String name)
     {
-        super(context, player, name);
-        init();
+        this(context, STRUCTURE_TYPE, player, name);
     }
 
     @Override
@@ -49,7 +56,7 @@ public class CreatorPortcullis extends Creator
                 TextType.INFO,
                 getStructureArg()))
             .propertyName(localizer.getMessage("creator.base.property.blocks_to_move"))
-            .propertyValueSupplier(this::getBlocksToMove)
+            .propertyValueSupplier(() -> getProperty(Property.BLOCKS_TO_MOVE))
             .updatable(true)
             .stepExecutor(new StepExecutorInteger(this::provideBlocksToMove))
             .stepPreparation(this::prepareSetBlocksToMove)
@@ -112,7 +119,7 @@ public class CreatorPortcullis extends Creator
             return false;
         }
 
-        this.blocksToMove = blocksToMove;
+        setProperty(Property.BLOCKS_TO_MOVE, blocksToMove);
         return true;
     }
 
@@ -125,19 +132,6 @@ public class CreatorPortcullis extends Creator
     @Override
     protected synchronized AbstractStructure constructStructure()
     {
-        final Cuboid cuboid = Util.requireNonNull(getCuboid(), "cuboid");
-        setRotationPoint(cuboid.getCenterBlock());
-        return new Portcullis(constructStructureData(), blocksToMove);
-    }
-
-    @Override
-    protected StructureType getStructureType()
-    {
-        return STRUCTURE_TYPE;
-    }
-
-    protected final synchronized int getBlocksToMove()
-    {
-        return blocksToMove;
+        return new Portcullis(constructStructureData());
     }
 }

@@ -1,15 +1,16 @@
 package nl.pim16aap2.animatedarchitecture.structures.windmill;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
-import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.List;
 
 public final class StructureTypeWindmill extends StructureType
 {
@@ -20,14 +21,17 @@ public final class StructureTypeWindmill extends StructureType
     private StructureTypeWindmill()
     {
         super(
-            Constants.PLUGIN_NAME,
-            "Windmill",
+            NamespacedKey.of("Windmill"),
             TYPE_VERSION,
-            Arrays.asList(
+            List.of(
                 MovementDirection.NORTH,
                 MovementDirection.EAST,
                 MovementDirection.SOUTH,
                 MovementDirection.WEST),
+            List.of(
+                Property.ANIMATION_SPEED_MULTIPLIER,
+                Property.ROTATION_POINT
+            ),
             "structure.type.windmill"
         );
     }

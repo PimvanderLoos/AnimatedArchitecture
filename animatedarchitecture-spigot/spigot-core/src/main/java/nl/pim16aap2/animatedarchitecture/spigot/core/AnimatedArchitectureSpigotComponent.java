@@ -211,15 +211,15 @@ interface AnimatedArchitectureSpigotComponent
 
     DatabaseManager getDatabaseManager();
 
-    StructureRegistry getDoorRegistry();
+    StructureRegistry getStructureRegistry();
 
     BuildDataReader getBuildDataReader();
 
-    StructureActivityManager getDoorActivityManager();
+    StructureActivityManager getStructureActivityManager();
 
-    StructureSpecificationManager getDoorSpecificationManager();
+    StructureSpecificationManager getStructureSpecificationManager();
 
-    StructureTypeManager getDoorTypeManager();
+    StructureTypeManager getStructureTypeManager();
 
     ToolUserManager getToolUserManager();
 
@@ -231,7 +231,7 @@ interface AnimatedArchitectureSpigotComponent
 
     IAnimatedBlockFactory getAnimatedBlockFactory();
 
-    StructureTypeLoader getDoorTypeLoader();
+    StructureTypeLoader getStructureTypeLoader();
 
     ISpigotSubPlatform getSubPlatform();
 

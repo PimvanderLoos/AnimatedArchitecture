@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.storage;
 
+import it.unimi.dsi.fastutil.ints.IntImmutableList;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.CheckedTriConsumer;
 import org.jetbrains.annotations.Nullable;
@@ -11,7 +12,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.regex.Pattern;
 
 /**
  * Represents a wrapper around {@link PreparedStatement}. It can be used to set variables before obtaining a
@@ -24,8 +24,10 @@ import java.util.regex.Pattern;
 public class DelayedPreparedStatement
 {
     private final Action<?>[] actions;
+    private final SQLStatement sqlStatement;
     private String statement;
-    public static final Pattern QUESTION_MARK = Pattern.compile("\\?");
+    private @Nullable IntImmutableList indices;
+
     private int currentIDX = 1;
 
     /**
@@ -41,27 +43,15 @@ public class DelayedPreparedStatement
      * <p>
      * It counts the number of variables ('?' characters) in the statement.
      *
-     * @param statement
+     * @param sqlStatement
      *     The SQL statement.
      */
-    public DelayedPreparedStatement(String statement)
+    public DelayedPreparedStatement(SQLStatement sqlStatement)
     {
-        actions = new Action[StringUtil.countPatternOccurrences(DelayedPreparedStatement.QUESTION_MARK, statement)];
-        this.statement = statement;
-    }
-
-    /**
-     * Constructs a new {@link DelayedPreparedStatement}.
-     *
-     * @param variableCount
-     *     The number of variables ('?' characters) in the statement.
-     * @param statement
-     *     The SQL statement.
-     */
-    public DelayedPreparedStatement(int variableCount, String statement)
-    {
-        actions = new Action[variableCount];
-        this.statement = statement;
+        this.sqlStatement = sqlStatement;
+        this.statement = sqlStatement.getStatement();
+        this.actions = new Action[sqlStatement.getVariableCount()];
+        this.indices = sqlStatement.getVariableIndices();
     }
 
     @Override
@@ -70,7 +60,7 @@ public class DelayedPreparedStatement
         String result = statement;
         for (int idx = 0; idx < (actions.length - skipCount); ++idx)
         {
-            final Action<?> action = actions[idx];
+            final @Nullable Action<?> action = actions[idx];
             if (action == null || action.obj == null)
                 result = result.replaceFirst("[?]", "NULL");
             else if (action.obj instanceof Number)
@@ -134,6 +124,22 @@ public class DelayedPreparedStatement
         return idx - 1 - skipCount;
     }
 
+
+    /**
+     * Shortcut for {@link #setRawString(int, String)} with the current index.
+     * <p>
+     * Read the documentation of {@link #setRawString(int, String)} to understand the implications of using this
+     * method.
+     *
+     * @param obj
+     *     The name of the table.
+     * @return This {@link DelayedPreparedStatement}.
+     */
+    public DelayedPreparedStatement setNextRawString(String obj)
+    {
+        return setRawString(currentIDX, obj);
+    }
+
     /**
      * Replaces a '?' at the given index with a raw String. Unlike all other types, this is executed before constructing
      * the actual {@link PreparedStatement} and modifies {@link #statement}.
@@ -153,26 +159,33 @@ public class DelayedPreparedStatement
      */
     public DelayedPreparedStatement setRawString(int idx, String obj)
     {
-        if (!IStorage.isValidTableName(obj))
-            throw new IllegalArgumentException("Trying to set table name using an invalid string: " + obj);
+        // Update the indices based on the current statement.
+        if (indices == null)
+            indices = StringUtil.getVariableIndices(statement, '?');
 
-        final String tmp = statement;
-        int questionMarkPos = tmp.indexOf('?');
-        if (questionMarkPos == -1)
-            throw new IllegalArgumentException("Trying to set table name in a statement without any variables!");
+        final int realIdx = getRealIndex(idx);
+        if (realIdx >= indices.size())
+            throw new IllegalArgumentException(String.format(
+                """
+                    Trying to set raw String at index %d, but there are only %d variables in the statement.
+                    Statement: '%s'
+                    Current:   '%s'
+                    Object:    '%s'
+                    """,
+                realIdx,
+                indices.size(),
+                sqlStatement,
+                statement,
+                obj
+            ));
+        final int questionMarkPos = indices.getInt(realIdx);
 
-        // TODO: Precompute the indices of the question marks.
-        int questionMarkIDX = 1;
-
-        while (questionMarkPos > -1 && questionMarkIDX < idx)
-        {
-            ++questionMarkIDX;
-            questionMarkPos = tmp.indexOf('?', questionMarkPos + 1);
-        }
-
-        statement = statement.substring(0, questionMarkPos) + obj + statement.substring(questionMarkPos + 1);
+        this.statement = statement.substring(0, questionMarkPos) + obj + statement.substring(questionMarkPos + 1);
 
         ++skipCount;
+
+        // Reset the indices, as the statement has changed.
+        this.indices = null;
 
         return this;
     }

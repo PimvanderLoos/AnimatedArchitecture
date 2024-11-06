@@ -13,6 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
@@ -603,7 +604,9 @@ public final class Animator implements IAnimator
      */
     private void updateCoords()
     {
-        structure.setOpen(!snapshot.isOpen());
+        if (structure instanceof IStructureWithOpenStatus withOpenStatus)
+            withOpenStatus.setOpenStatus(!withOpenStatus.isOpen());
+
         if (!newCuboid.equals(snapshot.getCuboid()))
             structure.setCoordinates(newCuboid);
         structure.syncData().exceptionally(FutureUtil::exceptionally);

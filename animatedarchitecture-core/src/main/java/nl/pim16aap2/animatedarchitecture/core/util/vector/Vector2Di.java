@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Contract;
  * <p>
  * This class is thread-safe, as all modifications return a new instance.
  */
-@SuppressWarnings("unused")
 public record Vector2Di(int x, int y)
 {
     /**
@@ -17,13 +16,15 @@ public record Vector2Di(int x, int y)
      *
      * @return A new integer-based vector.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Dd toDouble()
     {
         return Vector2Dd.fromInteger(this);
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     static Vector2Di fromDouble(Vector2Dd doubleVec)
     {
         return new Vector2Di(round(doubleVec.x()), round(doubleVec.y()));
@@ -38,7 +39,8 @@ public record Vector2Di(int x, int y)
      *     The y value to add to the current y value.
      * @return A new {@link Vector2Di} with the added values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di add(int x, int y)
     {
         return new Vector2Di(this.x + x, this.y + y);
@@ -51,7 +53,8 @@ public record Vector2Di(int x, int y)
      *     The other {@link Vector2Di} to add to the current one.
      * @return A new {@link Vector2Di} with the added values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di add(Vector2Di other)
     {
         return new Vector2Di(other.x, other.y);
@@ -64,7 +67,8 @@ public record Vector2Di(int x, int y)
      *     The value to add to both the x and the y values.
      * @return A new {@link Vector2Di} with the value added to the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di add(int val)
     {
         return add(val, val);
@@ -80,7 +84,8 @@ public record Vector2Di(int x, int y)
      *     The y value to subtract from the current y value.
      * @return A new {@link Vector2Di} with the subtracted values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di subtract(int x, int y)
     {
         return add(-x, -y);
@@ -93,7 +98,8 @@ public record Vector2Di(int x, int y)
      *     The other {@link Vector2Di} to subtract from the x and the y values.
      * @return The new {@link Vector2Di} with the value subtracted from the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di subtract(Vector2Di other)
     {
         return subtract(other.x, other.y);
@@ -106,7 +112,8 @@ public record Vector2Di(int x, int y)
      *     The value to subtract from both the x and the y values.
      * @return A new {@link Vector2Di} with the value subtracted from the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di subtract(int val)
     {
         return subtract(val, val);
@@ -122,7 +129,8 @@ public record Vector2Di(int x, int y)
      *     The y value to multiply with the current y value.
      * @return A new {@link Vector2Di} with the multiplied values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di multiply(int x, int y)
     {
         return new Vector2Di(this.x * x, this.y * y);
@@ -135,7 +143,8 @@ public record Vector2Di(int x, int y)
      *     The other {@link Vector2Di} to multiply with the x and the y values.
      * @return The new {@link Vector2Di} with the value multiplied with the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di multiply(Vector2Di other)
     {
         return multiply(other.x, other.y);
@@ -148,7 +157,8 @@ public record Vector2Di(int x, int y)
      *     The value to multiply from both the x and the y values.
      * @return A new {@link Vector2Di} with the value multiplied with the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di multiply(int val)
     {
         return multiply(val, val);
@@ -164,7 +174,8 @@ public record Vector2Di(int x, int y)
      *     The y value to multiply with the current y value.
      * @return A new {@link Vector2Di} with the multiplied values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di multiply(double x, double y)
     {
         return new Vector2Di(round(this.x * x), round(this.y * y));
@@ -177,7 +188,8 @@ public record Vector2Di(int x, int y)
      *     The other {@link Vector2Dd} to multiply with the x and the y values.
      * @return The new {@link Vector2Di} with the value multiplied with the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di multiply(Vector2Dd other)
     {
         return multiply(other.x(), other.y());
@@ -190,7 +202,8 @@ public record Vector2Di(int x, int y)
      *     The value to multiply from both the x and the y values.
      * @return A new {@link Vector2Di} with the value multiplied with the values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di multiply(double val)
     {
         return multiply(val, val);
@@ -206,7 +219,8 @@ public record Vector2Di(int x, int y)
      *     The y value to use as divisor for the current y value.
      * @return A new {@link Vector2Di} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di divide(int x, int y)
     {
         return new Vector2Di(round(this.x / (double) x), round(this.y / (double) y));
@@ -220,7 +234,8 @@ public record Vector2Di(int x, int y)
      *     The other {@link Vector2Di} to use as divisor for the current x and the y values.
      * @return A new {@link Vector2Di} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di divide(Vector2Di other)
     {
         return divide(other.x, other.y);
@@ -233,7 +248,8 @@ public record Vector2Di(int x, int y)
      *     The value to use as divisor for both the x and the y values.
      * @return A new {@link Vector2Di} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di divide(int val)
     {
         return divide(val, val);
@@ -249,7 +265,8 @@ public record Vector2Di(int x, int y)
      *     The y value to use as divisor for the current y value.
      * @return A new {@link Vector2Di} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di divide(double x, double y)
     {
         return new Vector2Di(round(this.x / x), round(this.y / y));
@@ -263,7 +280,8 @@ public record Vector2Di(int x, int y)
      *     The other {@link Vector2Dd} to use as divisor for the current x and the y values.
      * @return A new {@link Vector2Di} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di divide(Vector2Dd other)
     {
         return divide(other.x(), other.y());
@@ -276,7 +294,8 @@ public record Vector2Di(int x, int y)
      *     The value to use as divisor for both the x and the y values.
      * @return A new {@link Vector2Di} with the divided values.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di divide(double val)
     {
         return divide(val, val);
@@ -290,7 +309,8 @@ public record Vector2Di(int x, int y)
      *     The number of bits to shift the values.
      * @return A new {@link Vector2Di}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di leftShift(int bits)
     {
         return new Vector2Di(x << bits, y << bits);
@@ -303,7 +323,8 @@ public record Vector2Di(int x, int y)
      *     The number of bits to shift the values.
      * @return A new {@link Vector2Di}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di rightShift(int bits)
     {
         return new Vector2Di(x >> bits, y >> bits);
@@ -314,7 +335,8 @@ public record Vector2Di(int x, int y)
      *
      * @return A new {@link Vector2Di} with normalized
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public Vector2Di normalized()
     {
         final double length = Math.sqrt((double) x * x + y * y);

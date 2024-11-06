@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.api.debugging;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,10 +24,21 @@ public final class DebuggableRegistry
     @Inject
     public DebuggableRegistry()
     {
+        registerStaticDebuggables();
     }
 
     public void registerDebuggable(IDebuggable debuggable)
     {
         debuggables.add(Objects.requireNonNull(debuggable, "Cannot register null debuggable!"));
+    }
+
+    /**
+     * Registers static debuggables that are always available.
+     * <p>
+     * These cannot register themselves as they are created before the registry.
+     */
+    private void registerStaticDebuggables()
+    {
+        registerDebuggable(Property.REGISTRY);
     }
 }

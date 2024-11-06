@@ -31,6 +31,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
@@ -658,9 +659,10 @@ final class StructureToggleHelper
         Cuboid newCuboid,
         StructureActionType actionType)
     {
-        if (actionType == StructureActionType.OPEN && !structure.isOpenable())
+        final @Nullable Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
+        if (actionType == StructureActionType.OPEN && Boolean.TRUE.equals(isOpen))
             return StructureToggleResult.ALREADY_OPEN;
-        else if (actionType == StructureActionType.CLOSE && !structure.isCloseable())
+        else if (actionType == StructureActionType.CLOSE && Boolean.FALSE.equals(isOpen))
             return StructureToggleResult.ALREADY_CLOSED;
 
         if (structure.isLocked())

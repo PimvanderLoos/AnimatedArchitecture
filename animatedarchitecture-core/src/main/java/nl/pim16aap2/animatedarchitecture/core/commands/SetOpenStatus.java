@@ -8,10 +8,12 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -67,29 +69,43 @@ public class SetOpenStatus extends StructureTargetCommand
     @Override
     protected CompletableFuture<?> performAction(AbstractStructure structure)
     {
-        if (structure.isOpen() == isOpen)
+        if (!(structure instanceof IStructureWithOpenStatus withOpenStatus))
         {
-            final String localizedIsOpen =
-                isOpen ?
-                    localizer.getMessage("constants.open_status.open") :
-                    localizer.getMessage("constants.open_status.closed");
-
             getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.set_open_status.error.status_not_changed"),
+                localizer.getMessage("commands.set_open_status.error.missing_property"),
                 TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(structure)),
-                arg -> arg.highlight(structure.getNameAndUid()),
-                arg -> arg.highlight(localizedIsOpen))
+                arg -> arg.highlight(structure.getNameAndUid()))
             );
 
             return CompletableFuture.completedFuture(null);
         }
 
-        structure.setOpen(isOpen);
-        return structure
-            .syncData()
-            .thenAccept(this::handleDatabaseActionResult)
-            .thenRunAsync(() -> sendUpdatedInfo(structure));
+        final @Nullable Boolean oldStatus = withOpenStatus.setOpenStatus(isOpen).value();
+        if (oldStatus == null || oldStatus != isOpen)
+        {
+            // The open status has changed, so we need to update the database and inform the user.
+            return structure
+                .syncData()
+                .thenAccept(this::handleDatabaseActionResult)
+                .thenRunAsync(() -> sendUpdatedInfo(structure));
+        }
+
+        // The open status has not changed, so we inform the user.
+        final String localizedIsOpen =
+            isOpen ?
+                localizer.getMessage("constants.open_status.open") :
+                localizer.getMessage("constants.open_status.closed");
+
+        getCommandSender().sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.set_open_status.error.status_not_changed"),
+            TextType.ERROR,
+            arg -> arg.highlight(localizer.getStructureType(structure)),
+            arg -> arg.highlight(structure.getNameAndUid()),
+            arg -> arg.highlight(localizedIsOpen))
+        );
+
+        return CompletableFuture.completedFuture(null);
     }
 
     @AssistedFactory

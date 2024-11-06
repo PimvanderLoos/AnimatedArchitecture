@@ -80,7 +80,7 @@ class LogAssertionsUtilTest
         Assertions.assertEquals(
             """
                 Oldest log messages with their index:
-                  [0] [INFO] `Test message 0`
+                  [0] [INFO] `Test message 0` from Logger null
                 """,
             LogAssertionsUtil.formatLogEvents(events, 1)
         );
@@ -88,9 +88,9 @@ class LogAssertionsUtilTest
         Assertions.assertEquals(
             """
                 Oldest log messages with their index:
-                  [0] [INFO] `Test message 0`
-                  [1] [INFO] `Test message 1`
-                  [2] [INFO] `Test message 2`
+                  [0] [INFO] `Test message 0` from Logger null
+                  [1] [INFO] `Test message 1` from Logger null
+                  [2] [INFO] `Test message 2` from Logger null
                 """,
             LogAssertionsUtil.formatLogEvents(events, 5)
         );
@@ -107,7 +107,7 @@ class LogAssertionsUtilTest
         Assertions.assertEquals(
             """
                 Most recent log messages with their offset:
-                  [-1] [INFO] `Test message 2`
+                  [-1] [INFO] `Test message 2` from Logger null
                 """,
             LogAssertionsUtil.formatLogEvents(events, -1)
         );
@@ -115,9 +115,9 @@ class LogAssertionsUtilTest
         Assertions.assertEquals(
             """
                 Most recent log messages with their offset:
-                  [-1] [INFO] `Test message 2`
-                  [-2] [INFO] `Test message 1`
-                  [-3] [INFO] `Test message 0`
+                  [-1] [INFO] `Test message 2` from Logger null
+                  [-2] [INFO] `Test message 1` from Logger null
+                  [-3] [INFO] `Test message 0` from Logger null
                 """,
             LogAssertionsUtil.formatLogEvents(events, -5)
         );
@@ -261,13 +261,13 @@ class LogAssertionsUtilTest
         final LogEvent event2 = newLogEvent("Test message 2", RuntimeException.class);
 
         Mockito.when(logCaptor.getLogEvents()).thenReturn(List.of(event0, event1, event2));
-        Assertions.assertEquals(2, LogAssertionsUtil.getThrowingCount(logCaptor));
+        Assertions.assertEquals(2, LogAssertionsUtil.getThrowingLogEvents(logCaptor).size());
 
         Mockito.when(logCaptor.getLogEvents()).thenReturn(List.of(event0, event1));
-        Assertions.assertEquals(1, LogAssertionsUtil.getThrowingCount(logCaptor));
+        Assertions.assertEquals(1, LogAssertionsUtil.getThrowingLogEvents(logCaptor).size());
 
         Mockito.when(logCaptor.getLogEvents()).thenReturn(List.of(event0));
-        Assertions.assertEquals(0, LogAssertionsUtil.getThrowingCount(logCaptor));
+        Assertions.assertEquals(0, LogAssertionsUtil.getThrowingLogEvents(logCaptor).size());
     }
 
     private LogEvent newLogEvent(String message, Class<? extends Throwable> throwableType)

@@ -127,7 +127,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final IServer server;
 
     @Getter
-    private final StructureRegistry doorRegistry;
+    private final StructureRegistry structureRegistry;
 
     @Getter
     private final IChunkLoader chunkLoader;
@@ -136,13 +136,13 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final DatabaseManager databaseManager;
 
     @Getter
-    private final StructureActivityManager doorActivityManager;
+    private final StructureActivityManager structureActivityManager;
 
     @Getter
-    private final StructureSpecificationManager doorSpecificationManager;
+    private final StructureSpecificationManager structureSpecificationManager;
 
     @Getter
-    private final StructureTypeManager doorTypeManager;
+    private final StructureTypeManager structureTypeManager;
 
     @Getter
     private final ToolUserManager toolUserManager;
@@ -184,7 +184,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final IRedstoneManager powerBlockRedstoneManager;
 
     @Getter
-    private final StructureTypeLoader doorTypeLoader;
+    private final StructureTypeLoader structureTypeLoader;
 
     @Getter
     private final LocalizationManager localizationManager;
@@ -236,13 +236,14 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         limitsManager = safeGetter(AnimatedArchitectureSpigotComponent::getLimitsManager);
         headManager = safeGetter(AnimatedArchitectureSpigotComponent::getHeadManager);
         powerBlockManager = safeGetter(AnimatedArchitectureSpigotComponent::getPowerBlockManager);
-        doorRegistry = safeGetter(AnimatedArchitectureSpigotComponent::getDoorRegistry);
+        structureRegistry = safeGetter(AnimatedArchitectureSpigotComponent::getStructureRegistry);
         localizationManager = safeGetter(AnimatedArchitectureSpigotComponent::getLocalizationManager);
         chunkLoader = safeGetter(AnimatedArchitectureSpigotComponent::getChunkLoader);
         powerBlockRedstoneManager = safeGetter(AnimatedArchitectureSpigotComponent::getIPowerBlockRedstoneManager);
-        doorActivityManager = safeGetter(AnimatedArchitectureSpigotComponent::getDoorActivityManager);
-        doorSpecificationManager = safeGetter(AnimatedArchitectureSpigotComponent::getDoorSpecificationManager);
-        doorTypeManager = safeGetter(AnimatedArchitectureSpigotComponent::getDoorTypeManager);
+        structureActivityManager = safeGetter(AnimatedArchitectureSpigotComponent::getStructureActivityManager);
+        structureSpecificationManager =
+            safeGetter(AnimatedArchitectureSpigotComponent::getStructureSpecificationManager);
+        structureTypeManager = safeGetter(AnimatedArchitectureSpigotComponent::getStructureTypeManager);
         toolUserManager = safeGetter(AnimatedArchitectureSpigotComponent::getToolUserManager);
         delayedCommandInputManager = safeGetter(AnimatedArchitectureSpigotComponent::getDelayedCommandInputManager);
         animatedBlockHookManager = safeGetter(AnimatedArchitectureSpigotComponent::getAnimatedBlockHookManager);
@@ -277,7 +278,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         animatedArchitectureToolUtil = safeGetter(
             AnimatedArchitectureSpigotComponent::getAnimatedArchitectureToolUtilSpigot);
         localizer = safeGetter(AnimatedArchitectureSpigotComponent::getILocalizer);
-        doorTypeLoader = safeGetter(AnimatedArchitectureSpigotComponent::getDoorTypeLoader);
+        structureTypeLoader = safeGetter(AnimatedArchitectureSpigotComponent::getStructureTypeLoader);
         restartableHolder = safeGetter(AnimatedArchitectureSpigotComponent::getRestartableHolder);
         projectVersion = safeGetter(AnimatedArchitectureSpigotComponent::getProjectVersion);
         commandListener = safeGetter(AnimatedArchitectureSpigotComponent::getCommandListener);
