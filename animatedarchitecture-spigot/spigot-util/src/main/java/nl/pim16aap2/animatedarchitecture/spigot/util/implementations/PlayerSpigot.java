@@ -54,12 +54,15 @@ public final class PlayerSpigot implements IPlayer
     @Override
     public CompletableFuture<Boolean> hasPermission(String permission)
     {
-        return CompletableFuture.completedFuture(spigotPlayer.hasPermission(permission));
+        return CompletableFuture.completedFuture(isOp() || spigotPlayer.hasPermission(permission));
     }
 
     @Override
     public CompletableFuture<PermissionsStatus> hasPermission(CommandDefinition command)
     {
+        if (isOp())
+            return CompletableFuture.completedFuture(new PermissionsStatus(true, true));
+
         return CompletableFuture.completedFuture(new PermissionsStatus(
             command.getUserPermission().map(spigotPlayer::hasPermission).orElse(false),
             command.getAdminPermission().map(spigotPlayer::hasPermission).orElse(false))
