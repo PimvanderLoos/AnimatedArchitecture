@@ -396,7 +396,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         if (bukkitPlayer == null)
             return false;
 
-        return bukkitPlayer.hasPermission(permissionNode);
+        return bukkitPlayer.isOp() || bukkitPlayer.hasPermission(permissionNode);
     }
 
     @Override
@@ -411,6 +411,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
             return false;
+
         return hasBypassPermissionsForAttribute(bukkitPlayer, structureAttribute);
     }
 
