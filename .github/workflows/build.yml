@@ -53,7 +53,7 @@ jobs:
 
       # Publish java doc page when a commit/PR is pushed/merged to master
       - name: Deploy Javadoc
-        uses: JamesIves/github-pages-deploy-action@v4.7.1
+        uses: JamesIves/github-pages-deploy-action@v4.7.2
         with:
           branch: gh-pages
           folder: target/site/apidocs
