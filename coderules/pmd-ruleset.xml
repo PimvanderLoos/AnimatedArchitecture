@@ -14,16 +14,16 @@
     <rule ref="category/java/bestpractices.xml/CheckResultSet"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#constantsininterface -->
     <rule ref="category/java/bestpractices.xml/ConstantsInInterface"/>
-    <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#defaultlabelnotlastinswitchstmt -->
-    <rule ref="category/java/bestpractices.xml/DefaultLabelNotLastInSwitchStmt"/>
+    <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#defaultlabelnotlastinswitch -->
+    <rule ref="category/java/bestpractices.xml/DefaultLabelNotLastInSwitch"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#doublebraceinitialization -->
     <rule ref="category/java/bestpractices.xml/DoubleBraceInitialization"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#forloopvariablecount -->
     <rule ref="category/java/bestpractices.xml/ForLoopVariableCount"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#junit5testshouldbepackageprivate -->
     <rule ref="category/java/bestpractices.xml/JUnit5TestShouldBePackagePrivate"/>
-    <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#junittestsshouldincludeassert -->
-    <rule ref="category/java/bestpractices.xml/JUnitTestsShouldIncludeAssert"/>
+    <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#unittestshouldincludeassert -->
+    <rule ref="category/java/bestpractices.xml/UnitTestShouldIncludeAssert"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#methodreturnsinternalarray -->
     <rule ref="category/java/bestpractices.xml/MethodReturnsInternalArray"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#missingoverride -->
@@ -193,8 +193,8 @@
     <rule ref="category/java/errorprone.xml/MisplacedNullCheck"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#morethanonelogger -->
     <rule ref="category/java/errorprone.xml/MoreThanOneLogger"/>
-    <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#noncaselabelinswitchstatement -->
-    <rule ref="category/java/errorprone.xml/NonCaseLabelInSwitchStatement"/>
+    <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#noncaselabelinswitch -->
+    <rule ref="category/java/errorprone.xml/NonCaseLabelInSwitch"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#nonstaticinitializer -->
     <rule ref="category/java/errorprone.xml/NonStaticInitializer"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#overridebothequalsandhashcode -->
