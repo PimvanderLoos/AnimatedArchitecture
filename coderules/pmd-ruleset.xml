@@ -273,8 +273,6 @@
     <rule ref="category/java/performance.xml/StringInstantiation"/>
     <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#stringtostring -->
     <rule ref="category/java/performance.xml/StringToString"/>
-    <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#toofewbranchesforaswitchstatement -->
-    <rule ref="category/java/performance.xml/TooFewBranchesForASwitchStatement"/>
     <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#usearraylistinsteadofvector -->
     <rule ref="category/java/performance.xml/UseArrayListInsteadOfVector"/>
     <!-- https://docs.pmd-code.org/pmd-doc-7.2.0/pmd_rules_java_performance.html#useindexofchar -->
