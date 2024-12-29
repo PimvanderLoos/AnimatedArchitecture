@@ -22,7 +22,7 @@
         <dependency.checkstyle.version>10.21.0</dependency.checkstyle.version>
         <dependency.dagger.version>2.54</dependency.dagger.version>
         <dependency.eclipse-annotations.version>2.3.100</dependency.eclipse-annotations.version>
-        <dependency.errorprone.version>2.35.1</dependency.errorprone.version>
+        <dependency.errorprone.version>2.36.0</dependency.errorprone.version>
         <dependency.failsafe.version>3.2.5</dependency.failsafe.version>
         <dependency.fastjson.version>2.0.53</dependency.fastjson.version>
         <dependency.fastutil.version>8.5.15</dependency.fastutil.version>
@@ -699,8 +699,10 @@
                                 <encoding>UTF-8</encoding>
                                 <fork>true</fork>
                                 <release>${maven.compiler.release}</release>
+                                <showWarnings>true</showWarnings>
                                 <compilerArgs>
                                     <arg>-XDcompilePolicy=simple</arg>
+                                    <arg>--should-stop=ifError=FLOW</arg>
                                     <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/(target|test)/.* -XepDisableWarningsInGeneratedCode -Xep:NullAway:ERROR -Xep:NullableOnContainingClass:OFF -XepOpt:NullAway:AnnotatedPackages=nl.pim16aap2</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
