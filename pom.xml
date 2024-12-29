@@ -699,8 +699,10 @@
                                 <encoding>UTF-8</encoding>
                                 <fork>true</fork>
                                 <release>${maven.compiler.release}</release>
+                                <showWarnings>true</showWarnings>
                                 <compilerArgs>
                                     <arg>-XDcompilePolicy=simple</arg>
+                                    <arg>--should-stop=ifError=FLOW</arg>
                                     <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/(target|test)/.* -XepDisableWarningsInGeneratedCode -Xep:NullAway:ERROR -Xep:NullableOnContainingClass:OFF -XepOpt:NullAway:AnnotatedPackages=nl.pim16aap2</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
