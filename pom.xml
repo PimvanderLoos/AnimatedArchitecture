@@ -57,7 +57,7 @@
         <dependency.mockito.version>5.14.2</dependency.mockito.version>
         <dependency.nullaway.version>0.12.2</dependency.nullaway.version>
         <dependency.pmd.version>7.9.0</dependency.pmd.version>
-        <dependency.semver4j.version>5.4.1</dependency.semver4j.version>
+        <dependency.semver4j.version>5.5.0</dependency.semver4j.version>
         <dependency.slf4j.version>2.0.16</dependency.slf4j.version>
         <dependency.surefire.version>3.5.2</dependency.surefire.version>
     </properties>
