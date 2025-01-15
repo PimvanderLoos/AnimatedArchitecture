@@ -13,7 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareLockChange
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareRemoveOwnerEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -32,18 +32,18 @@ public interface IAnimatedArchitectureEventFactory
      * @param responsible
      *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
-    IStructureCreatedEvent createStructureCreatedEvent(AbstractStructure preview, @Nullable IPlayer responsible);
+    IStructureCreatedEvent createStructureCreatedEvent(Structure preview, @Nullable IPlayer responsible);
 
     /**
      * Constructs a new {@link IStructureCreatedEvent} and assumes it was not created by an {@link IPlayer}.
      * <p>
      * When the structure is created by an {@link IPlayer}, consider using
-     * {@link #createStructureCreatedEvent(AbstractStructure, IPlayer)} instead.
+     * {@link #createStructureCreatedEvent(Structure, IPlayer)} instead.
      *
      * @param preview
      *     The preview of the structure that is to be created.
      */
-    default IStructureCreatedEvent createStructureCreatedEvent(AbstractStructure preview)
+    default IStructureCreatedEvent createStructureCreatedEvent(Structure preview)
     {
         return createStructureCreatedEvent(preview, null);
     }
@@ -57,7 +57,7 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareCreateEvent createPrepareStructureCreateEvent(
-        AbstractStructure structure,
+        Structure structure,
         @Nullable IPlayer responsible
     );
 
@@ -65,12 +65,12 @@ public interface IAnimatedArchitectureEventFactory
      * Constructs a new {@link IStructurePrepareCreateEvent} and assumes it was not created by an {@link IPlayer}.
      * <p>
      * When the structure is created by a player, consider using
-     * {@link #createPrepareStructureCreateEvent(AbstractStructure, IPlayer)} instead.
+     * {@link #createPrepareStructureCreateEvent(Structure, IPlayer)} instead.
      *
      * @param structure
      *     The structure that was created.
      */
-    default IStructurePrepareCreateEvent createPrepareStructureCreateEvent(AbstractStructure structure)
+    default IStructurePrepareCreateEvent createPrepareStructureCreateEvent(Structure structure)
     {
         return createPrepareStructureCreateEvent(structure, null);
     }
@@ -79,12 +79,12 @@ public interface IAnimatedArchitectureEventFactory
      * Constructs a new {@link IStructurePrepareDeleteEvent}.
      *
      * @param structure
-     *     The {@link AbstractStructure} that will be deleted.
+     *     The {@link Structure} that will be deleted.
      * @param responsible
      *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareDeleteEvent createPrepareDeleteStructureEvent(
-        AbstractStructure structure,
+        Structure structure,
         @Nullable IPlayer responsible
     );
 
@@ -92,12 +92,12 @@ public interface IAnimatedArchitectureEventFactory
      * Constructs a new {@link IStructurePrepareDeleteEvent} and assumes it was not deleted by an {@link IPlayer}.
      * <p>
      * When the structure is deleted by a player, consider using
-     * {@link #createPrepareDeleteStructureEvent(AbstractStructure, IPlayer)} instead.
+     * {@link #createPrepareDeleteStructureEvent(Structure, IPlayer)} instead.
      *
      * @param structure
-     *     The {@link AbstractStructure} that will be deleted.
+     *     The {@link Structure} that will be deleted.
      */
-    default IStructurePrepareDeleteEvent createPrepareDeleteStructureEvent(AbstractStructure structure)
+    default IStructurePrepareDeleteEvent createPrepareDeleteStructureEvent(Structure structure)
     {
         return createPrepareDeleteStructureEvent(structure, null);
     }
@@ -113,7 +113,7 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareAddOwnerEvent createStructurePrepareAddOwnerEvent(
-        AbstractStructure structure,
+        Structure structure,
         StructureOwner newOwner,
         @Nullable IPlayer responsible
     );
@@ -122,7 +122,7 @@ public interface IAnimatedArchitectureEventFactory
      * Constructs a new {@link IStructurePrepareAddOwnerEvent} and assumes it was not added by an {@link IPlayer}.
      * <p>
      * If the owner is added by an {@link IPlayer}, consider using
-     * {@link #createStructurePrepareAddOwnerEvent(AbstractStructure, StructureOwner, IPlayer)} instead.
+     * {@link #createStructurePrepareAddOwnerEvent(Structure, StructureOwner, IPlayer)} instead.
      *
      * @param structure
      *     The structure to which a new owner is to be added.
@@ -130,7 +130,7 @@ public interface IAnimatedArchitectureEventFactory
      *     The new {@link StructureOwner} that is to be added to the structure.
      */
     default IStructurePrepareAddOwnerEvent createStructurePrepareAddOwnerEvent(
-        AbstractStructure structure,
+        Structure structure,
         StructureOwner newOwner)
     {
         return createStructurePrepareAddOwnerEvent(structure, newOwner, null);
@@ -147,7 +147,7 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareRemoveOwnerEvent createStructurePrepareRemoveOwnerEvent(
-        AbstractStructure structure,
+        Structure structure,
         StructureOwner removedOwner,
         @Nullable IPlayer responsible
     );
@@ -157,7 +157,7 @@ public interface IAnimatedArchitectureEventFactory
      * {@link IPlayer}.
      * <p>
      * If the owner is removed by a player, consider using
-     * {@link #createStructurePrepareRemoveOwnerEvent(AbstractStructure, StructureOwner, IPlayer)} instead.
+     * {@link #createStructurePrepareRemoveOwnerEvent(Structure, StructureOwner, IPlayer)} instead.
      *
      * @param structure
      *     The structure from which an owner will be removed.
@@ -165,7 +165,7 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link StructureOwner} that is to be removed from the structure.
      */
     default IStructurePrepareRemoveOwnerEvent createStructurePrepareRemoveOwnerEvent(
-        AbstractStructure structure,
+        Structure structure,
         StructureOwner removedOwner)
     {
         return createStructurePrepareRemoveOwnerEvent(structure, removedOwner, null);
@@ -183,7 +183,7 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link IPlayer} responsible for the action, if a player was responsible for it.
      */
     IStructurePrepareLockChangeEvent createStructurePrepareLockChangeEvent(
-        AbstractStructure structure,
+        Structure structure,
         boolean newLockStatus,
         @Nullable IPlayer responsible
     );
@@ -192,7 +192,7 @@ public interface IAnimatedArchitectureEventFactory
      * Constructs a new {@link IStructurePrepareLockChangeEvent} and assumes it was not added by an {@link IPlayer}.
      * <p>
      * If the owner is added by a player, consider using
-     * {@link #createStructurePrepareLockChangeEvent(AbstractStructure, boolean, IPlayer)} instead.
+     * {@link #createStructurePrepareLockChangeEvent(Structure, boolean, IPlayer)} instead.
      *
      * @param structure
      *     The structure to which the lock status is to be changed
@@ -200,7 +200,7 @@ public interface IAnimatedArchitectureEventFactory
      *     The new locked status of the structure.
      */
     default IStructurePrepareLockChangeEvent createStructurePrepareLockChangeEvent(
-        AbstractStructure structure,
+        Structure structure,
         boolean newLockStatus)
     {
         return createStructurePrepareLockChangeEvent(structure, newLockStatus, null);
@@ -259,7 +259,7 @@ public interface IAnimatedArchitectureEventFactory
      *     The {@link Cuboid} representing the area the structure will take up after the toggle.
      */
     IStructureEventToggleStart createToggleStartEvent(
-        AbstractStructure structure,
+        Structure structure,
         StructureSnapshot structureSnapshot,
         StructureActionCause cause,
         StructureActionType actionType,
@@ -290,7 +290,7 @@ public interface IAnimatedArchitectureEventFactory
      *     If true, the structure will skip the animation and open instantly.
      */
     IStructureEventToggleEnd createToggleEndEvent(
-        AbstractStructure structure,
+        Structure structure,
         StructureSnapshot snapshot,
         StructureActionCause cause,
         StructureActionType actionType,

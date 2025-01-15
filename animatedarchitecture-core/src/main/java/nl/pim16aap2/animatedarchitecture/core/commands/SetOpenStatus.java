@@ -6,7 +6,7 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
@@ -67,7 +67,7 @@ public class SetOpenStatus extends StructureTargetCommand
     }
 
     @Override
-    protected CompletableFuture<?> performAction(AbstractStructure structure)
+    protected CompletableFuture<?> performAction(Structure structure)
     {
         if (!(structure instanceof IStructureWithOpenStatus withOpenStatus))
         {
@@ -117,7 +117,7 @@ public class SetOpenStatus extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing open status of the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the open status
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the open status
          *     will be modified.
          * @param isOpen
          *     The new open status of the structure.
@@ -138,7 +138,7 @@ public class SetOpenStatus extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing open status of the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the open status
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the open status
          *     will be modified.
          * @param isOpen
          *     The new open status of the structure.

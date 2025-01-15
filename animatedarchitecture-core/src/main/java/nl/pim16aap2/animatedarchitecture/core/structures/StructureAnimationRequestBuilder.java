@@ -408,7 +408,7 @@ public class StructureAnimationRequestBuilder
          *     The structure to toggle.
          * @return The next step of the guided builder process.
          */
-        default IBuilderStructureActionCause structure(AbstractStructure structure)
+        default IBuilderStructureActionCause structure(Structure structure)
         {
             return structure(StructureRetrieverFactory.ofStructure(structure));
         }
@@ -420,7 +420,7 @@ public class StructureAnimationRequestBuilder
          *     The structure to toggle.
          * @return The next step of the guided builder process.
          */
-        default IBuilderStructureActionCause structure(CompletableFuture<Optional<AbstractStructure>> structure)
+        default IBuilderStructureActionCause structure(CompletableFuture<Optional<Structure>> structure)
         {
             return structure(StructureRetrieverFactory.ofStructure(structure));
         }

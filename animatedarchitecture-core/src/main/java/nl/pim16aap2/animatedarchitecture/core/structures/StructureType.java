@@ -59,7 +59,7 @@ public abstract class StructureType implements IKeyed
 
     /**
      * Gets a set of all theoretically valid {@link MovementDirection} for this given type. It does NOT take the
-     * physical aspects of the {@link AbstractStructure} into consideration. Therefore, the actual set of valid
+     * physical aspects of the {@link Structure} into consideration. Therefore, the actual set of valid
      * {@link MovementDirection}s is most likely going to be a subset of those returned by this method.
      *
      * @return A set of all valid {@link MovementDirection} for this given type.
@@ -69,7 +69,7 @@ public abstract class StructureType implements IKeyed
 
     /**
      * Gets a list of all theoretically valid {@link MovementDirection} for this given type. It does NOT take the
-     * physical aspects of the {@link AbstractStructure} into consideration. Therefore, the actual list of valid
+     * physical aspects of the {@link Structure} into consideration. Therefore, the actual list of valid
      * {@link MovementDirection}s is most likely going to be a subset of those returned by this method.
      *
      * @return A list of all valid {@link MovementDirection} for this given type.
@@ -238,7 +238,7 @@ public abstract class StructureType implements IKeyed
      *
      * @return THe class of the structure.
      */
-    public abstract Class<? extends AbstractStructure> getStructureClass();
+    public abstract Class<? extends Structure> getStructureClass();
 
     /**
      * Creates (and registers) a new {@link Creator} for this type.

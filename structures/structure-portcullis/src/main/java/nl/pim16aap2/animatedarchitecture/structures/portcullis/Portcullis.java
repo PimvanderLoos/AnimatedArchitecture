@@ -1,126 +1,112 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
 import lombok.EqualsAndHashCode;
-import lombok.Locked;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
-import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
-import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithBlocksToMove;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureComponent;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 import java.util.Optional;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Portcullis structure type.
  */
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class Portcullis
-    extends AbstractStructure
-    implements IStructureWithBlocksToMove, IStructureWithOpenStatus
+@Flogger
+@ToString
+@EqualsAndHashCode
+public class Portcullis implements IStructureComponent
 {
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private final ReentrantReadWriteLock lock;
+//    protected Portcullis(
+//        BaseHolder base,
+//        StructureType type)
+//    {
+//        super(base, type);
+//        this.lock = getLock();
+//    }
+//
+//    @Deserialization
+//    public Portcullis(BaseHolder base)
+//    {
+//        this(base, StructureTypePortcullis.get());
+//    }
+//
+//    /**
+//     * Deprecated constructor for deserialization of version 1 where {@code blocksToMove} was a persistent variable.
+//     */
+//    @Deprecated
+//    @Deserialization(version = 1)
+//    public Portcullis(Structure.BaseHolder base, @PersistentVariable(value = "blocksToMove") int blocksToMove)
+//    {
+//        this(base);
+//        setBlocksToMove(blocksToMove);
+//    }
 
-    protected Portcullis(
-        BaseHolder base,
-        StructureType type)
+    private int getBlocksToMove(IStructureConst structure)
     {
-        super(base, type);
-        this.lock = getLock();
-    }
-
-    @Deserialization
-    public Portcullis(BaseHolder base)
-    {
-        this(base, StructureTypePortcullis.get());
-    }
-
-    /**
-     * Deprecated constructor for deserialization of version 1 where {@code blocksToMove} was a persistent variable.
-     */
-    @Deprecated
-    @Deserialization(version = 1)
-    public Portcullis(AbstractStructure.BaseHolder base, @PersistentVariable(value = "blocksToMove") int blocksToMove)
-    {
-        this(base);
-        setBlocksToMove(blocksToMove);
-    }
-
-    @Override
-    public boolean canSkipAnimation()
-    {
-        return true;
+        return structure.getRequiredPropertyValue(Property.BLOCKS_TO_MOVE);
     }
 
     @Override
-    protected double calculateAnimationCycleDistance()
+    public double calculateAnimationCycleDistance(IStructureConst structure)
     {
-        return getBlocksToMove();
+        return structure.getRequiredPropertyValue(Property.BLOCKS_TO_MOVE);
     }
 
     @Override
-    protected double calculateAnimationTime(double target)
+    public double calculateAnimationTime(IStructureConst structure, double target)
     {
-        return super.calculateAnimationTime(target + (isCurrentToggleDirUp() ? -0.2D : 0.2D));
+        return IStructureComponent.super.calculateAnimationTime(
+            structure,
+            target + (isCurrentToggleDirUp(structure) ? -0.2D : 0.2D)
+        );
     }
 
     @Override
-    @Locked.Read("lock")
-    protected Rectangle calculateAnimationRange()
+    public Rectangle calculateAnimationRange(IStructureConst structure)
     {
-        final Cuboid cuboid = getCuboid();
+        final Cuboid cuboid = structure.getCuboid();
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
 
-        final int blocksToMove = getBlocksToMove();
+        final int blocksToMove = getBlocksToMove(structure);
         return new Cuboid(min.add(0, -blocksToMove, 0), max.add(0, blocksToMove, 0)).asFlatRectangle();
     }
 
     @Override
-    @Locked.Read("lock")
-    public MovementDirection getCurrentToggleDir()
+    public Optional<Cuboid> getPotentialNewCoordinates(IStructureConst structure)
     {
-        return isOpen() ? MovementDirection.getOpposite(getOpenDir()) : getOpenDir();
-    }
-
-    @Override
-    public Optional<Cuboid> getPotentialNewCoordinates()
-    {
-        return Optional.of(getCuboid().move(0, getDirectedBlocksToMove(), 0));
+        return Optional.of(structure.getCuboid().move(0, getDirectedBlocksToMove(structure), 0));
     }
 
     /**
      * @return True if the current toggle dir goes up.
      */
-    private boolean isCurrentToggleDirUp()
+    private boolean isCurrentToggleDirUp(IStructureConst structure)
     {
-        return getCurrentToggleDir() == MovementDirection.UP;
+        return getCurrentToggleDirection(structure) == MovementDirection.UP;
     }
 
     /**
      * @return The signed number of blocks to move (positive for up, negative for down).
      */
-    private int getDirectedBlocksToMove()
+    private int getDirectedBlocksToMove(IStructureConst structure)
     {
-        return isCurrentToggleDirUp() ? getBlocksToMove() : -getBlocksToMove();
+        return isCurrentToggleDirUp(structure) ? getBlocksToMove(structure) : -getBlocksToMove(structure);
     }
 
     @Override
-    @Locked.Read("lock")
-    protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
+    public IAnimationComponent constructAnimationComponent(IStructureConst structure, AnimationRequestData data)
     {
-        return new VerticalAnimationComponent(data, getDirectedBlocksToMove());
+        return new VerticalAnimationComponent(
+            data,
+            getDirectedBlocksToMove(structure)
+        );
     }
 }

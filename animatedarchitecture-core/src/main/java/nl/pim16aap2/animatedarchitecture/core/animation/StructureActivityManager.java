@@ -13,7 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventCaller;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
@@ -60,11 +60,11 @@ public final class StructureActivityManager extends Restartable
     /**
      * A list of all structure animations with write access that were aborted on shutdown.
      * <p>
-     * When this manager is initialized again, {@link AbstractStructure#verifyRedstoneState()} is called for each
+     * When this manager is initialized again, {@link Structure#verifyRedstoneState()} is called for each
      * structure in this list.
      */
     @GuardedBy("this")
-    private final List<AbstractStructure> structureAnimationsAbortedOnShutdown = new ArrayList<>();
+    private final List<Structure> structureAnimationsAbortedOnShutdown = new ArrayList<>();
 
     /**
      * Constructs a new {@link StructureActivityManager}.
@@ -123,7 +123,7 @@ public final class StructureActivityManager extends Restartable
      * registered, {@link OptionalLong#empty()} is returned.
      */
     @CheckReturnValue
-    public OptionalLong registerAnimation(AbstractStructure targetStructure, boolean requiresWriteAccess)
+    public OptionalLong registerAnimation(Structure targetStructure, boolean requiresWriteAccess)
     {
         final AtomicReference<@Nullable RegisteredAnimatorEntry> abortEntryRef = new AtomicReference<>(null);
         final AtomicReference<@Nullable RegisteredAnimatorEntry> newEntryRef = new AtomicReference<>(null);
@@ -233,7 +233,7 @@ public final class StructureActivityManager extends Restartable
     /**
      * Processed a finished {@link Animator}.
      * <p>
-     * The {@link AbstractStructure} that was being used by the {@link Animator} will be registered as inactive and any
+     * The {@link Structure} that was being used by the {@link Animator} will be registered as inactive and any
      * scheduling that is required will be performed.
      *
      * @param animator
@@ -319,9 +319,9 @@ public final class StructureActivityManager extends Restartable
      *
      * @return A list of all aborted structures that were being animated with read/write access.
      */
-    private List<AbstractStructure> abortAnimators()
+    private List<Structure> abortAnimators()
     {
-        final List<AbstractStructure> ret = new ArrayList<>();
+        final List<Structure> ret = new ArrayList<>();
         animators.values().forEach(entry ->
         {
             entry.abort();
@@ -350,10 +350,10 @@ public final class StructureActivityManager extends Restartable
         structureAnimationsAbortedOnShutdown.addAll(this.abortAnimators());
     }
 
-    private void delayedRedstoneVerification(List<AbstractStructure> lst)
+    private void delayedRedstoneVerification(List<Structure> lst)
     {
         executor.runAsyncLater(
-            () -> lst.forEach(AbstractStructure::verifyRedstoneState),
+            () -> lst.forEach(Structure::verifyRedstoneState),
             DELAYED_REDSTONE_VERIFICATION_TIME
         );
     }
@@ -415,7 +415,7 @@ public final class StructureActivityManager extends Restartable
          *     See {@link AnimationType#requiresWriteAccess()}.
          * @return The newly created entry.
          */
-        static RegisteredAnimatorEntry newAnimatorEntry(AbstractStructure targetStructure, boolean isReadWrite)
+        static RegisteredAnimatorEntry newAnimatorEntry(Structure targetStructure, boolean isReadWrite)
         {
             return isReadWrite ?
                 new ReadWriteAnimatorEntry(targetStructure) :
@@ -478,7 +478,7 @@ public final class StructureActivityManager extends Restartable
         /**
          * @return The structure being animated.
          */
-        abstract AbstractStructure getTargetStructure();
+        abstract Structure getTargetStructure();
 
         /**
          * @return True if this entry describes an animation that requires write access.
@@ -502,13 +502,13 @@ public final class StructureActivityManager extends Restartable
         static final class ReadOnlyAnimatorEntry extends RegisteredAnimatorEntry
         {
             @Getter
-            private final AbstractStructure targetStructure;
+            private final Structure targetStructure;
             @Getter
             private final long key;
             private final Set<Animator> animators = Collections.newSetFromMap(new IdentityHashMap<>());
             private boolean isAborted = false;
 
-            ReadOnlyAnimatorEntry(AbstractStructure targetStructure)
+            ReadOnlyAnimatorEntry(Structure targetStructure)
             {
                 this.targetStructure = targetStructure;
                 this.key = targetStructure.getUid();
@@ -602,14 +602,14 @@ public final class StructureActivityManager extends Restartable
         static final class ReadWriteAnimatorEntry extends RegisteredAnimatorEntry
         {
             @Getter
-            private final AbstractStructure targetStructure;
+            private final Structure targetStructure;
             @Getter
             private final long key;
 
             private boolean isAborted = false;
             private @Nullable Animator animator;
 
-            ReadWriteAnimatorEntry(AbstractStructure targetStructure)
+            ReadWriteAnimatorEntry(Structure targetStructure)
             {
                 this.targetStructure = targetStructure;
                 this.key = targetStructure.getUid();

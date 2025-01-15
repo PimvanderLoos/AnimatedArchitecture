@@ -5,7 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -38,7 +38,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 class StructureTargetCommandTest
 {
     @Mock
-    private AbstractStructure structure;
+    private Structure structure;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPlayer commandSender;

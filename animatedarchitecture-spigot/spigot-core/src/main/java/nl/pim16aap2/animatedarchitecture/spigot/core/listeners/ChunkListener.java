@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
@@ -67,22 +67,22 @@ public class ChunkListener extends AbstractListener
 
     private void onChunkLoad(World world, Chunk chunk)
     {
-        final CompletableFuture<List<AbstractStructure>> rotationPoints =
+        final CompletableFuture<List<Structure>> rotationPoints =
             databaseManager.getStructuresInChunk(chunk.getX(), chunk.getZ());
 
-        final CompletableFuture<List<AbstractStructure>> powerBlocks = powerBlockManager.structuresInChunk(
+        final CompletableFuture<List<Structure>> powerBlocks = powerBlockManager.structuresInChunk(
             // Bit shift the chunk coordinates to get the world-space coordinates.
             new Vector3Di(chunk.getX() << 4, 0, chunk.getZ() << 4),
             world.getName()
         );
 
         FutureUtil.getAllCompletableFutureResultsFlatMap(rotationPoints, powerBlocks)
-            .thenAccept(lst -> lst.forEach(AbstractStructure::onChunkLoad))
+            .thenAccept(lst -> lst.forEach(Structure::onChunkLoad))
             .exceptionally(FutureUtil::exceptionally);
     }
 
     /**
-     * Listens to chunks being loaded and ensures that {@link AbstractStructure#onChunkLoad()} is called for any
+     * Listens to chunks being loaded and ensures that {@link Structure#onChunkLoad()} is called for any
      * structures whose rotation point lies in the chunk that is being loaded.
      *
      * @param event
@@ -109,7 +109,7 @@ public class ChunkListener extends AbstractListener
 
     /**
      * Listens to chunks being unloaded and checks if it intersects with the region of the active
-     * {@link AbstractStructure}s.
+     * {@link Structure}s.
      *
      * @param event
      *     The chunk unload event to process.

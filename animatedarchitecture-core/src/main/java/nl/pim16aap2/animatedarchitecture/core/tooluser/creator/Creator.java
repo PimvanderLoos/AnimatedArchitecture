@@ -15,7 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 /**
- * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractStructure}s.
+ * Represents a specialization of the {@link ToolUser} that is used for creating new {@link Structure}s.
  */
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 @Flogger
@@ -444,12 +444,12 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Constructs the {@link AbstractStructure.BaseHolder} for the current structure. This is the same for all
+     * Constructs the {@link Structure.BaseHolder} for the current structure. This is the same for all
      * structures.
      *
-     * @return The {@link AbstractStructure.BaseHolder} for the current structure.
+     * @return The {@link Structure.BaseHolder} for the current structure.
      */
-    protected final synchronized AbstractStructure.BaseHolder constructStructureData()
+    protected final synchronized Structure.BaseHolder constructStructureData()
     {
         final var owner =
             new StructureOwner(structureUidPlaceholder, PermissionLevel.CREATOR, getPlayer().getPlayerData());
@@ -746,7 +746,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The newly-created structure.
      */
-    protected abstract AbstractStructure constructStructure();
+    protected abstract Structure constructStructure();
 
     /**
      * Verifies that the world of the selected location matches the world that this structure is being created in.
@@ -773,7 +773,7 @@ public abstract class Creator extends ToolUser
      * @param structure
      *     The structure to send to the {@link DatabaseManager}.
      */
-    protected void insertStructure(AbstractStructure structure)
+    protected void insertStructure(Structure structure)
     {
         databaseManager
             .addStructure(structure, getPlayer())
@@ -840,7 +840,7 @@ public abstract class Creator extends ToolUser
     /**
      * Gets the list of valid open directions for this type. It returns a subset of
      * {@link StructureType#getValidMovementDirections()} based on the current physical aspects of the
-     * {@link AbstractStructure}.
+     * {@link Structure}.
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
@@ -894,7 +894,7 @@ public abstract class Creator extends ToolUser
 
     /**
      * Attempts to complete the step in the {@link Procedure} that sets the second position of the
-     * {@link AbstractStructure} that is being created.
+     * {@link Structure} that is being created.
      *
      * @param loc
      *     The selected location of the rotation point.
@@ -922,7 +922,7 @@ public abstract class Creator extends ToolUser
 
     /**
      * Attempts to complete the step in the {@link Procedure} that sets the location of the rotation point for the
-     * {@link AbstractStructure} that is being created.
+     * {@link Structure} that is being created.
      *
      * @param loc
      *     The selected location of the rotation point.

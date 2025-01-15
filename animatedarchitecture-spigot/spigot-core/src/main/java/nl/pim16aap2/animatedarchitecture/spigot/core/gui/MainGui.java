@@ -15,7 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
@@ -58,7 +58,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
     private InventoryGui inventoryGui;
 
-    private @Nullable AbstractStructure selectedStructure;
+    private @Nullable Structure selectedStructure;
 
     @ToString.Include
     private Long2ObjectMap<NamedStructure> structures;
@@ -296,9 +296,9 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
      * @param name
      *     The name of the structure.
      */
-    public record NamedStructure(AbstractStructure structure, String name)
+    public record NamedStructure(Structure structure, String name)
     {
-        public NamedStructure(AbstractStructure structure)
+        public NamedStructure(Structure structure)
         {
             this(structure, structure.getName());
         }

@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventC
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareLockChangeEvent;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
@@ -37,7 +37,7 @@ class LockTest
     private StructureRetriever doorRetriever;
 
     @Mock
-    private AbstractStructure door;
+    private Structure door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPlayer commandSender;

@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
@@ -131,7 +131,7 @@ public interface IStorage
      * Gets the total number of owners of a structure.
      *
      * @param structureUID
-     *     The {@link AbstractStructure}.
+     *     The {@link Structure}.
      * @return The total number of owners of this structure.
      */
     int getOwnerCountOfStructure(long structureUID);
@@ -146,7 +146,7 @@ public interface IStorage
      *     The UID of the structure to retrieve.
      * @return The structure if it exists and if the player is an owner of it.
      */
-    Optional<AbstractStructure> getStructure(UUID playerUUID, long structureUID);
+    Optional<Structure> getStructure(UUID playerUUID, long structureUID);
 
     /**
      * Gets the structure with the given structureUID and the original creator as {@link StructureOwner};
@@ -155,7 +155,7 @@ public interface IStorage
      *     The UID of the structure to retrieve.
      * @return The structure with the given structureUID and the original creator.
      */
-    Optional<AbstractStructure> getStructure(long structureUID);
+    Optional<Structure> getStructure(long structureUID);
 
     /**
      * Gets all the structures owned by the given player with the given name.
@@ -166,7 +166,7 @@ public interface IStorage
      *     The name of the structures to search for.
      * @return All structures owned by the given player with the given name.
      */
-    List<AbstractStructure> getStructures(UUID playerUUID, String name);
+    List<Structure> getStructures(UUID playerUUID, String name);
 
     /**
      * Gets all the structures owned by the given player.
@@ -175,7 +175,7 @@ public interface IStorage
      *     The UUID of the player to search for.
      * @return All structures owned by the given player.
      */
-    List<AbstractStructure> getStructures(UUID playerUUID);
+    List<Structure> getStructures(UUID playerUUID);
 
     /**
      * Gets all the structures with the given name, regardless of who owns them.
@@ -184,7 +184,7 @@ public interface IStorage
      *     The name of the structures to search for.
      * @return All structures with the given name or an empty Optional if none exist.
      */
-    List<AbstractStructure> getStructures(String name);
+    List<Structure> getStructures(String name);
 
     /**
      * Gets all the structures with the given name, owned by the player with at least a certain permission level.
@@ -197,7 +197,7 @@ public interface IStorage
      *     The maximum level of ownership (inclusive) this player has over the structures.
      * @return All the structures with the given name, owned the player with at least a certain permission level.
      */
-    List<AbstractStructure> getStructures(UUID playerUUID, String structureName, PermissionLevel maxPermission);
+    List<Structure> getStructures(UUID playerUUID, String structureName, PermissionLevel maxPermission);
 
     /**
      * Gets all the structures owned by a given player with at least a certain permission level.
@@ -208,7 +208,7 @@ public interface IStorage
      *     The maximum level of ownership (inclusive) this player has over the structures.
      * @return All the structures owned by the player with at least a certain permission level.
      */
-    List<AbstractStructure> getStructures(UUID playerUUID, PermissionLevel maxPermission);
+    List<Structure> getStructures(UUID playerUUID, PermissionLevel maxPermission);
 
     /**
      * Obtains all structures of a given type.
@@ -217,7 +217,7 @@ public interface IStorage
      *     The name of the type. See {@link StructureType#getFullKey()}.
      * @return All structures of the given type.
      */
-    List<AbstractStructure> getStructuresOfType(String typeName);
+    List<Structure> getStructuresOfType(String typeName);
 
     /**
      * Obtains all structures of a specific version of a given type.
@@ -228,7 +228,7 @@ public interface IStorage
      *     The version of the type.
      * @return All structures of the given type.
      */
-    List<AbstractStructure> getStructuresOfType(String typeName, int version);
+    List<Structure> getStructuresOfType(String typeName, int version);
 
     /**
      * Gets a map of location hashes and their connected powerblocks for all structures in a chunk.
@@ -249,22 +249,22 @@ public interface IStorage
      *     The id of the chunk the structures are in.
      * @return A list of structures that have their rotation point in a given chunk.
      */
-    List<AbstractStructure> getStructuresInChunk(long chunkId);
+    List<Structure> getStructuresInChunk(long chunkId);
 
     /**
-     * Inserts a new structure in the database. If the insertion was successful, a new {@link AbstractStructure} will be
+     * Inserts a new structure in the database. If the insertion was successful, a new {@link Structure} will be
      * created with the correct structureUID.
      *
      * @param structure
      *     The structure to insert.
-     * @return The {@link AbstractStructure} that was just inserted if insertion was successful. This is
+     * @return The {@link Structure} that was just inserted if insertion was successful. This is
      * <u><b>NOT!!</b></u> the same object as the one passed to this method.
      */
-    Optional<AbstractStructure> insert(AbstractStructure structure);
+    Optional<Structure> insert(Structure structure);
 
     /**
-     * Synchronizes an {@link AbstractStructure} structure with the database. This will synchronize both the base and
-     * the type-specific data of the {@link AbstractStructure}.
+     * Synchronizes an {@link Structure} structure with the database. This will synchronize both the base and
+     * the type-specific data of the {@link Structure}.
      *
      * @param structure
      *     The {@link IStructureConst} that describes the data of structure.
@@ -299,7 +299,7 @@ public interface IStorage
     );
 
     /**
-     * Deletes a {@link StructureType} and all {@link AbstractStructure}s of this type from the database.
+     * Deletes a {@link StructureType} and all {@link Structure}s of this type from the database.
      * <p>
      * Note that the {@link StructureType} has to be registered before it can be deleted! It doesn't need to be enabled,
      * though.
@@ -337,11 +337,11 @@ public interface IStorage
     boolean addOwner(long structureUID, PlayerData player, PermissionLevel permission);
 
     /**
-     * Gets the flag value of various boolean properties of a {@link AbstractStructure}.
+     * Gets the flag value of various boolean properties of a {@link Structure}.
      *
      * @param structure
-     *     The {@link AbstractStructure}.
-     * @return The flag value of a {@link AbstractStructure}.
+     *     The {@link Structure}.
+     * @return The flag value of a {@link Structure}.
      */
     default long getFlag(IStructureConst structure)
     {

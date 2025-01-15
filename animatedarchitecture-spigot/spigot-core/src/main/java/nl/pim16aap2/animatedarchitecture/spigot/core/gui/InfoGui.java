@@ -14,7 +14,7 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
@@ -49,7 +49,7 @@ class InfoGui implements IGuiPage
 
     @ToString.Include
     @Getter(AccessLevel.PACKAGE)
-    private final AbstractStructure structure;
+    private final Structure structure;
 
     @ToString.Include
     private final List<StructureAttribute> allowedAttributes;
@@ -69,7 +69,7 @@ class InfoGui implements IGuiPage
         ILocalizer localizer,
         IPermissionsManager permissionsManager,
         AttributeButtonFactory attributeButtonFactory,
-        @Assisted AbstractStructure structure,
+        @Assisted Structure structure,
         @Assisted PlayerSpigot inventoryHolder)
     {
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
@@ -192,6 +192,6 @@ class InfoGui implements IGuiPage
     @AssistedFactory
     interface IFactory
     {
-        InfoGui newInfoGUI(AbstractStructure structure, PlayerSpigot playerSpigot);
+        InfoGui newInfoGUI(Structure structure, PlayerSpigot playerSpigot);
     }
 }

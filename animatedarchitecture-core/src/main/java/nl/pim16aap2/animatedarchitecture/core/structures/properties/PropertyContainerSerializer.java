@@ -7,7 +7,7 @@ import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.fastjson2.annotation.JSONField;
 import com.alibaba.fastjson2.writer.ObjectWriter;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
@@ -55,7 +55,7 @@ public final class PropertyContainerSerializer
     }
 
     /**
-     * Serializes the {@link PropertyContainer} of the given {@link AbstractStructure} to a JSON string.
+     * Serializes the {@link PropertyContainer} of the given {@link Structure} to a JSON string.
      *
      * @param structure
      *     The structure whose {@link PropertyContainer} to serialize.

@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.PowerBlockInspector;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 
@@ -67,7 +67,7 @@ public class InspectPowerBlock extends BaseCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for inspecting the powerblocks.
          *     <p>
-         *     They can only discover {@link AbstractStructure}s attached to specific locations if they both have access
+         *     They can only discover {@link Structure}s attached to specific locations if they both have access
          *     to the specific location and access to the specific structure(s).
          * @return See {@link BaseCommand#run()}.
          */

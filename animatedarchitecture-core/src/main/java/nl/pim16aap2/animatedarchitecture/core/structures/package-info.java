@@ -31,8 +31,8 @@
  * <p>
  * Another thing to keep in mind is that structures are not automatically saved to the database. This means that if you
  * make changes to a structure, those will not be saved to the database until you call either the
- * {@link nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure#syncData()} method or the
- * {@link nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure#syncDataAsync()} method.
+ * {@link nl.pim16aap2.animatedarchitecture.core.structures.Structure#syncData()} method or the
+ * {@link nl.pim16aap2.animatedarchitecture.core.structures.Structure#syncDataAsync()} method.
  * <p>
  * When making changes to a structure on behalf of a player, you should use consider using
  * {@link nl.pim16aap2.animatedarchitecture.core.commands} instead. This will ensure that the changes are saved to the
@@ -46,7 +46,7 @@
  *     structure. It is used to retrieve information about a structure, but cannot be used to modify the structure. All
  *     other types are subtypes of this type.</li>
  *
- *     <li>{@link nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure}: This is the mutable version of a
+ *     <li>{@link nl.pim16aap2.animatedarchitecture.core.structures.Structure}: This is the mutable version of a
  *     structure. It is the most commonly used type of structure object. It can be used to modify the structure.
  * <p>
  *     Whenever the documentation refers to a "structure" it is referring to this type unless otherwise specified.
@@ -57,7 +57,7 @@
  *
  *     <li>{@link nl.pim16aap2.animatedarchitecture.core.structures.StructureBase}: This is the base class of a
  *     structure that is used to store the structure's data. It is not intended to be used directly, but rather to be
- *     accessed through the {@link nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure} class.</li>
+ *     accessed through the {@link nl.pim16aap2.animatedarchitecture.core.structures.Structure} class.</li>
  *
  *     <li>{@link nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot}: This is an immutable snapshot
  *     of a structure at a given point in time. Its immutability allows it to be used safely from any thread without

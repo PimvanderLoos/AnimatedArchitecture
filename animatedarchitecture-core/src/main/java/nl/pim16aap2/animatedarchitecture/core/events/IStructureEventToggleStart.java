@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.events;
 
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 
 /**
@@ -17,7 +17,7 @@ public interface IStructureEventToggleStart extends IStructureToggleEvent
      *
      * @return The structure.
      */
-    AbstractStructure getStructure();
+    Structure getStructure();
 
     /**
      * Gets the new coordinates of the structure after the toggle.

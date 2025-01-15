@@ -67,7 +67,7 @@ class StructureAnimationRequestTest
     @Test
     void testIsValidActionTypeNotOpenableToggle()
     {
-        final AbstractStructure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
+        final Structure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
         final var request = newToggleRequest(structure, player, StructureActionType.TOGGLE);
 
         Assertions.assertTrue(request.isValidActionType(structure));
@@ -77,7 +77,7 @@ class StructureAnimationRequestTest
     @Test
     void testIsValidActionTypeNotOpenableOpen()
     {
-        final AbstractStructure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
+        final Structure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
         final var request = newToggleRequest(structure, player, StructureActionType.OPEN);
 
         Assertions.assertFalse(request.isValidActionType(structure));
@@ -89,7 +89,7 @@ class StructureAnimationRequestTest
     @Test
     void testIsValidActionTypeNotOpenableClose()
     {
-        final AbstractStructure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
+        final Structure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
         final var request = newToggleRequest(structure, player, StructureActionType.CLOSE);
 
         Assertions.assertFalse(request.isValidActionType(structure));
@@ -102,7 +102,7 @@ class StructureAnimationRequestTest
     @Test
     void testIsValidActionTypeOpenable()
     {
-        final AbstractStructure structure = Mockito.mock(
+        final Structure structure = Mockito.mock(
             Mockito
                 .withSettings()
                 .extraInterfaces(IStructureWithOpenStatus.class)
@@ -123,7 +123,7 @@ class StructureAnimationRequestTest
     }
 
     private StructureAnimationRequest newToggleRequest(
-        AbstractStructure structure,
+        Structure structure,
         IPlayer player,
         StructureActionType actionType)
     {

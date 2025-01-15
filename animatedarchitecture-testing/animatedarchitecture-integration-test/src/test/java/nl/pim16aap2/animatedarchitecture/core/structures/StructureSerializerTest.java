@@ -43,7 +43,7 @@ class StructureSerializerTest
 
     private StructureBaseBuilder.IBuilderProperties structureBaseBuilder;
     private String serializedProperties;
-    private AbstractStructure.BaseHolder structureBase;
+    private Structure.BaseHolder structureBase;
 
     @BeforeEach
     void init()
@@ -314,7 +314,7 @@ class StructureSerializerTest
         }
 
         @Override
-        public Class<? extends AbstractStructure> getStructureClass()
+        public Class<? extends Structure> getStructureClass()
         {
             return TestStructureImpl.class;
         }
@@ -332,7 +332,7 @@ class StructureSerializerTest
     // Don't call super for equals etc., as we don't care about the equality
     // of the parameters that aren't serialized anyway.
     @EqualsAndHashCode(callSuper = false)
-    private static class TestStructureImpl extends AbstractStructure
+    private static class TestStructureImpl extends Structure
     {
         private static final StructureType STRUCTURE_TYPE = TestStructureType0.INSTANCE;
 
@@ -596,7 +596,7 @@ class StructureSerializerTest
         }
     }
 
-    private static <T extends AbstractStructure> StructureType mockStructureType(Class<T> clz)
+    private static <T extends Structure> StructureType mockStructureType(Class<T> clz)
     {
         final StructureType structureType = Mockito.mock(StructureType.class);
         Mockito.when(structureType.getProperties()).thenReturn(PROPERTIES);
@@ -604,7 +604,7 @@ class StructureSerializerTest
         return structureType;
     }
 
-    private <T extends AbstractStructure> StructureSerializer<T> newSerializer(Class<T> clazz, int version)
+    private <T extends Structure> StructureSerializer<T> newSerializer(Class<T> clazz, int version)
     {
         final var structureType = mockStructureType(clazz);
         return new StructureSerializer<>(structureType, clazz, version);

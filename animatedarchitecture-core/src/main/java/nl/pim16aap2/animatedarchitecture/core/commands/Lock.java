@@ -9,7 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.IAnimatedArchitectur
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventCaller;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -75,7 +75,7 @@ public class Lock extends StructureTargetCommand
     }
 
     @Override
-    protected CompletableFuture<?> performAction(AbstractStructure structure)
+    protected CompletableFuture<?> performAction(Structure structure)
     {
         final var event = animatedArchitectureEventFactory.createStructurePrepareLockChangeEvent(
             structure,
@@ -107,7 +107,7 @@ public class Lock extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing the locked status of the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the locked
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the locked
          *     status will be modified.
          * @param isLocked
          *     True if the structure should be locked, false if it should be unlocked.
@@ -128,7 +128,7 @@ public class Lock extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing the locked status of the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the locked
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the locked
          *     status will be modified.
          * @param isLocked
          *     True if the structure should be locked, false if it should be unlocked.

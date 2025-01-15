@@ -1,15 +1,13 @@
 package nl.pim16aap2.animatedarchitecture.structures.slidingdoor;
 
 import lombok.EqualsAndHashCode;
-import lombok.Locked;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
-import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
-import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithBlocksToMove;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureComponent;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.BlockFace;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -18,56 +16,53 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 import java.util.Optional;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Sliding Door structure type.
  */
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class SlidingDoor
-    extends AbstractStructure
-    implements IStructureWithBlocksToMove, IStructureWithOpenStatus
+@Flogger
+@ToString
+@EqualsAndHashCode
+public class SlidingDoor implements IStructureComponent
 {
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private final ReentrantReadWriteLock lock;
+//    @Deserialization
+//    public SlidingDoor(BaseHolder base)
+//    {
+//        super(base, StructureTypeSlidingDoor.get());
+//        this.lock = getLock();
+//    }
+//
+//    /**
+//     * Deprecated constructor for deserialization of version 1 where {@code blocksToMove} was a persistent variable.
+//     */
+//    @Deprecated
+//    @Deserialization(version = 1)
+//    public SlidingDoor(Structure.BaseHolder base, @PersistentVariable(value = "blocksToMove") int blocksToMove)
+//    {
+//        this(base);
+//        setBlocksToMove(blocksToMove);
+//    }
 
-    @Deserialization
-    public SlidingDoor(BaseHolder base)
+    private int getBlocksToMove(IStructureConst structure)
     {
-        super(base, StructureTypeSlidingDoor.get());
-        this.lock = getLock();
-    }
-
-    /**
-     * Deprecated constructor for deserialization of version 1 where {@code blocksToMove} was a persistent variable.
-     */
-    @Deprecated
-    @Deserialization(version = 1)
-    public SlidingDoor(AbstractStructure.BaseHolder base, @PersistentVariable(value = "blocksToMove") int blocksToMove)
-    {
-        this(base);
-        setBlocksToMove(blocksToMove);
-    }
-
-    @Override
-    protected double calculateAnimationCycleDistance()
-    {
-        return getBlocksToMove();
+        return structure.getRequiredPropertyValue(Property.BLOCKS_TO_MOVE);
     }
 
     @Override
-    @Locked.Read("lock")
-    protected Rectangle calculateAnimationRange()
+    public double calculateAnimationCycleDistance(IStructureConst structure)
     {
-        final Cuboid cuboid = getCuboid();
+        return getBlocksToMove(structure);
+    }
+
+    @Override
+    public Rectangle calculateAnimationRange(IStructureConst structure)
+    {
+        final Cuboid cuboid = structure.getCuboid();
         final Vector3Di min = cuboid.getMin();
         final Vector3Di max = cuboid.getMax();
 
-        final int blocksToMove = getBlocksToMove();
-        final Cuboid cuboidRange = switch (getCurrentToggleDir())
+        final int blocksToMove = getBlocksToMove(structure);
+        final Cuboid cuboidRange = switch (getCurrentToggleDirection(structure))
         {
             case NORTH -> new Cuboid(min.add(0, 0, -blocksToMove), max.add(0, 0, 0)); // -z
             case EAST -> new Cuboid(min.add(0, 0, 0), max.add(blocksToMove, 0, 0)); // +x
@@ -79,40 +74,33 @@ public class SlidingDoor
     }
 
     @Override
-    public boolean canSkipAnimation()
+    public boolean canSkipAnimation(IStructureConst structure)
     {
         return true;
     }
 
     @Override
-    public MovementDirection getCycledOpenDirection()
+    public MovementDirection getCycledOpenDirection(IStructureConst structure)
     {
-        final MovementDirection openDirection = getOpenDir();
-        return openDirection.equals(MovementDirection.NORTH) ? MovementDirection.EAST :
-            openDirection.equals(MovementDirection.EAST) ? MovementDirection.SOUTH :
-                openDirection.equals(MovementDirection.SOUTH) ? MovementDirection.WEST :
-                    MovementDirection.NORTH;
+        return IStructureComponent.cycleCardinalDirection(structure.getOpenDirection());
     }
 
     @Override
-    @Locked.Read("lock")
-    public MovementDirection getCurrentToggleDir()
+    public Optional<Cuboid> getPotentialNewCoordinates(IStructureConst structure)
     {
-        return isOpen() ? MovementDirection.getOpposite(getOpenDir()) : getOpenDir();
+        final int blocksToMove = getBlocksToMove(structure);
+
+        final Vector3Di vec = BlockFace.getDirection(Util.getBlockFace(getCurrentToggleDirection(structure)));
+        return Optional.of(structure.getCuboid().move(blocksToMove * vec.x(), 0, blocksToMove * vec.z()));
     }
 
     @Override
-    @Locked.Read("lock")
-    public Optional<Cuboid> getPotentialNewCoordinates()
+    public IAnimationComponent constructAnimationComponent(IStructureConst structure, AnimationRequestData data)
     {
-        final Vector3Di vec = BlockFace.getDirection(Util.getBlockFace(getCurrentToggleDir()));
-        return Optional.of(getCuboid().move(getBlocksToMove() * vec.x(), 0, getBlocksToMove() * vec.z()));
-    }
-
-    @Override
-    @Locked.Read("lock")
-    protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
-    {
-        return new SlidingDoorAnimationComponent(data, getCurrentToggleDir(), getBlocksToMove());
+        return new SlidingDoorAnimationComponent(
+            data,
+            getCurrentToggleDirection(structure),
+            getBlocksToMove(structure)
+        );
     }
 }

@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareLockChangeEvent;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +25,7 @@ public class StructurePrepareLockChangeEvent extends StructureEvent implements I
     private final boolean newLockStatus;
 
     public StructurePrepareLockChangeEvent(
-        AbstractStructure structure,
+        Structure structure,
         @Nullable IPlayer responsible,
         boolean newLockStatus)
     {

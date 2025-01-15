@@ -23,9 +23,9 @@ import nl.pim16aap2.animatedarchitecture.core.storage.FlywayManager;
 import nl.pim16aap2.animatedarchitecture.core.storage.IDataSourceInfo;
 import nl.pim16aap2.animatedarchitecture.core.storage.IStorage;
 import nl.pim16aap2.animatedarchitecture.core.storage.SQLStatement;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
@@ -226,7 +226,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return getConnection(DatabaseState.OK);
     }
 
-    private Optional<AbstractStructure> constructStructure(ResultSet structureBaseRS)
+    private Optional<Structure> constructStructure(ResultSet structureBaseRS)
         throws Exception
     {
         final @Nullable String structureTypeResult = structureBaseRS.getString("type");
@@ -246,7 +246,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         @SuppressWarnings("squid:S3655") //
         final StructureSerializer<?> serializer = structureType.get().getStructureSerializer();
 
-        final Optional<AbstractStructure> registeredStructure = structureRegistry.getRegisteredStructure(structureUID);
+        final Optional<Structure> registeredStructure = structureRegistry.getRegisteredStructure(structureUID);
         if (registeredStructure.isPresent())
             return registeredStructure;
 
@@ -344,7 +344,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Write
     private Long insert(
         Connection conn,
-        AbstractStructure structure,
+        Structure structure,
         StructureType structureType,
         String typeSpecificData,
         String propertiesData)
@@ -371,7 +371,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .setNextInt(structure.getPowerBlock().y())
                 .setNextInt(structure.getPowerBlock().z())
                 .setNextLong(LocationUtil.getChunkId(structure.getPowerBlock()))
-                .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
+                .setNextInt(MovementDirection.getValue(structure.getOpenDirection()))
                 .setNextLong(getFlag(structure))
                 .setNextString(structureType.getFullKey())
                 .setNextInt(structureType.getVersion())
@@ -406,7 +406,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Write
-    public Optional<AbstractStructure> insert(AbstractStructure structure)
+    public Optional<Structure> insert(Structure structure)
     {
         final StructureSerializer<?> serializer = structure.getType().getStructureSerializer();
 
@@ -432,7 +432,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                         .powerBlock(structure.getPowerBlock())
                         .world(structure.getWorld())
                         .isLocked(structure.isLocked())
-                        .openDir(structure.getOpenDir())
+                        .openDir(structure.getOpenDirection())
                         .primeOwner(remapStructureOwner(structure.getPrimeOwner(), structureUID))
                         .ownersOfStructure(remapStructureOwners(structure.getOwners(), structureUID)),
                     structure.getType().getVersion(),
@@ -508,7 +508,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             .setNextInt(structure.getPowerBlock().z())
             .setNextLong(LocationUtil.getChunkId(structure.getPowerBlock()))
 
-            .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
+            .setNextInt(MovementDirection.getValue(structure.getOpenDirection()))
             .setNextLong(getFlag(structure))
             .setNextInt(structure.getType().getVersion())
             .setNextString(typeData)
@@ -624,17 +624,17 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     /**
-     * Attempts to construct a subclass of {@link AbstractStructure} from a ResultSet containing all data pertaining the
-     * {@link AbstractStructure} (as stored in the "structureBase" table), as well as the owner (name, UUID, permission)
-     * and the typeTableName.
+     * Attempts to construct a subclass of {@link Structure} from a ResultSet containing all data pertaining the
+     * {@link Structure} (as stored in the "structureBase" table), as well as the owner (name, UUID, permission) and the
+     * typeTableName.
      *
      * @param structureBaseRS
      *     The {@link ResultSet} containing a row from the "structureBase" table as well as a row from the
      *     "StructureOwnerPlayer" table.
-     * @return An instance of a subclass of {@link AbstractStructure} if it could be created.
+     * @return An instance of a subclass of {@link Structure} if it could be created.
      */
     @Locked.Read
-    private Optional<AbstractStructure> getStructure(ResultSet structureBaseRS)
+    private Optional<Structure> getStructure(ResultSet structureBaseRS)
         throws Exception
     {
         // Make sure the ResultSet isn't empty.
@@ -645,24 +645,24 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     /**
-     * Attempts to construct a list of subclasses of {@link AbstractStructure} from a ResultSet containing all data
-     * pertaining to one or more {@link AbstractStructure}s (as stored in the "structureBase" table), as well as the
-     * owner (name, UUID, permission) and the typeTableName.
+     * Attempts to construct a list of subclasses of {@link Structure} from a ResultSet containing all data pertaining
+     * to one or more {@link Structure}s (as stored in the "structureBase" table), as well as the owner (name, UUID,
+     * permission) and the typeTableName.
      *
      * @param structureBaseRS
      *     The {@link ResultSet} containing one or more rows from the "structureBase" table as well as matching rows
      *     from the "StructureOwnerPlayer" table.
-     * @return An optional with a list of {@link AbstractStructure}s if any could be constructed. If none could be
-     * constructed, an empty {@link Optional} is returned instead.
+     * @return An optional with a list of {@link Structure}s if any could be constructed. If none could be constructed,
+     * an empty {@link Optional} is returned instead.
      */
-    private List<AbstractStructure> getStructures(ResultSet structureBaseRS)
+    private List<Structure> getStructures(ResultSet structureBaseRS)
         throws Exception
     {
         // Make sure the ResultSet isn't empty.
         if (!structureBaseRS.isBeforeFirst())
             return Collections.emptyList();
 
-        final List<AbstractStructure> structures = new ArrayList<>();
+        final List<Structure> structures = new ArrayList<>();
 
         while (structureBaseRS.next())
             constructStructure(structureBaseRS).ifPresent(structures::add);
@@ -672,7 +672,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public Optional<AbstractStructure> getStructure(long structureUID)
+    public Optional<Structure> getStructure(long structureUID)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURE_BASE_FROM_ID
@@ -685,7 +685,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public Optional<AbstractStructure> getStructure(UUID playerUUID, long structureUID)
+    public Optional<Structure> getStructure(UUID playerUUID, long structureUID)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURE_BASE_FROM_ID_FOR_PLAYER
@@ -784,7 +784,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructures(UUID playerUUID, String structureName, PermissionLevel maxPermission)
+    public List<Structure> getStructures(UUID playerUUID, String structureName, PermissionLevel maxPermission)
     {
         return executeQuery(
             SQLStatement.GET_NAMED_STRUCTURES_OWNED_BY_PLAYER
@@ -799,14 +799,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructures(UUID playerUUID, String name)
+    public List<Structure> getStructures(UUID playerUUID, String name)
     {
         return getStructures(playerUUID, name, PermissionLevel.CREATOR);
     }
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructures(String name)
+    public List<Structure> getStructures(String name)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURES_WITH_NAME
@@ -819,7 +819,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructures(UUID playerUUID, PermissionLevel maxPermission)
+    public List<Structure> getStructures(UUID playerUUID, PermissionLevel maxPermission)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURES_OWNED_BY_PLAYER_WITH_LEVEL
@@ -833,14 +833,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructures(UUID playerUUID)
+    public List<Structure> getStructures(UUID playerUUID)
     {
         return getStructures(playerUUID, PermissionLevel.CREATOR);
     }
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructuresOfType(String typeName)
+    public List<Structure> getStructuresOfType(String typeName)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURES_OF_TYPE
@@ -853,7 +853,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructuresOfType(String typeName, int version)
+    public List<Structure> getStructuresOfType(String typeName, int version)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURES_OF_VERSIONED_TYPE
@@ -961,7 +961,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructuresInChunk(long chunkId)
+    public List<Structure> getStructuresInChunk(long chunkId)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURES_IN_CHUNK

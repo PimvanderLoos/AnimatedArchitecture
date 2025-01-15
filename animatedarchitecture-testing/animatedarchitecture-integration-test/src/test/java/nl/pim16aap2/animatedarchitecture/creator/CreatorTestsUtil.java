@@ -27,7 +27,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManage
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
@@ -208,17 +208,17 @@ public class CreatorTestsUtil
         // Immediately return whatever structure was being added to the database as if it was successful.
         Mockito
             .when(databaseManager.addStructure(ArgumentMatchers.any()))
-            .thenAnswer((Answer<CompletableFuture<Optional<AbstractStructure>>>) invocation ->
-                CompletableFuture.completedFuture(Optional.of((AbstractStructure) invocation.getArguments()[0]))
+            .thenAnswer((Answer<CompletableFuture<Optional<Structure>>>) invocation ->
+                CompletableFuture.completedFuture(Optional.of((Structure) invocation.getArguments()[0]))
             );
 
         Mockito
             .when(databaseManager.addStructure(
-                ArgumentMatchers.any(AbstractStructure.class),
+                ArgumentMatchers.any(Structure.class),
                 Mockito.any(IPlayer.class)))
             .thenAnswer((Answer<CompletableFuture<DatabaseManager.StructureInsertResult>>) invocation ->
                 CompletableFuture.completedFuture(new DatabaseManager.StructureInsertResult(
-                    Optional.of(invocation.getArgument(0, AbstractStructure.class)),
+                    Optional.of(invocation.getArgument(0, Structure.class)),
                     false))
             );
 
@@ -314,7 +314,7 @@ public class CreatorTestsUtil
         }
     }
 
-    protected AbstractStructure.BaseHolder constructStructureBase(StructureType type, long uid, Object... properties)
+    protected Structure.BaseHolder constructStructureBase(StructureType type, long uid, Object... properties)
     {
         return structureBaseBuilder
             .builder()
@@ -346,7 +346,7 @@ public class CreatorTestsUtil
         }
     }
 
-    public void testCreation(Creator creator, AbstractStructure actualStructure, Object... input)
+    public void testCreation(Creator creator, Structure actualStructure, Object... input)
     {
         applySteps(creator, input);
         Mockito.verify(creator.getPlayer(), Mockito.never())

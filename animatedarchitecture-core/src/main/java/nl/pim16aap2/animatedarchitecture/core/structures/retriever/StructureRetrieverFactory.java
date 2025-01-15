@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures.retriever;
 
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -131,7 +131,7 @@ public final class StructureRetrieverFactory
      *     The structure object itself.
      * @return The new {@link StructureRetriever}.
      */
-    public StructureRetriever of(AbstractStructure structure)
+    public StructureRetriever of(Structure structure)
     {
         return StructureRetrieverFactory.ofStructure(structure);
     }
@@ -144,7 +144,7 @@ public final class StructureRetrieverFactory
      * @return The new {@link StructureRetriever}.
      */
     public StructureRetriever of(
-        CompletableFuture<Optional<AbstractStructure>> structure)
+        CompletableFuture<Optional<Structure>> structure)
     {
         return StructureRetrieverFactory.ofStructure(structure);
     }
@@ -244,7 +244,7 @@ public final class StructureRetrieverFactory
      *     The structure object itself.
      * @return The new {@link StructureRetriever}.
      */
-    public static StructureRetriever ofStructure(@Nullable AbstractStructure structure)
+    public static StructureRetriever ofStructure(@Nullable Structure structure)
     {
         return new StructureRetriever.StructureObjectRetriever(structure);
     }
@@ -256,7 +256,7 @@ public final class StructureRetrieverFactory
      *     The future structure.
      * @return The new {@link StructureRetriever}.
      */
-    public static StructureRetriever ofStructure(CompletableFuture<Optional<AbstractStructure>> structure)
+    public static StructureRetriever ofStructure(CompletableFuture<Optional<Structure>> structure)
     {
         return new StructureRetriever.FutureStructureRetriever(structure);
     }
@@ -269,7 +269,7 @@ public final class StructureRetrieverFactory
      * @return The new {@link StructureRetriever}.
      */
     @SuppressWarnings("unused")
-    public StructureRetriever ofStructures(List<AbstractStructure> structures)
+    public StructureRetriever ofStructures(List<Structure> structures)
     {
         return new StructureRetriever.StructureListRetriever(specificationFactory, structures);
     }
@@ -281,7 +281,7 @@ public final class StructureRetrieverFactory
      *     The structures.
      * @return The new {@link StructureRetriever}.
      */
-    public StructureRetriever ofStructures(CompletableFuture<List<AbstractStructure>> structures)
+    public StructureRetriever ofStructures(CompletableFuture<List<Structure>> structures)
     {
         return new StructureRetriever.FutureStructureListRetriever(specificationFactory, structures);
     }

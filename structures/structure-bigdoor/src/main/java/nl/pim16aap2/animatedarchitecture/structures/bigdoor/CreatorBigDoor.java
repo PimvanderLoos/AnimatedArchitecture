@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.structures.bigdoor;
 
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
@@ -72,7 +72,7 @@ public class CreatorBigDoor extends Creator
     }
 
     @Override
-    protected synchronized AbstractStructure constructStructure()
+    protected synchronized Structure constructStructure()
     {
         return new BigDoor(constructStructureData());
     }

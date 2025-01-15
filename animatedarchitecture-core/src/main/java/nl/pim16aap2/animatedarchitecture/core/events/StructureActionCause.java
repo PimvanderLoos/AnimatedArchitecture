@@ -1,9 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.events;
 
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 
 /**
- * Represents the different kind of causes that can be the reason of a {@link AbstractStructure} action.
+ * Represents the different kind of causes that can be the reason of a {@link Structure} action.
  */
 public enum StructureActionCause
 {
@@ -18,12 +18,12 @@ public enum StructureActionCause
     REDSTONE,
 
     /**
-     * The {@link AbstractStructure} was toggled from the console or by a command block.
+     * The {@link Structure} was toggled from the console or by a command block.
      */
     SERVER,
 
     /**
-     * The {@link AbstractStructure} was toggled by another plugin.
+     * The {@link Structure} was toggled by another plugin.
      */
     PLUGIN,
 

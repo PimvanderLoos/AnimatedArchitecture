@@ -9,7 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
@@ -111,7 +111,7 @@ public class AddOwner extends StructureTargetCommand
     }
 
     @Override
-    protected CompletableFuture<?> performAction(AbstractStructure structure)
+    protected CompletableFuture<?> performAction(Structure structure)
     {
         return databaseManager
             .addOwner(structure, targetPlayer, targetPermissionLevel, getCommandSender().getPlayer().orElse(null))
@@ -119,7 +119,7 @@ public class AddOwner extends StructureTargetCommand
     }
 
     @Override
-    protected boolean isAllowed(AbstractStructure structure, boolean hasBypassPermission)
+    protected boolean isAllowed(Structure structure, boolean hasBypassPermission)
     {
         final PermissionLevel existingPermission = structure
             .getOwner(targetPlayer)

@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.api;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithRotationPoint;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -126,14 +126,14 @@ public abstract class HighlightedBlockSpawner
      * @param duration
      *     The amount of time the highlighted blocks should be visible for.
      */
-    public void spawnHighlightedBlocks(AbstractStructure structure, IPlayer player, @Nullable Duration duration)
+    public void spawnHighlightedBlocks(Structure structure, IPlayer player, @Nullable Duration duration)
     {
         getExecutor().runOnMainThread(() -> spawnHighlightedBlocks0(structure, player, duration));
     }
 
     protected abstract IExecutor getExecutor();
 
-    private void spawnHighlightedBlocks0(AbstractStructure structure, IPlayer player, @Nullable Duration duration)
+    private void spawnHighlightedBlocks0(Structure structure, IPlayer player, @Nullable Duration duration)
     {
         spawnHighlightedBlocks((IStructureConst) structure, player, duration);
 

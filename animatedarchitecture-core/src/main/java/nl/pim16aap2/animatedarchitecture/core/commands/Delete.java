@@ -7,7 +7,7 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -42,7 +42,7 @@ public class Delete extends StructureTargetCommand
     }
 
     @Override
-    protected boolean isAllowed(AbstractStructure structure, boolean bypassPermission)
+    protected boolean isAllowed(Structure structure, boolean bypassPermission)
     {
         return hasAccessToAttribute(structure, StructureAttribute.DELETE, bypassPermission);
     }
@@ -60,7 +60,7 @@ public class Delete extends StructureTargetCommand
     }
 
     @Override
-    protected CompletableFuture<?> performAction(AbstractStructure structure)
+    protected CompletableFuture<?> performAction(Structure structure)
     {
         return databaseManager
             .deleteStructure(structure, getCommandSender().getPlayer().orElse(null))
@@ -76,7 +76,7 @@ public class Delete extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for deleting the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} which will be targeted for
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} which will be targeted for
          *     deletion.
          * @return See {@link BaseCommand#run()}.
          */

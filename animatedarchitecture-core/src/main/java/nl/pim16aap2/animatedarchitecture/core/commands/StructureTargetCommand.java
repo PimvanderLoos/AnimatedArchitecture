@@ -9,7 +9,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -43,14 +43,14 @@ public abstract class StructureTargetCommand extends BaseCommand
      * The result of the {@link #structureRetriever}.
      * <p>
      * This will not be available until after {@link #executeCommand(PermissionsStatus)} has started, but before
-     * {@link #performAction(AbstractStructure)} is called.
+     * {@link #performAction(Structure)} is called.
      * <p>
      * Even after the result has been set, it may still be null in case no doors were found.
      */
     @Getter(onMethod_ = @Locked.Read)
     @Setter(onMethod_ = @Locked.Write)
     @GuardedBy("$lock")
-    private @Nullable AbstractStructure retrieverResult;
+    private @Nullable Structure retrieverResult;
 
     @Contract("_, _, _, _, _, true, null -> fail")
     protected StructureTargetCommand(
@@ -104,7 +104,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      * @param structure
      *     The structure to send the updated info of.
      */
-    protected void sendUpdatedInfo(AbstractStructure structure)
+    protected void sendUpdatedInfo(Structure structure)
     {
         if (sendUpdatedInfo)
             Util.requireNonNull(commandFactory, "CommandFactor")
@@ -119,7 +119,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      * @param permissions
      *     Whether the ICommandSender has user and/or admin permissions.
      */
-    private void processStructureResult(Optional<AbstractStructure> structure, PermissionsStatus permissions)
+    private void processStructureResult(Optional<Structure> structure, PermissionsStatus permissions)
     {
         if (structure.isEmpty())
         {
@@ -156,27 +156,27 @@ public abstract class StructureTargetCommand extends BaseCommand
     }
 
     /**
-     * Checks if execution of this command is allowed for the given {@link AbstractStructure}.
+     * Checks if execution of this command is allowed for the given {@link Structure}.
      *
      * @param structure
-     *     The {@link AbstractStructure} that is the target for this command.
+     *     The {@link Structure} that is the target for this command.
      * @param bypassPermission
      *     Whether the {@link ICommandSender} has bypass access.
      * @return True if execution of this command is allowed.
      */
-    protected boolean isAllowed(AbstractStructure structure, boolean bypassPermission)
+    protected boolean isAllowed(Structure structure, boolean bypassPermission)
     {
         return hasAccessToAttribute(structure, structureAttribute, bypassPermission);
     }
 
     /**
-     * Performs the action of this command on the {@link AbstractStructure}.
+     * Performs the action of this command on the {@link Structure}.
      *
      * @param structure
-     *     The {@link AbstractStructure} to perform the action on.
+     *     The {@link Structure} to perform the action on.
      * @return The future of the command execution.
      */
-    protected abstract CompletableFuture<?> performAction(AbstractStructure structure);
+    protected abstract CompletableFuture<?> performAction(Structure structure);
 
     /**
      * @return The structure description of the {@link #retrieverResult}.
@@ -248,7 +248,7 @@ public abstract class StructureTargetCommand extends BaseCommand
     {
         private static final StructureDescription EMPTY_DESCRIPTION = new StructureDescription("Structure", "null");
 
-        private static StructureDescription of(ILocalizer localizer, @Nullable AbstractStructure structure)
+        private static StructureDescription of(ILocalizer localizer, @Nullable Structure structure)
         {
             if (structure != null)
                 return new StructureDescription(

@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -53,7 +53,7 @@ public class MovePowerBlock extends StructureTargetCommand
     }
 
     @Override
-    protected CompletableFuture<?> performAction(AbstractStructure structure)
+    protected CompletableFuture<?> performAction(Structure structure)
     {
         toolUserManager.startToolUser(
             powerBlockRelocatorFactory.create((IPlayer) getCommandSender(), structure),
@@ -71,7 +71,7 @@ public class MovePowerBlock extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for moving the powerblock for the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the powerblock
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the powerblock
          *     will be moved.
          * @return See {@link BaseCommand#run()}.
          */

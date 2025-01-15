@@ -10,8 +10,8 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
@@ -195,7 +195,7 @@ public class UnitTestUtil
      *     The properties to use. If null, the properties from the structure type will be used.
      */
     public static void setPropertyContainerInMockedStructure(
-        AbstractStructure structure,
+        Structure structure,
         @Nullable List<Property<?>> providedProperties)
     {
         final List<Property<?>> properties = providedProperties == null
@@ -237,9 +237,9 @@ public class UnitTestUtil
     }
 
     /**
-     * Creates a new {@link StructureSnapshot} for a given {@link AbstractStructure}.
+     * Creates a new {@link StructureSnapshot} for a given {@link Structure}.
      * <p>
-     * If the provided structure is not a mock, it will return the result of {@link AbstractStructure#getSnapshot()}.
+     * If the provided structure is not a mock, it will return the result of {@link Structure#getSnapshot()}.
      * <p>
      * If the provided structure is a mock, it will return a mocked {@link StructureSnapshot} that uses as much data as
      * possible from the provided structure.
@@ -248,7 +248,7 @@ public class UnitTestUtil
      *     The structure to create a snapshot for.
      * @return The created snapshot.
      */
-    public static StructureSnapshot createStructureSnapshotForStructure(AbstractStructure structure)
+    public static StructureSnapshot createStructureSnapshotForStructure(Structure structure)
     {
         if (!Mockito.mockingDetails(structure).isMock())
             return structure.getSnapshot();
@@ -297,7 +297,9 @@ public class UnitTestUtil
             () -> PropertyContainer.forType(Objects.requireNonNull(structure.getType())),
             structure::getPropertyContainerSnapshot));
 
-        Mockito.when(ret.getOpenDir()).thenReturn(safeSupplierSimple(MovementDirection.NONE, structure::getOpenDir));
+        Mockito
+            .when(ret.getOpenDirection())
+            .thenReturn(safeSupplierSimple(MovementDirection.NONE, structure::getOpenDirection));
 
         Mockito.when(ret.isLocked()).thenReturn(safeSupplierSimple(false, structure::isLocked));
 

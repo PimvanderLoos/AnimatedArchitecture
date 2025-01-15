@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 
 /**
  * Represents an openable structure.
@@ -31,9 +31,9 @@ public interface IStructureWithOpenStatus extends IPropertyHolder
     }
 
     /**
-     * Check if the {@link AbstractStructure} is currently open.
+     * Check if the {@link Structure} is currently open.
      *
-     * @return True if the {@link AbstractStructure} is open
+     * @return True if the {@link Structure} is open
      */
     default boolean isOpen()
     {

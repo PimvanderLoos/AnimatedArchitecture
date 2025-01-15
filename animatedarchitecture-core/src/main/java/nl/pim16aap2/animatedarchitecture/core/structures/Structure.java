@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
-import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -16,6 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureComponent;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyScope;
@@ -50,8 +50,10 @@ import java.util.function.Supplier;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Flogger
 @ThreadSafe
-public abstract class AbstractStructure implements IStructureConst, IPropertyHolder
+public final class Structure implements IStructureConst, IPropertyHolder
 {
+    private static final double DEFAULT_ANIMATION_SPEED = 1.5D;
+
     /**
      * The lock as used by both the {@link StructureBase} and this class.
      */
@@ -61,6 +63,10 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     @EqualsAndHashCode.Include
     private final StructureBase base;
 
+    @EqualsAndHashCode.Include
+    @GuardedBy("lock")
+    private final IStructureComponent component;
+
     private final StructureType type;
 
     private final LazyValue<Rectangle> lazyAnimationRange;
@@ -68,28 +74,36 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     private final LazyValue<StructureSnapshot> lazyStructureSnapshot;
     private final LazyValue<PropertyContainerSnapshot> lazyPropertyContainerSnapshot;
 
-    private AbstractStructure(StructureBase base, StructureType type)
+    private Structure(
+        StructureBase base,
+        StructureType type,
+        IStructureComponent component
+    )
     {
         this.type = type;
         this.serializer = getType().getStructureSerializer();
         this.lock = base.getLock();
         this.base = Objects.requireNonNull(base);
+        this.component = Objects.requireNonNull(component);
 
         lazyAnimationRange = new LazyValue<>(this::calculateAnimationRange);
         lazyAnimationCycleDistance = new LazyValue<>(this::calculateAnimationCycleDistance);
+
         lazyStructureSnapshot = new LazyValue<>(this::createNewSnapshot);
         lazyPropertyContainerSnapshot = new LazyValue<>(this.base::newPropertyContainerSnapshot);
     }
 
-    protected AbstractStructure(BaseHolder holder, StructureType type)
+    @Override
+    public StructureType getType()
     {
-        this(holder.base, type);
+        return type;
     }
 
     @Override
-    public final StructureType getType()
+    @Locked.Read("lock")
+    public MovementDirection getCycledOpenDirection()
     {
-        return type;
+        return component.getCycledOpenDirection(this);
     }
 
     /**
@@ -102,20 +116,47 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
      *     The target time.
      * @return The target time if it is bigger than the minimum time, otherwise the minimum.
      */
-    protected double calculateAnimationTime(double target)
+    @Locked.Read("lock")
+    private double calculateAnimationTime(double target)
     {
-        final double minimum = getMinimumAnimationTime();
-        if (target < minimum)
-        {
-            log.atFiner().log(
-                "Target animation time of %.4f seconds is less than the minimum of %.4f seconds for structure: %s.",
-                target,
-                minimum,
-                getBasicInfo()
-            );
-            return minimum;
-        }
-        return target;
+        return component.calculateAnimationTime(this, target);
+    }
+
+    @Locked.Read("lock")
+    private Rectangle calculateAnimationRange()
+    {
+        return component.calculateAnimationRange(this);
+    }
+
+    @Locked.Read("lock")
+    private double calculateAnimationCycleDistance()
+    {
+        return component.calculateAnimationCycleDistance(this);
+    }
+
+    /**
+     * Constructs a new animation component for this structure.
+     *
+     * @param data
+     *     The data to construct the animation component with.
+     * @return The constructed animation component.
+     */
+    @Locked.Read("lock")
+    public IAnimationComponent constructAnimationComponent(AnimationRequestData data)
+    {
+        return this.component.constructAnimationComponent(this, data);
+    }
+
+    /**
+     * Finds the new minimum and maximum coordinates (represented by a {@link Cuboid}) of this structure that would be
+     * the result of toggling it.
+     *
+     * @return The {@link Cuboid} that would represent the structure if it was toggled right now.
+     */
+    @Locked.Read("lock")
+    public Optional<Cuboid> getPotentialNewCoordinates()
+    {
+        return component.getPotentialNewCoordinates(this);
     }
 
     /**
@@ -132,7 +173,8 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
      *     The target time. When null, {@link #getBaseAnimationTime()} is used.
      * @return The animation time for this structure in seconds.
      */
-    final double getAnimationTime(@Nullable Double target)
+    @Locked.Read("lock")
+    double getAnimationTime(@Nullable Double target)
     {
         final double realTarget = target != null ?
             target :
@@ -141,7 +183,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     }
 
     /**
-     * Calculates the distance traveled per animation by the animated block that travels the furthest.
+     * Gets the distance traveled per animation by the animated block that travels the furthest.
      * <p>
      * For example, for a circular object, this will be a block on the edge, as these blocks travel further per
      * revolution than the blocks closer to the center of the circle.
@@ -151,33 +193,26 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
      * circle. To keep things easy, a revolving structure (which may not have a definitive end to its animation) could
      * define a cycle as quarter circle as well.
      * <p>
-     * The distance value is used to calculate {@link #getMinimumAnimationTime()} and {@link #getBaseAnimationTime()}.
+     * The distance value is used to calculate {@link Structure#getMinimumAnimationTime()} and
+     * {@link Structure#getBaseAnimationTime()}.
      *
      * @return The longest distance traveled by an animated block measured in blocks.
      */
-    protected abstract double calculateAnimationCycleDistance();
-
-    /**
-     * See {@link #calculateAnimationRange()}.
-     */
-    protected final double getAnimationCycleDistance()
+    public double getAnimationCycleDistance()
     {
         return lazyAnimationCycleDistance.get();
     }
 
     /**
-     * Calculates the rectangle describing the limits within an animation of this door takes place.
+     * Gets the rectangle describing the limits within an animation of this door takes place.
      * <p>
      * At no point during an animation will any animated block leave this cuboid, though not guarantees are given
      * regarding how tight the cuboid fits around the animated blocks.
      *
      * @return The animation range.
      */
-    protected abstract Rectangle calculateAnimationRange();
-
     @Override
-    @Locked.Read("lock")
-    public final Rectangle getAnimationRange()
+    public Rectangle getAnimationRange()
     {
         return lazyAnimationRange.get();
     }
@@ -188,7 +223,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
      * Certain actions may result in the animation range and animation cycle distance being changed. This method has to
      * be called when that may happen.
      */
-    protected final void invalidateAnimationData()
+    private void invalidateAnimationData()
     {
         lazyAnimationRange.reset();
         lazyAnimationCycleDistance.reset();
@@ -212,9 +247,9 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     /**
      * The default speed of the animation in blocks/second, as measured by the fastest-moving block in the structure.
      */
-    protected double getDefaultAnimationSpeed()
+    private double getDefaultAnimationSpeed()
     {
-        return 1.5D;
+        return DEFAULT_ANIMATION_SPEED;
     }
 
     /**
@@ -227,6 +262,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
      *
      * @return The lower animation time limit for this structure in seconds.
      */
+    @Override
     public double getMinimumAnimationTime()
     {
         return getAnimationCycleDistance() / base.getConfig().maxBlockSpeed();
@@ -260,32 +296,11 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
      *
      * @return True, if this structure can skip its animation.
      */
+    @Locked.Read("lock")
     public boolean canSkipAnimation()
     {
-        return false;
+        return component.canSkipAnimation(this);
     }
-
-    /**
-     * Finds the new minimum and maximum coordinates (represented by a {@link Cuboid}) of this structure that would be
-     * the result of toggling it.
-     *
-     * @return The {@link Cuboid} that would represent the structure if it was toggled right now.
-     */
-    public abstract Optional<Cuboid> getPotentialNewCoordinates();
-
-    /**
-     * Gets the direction the structure would go given its current state.
-     *
-     * @return The direction the structure would go if it were to be toggled.
-     */
-    public abstract MovementDirection getCurrentToggleDir();
-
-    /**
-     * @param data
-     *     The data for the toggle request.
-     * @return A new {@link Animator} for this type of structure.
-     */
-    protected abstract IAnimationComponent constructAnimationComponent(AnimationRequestData data);
 
     /**
      * Attempts to toggle a structure. Think twice before using this method. Instead, please look at
@@ -341,13 +356,12 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     }
 
     /**
-     * Synchronizes this structure and its serialized type-specific data of an {@link AbstractStructure} with the
-     * database.
+     * Synchronizes this structure and its serialized type-specific data of an {@link Structure} with the database.
      * <p>
      * Unlike {@link #syncData()}, this method will not block the current thread to wait for 1) a read lock to be
      * obtained, 2) the snapshot to be created, and 3) the data to be serialized.
      */
-    public final CompletableFuture<DatabaseManager.ActionResult> syncDataAsync()
+    public CompletableFuture<DatabaseManager.ActionResult> syncDataAsync()
     {
         return CompletableFuture
             .supplyAsync(this::syncData)
@@ -356,13 +370,12 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     }
 
     /**
-     * Synchronizes this structure and its serialized type-specific data of an {@link AbstractStructure} with the
-     * database.
+     * Synchronizes this structure and its serialized type-specific data of an {@link Structure} with the database.
      *
      * @return The result of the synchronization.
      */
     @Locked.Read("lock")
-    public final CompletableFuture<DatabaseManager.ActionResult> syncData()
+    public CompletableFuture<DatabaseManager.ActionResult> syncData()
     {
         try
         {
@@ -418,7 +431,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
      *     When the current thread may is not allowed to obtain a write lock.
      */
     @SuppressWarnings("unused")
-    public final <T> T withWriteLock(Supplier<T> supplier)
+    public <T> T withWriteLock(Supplier<T> supplier)
     {
         assertWriteLockable();
         return withWriteLock0(supplier);
@@ -441,7 +454,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
      *     When the current thread may is not allowed to obtain a write lock.
      */
     @SuppressWarnings("unused")
-    public final void withWriteLock(Runnable runnable)
+    public void withWriteLock(Runnable runnable)
     {
         assertWriteLockable();
         withWriteLock0(runnable);
@@ -460,7 +473,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     // so no need to check it's possible.
     @Locked.Read("lock")
     @SuppressWarnings("unused")
-    public final <T> T withReadLock(Supplier<T> supplier)
+    public <T> T withReadLock(Supplier<T> supplier)
     {
         return supplier.get();
     }
@@ -472,11 +485,12 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     // so no need to check it's possible.
     @Locked.Read("lock")
     @SuppressWarnings("unused")
-    public final void withReadLock(Runnable runnable)
+    public void withReadLock(Runnable runnable)
     {
         runnable.run();
     }
 
+    @Override
     @Locked.Read("lock")
     public String getBasicInfo()
     {
@@ -552,7 +566,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     }
 
     /**
-     * Changes the position of this {@link AbstractStructure}. The min/max order of the positions doesn't matter.
+     * Changes the position of this {@link Structure}. The min/max order of the positions doesn't matter.
      *
      * @param newCuboid
      *     The {@link Cuboid} representing the area the structure will take up from now on.
@@ -592,13 +606,13 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     }
 
     /**
-     * Sets the {@link MovementDirection} this {@link AbstractStructure} will open if currently closed.
+     * Sets the {@link MovementDirection} this {@link Structure} will open if currently closed.
      * <p>
      * Note that if it's currently in the open status, it is supposed go in the opposite direction, as the closing
      * direction is the opposite of the opening direction.
      *
      * @param openDir
-     *     The {@link MovementDirection} this {@link AbstractStructure} will open in.
+     *     The {@link MovementDirection} this {@link Structure} will open in.
      */
     public void setOpenDir(MovementDirection openDir)
     {
@@ -646,7 +660,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     }
 
     @Override
-    public MovementDirection getOpenDir()
+    public MovementDirection getOpenDirection()
     {
         return base.getOpenDir();
     }
@@ -682,7 +696,7 @@ public abstract class AbstractStructure implements IStructureConst, IPropertyHol
     }
 
     /**
-     * Changes the position of this {@link AbstractStructure}. The min/max order of the positions does not matter.
+     * Changes the position of this {@link Structure}. The min/max order of the positions does not matter.
      *
      * @param posA
      *     The first new position.

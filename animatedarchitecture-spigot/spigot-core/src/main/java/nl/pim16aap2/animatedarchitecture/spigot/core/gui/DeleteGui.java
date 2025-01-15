@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
@@ -29,7 +29,7 @@ class DeleteGui implements IGuiPage
     private final InventoryGui inventoryGui;
 
     @ToString.Include
-    private final AbstractStructure structure;
+    private final Structure structure;
 
     @Getter
     @ToString.Include
@@ -41,7 +41,7 @@ class DeleteGui implements IGuiPage
         ILocalizer localizer,
         CommandFactory commandFactory,
         StructureRetrieverFactory structureRetrieverFactory,
-        @Assisted AbstractStructure structure,
+        @Assisted Structure structure,
         @Assisted PlayerSpigot inventoryHolder)
     {
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
@@ -128,6 +128,6 @@ class DeleteGui implements IGuiPage
     @AssistedFactory
     interface IFactory
     {
-        DeleteGui newDeleteGui(AbstractStructure structure, PlayerSpigot playerSpigot);
+        DeleteGui newDeleteGui(Structure structure, PlayerSpigot playerSpigot);
     }
 }

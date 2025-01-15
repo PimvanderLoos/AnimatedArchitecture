@@ -19,7 +19,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.IStructureCreatedEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareCreateEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareDeleteEvent;
 import nl.pim16aap2.animatedarchitecture.core.storage.IStorage;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureModifier;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
@@ -145,30 +145,30 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Inserts a {@link AbstractStructure} into the database and assumes that the structure was NOT created by an
-     * {@link IPlayer}. See {@link #addStructure(AbstractStructure, IPlayer)}.
+     * Inserts a {@link Structure} into the database and assumes that the structure was NOT created by an
+     * {@link IPlayer}. See {@link #addStructure(Structure, IPlayer)}.
      *
      * @param structure
-     *     The new {@link AbstractStructure}.
+     *     The new {@link Structure}.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public CompletableFuture<StructureInsertResult> addStructure(AbstractStructure structure)
+    public CompletableFuture<StructureInsertResult> addStructure(Structure structure)
     {
         return addStructure(structure, null);
     }
 
     /**
-     * Inserts a {@link AbstractStructure} into the database.
+     * Inserts a {@link Structure} into the database.
      *
      * @param structure
-     *     The new {@link AbstractStructure}.
+     *     The new {@link Structure}.
      * @param responsible
      *     The {@link IPlayer} responsible for creating the structure. This is used for the
      *     {@link IStructurePrepareCreateEvent} and the {@link IStructureCreatedEvent}. This may be null.
      * @return The future result of the operation.
      */
     public CompletableFuture<StructureInsertResult> addStructure(
-        AbstractStructure structure,
+        Structure structure,
         @Nullable IPlayer responsible)
     {
         final var ret = callCancellableEvent(fact -> fact
@@ -178,7 +178,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                 if (event.isCancelled())
                     return new StructureInsertResult(Optional.empty(), true);
 
-                final Optional<AbstractStructure> result = db.insert(structure);
+                final Optional<Structure> result = db.insert(structure);
                 result.ifPresentOrElse(
                     newStructure ->
                     {
@@ -230,21 +230,21 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Removes a {@link AbstractStructure} from the database and assumes that the structure was NOT deleted by an
-     * {@link IPlayer}. See {@link #deleteStructure(AbstractStructure, IPlayer)}.
+     * Removes a {@link Structure} from the database and assumes that the structure was NOT deleted by an
+     * {@link IPlayer}. See {@link #deleteStructure(Structure, IPlayer)}.
      *
      * @param structure
      *     The structure that will be deleted.
      * @return The future result of the operation.
      */
     @SuppressWarnings("unused")
-    public CompletableFuture<ActionResult> deleteStructure(AbstractStructure structure)
+    public CompletableFuture<ActionResult> deleteStructure(Structure structure)
     {
         return deleteStructure(structure, null);
     }
 
     /**
-     * Removes a {@link AbstractStructure} from the database.
+     * Removes a {@link Structure} from the database.
      *
      * @param structure
      *     The structure that will be deleted.
@@ -253,7 +253,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     {@link IStructurePrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> deleteStructure(AbstractStructure structure, @Nullable IPlayer responsible)
+    public CompletableFuture<ActionResult> deleteStructure(Structure structure, @Nullable IPlayer responsible)
     {
         return callCancellableEvent(fact -> fact
             .createPrepareDeleteStructureEvent(structure, responsible))
@@ -286,7 +286,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The z-coordinate of the chunk (in chunk space).
      * @return A list of structure UIDs that have their rotation point in a given chunk.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructuresInChunk(int chunkX, int chunkZ)
+    public CompletableFuture<List<Structure>> getStructuresInChunk(int chunkX, int chunkZ)
     {
         final long chunkId = LocationUtil.getChunkId(chunkX, chunkZ);
         return CompletableFuture
@@ -301,7 +301,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The name of the type. See {@link StructureType#getFullKey()}.
      * @return All structures of the given type.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructuresOfType(String typeName)
+    public CompletableFuture<List<Structure>> getStructuresOfType(String typeName)
     {
         return CompletableFuture
             .supplyAsync(() -> db.getStructuresOfType(typeName), threadPool)
@@ -317,7 +317,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The version of the type.
      * @return All structures of the given type and version.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructuresOfType(String typeName, int version)
+    public CompletableFuture<List<Structure>> getStructuresOfType(String typeName, int version)
     {
         return CompletableFuture
             .supplyAsync(() -> db.getStructuresOfType(typeName, version), threadPool)
@@ -325,16 +325,16 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Gets all {@link AbstractStructure} owned by a player. Only searches for {@link AbstractStructure} with a given
+     * Gets all {@link Structure} owned by a player. Only searches for {@link Structure} with a given
      * name if one was provided.
      *
      * @param playerUUID
      *     The {@link UUID} of the payer.
      * @param structureID
-     *     The name or the UID of the {@link AbstractStructure} to search for. Can be null.
-     * @return All {@link AbstractStructure} owned by a player with a specific name.
+     *     The name or the UID of the {@link Structure} to search for. Can be null.
+     * @return All {@link Structure} owned by a player with a specific name.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructures(UUID playerUUID, String structureID)
+    public CompletableFuture<List<Structure>> getStructures(UUID playerUUID, String structureID)
     {
         // Check if the name is actually the UID of the structure.
         final OptionalLong structureUID = MathUtil.parseLong(structureID);
@@ -353,19 +353,19 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     /**
      * See {@link #getStructures(UUID, String)}.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player, String name)
+    public CompletableFuture<List<Structure>> getStructures(IPlayer player, String name)
     {
         return getStructures(player.getUUID(), name);
     }
 
     /**
-     * Gets all {@link AbstractStructure} owned by a player.
+     * Gets all {@link Structure} owned by a player.
      *
      * @param playerUUID
      *     The {@link UUID} of the player.
-     * @return All {@link AbstractStructure} owned by a player.
+     * @return All {@link Structure} owned by a player.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructures(UUID playerUUID)
+    public CompletableFuture<List<Structure>> getStructures(UUID playerUUID)
     {
         return CompletableFuture
             .supplyAsync(() -> db.getStructures(playerUUID), threadPool)
@@ -375,23 +375,23 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     /**
      * See {@link #getStructures(UUID)}.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructures(IPlayer player)
+    public CompletableFuture<List<Structure>> getStructures(IPlayer player)
     {
         return getStructures(player.getUUID());
     }
 
     /**
-     * Gets all {@link AbstractStructure} owned by a player with a specific name.
+     * Gets all {@link Structure} owned by a player with a specific name.
      *
      * @param player
      *     The player whose structures to retrieve.
      * @param name
-     *     The name of the {@link AbstractStructure} to search for.
+     *     The name of the {@link Structure} to search for.
      * @param maxPermission
-     *     The maximum level of ownership (inclusive) this player has over the {@link AbstractStructure}s.
-     * @return All {@link AbstractStructure} owned by a player with a specific name.
+     *     The maximum level of ownership (inclusive) this player has over the {@link Structure}s.
+     * @return All {@link Structure} owned by a player with a specific name.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructures(
+    public CompletableFuture<List<Structure>> getStructures(
         IPlayer player,
         String name,
         PermissionLevel maxPermission)
@@ -402,13 +402,13 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Gets all {@link AbstractStructure}s with a specific name, regardless over ownership.
+     * Gets all {@link Structure}s with a specific name, regardless over ownership.
      *
      * @param name
-     *     The name of the {@link AbstractStructure}s.
-     * @return All {@link AbstractStructure}s with a specific name.
+     *     The name of the {@link Structure}s.
+     * @return All {@link Structure}s with a specific name.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructures(String name)
+    public CompletableFuture<List<Structure>> getStructures(String name)
     {
         return CompletableFuture
             .supplyAsync(() -> db.getStructures(name), threadPool)
@@ -463,13 +463,13 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Gets the {@link AbstractStructure} with a specific UID.
+     * Gets the {@link Structure} with a specific UID.
      *
      * @param structureUID
-     *     The UID of the {@link AbstractStructure}.
-     * @return The {@link AbstractStructure} if it exists.
+     *     The UID of the {@link Structure}.
+     * @return The {@link Structure} if it exists.
      */
-    public CompletableFuture<Optional<AbstractStructure>> getStructure(long structureUID)
+    public CompletableFuture<Optional<Structure>> getStructure(long structureUID)
     {
         return CompletableFuture
             .supplyAsync(() -> db.getStructure(structureUID), threadPool)
@@ -477,31 +477,31 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Gets the {@link AbstractStructure} with the given UID owned by the player. If the given player does not own the
+     * Gets the {@link Structure} with the given UID owned by the player. If the given player does not own the
      * provided structure, no structure will be returned.
      *
      * @param player
      *     The {@link IPlayer}.
      * @param structureUID
-     *     The UID of the {@link AbstractStructure}.
-     * @return The {@link AbstractStructure} with the given UID if it exists and the provided player owns it.
+     *     The UID of the {@link Structure}.
+     * @return The {@link Structure} with the given UID if it exists and the provided player owns it.
      */
-    public CompletableFuture<Optional<AbstractStructure>> getStructure(IPlayer player, long structureUID)
+    public CompletableFuture<Optional<Structure>> getStructure(IPlayer player, long structureUID)
     {
         return getStructure(player.getUUID(), structureUID);
     }
 
     /**
-     * Gets the {@link AbstractStructure} with the given UID owned by the player. If the given player does not own the *
+     * Gets the {@link Structure} with the given UID owned by the player. If the given player does not own the *
      * provided structure, no structure will be returned.
      *
      * @param uuid
      *     The {@link UUID} of the player.
      * @param structureUID
-     *     The UID of the {@link AbstractStructure}.
-     * @return The {@link AbstractStructure} with the given UID if it exists and the provided player owns it.
+     *     The UID of the {@link Structure}.
+     * @return The {@link Structure} with the given UID if it exists and the provided player owns it.
      */
-    public CompletableFuture<Optional<AbstractStructure>> getStructure(UUID uuid, long structureUID)
+    public CompletableFuture<Optional<Structure>> getStructure(UUID uuid, long structureUID)
     {
         return CompletableFuture
             .supplyAsync(() -> db.getStructure(uuid, structureUID), threadPool)
@@ -509,11 +509,11 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Gets the number of {@link AbstractStructure}s owned by a player.
+     * Gets the number of {@link Structure}s owned by a player.
      *
      * @param playerUUID
      *     The {@link UUID} of the player.
-     * @return The number of {@link AbstractStructure}s this player owns.
+     * @return The number of {@link Structure}s this player owns.
      */
     @SuppressWarnings("unused")
     public CompletableFuture<Integer> countStructuresOwnedByPlayer(UUID playerUUID)
@@ -524,13 +524,13 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Counts the number of {@link AbstractStructure}s with a specific name owned by a player.
+     * Counts the number of {@link Structure}s with a specific name owned by a player.
      *
      * @param playerUUID
      *     The {@link UUID} of the player.
      * @param structureName
      *     The name of the structure.
-     * @return The number of {@link AbstractStructure}s with a specific name owned by a player.
+     * @return The number of {@link Structure}s with a specific name owned by a player.
      */
     @SuppressWarnings("unused")
     public CompletableFuture<Integer> countStructuresOwnedByPlayer(UUID playerUUID, String structureName)
@@ -541,11 +541,11 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * The number of {@link AbstractStructure}s in the database with a specific name.
+     * The number of {@link Structure}s in the database with a specific name.
      *
      * @param structureName
-     *     The name of the {@link AbstractStructure}.
-     * @return The number of {@link AbstractStructure}s with a specific name.
+     *     The name of the {@link Structure}.
+     * @return The number of {@link Structure}s with a specific name.
      */
     @SuppressWarnings("unused")
     public CompletableFuture<Integer> countStructuresByName(String structureName)
@@ -556,12 +556,12 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Adds a player as owner to a {@link AbstractStructure} at a given level of ownership and assumes that the
+     * Adds a player as owner to a {@link Structure} at a given level of ownership and assumes that the
      * structure was NOT deleted by an {@link IPlayer}. See
-     * {@link #addOwner(AbstractStructure, IPlayer, PermissionLevel, IPlayer)}.
+     * {@link #addOwner(Structure, IPlayer, PermissionLevel, IPlayer)}.
      *
      * @param structure
-     *     The {@link AbstractStructure}.
+     *     The {@link Structure}.
      * @param player
      *     The {@link IPlayer}.
      * @param permission
@@ -569,7 +569,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> addOwner(
-        AbstractStructure structure,
+        Structure structure,
         IPlayer player,
         PermissionLevel permission)
     {
@@ -577,10 +577,10 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Adds a player as owner to a {@link AbstractStructure} at a given level of ownership.
+     * Adds a player as owner to a {@link Structure} at a given level of ownership.
      *
      * @param structure
-     *     The {@link AbstractStructure}.
+     *     The {@link Structure}.
      * @param player
      *     The {@link IPlayer}.
      * @param permission
@@ -588,7 +588,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> addOwner(
-        AbstractStructure structure,
+        Structure structure,
         IPlayer player,
         PermissionLevel permission,
         @Nullable IPlayer responsible)
@@ -645,24 +645,24 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Remove a {@link IPlayer} as owner of a {@link AbstractStructure}.
+     * Remove a {@link IPlayer} as owner of a {@link Structure}.
      *
      * @param structure
-     *     The {@link AbstractStructure}.
+     *     The {@link Structure}.
      * @param player
      *     The {@link IPlayer}.
      * @return True if owner removal was successful.
      */
-    public CompletableFuture<ActionResult> removeOwner(AbstractStructure structure, IPlayer player)
+    public CompletableFuture<ActionResult> removeOwner(Structure structure, IPlayer player)
     {
         return removeOwner(structure, player, null);
     }
 
     /**
-     * Remove a {@link IPlayer} as owner of a {@link AbstractStructure}.
+     * Remove a {@link IPlayer} as owner of a {@link Structure}.
      *
      * @param structure
-     *     The {@link AbstractStructure}.
+     *     The {@link Structure}.
      * @param player
      *     The {@link IPlayer}.
      * @param responsible
@@ -671,7 +671,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> removeOwner(
-        AbstractStructure structure,
+        Structure structure,
         IPlayer player,
         @Nullable IPlayer responsible)
     {
@@ -679,25 +679,25 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Remove a {@link IPlayer} as owner of a {@link AbstractStructure} and assumes that the structure was NOT deleted
-     * by an {@link IPlayer}. See {@link #removeOwner(AbstractStructure, UUID, IPlayer)}.
+     * Remove a {@link IPlayer} as owner of a {@link Structure} and assumes that the structure was NOT deleted
+     * by an {@link IPlayer}. See {@link #removeOwner(Structure, UUID, IPlayer)}.
      *
      * @param structure
-     *     The {@link AbstractStructure}.
+     *     The {@link Structure}.
      * @param playerUUID
      *     The {@link UUID} of the {@link IPlayer}.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> removeOwner(AbstractStructure structure, UUID playerUUID)
+    public CompletableFuture<ActionResult> removeOwner(Structure structure, UUID playerUUID)
     {
         return removeOwner(structure, playerUUID, null);
     }
 
     /**
-     * Remove a {@link IPlayer} as owner of a {@link AbstractStructure}.
+     * Remove a {@link IPlayer} as owner of a {@link Structure}.
      *
      * @param structure
-     *     The {@link AbstractStructure}.
+     *     The {@link Structure}.
      * @param playerUUID
      *     The {@link UUID} of the {@link IPlayer}.
      * @param responsible
@@ -706,7 +706,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> removeOwner(
-        AbstractStructure structure,
+        Structure structure,
         UUID playerUUID,
         @Nullable IPlayer responsible)
     {
@@ -759,11 +759,11 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Updates the all data of an {@link AbstractStructure}. This includes both the base data and the type-specific
+     * Updates the all data of an {@link Structure}. This includes both the base data and the type-specific
      * data.
      *
      * @param snapshot
-     *     The {@link AbstractStructure} that describes the base data of structure.
+     *     The {@link Structure} that describes the base data of structure.
      * @param typeData
      *     The type-specific data of this structure represented as a json String.
      * @return The result of the operation.
@@ -880,7 +880,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     Whether the insertion was cancelled. An insertion may be cancelled if some listener cancels the
      *     {@link IStructurePrepareCreateEvent} event.
      */
-    public record StructureInsertResult(Optional<AbstractStructure> structure, boolean cancelled)
+    public record StructureInsertResult(Optional<Structure> structure, boolean cancelled)
     {
     }
 

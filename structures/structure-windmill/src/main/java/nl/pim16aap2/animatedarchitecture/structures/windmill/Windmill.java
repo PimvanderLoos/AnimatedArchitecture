@@ -1,92 +1,74 @@
 package nl.pim16aap2.animatedarchitecture.structures.windmill;
 
 import lombok.EqualsAndHashCode;
-import lombok.Locked;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
-import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithRotationPoint;
-import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IHorizontalAxisAligned;
-import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureComponent;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.structures.drawbridge.Drawbridge;
 
 import java.util.Optional;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Windmill structure type.
  */
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class Windmill
-    extends AbstractStructure
-    implements IHorizontalAxisAligned, IPerpetualMover, IStructureWithRotationPoint
+@Flogger
+@ToString
+@EqualsAndHashCode
+public class Windmill implements IStructureComponent
 {
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private final ReentrantReadWriteLock lock;
+//    @Deserialization
+//    public Windmill(BaseHolder base)
+//    {
+//        super(base, StructureTypeWindmill.get());
+//        this.lock = getLock();
+//    }
 
-    @Deserialization
-    public Windmill(BaseHolder base)
+    @Override
+    public Optional<Cuboid> getPotentialNewCoordinates(IStructureConst structure)
     {
-        super(base, StructureTypeWindmill.get());
-        this.lock = getLock();
+        return Optional.of(structure.getCuboid());
     }
 
     @Override
-    public Optional<Cuboid> getPotentialNewCoordinates()
+    public double calculateAnimationCycleDistance(IStructureConst structure)
     {
-        return Optional.of(getCuboid());
+        final Vector3Di rotationPoint = structure.getRequiredPropertyValue(Property.ROTATION_POINT);
+        final Cuboid cuboid = structure.getCuboid();
+
+        return Drawbridge.getMaxRadius(isNorthSouthAnimated(structure), cuboid, rotationPoint) * Math.TAU;
     }
 
     @Override
-    public MovementDirection getCurrentToggleDir()
+    public Rectangle calculateAnimationRange(IStructureConst structure)
     {
-        return getOpenDir();
+        final Vector3Di rotationPoint = structure.getRequiredPropertyValue(Property.ROTATION_POINT);
+        final Cuboid cuboid = structure.getCuboid();
+
+        final double maxRadius = Drawbridge.getMaxRadius(isNorthSouthAnimated(structure), cuboid, rotationPoint);
+        return Drawbridge.calculateAnimationRange(maxRadius, cuboid);
     }
 
     @Override
-    public boolean isNorthSouthAnimated()
+    public MovementDirection getCycledOpenDirection(IStructureConst structure)
     {
-        final MovementDirection openDir = getOpenDir();
-        return openDir == MovementDirection.NORTH || openDir == MovementDirection.SOUTH;
+        return IStructureComponent.cycleCardinalDirection(structure.getOpenDirection());
     }
 
     @Override
-    @Locked.Read("lock")
-    protected double calculateAnimationCycleDistance()
+    public IAnimationComponent constructAnimationComponent(IStructureConst structure, AnimationRequestData data)
     {
-        return Drawbridge.getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint()) * Math.TAU;
-    }
-
-    @Override
-    @Locked.Read("lock")
-    protected Rectangle calculateAnimationRange()
-    {
-        final double maxRadius = Drawbridge.getMaxRadius(isNorthSouthAnimated(), getCuboid(), getRotationPoint());
-        return Drawbridge.calculateAnimationRange(maxRadius, getCuboid());
-    }
-
-    @Override
-    public MovementDirection getCycledOpenDirection()
-    {
-        final MovementDirection openDir = getOpenDir();
-        return openDir.equals(MovementDirection.NORTH) ? MovementDirection.EAST :
-            openDir.equals(MovementDirection.EAST) ? MovementDirection.SOUTH :
-                openDir.equals(MovementDirection.SOUTH) ? MovementDirection.WEST :
-                    MovementDirection.NORTH;
-    }
-
-    @Override
-    @Locked.Read("lock")
-    protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
-    {
-        return new WindmillAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAnimated());
+        return new WindmillAnimationComponent(
+            data,
+            getCurrentToggleDirection(structure),
+            isNorthSouthAnimated(structure)
+        );
     }
 }

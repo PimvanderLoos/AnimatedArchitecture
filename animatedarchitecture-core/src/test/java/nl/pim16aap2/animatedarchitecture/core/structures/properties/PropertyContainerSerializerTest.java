@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
 import com.alibaba.fastjson2.JSON;
 import nl.altindag.log.LogCaptor;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.logging.LogAssertionsUtil;
@@ -90,7 +90,7 @@ public class PropertyContainerSerializerTest
     @Test
     void testSerializeAbstractStructure()
     {
-        final AbstractStructure structure = Mockito.mock(AbstractStructure.class);
+        final Structure structure = Mockito.mock(Structure.class);
         Mockito.when(structure.getType()).thenReturn(structureType);
 
         final IPropertyContainerConst snapshot = propertyContainer.snapshot();

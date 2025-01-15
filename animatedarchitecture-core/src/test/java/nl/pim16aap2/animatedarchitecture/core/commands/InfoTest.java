@@ -5,7 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 class InfoTest
 {
     @Mock
-    private AbstractStructure structure;
+    private Structure structure;
 
     private StructureRetriever structureRetriever;
 
@@ -59,7 +59,7 @@ class InfoTest
         Mockito.when(snapshot.getCuboid()).thenReturn(new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6)));
         Mockito.when(snapshot.getPowerBlock()).thenReturn(new Vector3Di(7, 8, 9));
         Mockito.when(snapshot.getNameAndUid()).thenReturn("Structure (0)");
-        Mockito.when(snapshot.getOpenDir()).thenReturn(MovementDirection.NORTH);
+        Mockito.when(snapshot.getOpenDirection()).thenReturn(MovementDirection.NORTH);
         Mockito.doReturn(Optional.empty()).when(snapshot).getPersistentVariable(Mockito.anyString());
 
         final StructureType structureType = Mockito.mock(StructureType.class);

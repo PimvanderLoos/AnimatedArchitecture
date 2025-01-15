@@ -50,7 +50,7 @@ public final class StructureSnapshot implements IStructureConst
     @Getter(AccessLevel.NONE)
     private final Map<String, Object> persistentVariableMap;
 
-    StructureSnapshot(AbstractStructure structure)
+    StructureSnapshot(Structure structure)
     {
         this(
             structure.getUid(),
@@ -59,7 +59,7 @@ public final class StructureSnapshot implements IStructureConst
             structure.getPowerBlock(),
             structure.getName(),
             structure.getCuboid(),
-            structure.getOpenDir(),
+            structure.getOpenDirection(),
             structure.isLocked(),
             structure.getPrimeOwner(),
             Map.copyOf(structure.getOwnersView()),
@@ -122,7 +122,7 @@ public final class StructureSnapshot implements IStructureConst
      * @return The property map of the structure.
      */
     @VisibleForTesting
-    public static Map<String, Object> getPersistentVariableMap(AbstractStructure structure)
+    public static Map<String, Object> getPersistentVariableMap(Structure structure)
     {
         try
         {

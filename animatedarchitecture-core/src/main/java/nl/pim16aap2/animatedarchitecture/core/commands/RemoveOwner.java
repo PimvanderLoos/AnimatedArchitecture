@@ -9,7 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
@@ -72,7 +72,7 @@ public class RemoveOwner extends StructureTargetCommand
     }
 
     @Override
-    protected CompletableFuture<?> performAction(AbstractStructure structure)
+    protected CompletableFuture<?> performAction(Structure structure)
     {
         return databaseManager
             .removeOwner(structure, targetPlayer, getCommandSender().getPlayer().orElse(null))
@@ -80,7 +80,7 @@ public class RemoveOwner extends StructureTargetCommand
     }
 
     @Override
-    protected boolean isAllowed(AbstractStructure structure, boolean hasBypassPermission)
+    protected boolean isAllowed(Structure structure, boolean hasBypassPermission)
     {
         final boolean bypassOwnership = !getCommandSender().isPlayer() || hasBypassPermission;
 
@@ -141,7 +141,7 @@ public class RemoveOwner extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for removing a co-owner of the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which a co-owner is
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which a co-owner is
          *     requested to be removed.
          * @param targetPlayer
          *     The co-owner that is requested to be removed.

@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.annotations;
 
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 
 import javax.inject.Qualifier;
 import java.lang.annotation.Documented;
@@ -9,7 +9,7 @@ import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Indicates that a field in an {@link AbstractStructure} subclass should be persistent.
+ * Indicates that a field in an {@link Structure} subclass should be persistent.
  */
 @Qualifier
 @Documented

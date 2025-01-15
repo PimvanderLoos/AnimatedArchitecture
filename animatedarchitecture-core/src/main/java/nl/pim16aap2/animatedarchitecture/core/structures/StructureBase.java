@@ -251,7 +251,7 @@ final class StructureBase
     }
 
     @Locked.Read("lock")
-    public void onChunkLoad(AbstractStructure structure)
+    public void onChunkLoad(Structure structure)
     {
         if (shouldIgnoreRedstone())
             return;
@@ -267,7 +267,7 @@ final class StructureBase
         verifyRedstoneState(structure, powerBlock);
     }
 
-    private void verifyRedstoneState(AbstractStructure structure, Vector3Di powerBlock)
+    private void verifyRedstoneState(Structure structure, Vector3Di powerBlock)
     {
         if (shouldIgnoreRedstone())
             return;
@@ -285,13 +285,13 @@ final class StructureBase
         onRedstoneChange(structure, result == IRedstoneManager.RedstoneStatus.POWERED);
     }
 
-    public void verifyRedstoneState(AbstractStructure structure)
+    public void verifyRedstoneState(Structure structure)
     {
         verifyRedstoneState(structure, getPowerBlock());
     }
 
     @Locked.Read("lock")
-    void onRedstoneChange(AbstractStructure structure, boolean isPowered)
+    void onRedstoneChange(Structure structure, boolean isPowered)
     {
         if (shouldIgnoreRedstone())
             return;

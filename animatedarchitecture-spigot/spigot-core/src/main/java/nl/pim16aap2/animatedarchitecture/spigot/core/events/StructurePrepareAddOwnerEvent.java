@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareAddOwnerEvent;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +27,7 @@ public class StructurePrepareAddOwnerEvent extends StructureEvent implements ISt
     private final StructureOwner newStructureOwner;
 
     public StructurePrepareAddOwnerEvent(
-        AbstractStructure structure,
+        Structure structure,
         @Nullable IPlayer responsible,
         StructureOwner newStructureOwner)
     {

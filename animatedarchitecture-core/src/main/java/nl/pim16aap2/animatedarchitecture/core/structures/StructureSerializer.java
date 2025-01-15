@@ -42,7 +42,7 @@ import java.util.Set;
  *     out which deserialized object to map to which parameter.</li>
  * </ul>
  * <p>
- * The {@link AbstractStructure.BaseHolder} object is always provided and does not need to be handled in any specific
+ * The {@link Structure.BaseHolder} object is always provided and does not need to be handled in any specific
  * way.
  * <p>
  * When a value is missing during deserialization, null will be substituted in its place if it is not a primitive. If
@@ -109,7 +109,7 @@ import java.util.Set;
  *     The type of structure.
  */
 @Flogger
-public final class StructureSerializer<T extends AbstractStructure>
+public final class StructureSerializer<T extends Structure>
 {
     /**
      * The type of the structure.
@@ -202,10 +202,10 @@ public final class StructureSerializer<T extends AbstractStructure>
 
         for (final Parameter parameter : ctor.getParameters())
         {
-            if (parameter.getType() == AbstractStructure.BaseHolder.class && !foundBase)
+            if (parameter.getType() == Structure.BaseHolder.class && !foundBase)
             {
                 foundBase = true;
-                ret.add(new ConstructorParameter("", AbstractStructure.BaseHolder.class));
+                ret.add(new ConstructorParameter("", Structure.BaseHolder.class));
                 continue;
             }
 
@@ -227,7 +227,7 @@ public final class StructureSerializer<T extends AbstractStructure>
         return ret;
     }
 
-    private static List<AnnotatedField> findAnnotatedFields(Class<? extends AbstractStructure> structureClass)
+    private static List<AnnotatedField> findAnnotatedFields(Class<? extends Structure> structureClass)
         throws UnsupportedOperationException
     {
         final List<AnnotatedField> fields = ReflectionBuilder
@@ -262,7 +262,7 @@ public final class StructureSerializer<T extends AbstractStructure>
      * @throws Exception
      *     If an error occurs while getting the value of a field.
      */
-    Map<String, Object> getPersistentVariableMap(AbstractStructure structure)
+    Map<String, Object> getPersistentVariableMap(Structure structure)
         throws Exception
     {
         final HashMap<String, Object> values = HashMap.newHashMap(fields.size());
@@ -286,7 +286,7 @@ public final class StructureSerializer<T extends AbstractStructure>
      *     The structure.
      * @return The serialized type-specific data represented as a json string.
      */
-    public String serializeTypeData(AbstractStructure structure)
+    public String serializeTypeData(Structure structure)
         throws Exception
     {
         final Map<String, Object> values = getPersistentVariableMap(structure);
@@ -337,7 +337,7 @@ public final class StructureSerializer<T extends AbstractStructure>
         String persistentVariablesJson,
         String propertiesJson)
     {
-        final AbstractStructure.BaseHolder structureBase;
+        final Structure.BaseHolder structureBase;
         try
         {
             final var propertyContainer = PropertyContainerSerializer.deserialize(structureType, propertiesJson);
@@ -378,7 +378,7 @@ public final class StructureSerializer<T extends AbstractStructure>
 
     @VisibleForTesting
     T instantiate(
-        AbstractStructure.BaseHolder structureBase,
+        Structure.BaseHolder structureBase,
         int version,
         Map<String, Object> typeDataMap)
         throws Exception
@@ -421,7 +421,7 @@ public final class StructureSerializer<T extends AbstractStructure>
 
     private Object[] deserializeParameters(
         DeserializationConstructor deserializationCtor,
-        AbstractStructure.BaseHolder base,
+        Structure.BaseHolder base,
         Map<String, Object> values)
     {
         final Map<Class<?>, Object> classes = HashMap.newHashMap(values.size());
@@ -437,7 +437,7 @@ public final class StructureSerializer<T extends AbstractStructure>
             try
             {
                 final @Nullable Object data;
-                if (param.type == AbstractStructure.BaseHolder.class)
+                if (param.type == Structure.BaseHolder.class)
                     data = base;
                 else if (param.name != null)
                     data = getDeserializedObject(base, param.type, values, param.name);
@@ -463,7 +463,7 @@ public final class StructureSerializer<T extends AbstractStructure>
     }
 
     private static @Nullable <T> Object getDeserializedObject(
-        AbstractStructure.BaseHolder base, Class<?> target, Map<T, Object> map, T key)
+        Structure.BaseHolder base, Class<?> target, Map<T, Object> map, T key)
     {
         final @Nullable Object ret = map.get(key);
         if (ret != null)

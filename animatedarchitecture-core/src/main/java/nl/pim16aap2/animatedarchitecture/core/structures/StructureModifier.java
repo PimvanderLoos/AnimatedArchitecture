@@ -46,7 +46,7 @@ public final class StructureModifier
      *     The new owner of the door.
      * @return True if the owner was removed.
      */
-    public boolean addOwner(AbstractStructure structure, StructureOwner structureOwner)
+    public boolean addOwner(Structure structure, StructureOwner structureOwner)
     {
         return structure.addOwner(structureOwner);
     }
@@ -61,7 +61,7 @@ public final class StructureModifier
      * @return The owner that was removed. If no owner with that UUID exists, or if that specific owner could not be
      * removed, the result will be null.
      */
-    public @Nullable StructureOwner removeOwner(AbstractStructure structure, UUID ownerUUID)
+    public @Nullable StructureOwner removeOwner(Structure structure, UUID ownerUUID)
     {
         return structure.removeOwner(ownerUUID);
     }

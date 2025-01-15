@@ -5,7 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithBlocksToMove;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class SetBlocksToMoveTest
 {
-    private AbstractStructure structure;
+    private Structure structure;
 
     private StructureRetriever structureRetriever;
 
@@ -47,7 +47,7 @@ class SetBlocksToMoveTest
     void init()
     {
         structure = Mockito.mock(
-            AbstractStructure.class,
+            Structure.class,
             Mockito.withSettings().extraInterfaces(IStructureWithBlocksToMove.class)
         );
 
@@ -81,7 +81,7 @@ class SetBlocksToMoveTest
         final int blocksToMove = 42;
 
         final SetBlocksToMove command = factory.newSetBlocksToMove(commandSender, structureRetriever, blocksToMove);
-        final AbstractStructure altStructure = Mockito.mock(AbstractStructure.class);
+        final Structure altStructure = Mockito.mock(Structure.class);
         Mockito.when(altStructure.getType()).thenReturn(structureType);
 
         Assertions.assertDoesNotThrow(() -> command.performAction(altStructure).get(1, TimeUnit.SECONDS));

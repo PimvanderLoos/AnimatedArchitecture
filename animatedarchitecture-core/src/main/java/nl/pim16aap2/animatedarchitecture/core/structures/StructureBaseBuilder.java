@@ -144,9 +144,9 @@ public final class StructureBaseBuilder
         }
 
         @Override
-        public AbstractStructure.BaseHolder build()
+        public Structure.BaseHolder build()
         {
-            return new AbstractStructure.BaseHolder(
+            return new Structure.BaseHolder(
                 baseFactory.create(
                     structureUID,
                     name,
@@ -436,6 +436,6 @@ public final class StructureBaseBuilder
          *
          * @return The next step of the guided builder process.
          */
-        AbstractStructure.BaseHolder build();
+        Structure.BaseHolder build();
     }
 }

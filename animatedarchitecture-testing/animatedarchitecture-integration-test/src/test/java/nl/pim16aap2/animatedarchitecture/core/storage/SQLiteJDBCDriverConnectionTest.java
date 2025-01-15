@@ -17,7 +17,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.storage.sqlite.DataSourceInfoSQLite;
 import nl.pim16aap2.animatedarchitecture.core.storage.sqlite.SQLiteJDBCDriverConnection;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
@@ -309,7 +309,7 @@ public class SQLiteJDBCDriverConnectionTest
      * @param structure
      *     The structure to verify.
      */
-    private void testRetrieval(AbstractStructure structure)
+    private void testRetrieval(Structure structure)
     {
         Assertions.assertNotNull(storage);
         Assertions.assertNotNull(structure);
@@ -322,7 +322,7 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertTrue(playerData.isPresent());
         Assertions.assertEquals(structure.getPrimeOwner().playerData(), playerData.get());
 
-        final List<AbstractStructure> test = storage.getStructures(ownerUUID, structure.getName());
+        final List<Structure> test = storage.getStructures(ownerUUID, structure.getName());
 
         Assertions.assertEquals(
             1,
@@ -469,7 +469,7 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertTrue(storage.getStructure(PLAYER_DATA_1.getUUID(), 1L).isPresent());
         Assertions.assertEquals(structure1, storage.getStructure(PLAYER_DATA_1.getUUID(), 1L).get());
         Assertions.assertFalse(storage.getStructure(PLAYER_DATA_1.getUUID(), 3L).isPresent());
-        final Optional<AbstractStructure> testStructure1 = storage.getStructure(1L);
+        final Optional<Structure> testStructure1 = storage.getStructure(1L);
         Assertions.assertTrue(testStructure1.isPresent());
         Assertions.assertEquals(structure1.getPrimeOwner(), testStructure1.get().getPrimeOwner());
         Assertions.assertEquals(structure1, testStructure1.get());
@@ -663,14 +663,14 @@ public class SQLiteJDBCDriverConnectionTest
                 storage.syncStructureData(
                     structure3.getSnapshot(),
                     serializer.serializeTypeData(structure3)));
-            UnitTestUtil.optionalEquals(true, storage.getStructure(3L), AbstractStructure::isLocked);
+            UnitTestUtil.optionalEquals(true, storage.getStructure(3L), Structure::isLocked);
 
             structure3.setLocked(false);
             Assertions.assertTrue(
                 storage.syncStructureData(
                     structure3.getSnapshot(),
                     serializer.serializeTypeData(structure3)));
-            UnitTestUtil.optionalEquals(false, storage.getStructure(3L), AbstractStructure::isLocked);
+            UnitTestUtil.optionalEquals(false, storage.getStructure(3L), Structure::isLocked);
         }
 
         // Test syncing all data.
@@ -717,7 +717,7 @@ public class SQLiteJDBCDriverConnectionTest
                     structure3.getSnapshot(),
                     serializer.serializeTypeData(structure3)));
 
-            Optional<AbstractStructure> retrievedOpt = storage.getStructure(3L);
+            Optional<Structure> retrievedOpt = storage.getStructure(3L);
             Assertions.assertTrue(retrievedOpt.isPresent());
             Portcullis retrieved = (Portcullis) retrievedOpt.get();
 

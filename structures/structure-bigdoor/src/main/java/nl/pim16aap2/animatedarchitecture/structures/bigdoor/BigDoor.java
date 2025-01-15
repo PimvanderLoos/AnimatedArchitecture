@@ -1,17 +1,14 @@
 package nl.pim16aap2.animatedarchitecture.structures.bigdoor;
 
 import lombok.EqualsAndHashCode;
-import lombok.Locked;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
-import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
-import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithQuarterCircles;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithRotationPoint;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureComponent;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -19,103 +16,91 @@ import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 import java.util.Optional;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
 /**
- * Represents a Big Door structure type.
+ * Represents a Big Door structure component.
  *
- * @see AbstractStructure
+ * @see Structure
  */
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
 @Flogger
-public class BigDoor
-    extends AbstractStructure
-    implements
-    IStructureWithOpenStatus,
-    IStructureWithQuarterCircles,
-    IStructureWithRotationPoint
+@ToString
+@EqualsAndHashCode
+public class BigDoor implements IStructureComponent
 {
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private final ReentrantReadWriteLock lock;
-
-    @Deserialization
-    public BigDoor(BaseHolder base)
-    {
-        super(base, StructureTypeBigDoor.get());
-        this.lock = getLock();
-    }
-
-    /**
-     * Deprecated constructor for deserialization of version 1 where {@code quarterCircles} was a persistent variable.
-     */
-    @Deprecated
-    @Deserialization(version = 1)
-    public BigDoor(BaseHolder base, @PersistentVariable(value = "quarterCircles") int quarterCircles)
-    {
-        this(base);
-        setQuarterCircles(quarterCircles);
-    }
+//    @Deserialization
+//    public BigDoor(BaseHolder base)
+//    {
+//        super(base, StructureTypeBigDoor.get());
+//        this.lock = getLock();
+//    }
+//
+//    /**
+//     * Deprecated constructor for deserialization of version 1 where {@code quarterCircles} was a persistent variable.
+//     */
+//    @Deprecated
+//    @Deserialization(version = 1)
+//    public BigDoor(BaseHolder base, @PersistentVariable(value = "quarterCircles") int quarterCircles)
+//    {
+//        this(base);
+//        setQuarterCircles(quarterCircles);
+//    }
 
     @Override
-    public boolean canSkipAnimation()
+    public MovementDirection getCycledOpenDirection(IStructureConst structure)
     {
-        return true;
-    }
-
-    @Override
-    public MovementDirection getCycledOpenDirection()
-    {
-        return getOpenDir().equals(MovementDirection.CLOCKWISE) ?
+        return structure.getOpenDirection().equals(MovementDirection.CLOCKWISE) ?
             MovementDirection.COUNTERCLOCKWISE :
             MovementDirection.CLOCKWISE;
     }
 
     @Override
-    @Locked.Read("lock")
-    public MovementDirection getCurrentToggleDir()
+    public Optional<Cuboid> getPotentialNewCoordinates(IStructureConst structure)
     {
-        return isOpen() ? MovementDirection.getOpposite(getOpenDir()) : getOpenDir();
-    }
-
-    @Override
-    @Locked.Read("lock")
-    public Optional<Cuboid> getPotentialNewCoordinates()
-    {
-        final MovementDirection movementDirection = getCurrentToggleDir();
-        final int quarterCircles = getQuarterCircles();
+        final MovementDirection movementDirection = getCurrentToggleDirection(structure);
+        final int quarterCircles = structure.getRequiredPropertyValue(Property.QUARTER_CIRCLES);
 
         final double angle;
         if (movementDirection == MovementDirection.CLOCKWISE)
+        {
             angle = quarterCircles * MathUtil.HALF_PI;
+        }
         else if (movementDirection == MovementDirection.COUNTERCLOCKWISE)
+        {
             angle = quarterCircles * -MathUtil.HALF_PI;
+        }
         else
         {
-            log.atSevere().log("Invalid movement direction '%s' for door: %d", movementDirection.name(), getUid());
+            log.atSevere().log(
+                "Invalid movement direction '%s' for door: %d",
+                movementDirection.name(),
+                structure.getUid()
+            );
             return Optional.empty();
         }
 
-        return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getRotationPoint(), angle)));
+        final Vector3Di rotationPoint = structure.getRequiredPropertyValue(Property.ROTATION_POINT);
+        return Optional.of(structure.getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(rotationPoint, angle)));
     }
 
     @Override
-    @Locked.Read("lock")
-    protected double calculateAnimationCycleDistance()
+    public double calculateAnimationCycleDistance(IStructureConst structure)
     {
-        final double maxRadius = getMaxRadius(getCuboid(), getRotationPoint());
-        return getQuarterCircles() * maxRadius * MathUtil.HALF_PI;
+        final Vector3Di rotationPoint = structure.getRequiredPropertyValue(Property.ROTATION_POINT);
+        final int quarterCircles = structure.getRequiredPropertyValue(Property.QUARTER_CIRCLES);
+
+        final double maxRadius = getMaxRadius(structure.getCuboid(), rotationPoint);
+        return quarterCircles * maxRadius * MathUtil.HALF_PI;
     }
 
     @Override
-    @Locked.Read("lock")
-    protected Rectangle calculateAnimationRange()
+    public Rectangle calculateAnimationRange(IStructureConst structure)
     {
-        final double maxRadius = getMaxRadius(getCuboid(), getRotationPoint());
-        return calculateAnimationRange(maxRadius, getCuboid());
+        final Vector3Di rotationPoint = structure.getRequiredPropertyValue(Property.ROTATION_POINT);
+        final Cuboid cuboid = structure.getCuboid();
+
+        final double maxRadius = getMaxRadius(cuboid, rotationPoint);
+        return calculateAnimationRange(maxRadius, cuboid);
     }
 
     /**
@@ -160,9 +145,9 @@ public class BigDoor
     }
 
     @Override
-    @Locked.Read("lock")
-    protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
+    public IAnimationComponent constructAnimationComponent(IStructureConst structure, AnimationRequestData data)
     {
-        return new BigDoorAnimationComponent(data, getCurrentToggleDir(), getQuarterCircles());
+        final int quarterCircles = structure.getRequiredPropertyValue(Property.QUARTER_CIRCLES);
+        return new BigDoorAnimationComponent(data, getCurrentToggleDirection(structure), quarterCircles);
     }
 }

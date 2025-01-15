@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 
 /**
  * Describes a type of structure that moves in a straight line, where the final position of each block in a structure
@@ -27,7 +27,7 @@ public interface IStructureWithBlocksToMove extends IPropertyHolder
     /**
      * Change the number of blocks this structure will try to move when opened. Note that this is only a suggestion. It
      * will never move more blocks than possible. Values less than 1 will use the default value for this
-     * {@link AbstractStructure}.
+     * {@link Structure}.
      *
      * @param blocksToMove
      *     The number of blocks the structure will try to move.
