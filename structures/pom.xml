@@ -76,7 +76,7 @@
         <!--
         The (non-negative) version of the type, e.g. 1
         -->
-        <version>UNDEFINED</version>
+        <typeVersion>UNDEFINED</typeVersion>
 
         <!--
         The supported API version(s) of the structure type.
@@ -127,7 +127,7 @@
                                     <manifestEntries>
                                         <Namespace>${namespace}</Namespace>
                                         <TypeName>${typeName}</TypeName>
-                                        <Version>${version}</Version>
+                                        <Version>${typeVersion}</Version>
                                         <SupportedApiVersions>${supportedApiVersions}</SupportedApiVersions>
                                         <TypeDependencies>${TypeDependencies}</TypeDependencies>
                                     </manifestEntries>

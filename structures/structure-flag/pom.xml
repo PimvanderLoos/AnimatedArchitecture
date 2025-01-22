@@ -4,21 +4,21 @@
 
     <artifactId>structure-flag</artifactId>
     <packaging>jar</packaging>
-    <version>1</version>
-
-    <properties>
-        <mainClass>nl.pim16aap2.animatedarchitecture.structures.flag.StructureTypeFlag</mainClass>
-        <typeName>Flag</typeName>
-        <version>1</version>
-        <supportedApiVersions>1.*</supportedApiVersions>
-        <project.root-dir>${project.basedir}/../..</project.root-dir>
-    </properties>
+    <version>10</version>
 
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>structures</artifactId>
         <version>0.7.0-SNAPSHOT</version>
     </parent>
+
+    <properties>
+        <mainClass>nl.pim16aap2.animatedarchitecture.structures.flag.StructureTypeFlag</mainClass>
+        <typeName>Flag</typeName>
+        <typeVersion>${project.version}</typeVersion>
+        <supportedApiVersions>2.*</supportedApiVersions>
+        <project.root-dir>${project.basedir}/../..</project.root-dir>
+    </properties>
 
     <build>
         <finalName>${typeName}</finalName>

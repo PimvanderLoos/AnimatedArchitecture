@@ -13,7 +13,7 @@ import java.util.List;
 
 public final class StructureTypeFlag extends StructureType
 {
-    private static final int TYPE_VERSION = 1;
+    private static final int TYPE_VERSION = 10;
 
     private static final StructureTypeFlag INSTANCE = new StructureTypeFlag();
 

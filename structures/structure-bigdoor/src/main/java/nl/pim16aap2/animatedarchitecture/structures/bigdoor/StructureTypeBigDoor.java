@@ -19,7 +19,7 @@ import java.util.List;
  */
 public final class StructureTypeBigDoor extends StructureType
 {
-    private static final int TYPE_VERSION = 2;
+    private static final int TYPE_VERSION = 10;
 
     private static final StructureTypeBigDoor INSTANCE = new StructureTypeBigDoor();
 
