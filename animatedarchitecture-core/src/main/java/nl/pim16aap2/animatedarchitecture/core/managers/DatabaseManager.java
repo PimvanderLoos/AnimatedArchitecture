@@ -19,8 +19,8 @@ import nl.pim16aap2.animatedarchitecture.core.events.IStructureCreatedEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareCreateEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareDeleteEvent;
 import nl.pim16aap2.animatedarchitecture.core.storage.IStorage;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureModifier;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
@@ -325,8 +325,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Gets all {@link Structure} owned by a player. Only searches for {@link Structure} with a given
-     * name if one was provided.
+     * Gets all {@link Structure} owned by a player. Only searches for {@link Structure} with a given name if one was
+     * provided.
      *
      * @param playerUUID
      *     The {@link UUID} of the payer.
@@ -477,8 +477,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Gets the {@link Structure} with the given UID owned by the player. If the given player does not own the
-     * provided structure, no structure will be returned.
+     * Gets the {@link Structure} with the given UID owned by the player. If the given player does not own the provided
+     * structure, no structure will be returned.
      *
      * @param player
      *     The {@link IPlayer}.
@@ -556,9 +556,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Adds a player as owner to a {@link Structure} at a given level of ownership and assumes that the
-     * structure was NOT deleted by an {@link IPlayer}. See
-     * {@link #addOwner(Structure, IPlayer, PermissionLevel, IPlayer)}.
+     * Adds a player as owner to a {@link Structure} at a given level of ownership and assumes that the structure was
+     * NOT deleted by an {@link IPlayer}. See {@link #addOwner(Structure, IPlayer, PermissionLevel, IPlayer)}.
      *
      * @param structure
      *     The {@link Structure}.
@@ -679,8 +678,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Remove a {@link IPlayer} as owner of a {@link Structure} and assumes that the structure was NOT deleted
-     * by an {@link IPlayer}. See {@link #removeOwner(Structure, UUID, IPlayer)}.
+     * Remove a {@link IPlayer} as owner of a {@link Structure} and assumes that the structure was NOT deleted by an
+     * {@link IPlayer}. See {@link #removeOwner(Structure, UUID, IPlayer)}.
      *
      * @param structure
      *     The {@link Structure}.
@@ -759,22 +758,17 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     /**
-     * Updates the all data of an {@link Structure}. This includes both the base data and the type-specific
-     * data.
+     * Updates the all data of an {@link Structure}. This includes both the base data and the type-specific data.
      *
      * @param snapshot
      *     The {@link Structure} that describes the base data of structure.
-     * @param typeData
-     *     The type-specific data of this structure represented as a json String.
      * @return The result of the operation.
      */
-    public CompletableFuture<DatabaseManager.ActionResult> syncStructureData(
-        StructureSnapshot snapshot,
-        String typeData)
+    public CompletableFuture<DatabaseManager.ActionResult> syncStructureData(StructureSnapshot snapshot)
     {
         return CompletableFuture
             .supplyAsync(
-                () -> db.syncStructureData(snapshot, typeData) ? ActionResult.SUCCESS : ActionResult.FAIL,
+                () -> db.syncStructureData(snapshot) ? ActionResult.SUCCESS : ActionResult.FAIL,
                 threadPool)
             .exceptionally(ex -> FutureUtil.exceptionally(ex, ActionResult.FAIL));
     }

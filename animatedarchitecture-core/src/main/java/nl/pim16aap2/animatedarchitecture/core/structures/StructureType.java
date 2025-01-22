@@ -11,7 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.util.LazyValue;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -85,8 +84,6 @@ public abstract class StructureType implements IKeyed
     @Getter
     private final List<Property<?>> properties;
 
-    private final LazyValue<StructureSerializer<?>> lazyStructureSerializer;
-
     /**
      * Constructs a new {@link StructureType}. Don't forget to also register it using
      * {@link StructureTypeManager#register(StructureType)}.
@@ -103,7 +100,7 @@ public abstract class StructureType implements IKeyed
      *     <p>
      *     This is used for serialization purposes. If you change the structure in a way that makes it incompatible with
      *     the previous version, you should increase this number. This will allow you to handle the transition between
-     *     the old and new version. See {@link StructureSerializer} for more information.
+     *     the old and new version.
      * @param validMovementDirections
      *     The valid movement directions for this structure.
      * @param supportedProperties
@@ -130,8 +127,6 @@ public abstract class StructureType implements IKeyed
         this.properties = List.copyOf(supportedProperties);
         this.localizationKey = localizationKey;
         this.fullNameWithVersion = this.getFullKey() + ":" + version;
-
-        lazyStructureSerializer = new LazyValue<>(() -> new StructureSerializer<>(this));
     }
 
     /**
@@ -156,7 +151,7 @@ public abstract class StructureType implements IKeyed
      *     <p>
      *     This is used for serialization purposes. If you change the structure in a way that makes it incompatible with
      *     the previous version, you should increase this number. This will allow you to handle the transition between
-     *     the old and new version. See {@link StructureSerializer} for more information.
+     *     the old and new version.
      * @param validMovementDirections
      *     The valid movement directions for this structure.
      * @param supportedProperties
@@ -216,16 +211,6 @@ public abstract class StructureType implements IKeyed
     public final String getFullKey()
     {
         return getNamespacedKey().getFullKey();
-    }
-
-    /**
-     * Gets the {@link StructureSerializer} for this type.
-     *
-     * @return The {@link StructureSerializer}.
-     */
-    public final StructureSerializer<?> getStructureSerializer()
-    {
-        return lazyStructureSerializer.get();
     }
 
     /**

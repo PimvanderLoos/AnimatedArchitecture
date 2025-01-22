@@ -11,7 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
@@ -50,9 +49,6 @@ public final class StructureSnapshot implements IStructureConst
     @Getter
     private final IPropertyContainerConst propertyContainerSnapshot;
 
-    @Getter(AccessLevel.NONE)
-    private final Map<String, Object> persistentVariableMap;
-
     StructureSnapshot(Structure structure)
     {
         this(
@@ -69,8 +65,7 @@ public final class StructureSnapshot implements IStructureConst
             structure.getType(),
             structure.getCycledOpenDirection(),
             structure.getMinimumAnimationTime(),
-            structure.getPropertyContainerSnapshot(),
-            getPersistentVariableMap(structure)
+            structure.getPropertyContainerSnapshot()
         );
     }
 
@@ -103,39 +98,5 @@ public final class StructureSnapshot implements IStructureConst
     public StructureSnapshot getSnapshot()
     {
         return this;
-    }
-
-    /**
-     * Gets the value of a property of this structure.
-     * <p>
-     * This can be used to retrieve type-specific properties of a structure.
-     *
-     * @param key
-     *     The key of the property.
-     * @return The value of the property, or {@link Optional#empty()} if the property does not exist.
-     */
-    public Optional<Object> getPersistentVariable(String key)
-    {
-        return Optional.ofNullable(persistentVariableMap.get(key));
-    }
-
-    /**
-     * Gets the property map of a structure.
-     *
-     * @param structure
-     *     The structure to get the property map of.
-     * @return The property map of the structure.
-     */
-    @VisibleForTesting
-    public static Map<String, Object> getPersistentVariableMap(Structure structure)
-    {
-        try
-        {
-            return structure.getType().getStructureSerializer().getPersistentVariableMap(structure);
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 }

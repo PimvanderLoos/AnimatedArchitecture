@@ -93,8 +93,8 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
     }
 
     /**
-     * Attempts to get the {@link Structure} associated the given UID. It can only retrieve doors that still
-     * exist in the cache.
+     * Attempts to get the {@link Structure} associated the given UID. It can only retrieve doors that still exist in
+     * the cache.
      *
      * @param structureUID
      *     The UID of the structure.
@@ -119,8 +119,8 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
     }
 
     /**
-     * Checks if the exact instance of the provided {@link Structure} has been registered. (i.e. it uses '==' to
-     * check if the cached entry is the same).
+     * Checks if the exact instance of the provided {@link Structure} has been registered. (i.e. it uses '==' to check
+     * if the cached entry is the same).
      *
      * @param structure
      *     The structure.
@@ -135,29 +135,43 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
     /**
      * Puts a new {@link Structure} in the cache if it does not exist yet.
      *
+     * @param structure
+     *     The structure to put in the cache.
+     * @return An empty {@link Optional} if the structure was successfully put in the cache. If a mapping already
+     * existed, the old structure will be returned instead.
+     */
+    public Optional<Structure> putIfAbsent(Structure structure)
+    {
+        return structureCache.putIfAbsent(structure.getUid(), structure);
+    }
+
+    /**
+     * Puts a new {@link Structure} in the cache if it does not exist yet.
+     *
      * @param uid
      *     The UID of the structure.
      * @param supplier
      *     The supplier that will create a new structure if no mapping exists yet for the provided UID.
-     * @return The {@link Structure} that ends up being in the cache. If a mapping already existed, this will be
-     * the old structure. If not, the newly created one will be returned instead.
+     * @return The {@link Structure} that ends up being in the cache. If a mapping already existed, this will be the old
+     * structure. If not, the newly created one will be returned instead.
      */
     Structure computeIfAbsent(long uid, Supplier<Structure> supplier)
     {
         if (uid < 1)
             throw new IllegalArgumentException("Trying to register structure with UID " + uid);
 
-        return structureCache.compute(uid, (key, value) ->
-        {
-            if (value == null)
-                return Util.requireNonNull(supplier.get(), "Supplied Structure");
+        return structureCache.compute(
+            uid, (key, value) ->
+            {
+                if (value == null)
+                    return Util.requireNonNull(supplier.get(), "Supplied Structure");
 
-            log.atFine().withStackTrace(StackSize.FULL).log(
-                "Caught attempted double registering of structure %d! Existing = %s",
-                uid, value
-            );
-            return value;
-        });
+                log.atFine().withStackTrace(StackSize.FULL).log(
+                    "Caught attempted double registering of structure %d! Existing = %s",
+                    uid, value
+                );
+                return value;
+            });
     }
 
     @Override

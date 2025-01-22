@@ -109,7 +109,7 @@ class TimedCacheTest
         // Ensure the value can be retrieved properly.
         @Nullable String result = timedCache.get("key").orElse(null);
         Assertions.assertNotNull(result);
-        Assertions.assertSame(result, value);
+        Assertions.assertSame(value, result);
 
         // Ensure the value has timed out.
         clock.addMillis(1000);

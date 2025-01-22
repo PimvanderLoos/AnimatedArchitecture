@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Represents an initializer for a group of {@link StructureType}s.
@@ -249,8 +248,6 @@ final class StructureTypeInitializer
         throws Exception
     {
         structureTypeInfo.verifyLoadedType(structureType);
-        // Get the serializer to ensure it is loaded.
-        Objects.requireNonNull(structureType.getStructureSerializer());
     }
 
     record LoadFailure(LoadFailureType loadFailuretype, String message)

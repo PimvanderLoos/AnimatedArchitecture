@@ -162,9 +162,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @EqualsAndHashCode.Exclude
     private final IPlayerFactory playerFactory;
 
-    @Deprecated
-    private StructureSerializer<?> serializer;
-
     @AssistedInject
     Structure(
         @Assisted long uid,
@@ -606,7 +603,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         try
         {
             return databaseManager
-                .syncStructureData(getSnapshot(), serializer.serializeTypeData(this))
+                .syncStructureData(getSnapshot())
                 .exceptionally(ex -> FutureUtil.exceptionally(ex, DatabaseManager.ActionResult.FAIL));
         }
         catch (Exception e)

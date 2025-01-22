@@ -5,9 +5,9 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -252,8 +252,8 @@ public interface IStorage
     List<Structure> getStructuresInChunk(long chunkId);
 
     /**
-     * Inserts a new structure in the database. If the insertion was successful, a new {@link Structure} will be
-     * created with the correct structureUID.
+     * Inserts a new structure in the database. If the insertion was successful, a new {@link Structure} will be created
+     * with the correct structureUID.
      *
      * @param structure
      *     The structure to insert.
@@ -263,16 +263,14 @@ public interface IStorage
     Optional<Structure> insert(Structure structure);
 
     /**
-     * Synchronizes an {@link Structure} structure with the database. This will synchronize both the base and
-     * the type-specific data of the {@link Structure}.
+     * Synchronizes an {@link Structure} structure with the database. This will synchronize both the base and the
+     * type-specific data of the {@link Structure}.
      *
      * @param structure
      *     The {@link IStructureConst} that describes the data of structure.
-     * @param typeData
-     *     The serialized type data of the structure.
      * @return True if the update was successful.
      */
-    boolean syncStructureData(IStructureConst structure, String typeData);
+    boolean syncStructureData(IStructureConst structure);
 
     /**
      * Retrieves all {@link DatabaseManager.StructureIdentifier}s that start with the provided input.
