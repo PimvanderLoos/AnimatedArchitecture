@@ -102,7 +102,16 @@ public interface IStructureConst extends IPropertyHolderConst
      *
      * @return The basic information of this structure.
      */
-    String getBasicInfo();
+    default String getBasicInfo()
+    {
+        return String.format(
+            "%d (%s) - %s: %s",
+            getUid(),
+            getPrimeOwner(),
+            getType().getFullKey(),
+            getName()
+        );
+    }
 
     /**
      * Gets the lower time limit for an animation.

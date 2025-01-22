@@ -38,11 +38,14 @@ public final class StructureSnapshot implements IStructureConst
     private Vector3Di powerBlock;
     private String name;
     private Cuboid cuboid;
-    private MovementDirection openDir;
+    private MovementDirection openDirection;
     private boolean isLocked;
     private final StructureOwner primeOwner;
     private final Map<UUID, StructureOwner> ownersMap;
     private final StructureType type;
+    private final MovementDirection cycledOpenDirection;
+    private final double minimumAnimationTime;
+
     @Delegate
     @Getter
     private final IPropertyContainerConst propertyContainerSnapshot;
@@ -64,6 +67,8 @@ public final class StructureSnapshot implements IStructureConst
             structure.getPrimeOwner(),
             Map.copyOf(structure.getOwnersView()),
             structure.getType(),
+            structure.getCycledOpenDirection(),
+            structure.getMinimumAnimationTime(),
             structure.getPropertyContainerSnapshot(),
             getPersistentVariableMap(structure)
         );

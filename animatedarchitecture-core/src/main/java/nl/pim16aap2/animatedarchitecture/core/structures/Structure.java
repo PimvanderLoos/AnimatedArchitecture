@@ -494,7 +494,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Locked.Read("lock")
     public String getBasicInfo()
     {
-        return getUid() + " (" + getPrimeOwner() + ") - " + getType().getFullKey() + ": " + getName();
+        return IStructureConst.super.getBasicInfo();
     }
 
     @Override
