@@ -1,11 +1,11 @@
-package nl.pim16aap2.animatedarchitecture.core.structures.properties;
+package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
-import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;

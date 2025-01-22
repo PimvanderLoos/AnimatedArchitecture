@@ -27,7 +27,6 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureComponent;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
