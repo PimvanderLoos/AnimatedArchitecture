@@ -32,6 +32,12 @@ public class Windmill implements IStructureComponent
 //    }
 
     @Override
+    public boolean canMovePerpetually(IStructureConst structure)
+    {
+        return true;
+    }
+
+    @Override
     public Optional<Cuboid> getPotentialNewCoordinates(IStructureConst structure)
     {
         return Optional.of(structure.getCuboid());

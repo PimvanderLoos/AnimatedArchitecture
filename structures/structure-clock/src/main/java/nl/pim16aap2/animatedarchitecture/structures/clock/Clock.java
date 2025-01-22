@@ -58,6 +58,12 @@ public class Clock implements IStructureComponent
 //    }
 
     @Override
+    public boolean canMovePerpetually(IStructureConst structure)
+    {
+        return true;
+    }
+
+    @Override
     public double calculateAnimationCycleDistance(IStructureConst structure)
     {
         // Not needed for this type, as this type has no real cycle.

@@ -18,7 +18,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
@@ -145,7 +145,7 @@ public class StructureAnimationRequest
         if (actionType == StructureActionType.TOGGLE)
             return true;
 
-        if (structure instanceof IStructureWithOpenStatus)
+        if (structure.hasProperty(Property.OPEN_STATUS))
             return true;
 
         final String errorKey = actionType == StructureActionType.OPEN

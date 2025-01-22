@@ -13,8 +13,8 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventCaller;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,8 +60,8 @@ public final class StructureActivityManager extends Restartable
     /**
      * A list of all structure animations with write access that were aborted on shutdown.
      * <p>
-     * When this manager is initialized again, {@link Structure#verifyRedstoneState()} is called for each
-     * structure in this list.
+     * When this manager is initialized again, {@link Structure#verifyRedstoneState()} is called for each structure in
+     * this list.
      */
     @GuardedBy("this")
     private final List<Structure> structureAnimationsAbortedOnShutdown = new ArrayList<>();
@@ -128,40 +128,42 @@ public final class StructureActivityManager extends Restartable
         final AtomicReference<@Nullable RegisteredAnimatorEntry> abortEntryRef = new AtomicReference<>(null);
         final AtomicReference<@Nullable RegisteredAnimatorEntry> newEntryRef = new AtomicReference<>(null);
 
-        animators.compute(targetStructure.getUid(), (key, entry) ->
-        {
-            if (entry == null)
+        animators.compute(
+            targetStructure.getUid(),
+            (key, entry) ->
             {
-                final RegisteredAnimatorEntry newEntry =
-                    RegisteredAnimatorEntry.newAnimatorEntry(targetStructure, requiresWriteAccess);
-                newEntryRef.set(newEntry);
-                return newEntry;
-            }
+                if (entry == null)
+                {
+                    final RegisteredAnimatorEntry newEntry =
+                        RegisteredAnimatorEntry.newAnimatorEntry(targetStructure, requiresWriteAccess);
+                    newEntryRef.set(newEntry);
+                    return newEntry;
+                }
 
-            // If the existing entry is requiresWriteAccess, we cannot register a new animator.
-            if (entry.requiresWriteAccess())
-            {
-                log.atFine().withStackTrace(StackSize.FULL).log(
-                    "Trying to register animator with active requiresWriteAccess entry: %s", entry);
+                // If the existing entry is requiresWriteAccess, we cannot register a new animator.
+                if (entry.requiresWriteAccess())
+                {
+                    log.atFine().withStackTrace(StackSize.FULL).log(
+                        "Trying to register animator with active requiresWriteAccess entry: %s", entry);
+                    return entry;
+                }
+
+                // If the new animator is requiresWriteAccess, but the old one(s) is/are not, we have to abort the
+                // old one(s) to make space for the new one.
+                if (requiresWriteAccess)
+                {
+                    final RegisteredAnimatorEntry newEntry =
+                        RegisteredAnimatorEntry.newAnimatorEntry(targetStructure, true);
+
+                    newEntryRef.set(newEntry);
+                    abortEntryRef.set(entry);
+                    return newEntry;
+                }
+
+                // If there is nothing related to write access, we can re-use the existing, read-only registry entry.
+                newEntryRef.set(entry);
                 return entry;
-            }
-
-            // If the new animator is requiresWriteAccess, but the old one(s) is/are not, we have to abort the
-            // old one(s) to make space for the new one.
-            if (requiresWriteAccess)
-            {
-                final RegisteredAnimatorEntry newEntry =
-                    RegisteredAnimatorEntry.newAnimatorEntry(targetStructure, true);
-
-                newEntryRef.set(newEntry);
-                abortEntryRef.set(entry);
-                return newEntry;
-            }
-
-            // If there is nothing related to write access, we can re-use the existing, read-only registry entry.
-            newEntryRef.set(entry);
-            return entry;
-        });
+            });
 
         abort(abortEntryRef);
 
@@ -181,15 +183,17 @@ public final class StructureActivityManager extends Restartable
      */
     public void unregisterAnimation(long uid, long stamp)
     {
-        animators.compute(uid, (key, entry) ->
-        {
-            if (entry == null)
-                return null;
-            if (stamp != entry.getStamp())
-                throw new IllegalArgumentException(
-                    "Stamp mismatch: Expected stamp " + entry.getStamp() + " but got stamp: " + stamp);
-            return entry.size() > 0 ? entry : null;
-        });
+        animators.compute(
+            uid,
+            (key, entry) ->
+            {
+                if (entry == null)
+                    return null;
+                if (stamp != entry.getStamp())
+                    throw new IllegalArgumentException(
+                        "Stamp mismatch: Expected stamp " + entry.getStamp() + " but got stamp: " + stamp);
+                return entry.size() > 0 ? entry : null;
+            });
     }
 
     /**
@@ -200,17 +204,20 @@ public final class StructureActivityManager extends Restartable
      * @param uid
      *     The UID of the structure being animated.
      */
+    // TODO: Rename this method. It looks like it uses/requires a write lock or something.
     public void stopAnimatorsWithWriteAccess(long uid)
     {
-        animators.compute(uid, (key, entry) ->
-        {
-            if (entry == null)
-                return null;
-            if (!entry.requiresWriteAccess())
+        animators.compute(
+            uid,
+            (key, entry) ->
+            {
+                if (entry == null)
+                    return null;
+                if (!entry.requiresWriteAccess())
+                    return entry;
+                entry.stop();
                 return entry;
-            entry.stop();
-            return entry;
-        });
+            });
     }
 
     /**
@@ -221,13 +228,15 @@ public final class StructureActivityManager extends Restartable
      */
     public void stopAnimators(long uid)
     {
-        animators.compute(uid, (key, entry) ->
-        {
-            if (entry == null)
-                return null;
-            entry.stop();
-            return entry;
-        });
+        animators.compute(
+            uid,
+            (key, entry) ->
+            {
+                if (entry == null)
+                    return null;
+                entry.stop();
+                return entry;
+            });
     }
 
     /**
@@ -248,21 +257,23 @@ public final class StructureActivityManager extends Restartable
 
     private void processFinishedAnimation0(Animator animator)
     {
-        animators.compute(animator.getStructureUID(), (key, entry) ->
-        {
-            if (entry != null)
-                return entry.remove(animator) ? null : entry;
+        animators.compute(
+            animator.getStructureUID(),
+            (key, entry) ->
+            {
+                if (entry != null)
+                    return entry.remove(animator) ? null : entry;
 
-            // We don't care about attempts to remove non-existent entries while shut(ting) down.
-            // On shutdown, the map is cleared, so it is likely to reach this point.
-            //
-            // Generally, aborted animations are non-standard operations, which may happen under several circumstances,
-            // with more potential causes being added as the code evolves. As such, we allow some flexibility in the
-            // handling of these cases.
-            if (isActive && !animator.isAborted())
-                throw new IllegalStateException("Trying to remove unregistered animator: " + animator);
-            return null;
-        });
+                // We don't care about attempts to remove non-existent entries while shut(ting) down.
+                // On shutdown, the map is cleared, so it is likely to reach this point.
+                //
+                // Generally, aborted animations are non-standard operations, which may happen under several
+                // circumstances, with more potential causes being added as the code evolves. As such, we allow some
+                // flexibility in the handling of these cases.
+                if (isActive && !animator.isAborted())
+                    throw new IllegalStateException("Trying to remove unregistered animator: " + animator);
+                return null;
+            });
 
         animatedArchitectureEventCaller.callAnimatedArchitectureEvent(
             eventFactory.createToggleEndEvent(
@@ -290,13 +301,15 @@ public final class StructureActivityManager extends Restartable
      */
     public void addAnimator(long stamp, Animator animator)
     {
-        animators.compute(animator.getStructureUID(), (uid, entry) ->
-        {
-            if (entry == null)
-                throw new IllegalStateException("Trying to add animator to non-existent entry: " + animator);
-            entry.addAnimator(stamp, animator);
-            return entry;
-        });
+        animators.compute(
+            animator.getStructureUID(),
+            (uid, entry) ->
+            {
+                if (entry == null)
+                    throw new IllegalStateException("Trying to add animator to non-existent entry: " + animator);
+                entry.addAnimator(stamp, animator);
+                return entry;
+            });
     }
 
     /**

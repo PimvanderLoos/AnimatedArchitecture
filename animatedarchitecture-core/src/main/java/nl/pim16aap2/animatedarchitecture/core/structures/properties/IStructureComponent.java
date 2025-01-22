@@ -27,6 +27,22 @@ import java.util.Optional;
 public interface IStructureComponent
 {
     /**
+     * Checks if the structure can move perpetually.
+     * <p>
+     * This applies to structure types that have no end state, such as a flag, a clock, or a windmill.
+     * <p>
+     * This method defaults to {@code false}.
+     *
+     * @param structure
+     *     The structure to check.
+     * @return {@code true} if the structure can move perpetually, {@code false} otherwise.
+     */
+    default boolean canMovePerpetually(IStructureConst structure)
+    {
+        return false;
+    }
+
+    /**
      * Checks if the structure is animated in the north-south direction.
      *
      * @param structure
@@ -51,7 +67,7 @@ public interface IStructureComponent
      */
     default boolean canSkipAnimation(IStructureConst structure)
     {
-        return structure.hasProperty(Property.OPEN_STATUS);
+        return !canMovePerpetually(structure) && structure.hasProperty(Property.OPEN_STATUS);
     }
 
     /**

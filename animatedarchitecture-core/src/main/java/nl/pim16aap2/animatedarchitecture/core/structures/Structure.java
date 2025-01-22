@@ -1,34 +1,54 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
+import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Locked;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
+import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
+import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.IRedstoneManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureComponent;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyScope;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.util.LazyValue;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,7 +67,7 @@ import java.util.function.Supplier;
  * Changes made to this class will not automatically be updated in the database. To update the state in the database,
  * you can use either the {@link #syncData()} method or the {@link #syncDataAsync()} method.
  */
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode
 @Flogger
 @ThreadSafe
 public final class Structure implements IStructureConst, IPropertyHolder
@@ -57,15 +77,86 @@ public final class Structure implements IStructureConst, IPropertyHolder
     /**
      * The lock as used by both the {@link StructureBase} and this class.
      */
-    private final ReentrantReadWriteLock lock;
-    private final StructureSerializer<?> serializer;
+    @EqualsAndHashCode.Exclude
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    @EqualsAndHashCode.Include
-    private final StructureBase base;
+    @Getter
+    private final long uid;
 
-    @EqualsAndHashCode.Include
+    @Getter
+    private final IWorld world;
+
     @GuardedBy("lock")
-    private final IStructureComponent component;
+    private final PropertyContainer propertyContainer;
+
+    @EqualsAndHashCode.Exclude
+    private final StructureAnimationRequestBuilder structureToggleRequestBuilder;
+
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    private Vector3Di powerBlock;
+
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    private String name;
+
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    private Cuboid cuboid;
+
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    private MovementDirection openDirection;
+
+    /**
+     * Represents the locked status of this structure. True = locked, False = unlocked.
+     */
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    private boolean isLocked;
+
+    @Getter
+    @EqualsAndHashCode.Exclude
+    private final StructureOwner primeOwner;
+
+    @EqualsAndHashCode.Exclude
+    private final IRedstoneManager redstoneManager;
+
+    @EqualsAndHashCode.Exclude
+    private final StructureActivityManager structureActivityManager;
+
+    @EqualsAndHashCode.Exclude
+    private final IChunkLoader chunkLoader;
+
+    @EqualsAndHashCode.Exclude
+    @GuardedBy("lock")
+    private final Map<UUID, StructureOwner> owners;
+
+    @EqualsAndHashCode.Exclude
+    @GuardedBy("lock")
+    @Getter(onMethod_ = @Locked.Read("lock"), value = AccessLevel.PACKAGE)
+    private final Map<UUID, StructureOwner> ownersView;
+
+    @EqualsAndHashCode.Exclude
+    private final IConfig config;
+
+    @EqualsAndHashCode.Exclude
+    private final ILocalizer localizer;
+
+    @EqualsAndHashCode.Exclude
+    private final StructureRegistry structureRegistry;
+
+    @EqualsAndHashCode.Exclude
+    private final StructureToggleHelper structureOpeningHelper;
+
+    @EqualsAndHashCode.Exclude
+    private final IExecutor executor;
+
+    @EqualsAndHashCode.Exclude
+    private final DatabaseManager databaseManager;
+
+    @EqualsAndHashCode.Exclude
+    private final IPlayerFactory playerFactory;
 
     private final StructureType type;
 
@@ -74,29 +165,89 @@ public final class Structure implements IStructureConst, IPropertyHolder
     private final LazyValue<StructureSnapshot> lazyStructureSnapshot;
     private final LazyValue<PropertyContainerSnapshot> lazyPropertyContainerSnapshot;
 
-    private Structure(
-        StructureBase base,
-        StructureType type,
-        IStructureComponent component
-    )
+    @EqualsAndHashCode.Include
+    @GuardedBy("lock")
+    private final IStructureComponent component;
+
+    @Deprecated
+    private StructureSerializer<?> serializer;
+
+    @AssistedInject
+    Structure(
+        @Assisted long uid,
+        @Assisted String name,
+        @Assisted Cuboid cuboid,
+        @Assisted Vector3Di powerBlock,
+        @Assisted IWorld world,
+        @Assisted boolean isLocked,
+        @Assisted MovementDirection openDirection,
+        @Assisted StructureOwner primeOwner,
+        @Assisted @Nullable Map<UUID, StructureOwner> owners,
+        @Assisted PropertyContainer propertyContainer,
+        @Assisted StructureType type,
+        @Assisted IStructureComponent component,
+        ILocalizer localizer,
+        DatabaseManager databaseManager,
+        StructureRegistry structureRegistry,
+        StructureToggleHelper structureOpeningHelper,
+        StructureAnimationRequestBuilder structureToggleRequestBuilder,
+        IPlayerFactory playerFactory,
+        IExecutor executor,
+        IRedstoneManager redstoneManager,
+        StructureActivityManager structureActivityManager,
+        IChunkLoader chunkLoader,
+        IConfig config)
     {
-        this.type = type;
-        this.serializer = getType().getStructureSerializer();
-        this.lock = base.getLock();
-        this.base = Objects.requireNonNull(base);
         this.component = Objects.requireNonNull(component);
+
+        this.uid = uid;
+        this.name = name;
+        this.cuboid = cuboid;
+        this.powerBlock = powerBlock;
+        this.world = world;
+        this.isLocked = isLocked;
+        this.openDirection = openDirection;
+        this.primeOwner = primeOwner;
+        this.propertyContainer = propertyContainer;
+        this.redstoneManager = redstoneManager;
+        this.structureActivityManager = structureActivityManager;
+        this.chunkLoader = chunkLoader;
+
+        this.owners = new HashMap<>();
+        if (owners == null)
+            this.owners.put(primeOwner.playerData().getUUID(), primeOwner);
+        else
+            this.owners.putAll(owners);
+        this.ownersView = Collections.unmodifiableMap(this.owners);
+
+        this.config = config;
+        this.localizer = localizer;
+        this.databaseManager = databaseManager;
+        this.structureRegistry = structureRegistry;
+        this.structureOpeningHelper = structureOpeningHelper;
+        this.structureToggleRequestBuilder = structureToggleRequestBuilder;
+        this.playerFactory = playerFactory;
+        this.executor = executor;
+
+        this.type = type;
 
         lazyAnimationRange = new LazyValue<>(this::calculateAnimationRange);
         lazyAnimationCycleDistance = new LazyValue<>(this::calculateAnimationCycleDistance);
 
         lazyStructureSnapshot = new LazyValue<>(this::createNewSnapshot);
-        lazyPropertyContainerSnapshot = new LazyValue<>(this.base::newPropertyContainerSnapshot);
+        lazyPropertyContainerSnapshot = new LazyValue<>(this::newPropertyContainerSnapshot);
     }
 
     @Override
     public StructureType getType()
     {
         return type;
+    }
+
+    @Locked.Read("lock")
+    private PropertyContainerSnapshot newPropertyContainerSnapshot()
+    {
+        return propertyContainer.snapshot();
     }
 
     @Override
@@ -176,9 +327,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Locked.Read("lock")
     double getAnimationTime(@Nullable Double target)
     {
-        final double realTarget = target != null ?
+        final double realTarget = (target != null) ?
             target :
-            base.getConfig().getAnimationTimeMultiplier(getType()) * getBaseAnimationTime();
+            config.getAnimationTimeMultiplier(getType()) * getBaseAnimationTime();
         return calculateAnimationTime(realTarget);
     }
 
@@ -265,7 +416,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Override
     public double getMinimumAnimationTime()
     {
-        return getAnimationCycleDistance() / base.getConfig().maxBlockSpeed();
+        return getAnimationCycleDistance() / config.maxBlockSpeed();
     }
 
     /**
@@ -278,7 +429,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     public double getBaseAnimationTime()
     {
         return getAnimationCycleDistance() /
-            Math.min(getDefaultAnimationSpeed(), base.getConfig().maxBlockSpeed());
+            Math.min(getDefaultAnimationSpeed(), config.maxBlockSpeed());
     }
 
     /**
@@ -315,31 +466,119 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     final CompletableFuture<StructureToggleResult> toggle(StructureAnimationRequest request, IPlayer responsible)
     {
-        return base.getStructureOpeningHelper().toggle(this, request, responsible);
+        return structureOpeningHelper.toggle(this, request, responsible);
+    }
+
+    /**
+     * @return True if this structure base should ignore all redstone interaction.
+     */
+    private boolean shouldIgnoreRedstone()
+    {
+        return uid < 1 || !config.isRedstoneEnabled();
+    }
+
+    private boolean isChunkLoaded(IVector3D position)
+    {
+        return chunkLoader.checkChunk(world, position, IChunkLoader.ChunkLoadMode.VERIFY_LOADED) ==
+            IChunkLoader.ChunkLoadResult.PASS;
     }
 
     /**
      * Handles the chunk of the rotation point being loaded.
      */
+    @Locked.Read("lock")
     public void onChunkLoad()
     {
-        base.onChunkLoad(this);
+        if (shouldIgnoreRedstone())
+            return;
+
+        if (!isChunkLoaded(powerBlock))
+            return;
+
+        // TODO: We should probably make the checks a bit more comprehensive.
+        //       Instead of checking if a few chunks with specific points are loaded, we should check if all chunks
+        //       that the structure will interact with are loaded.
+        final IPropertyValue<Vector3Di> rotationPoint = getPropertyValue(Property.ROTATION_POINT);
+        if (rotationPoint.isSet() && !isChunkLoaded(Objects.requireNonNull(rotationPoint.value())))
+            return;
+
+        verifyRedstoneState();
     }
 
+    @Locked.Read("lock")
     public void verifyRedstoneState()
     {
-        base.verifyRedstoneState(this);
+        if (shouldIgnoreRedstone())
+            return;
+
+        if (!isChunkLoaded(powerBlock))
+            return;
+
+        final var result = redstoneManager.isBlockPowered(world, powerBlock);
+        if (result == IRedstoneManager.RedstoneStatus.DISABLED)
+            return;
+
+        if (result == IRedstoneManager.RedstoneStatus.UNPOWERED && component.canMovePerpetually(this))
+        {
+            structureActivityManager.stopAnimatorsWithWriteAccess(getUid());
+            return;
+        }
+
+        onRedstoneChange(result == IRedstoneManager.RedstoneStatus.POWERED);
     }
 
-    /**
-     * Handles a change in redstone current for this structure's powerblock.
-     *
-     * @param isPowered
-     *     True if the powerblock is now powered.
-     */
-    public void onRedstoneChange(boolean isPowered)
+    @Locked.Read("lock")
+    void onRedstoneChange(boolean isPowered)
     {
-        base.onRedstoneChange(this, isPowered);
+        if (shouldIgnoreRedstone())
+            return;
+
+        final StructureActionType actionType;
+        if (component.canMovePerpetually(this))
+        {
+            if (!isPowered)
+            {
+                structureActivityManager.stopAnimatorsWithWriteAccess(getUid());
+                return;
+            }
+            actionType = StructureActionType.TOGGLE;
+        }
+        else if (component instanceof IStructureWithOpenStatus openable)
+        {
+            if (isPowered && openable.isOpenable())
+            {
+                actionType = StructureActionType.OPEN;
+            }
+            else if (!isPowered && openable.isCloseable())
+            {
+                actionType = StructureActionType.CLOSE;
+            }
+            else
+            {
+                log.atFinest().log(
+                    "Aborted toggle attempt with %s redstone for openable structure: %s",
+                    (isPowered ? "powered" : "unpowered"), this);
+                return;
+            }
+        }
+        else
+        {
+            log.atFinest().log(
+                "Aborted toggle attempt with %s redstone for structure: %s",
+                (isPowered ? "powered" : "unpowered"), this);
+            return;
+        }
+
+        structureToggleRequestBuilder
+            .builder()
+            .structure(this)
+            .structureActionCause(StructureActionCause.REDSTONE)
+            .structureActionType(actionType)
+            .messageReceiverServer()
+            .responsible(playerFactory.create(getPrimeOwner().playerData()))
+            .build()
+            .execute()
+            .exceptionally(FutureUtil::exceptionally);
     }
 
     @Locked.Read("lock")
@@ -379,8 +618,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     {
         try
         {
-            return base
-                .getDatabaseManager()
+            return databaseManager
                 .syncStructureData(getSnapshot(), serializer.serializeTypeData(this))
                 .exceptionally(ex -> FutureUtil.exceptionally(ex, DatabaseManager.ActionResult.FAIL));
         }
@@ -411,10 +649,11 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * Use {@link #withWriteLock(Supplier)} instead.
      */
     @Locked.Write("lock")
-    private <T> T withWriteLock0(Supplier<T> supplier)
+    private <T> T withWriteLock0(boolean resetAnimationData, Supplier<T> supplier)
     {
         final T result = supplier.get();
-        invalidateAnimationData();
+        if (resetAnimationData)
+            invalidateAnimationData();
         return result;
     }
 
@@ -434,17 +673,24 @@ public final class Structure implements IStructureConst, IPropertyHolder
     public <T> T withWriteLock(Supplier<T> supplier)
     {
         assertWriteLockable();
-        return withWriteLock0(supplier);
+        return withWriteLock0(true, supplier);
     }
 
     /**
      * Use {@link #withWriteLock(Runnable)} instead.
      */
     @Locked.Write("lock")
-    private void withWriteLock0(Runnable runnable)
+    private void withWriteLock0(boolean resetAnimationData, Runnable runnable)
     {
         runnable.run();
-        invalidateAnimationData();
+        if (resetAnimationData)
+            invalidateAnimationData();
+    }
+
+    private void withWriteLock(boolean resetAnimationData, Runnable runnable)
+    {
+        assertWriteLockable();
+        withWriteLock0(resetAnimationData, runnable);
     }
 
     /**
@@ -453,11 +699,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * @throws IllegalStateException
      *     When the current thread may is not allowed to obtain a write lock.
      */
-    @SuppressWarnings("unused")
     public void withWriteLock(Runnable runnable)
     {
-        assertWriteLockable();
-        withWriteLock0(runnable);
+        withWriteLock(true, runnable);
     }
 
     /**
@@ -501,68 +745,49 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Locked.Read("lock")
     public String toString()
     {
-        String ret = base + "\n"
-            + "Type-specific data:\n"
-            + "type: " + getType() + "\n"
-            + "Type data: ";
+        return uid + ": " + name + "\n"
+            + formatLine("Type", getType())
+            + formatLine("Component", component.getClass().getName())
+            + formatLine("Cuboid", getCuboid())
+            + formatLine("PowerBlock Position: ", getPowerBlock())
+            + formatLine("PowerBlock Hash: ", LocationUtil.getChunkId(getPowerBlock()))
+            + formatLine("World", getWorld())
+            + formatLine("This structure is ", (isLocked ? "locked" : "unlocked"))
+            + formatLine("OpenDirection", openDirection.name())
+            + formatLine("Properties", propertyContainer);
+    }
 
-        try
-        {
-            ret += serializer.serializeTypeData(this);
-        }
-        catch (Exception e)
-        {
-            ret += "NULL";
-            log.atSevere().withCause(e).log("Failed to get serialized data for structure %d", getUid());
-        }
+    private String formatLine(String name, @Nullable Object obj)
+    {
+        final String objString = obj == null ? "NULL" : obj.toString();
+        return name + ": " + objString + "\n";
+    }
 
+    @Locked.Read("lock")
+    public Collection<StructureOwner> getOwners()
+    {
+        final List<StructureOwner> ret = new ArrayList<>(owners.size());
+        ret.addAll(owners.values());
         return ret;
     }
 
-    /**
-     * @return A map-based view of the owners.
-     */
-    final Map<UUID, StructureOwner> getOwnersView()
-    {
-        return base.getOwnersView();
-    }
-
-    /**
-     * @return The locking object used by both this class and its {@link StructureBase}.
-     */
-    protected final ReentrantReadWriteLock getLock()
-    {
-        return lock;
-    }
-
-    @Override
-    public Cuboid getCuboid()
-    {
-        return base.getCuboid();
-    }
-
-    @Override
-    public Collection<StructureOwner> getOwners()
-    {
-        return base.getOwners();
-    }
-
-    @Override
+    @Locked.Read("lock")
     public Optional<StructureOwner> getOwner(UUID uuid)
     {
-        return base.getOwner(uuid);
+        return Optional.ofNullable(owners.get(uuid));
     }
 
-    @Override
-    public boolean isOwner(UUID player)
+    @Locked.Read("lock")
+    public boolean isOwner(UUID uuid)
     {
-        return base.isOwner(player);
+        return owners.containsKey(uuid);
     }
 
-    @Override
+    @Locked.Read("lock")
     public boolean isOwner(UUID uuid, PermissionLevel permissionLevel)
     {
-        return base.isOwner(uuid, permissionLevel);
+        final @Nullable StructureOwner owner = owners.get(uuid);
+        return owner != null && owner.permission().isLowerThanOrEquals(permissionLevel);
     }
 
     /**
@@ -573,9 +798,20 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public void setCoordinates(Cuboid newCuboid)
     {
-        assertWriteLockable();
-        invalidateAnimationData();
-        base.setCoordinates(newCuboid);
+        withWriteLock(
+            false,
+            () ->
+            {
+                cuboid = newCuboid;
+                invalidateAnimationData();
+            });
+    }
+
+    @Locked.Write("lock")
+    private void setPowerBlock0(Vector3Di pos)
+    {
+        invalidateBasicData();
+        powerBlock = pos;
     }
 
     /**
@@ -586,9 +822,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public void setPowerBlock(Vector3Di pos)
     {
+        // TODO: Use nicer system than 0().
         assertWriteLockable();
-        invalidateBasicData();
-        base.setPowerBlock(pos);
+        setPowerBlock0(pos);
         verifyRedstoneState();
     }
 
@@ -600,9 +836,13 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public void setName(String name)
     {
-        assertWriteLockable();
-        invalidateBasicData();
-        base.setName(name);
+        withWriteLock(
+            false,
+            () ->
+            {
+                this.name = name;
+                invalidateBasicData();
+            });
     }
 
     /**
@@ -614,11 +854,22 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * @param openDir
      *     The {@link MovementDirection} this {@link Structure} will open in.
      */
-    public void setOpenDir(MovementDirection openDir)
+    public void setOpenDirection(MovementDirection openDir)
     {
-        assertWriteLockable();
-        invalidateAnimationData();
-        base.setOpenDir(openDir);
+        withWriteLock(
+            false,
+            () ->
+            {
+                openDirection = openDir;
+                invalidateAnimationData();
+            });
+    }
+
+    @Locked.Write("lock")
+    private void setLocked0(boolean locked)
+    {
+        isLocked = locked;
+        invalidateBasicData();
     }
 
     /**
@@ -630,69 +881,84 @@ public final class Structure implements IStructureConst, IPropertyHolder
     public void setLocked(boolean locked)
     {
         assertWriteLockable();
-        invalidateBasicData();
-        base.setLocked(locked);
+        setLocked0(locked);
         verifyRedstoneState();
     }
 
-    @Override
-    public long getUid()
-    {
-        return base.getUid();
-    }
-
-    @Override
-    public IWorld getWorld()
-    {
-        return base.getWorld();
-    }
-
-    @Override
-    public Vector3Di getPowerBlock()
-    {
-        return base.getPowerBlock();
-    }
-
-    @Override
-    public String getName()
-    {
-        return base.getName();
-    }
-
-    @Override
-    public MovementDirection getOpenDirection()
-    {
-        return base.getOpenDir();
-    }
-
-    @Override
-    public boolean isLocked()
-    {
-        return base.isLocked();
-    }
-
-    @Override
-    public StructureOwner getPrimeOwner()
-    {
-        return base.getPrimeOwner();
-    }
-
     @Locked.Write("lock")
-    final @Nullable StructureOwner removeOwner(UUID ownerUUID)
+    private @Nullable StructureOwner removeOwner0(UUID ownerUUID)
     {
-        final @Nullable StructureOwner removed = base.removeOwner(ownerUUID);
+        if (primeOwner.playerData().getUUID().equals(ownerUUID))
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Failed to remove owner: '%s' as owner from structure: '%d'" +
+                    " because removing an owner with a permission level of 0 is not allowed!",
+                primeOwner.playerData(),
+                this.getUid()
+            );
+            return null;
+        }
+        final @Nullable StructureOwner removed = owners.remove(ownerUUID);
         if (removed != null)
             invalidateBasicData();
         return removed;
     }
 
-    @Locked.Write("lock")
-    final boolean addOwner(StructureOwner structureOwner)
+    /**
+     * Removes an owner from this structure.
+     * <p>
+     * If the owner to remove is the prime owner, the owner will not be removed and a message will be logged.
+     *
+     * @param ownerUUID
+     *     The UUID of the owner to remove.
+     * @return The owner that was removed. If no owner with that UUID exists, or if that specific owner could not be
+     * removed, the result will be null.
+     *
+     * @throws IllegalStateException
+     *     When the current thread is not allowed to obtain a write lock.
+     */
+    @Nullable StructureOwner removeOwner(UUID ownerUUID)
     {
-        final boolean result = base.addOwner(structureOwner);
-        if (result)
-            invalidateBasicData();
-        return result;
+        assertWriteLockable();
+        return removeOwner0(ownerUUID);
+    }
+
+    @Locked.Write("lock")
+    private boolean addOwner0(StructureOwner structureOwner)
+    {
+        if (structureOwner.permission() == PermissionLevel.CREATOR)
+        {
+            log.atSevere().withStackTrace(StackSize.FULL).log(
+                "Failed to add Owner '%s' as owner to structure: %d because a permission level of 0 is not allowed!",
+                structureOwner.playerData(),
+                this.getUid()
+            );
+            return false;
+        }
+        owners.put(structureOwner.playerData().getUUID(), structureOwner);
+        invalidateBasicData();
+        return true;
+    }
+
+    /**
+     * Adds an owner to this structure.
+     * <p>
+     * If the added owner has a permission level of 0 (i.e. PermissionLevel#CREATOR), the owner will not be added and a
+     * message will be logged.
+     * <p>
+     * If the added owner is already an owner, the existing owner entry will be updated.
+     *
+     * @param structureOwner
+     *     The owner to add.
+     * @return True if the owner was added.
+     *
+     * @throws IllegalStateException
+     *     When the current thread is not allowed to obtain a write lock.
+     */
+    boolean addOwner(StructureOwner structureOwner)
+    {
+        assertWriteLockable();
+        return addOwner0(structureOwner);
     }
 
     /**
@@ -718,21 +984,21 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Locked.Read("lock")
     public <T> IPropertyValue<T> getPropertyValue(Property<T> property)
     {
-        return base.getPropertyValue(property);
+        return propertyContainer.getPropertyValue(property);
     }
 
     @Override
     @Locked.Read("lock")
     public boolean hasProperty(Property<?> property)
     {
-        return base.hasProperty(property);
+        return propertyContainer.hasProperty(property);
     }
 
     @Override
     @Locked.Read("lock")
     public boolean hasProperties(Collection<Property<?>> properties)
     {
-        return base.hasProperties(properties);
+        return propertyContainer.hasProperties(properties);
     }
 
     @Override
@@ -745,7 +1011,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Locked.Write("lock")
     private <T> IPropertyValue<T> setPropertyValue0(Property<T> property, @Nullable T value)
     {
-        final var ret = base.setPropertyValue(property, value);
+        final var ret = propertyContainer.setPropertyValue(property, value);
         handlePropertyChange(property);
         return ret;
     }
@@ -783,26 +1049,22 @@ public final class Structure implements IStructureConst, IPropertyHolder
         }
     }
 
-    @AllArgsConstructor(access = AccessLevel.PACKAGE)
-    @EqualsAndHashCode
-    public static final class BaseHolder
+    @AssistedFactory
+    interface IFactory
     {
-        private final StructureBase base;
-
-        /**
-         * Gets the UID of the structure this holder is for.
-         *
-         * @return The UID of the structure.
-         */
-        public long getUid()
-        {
-            return base.getUid();
-        }
-
-        @Override
-        public String toString()
-        {
-            return "Holder for structure base: " + base.getUid();
-        }
+        Structure create(
+            long structureUID,
+            String name,
+            Cuboid cuboid,
+            Vector3Di powerBlock,
+            IWorld world,
+            boolean isLocked,
+            MovementDirection openDirection,
+            StructureOwner primeOwner,
+            @Nullable Map<UUID, StructureOwner> structureOwners,
+            PropertyContainer propertyContainer,
+            StructureType type,
+            IStructureComponent component
+        );
     }
 }

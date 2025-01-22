@@ -46,6 +46,12 @@ public class Flag implements IStructureComponent
 //    }
 
     @Override
+    public boolean canMovePerpetually(IStructureConst structure)
+    {
+        return true;
+    }
+
+    @Override
     public double calculateAnimationCycleDistance(IStructureConst structure)
     {
         return 0.0D;

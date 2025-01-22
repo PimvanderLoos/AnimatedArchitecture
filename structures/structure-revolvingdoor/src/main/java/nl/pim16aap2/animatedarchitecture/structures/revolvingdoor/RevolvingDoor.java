@@ -31,6 +31,12 @@ public class RevolvingDoor implements IStructureComponent
 //    }
 
     @Override
+    public boolean canMovePerpetually(IStructureConst structure)
+    {
+        return true;
+    }
+
+    @Override
     public double calculateAnimationCycleDistance(IStructureConst structure)
     {
         final Vector3Di rotationPoint = structure.getRequiredPropertyValue(Property.ROTATION_POINT);

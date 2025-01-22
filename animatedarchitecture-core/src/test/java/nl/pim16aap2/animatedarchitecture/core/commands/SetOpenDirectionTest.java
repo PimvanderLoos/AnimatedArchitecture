@@ -85,11 +85,11 @@ class SetOpenDirectionTest
 
         Assertions.assertDoesNotThrow(() -> command.performAction(structure).get(1, TimeUnit.SECONDS));
         Mockito.verify(structure, Mockito.never()).syncData();
-        Mockito.verify(structure, Mockito.never()).setOpenDir(movementDirection);
+        Mockito.verify(structure, Mockito.never()).setOpenDirection(movementDirection);
 
         Mockito.when(structureType.isValidOpenDirection(movementDirection)).thenReturn(true);
         Assertions.assertDoesNotThrow(() -> command.performAction(structure).get(1, TimeUnit.SECONDS));
-        Mockito.verify(structure).setOpenDir(movementDirection);
+        Mockito.verify(structure).setOpenDirection(movementDirection);
         Mockito.verify(structure).syncData();
     }
 }
