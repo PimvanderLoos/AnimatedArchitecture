@@ -15,10 +15,10 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -64,7 +64,7 @@ public abstract class Creator extends ToolUser
 
     protected final LimitsManager limitsManager;
 
-    protected final StructureBaseBuilder structureBaseBuilder;
+    protected final StructureBuilder structureBaseBuilder;
 
     protected final DatabaseManager databaseManager;
 
@@ -444,8 +444,7 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Constructs the {@link Structure.BaseHolder} for the current structure. This is the same for all
-     * structures.
+     * Constructs the {@link Structure.BaseHolder} for the current structure. This is the same for all structures.
      *
      * @return The {@link Structure.BaseHolder} for the current structure.
      */
@@ -533,8 +532,9 @@ public abstract class Creator extends ToolUser
      */
     protected final void giveTool(String nameKey, String loreKey)
     {
-        super.giveTool(nameKey, loreKey, textFactory.newText().append(
-            localizer.getMessage("creator.base.received_tool"), TextType.INFO, getStructureArg()));
+        super.giveTool(
+            nameKey, loreKey, textFactory.newText().append(
+                localizer.getMessage("creator.base.received_tool"), TextType.INFO, getStructureArg()));
     }
 
     /**
@@ -682,7 +682,8 @@ public abstract class Creator extends ToolUser
     {
         if (!confirm)
         {
-            getPlayer().sendMessage(textFactory, TextType.INFO,
+            getPlayer().sendMessage(
+                textFactory, TextType.INFO,
                 localizer.getMessage("creator.base.error.creation_cancelled"));
             abort();
             return true;
@@ -893,8 +894,8 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Attempts to complete the step in the {@link Procedure} that sets the second position of the
-     * {@link Structure} that is being created.
+     * Attempts to complete the step in the {@link Procedure} that sets the second position of the {@link Structure}
+     * that is being created.
      *
      * @param loc
      *     The selected location of the rotation point.

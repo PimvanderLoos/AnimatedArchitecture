@@ -273,8 +273,10 @@ public final class StructureSerializer<T extends Structure>
             }
             catch (IllegalAccessException e)
             {
-                throw new Exception(String.format("Failed to get value of field %s (type %s) for structure type %s!",
-                    field.name(), field.typeName(), getStructureTypeName()), e);
+                throw new Exception(
+                    String.format(
+                        "Failed to get value of field %s (type %s) for structure type %s!",
+                        field.name(), field.typeName(), getStructureTypeName()), e);
             }
         return values;
     }
@@ -319,7 +321,7 @@ public final class StructureSerializer<T extends Structure>
      */
     public T deserialize(
         StructureRegistry registry,
-        StructureBaseBuilder.IBuilderProperties structureBuilder,
+        StructureBuilder.IBuilderProperties structureBuilder,
         int version,
         String persistentVariablesJson,
         String propertiesJson)
@@ -332,7 +334,7 @@ public final class StructureSerializer<T extends Structure>
 
     @VisibleForTesting
     T deserialize(
-        StructureBaseBuilder.IBuilderProperties structureBuilder,
+        StructureBuilder.IBuilderProperties structureBuilder,
         int version,
         String persistentVariablesJson,
         String propertiesJson)
@@ -454,7 +456,8 @@ public final class StructureSerializer<T extends Structure>
             catch (Exception e)
             {
                 throw new IllegalArgumentException(
-                    String.format("Could not set index %d in constructor from key %s from values %s.",
+                    String.format(
+                        "Could not set index %d in constructor from key %s from values %s.",
                         idx, (param.name == null ? param.type : param.name),
                         (param.name == null ? classes : values)), e);
             }
@@ -519,7 +522,8 @@ public final class StructureSerializer<T extends Structure>
         {
             if (!field.getType().isPrimitive() && !Serializable.class.isAssignableFrom(field.getType()))
                 throw new UnsupportedOperationException(
-                    String.format("Type %s of field %s is not serializable!",
+                    String.format(
+                        "Type %s of field %s is not serializable!",
                         field.getType().getName(), field.getName()));
         }
 

@@ -21,12 +21,14 @@ import java.util.UUID;
  * <p>
  * Please read the documentation of {@link nl.pim16aap2.animatedarchitecture.core.structures} for more information about
  * the structure system.
+ * <p>
+ * Never cast an {@link IStructureConst} to a {@link Structure}, even when it looks like it might be possible. Doing so
+ * can lead to all kinds of issues, including deadlocks.
  */
-@SuppressWarnings("unused")
 public interface IStructureConst extends IPropertyHolderConst
 {
     /**
-     * @return A {@link StructureSnapshot} of this {@link StructureBase}.
+     * @return A {@link StructureSnapshot} of this {@link IStructureConst}.
      */
     StructureSnapshot getSnapshot();
 

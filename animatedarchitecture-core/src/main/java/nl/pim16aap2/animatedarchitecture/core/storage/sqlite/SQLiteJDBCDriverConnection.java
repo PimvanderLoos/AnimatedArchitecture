@@ -26,7 +26,7 @@ import nl.pim16aap2.animatedarchitecture.core.storage.SQLStatement;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
@@ -89,7 +89,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Getter
     private volatile DatabaseState databaseState;
 
-    private final StructureBaseBuilder structureBaseBuilder;
+    private final StructureBuilder structureBaseBuilder;
 
     private final StructureRegistry structureRegistry;
 
@@ -101,7 +101,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     public SQLiteJDBCDriverConnection(
         DataSourceInfoSQLite dataSourceInfo,
         FlywayManager flywayManager,
-        StructureBaseBuilder structureBaseBuilder,
+        StructureBuilder structureBaseBuilder,
         StructureRegistry structureRegistry,
         StructureTypeManager structureTypeManager,
         IWorldFactory worldFactory,

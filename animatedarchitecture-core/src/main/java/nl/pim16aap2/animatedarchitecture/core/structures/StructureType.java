@@ -183,6 +183,13 @@ public abstract class StructureType implements IKeyed
     }
 
     /**
+     * Constructs a new {@link IStructureComponent} for this type.
+     *
+     * @return A new {@link IStructureComponent} for this type.
+     */
+    public abstract IStructureComponent newComponent();
+
+    /**
      * Gets the simple name of the {@link StructureType}.
      * <p>
      * The simple name is the name of the {@link StructureType} without the plugin name. For example, "windmill",

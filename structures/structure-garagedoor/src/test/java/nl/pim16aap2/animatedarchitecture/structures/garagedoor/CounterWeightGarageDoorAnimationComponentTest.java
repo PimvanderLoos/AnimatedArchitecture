@@ -6,7 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.Assertions;
@@ -17,7 +17,7 @@ import org.mockito.Mockito;
 class CounterWeightGarageDoorAnimationComponentTest
 {
     private AnimationRequestData.IFactory animationRequestDataFactory;
-    private StructureBaseBuilder structureBaseBuilder;
+    private StructureBuilder structureBaseBuilder;
 
     @BeforeEach
     public void beforeEach()

@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.garagedoor;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +11,7 @@ import java.util.Optional;
 
 class GarageDoorTest
 {
-    private StructureBaseBuilder structureBaseBuilder;
+    private StructureBuilder structureBaseBuilder;
 
     @BeforeEach
     public void beforeEach()

@@ -18,7 +18,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -358,7 +358,8 @@ public abstract class ToolUser
         assertInitialized();
         assertLockHeld();
 
-        log.atFine().log("Handling input: %s (%s) for step: %s in ToolUser: %s.",
+        log.atFine().log(
+            "Handling input: %s (%s) for step: %s in ToolUser: %s.",
             obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
             procedure.getCurrentStepName(), this);
 
@@ -728,7 +729,7 @@ public abstract class ToolUser
     @Getter
     public static final class Context
     {
-        private final StructureBaseBuilder structureBaseBuilder;
+        private final StructureBuilder structureBaseBuilder;
         private final ILocalizer localizer;
         private final ITextFactory textFactory;
         private final ToolUserManager toolUserManager;
@@ -744,7 +745,7 @@ public abstract class ToolUser
 
         @Inject
         public Context(
-            StructureBaseBuilder structureBaseBuilder,
+            StructureBuilder structureBaseBuilder,
             ILocalizer localizer,
             ITextFactory textFactory,
             ToolUserManager toolUserManager,

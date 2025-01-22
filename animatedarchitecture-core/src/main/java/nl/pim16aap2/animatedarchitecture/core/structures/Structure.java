@@ -15,14 +15,12 @@ import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
-import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IRedstoneManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
@@ -73,10 +71,8 @@ public final class Structure implements IStructureConst, IPropertyHolder
 {
     private static final double DEFAULT_ANIMATION_SPEED = 1.5D;
 
-    /**
-     * The lock as used by both the {@link StructureBase} and this class.
-     */
     @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     @Getter
@@ -136,37 +132,35 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Getter(onMethod_ = @Locked.Read("lock"), value = AccessLevel.PACKAGE)
     private final Map<UUID, StructureOwner> ownersView;
 
+    private final StructureType type;
+
+    @GuardedBy("lock")
+    @Getter(value = AccessLevel.PACKAGE, onMethod_ = @Locked.Read("lock"))
+    private final IStructureComponent component;
+
+    @EqualsAndHashCode.Exclude
+    private final LazyValue<Rectangle> lazyAnimationRange;
+
+    @EqualsAndHashCode.Exclude
+    private final LazyValue<Double> lazyAnimationCycleDistance;
+
+    @EqualsAndHashCode.Exclude
+    private final LazyValue<StructureSnapshot> lazyStructureSnapshot;
+
+    @EqualsAndHashCode.Exclude
+    private final LazyValue<PropertyContainerSnapshot> lazyPropertyContainerSnapshot;
+
     @EqualsAndHashCode.Exclude
     private final IConfig config;
 
     @EqualsAndHashCode.Exclude
-    private final ILocalizer localizer;
-
-    @EqualsAndHashCode.Exclude
-    private final StructureRegistry structureRegistry;
-
-    @EqualsAndHashCode.Exclude
     private final StructureToggleHelper structureOpeningHelper;
-
-    @EqualsAndHashCode.Exclude
-    private final IExecutor executor;
 
     @EqualsAndHashCode.Exclude
     private final DatabaseManager databaseManager;
 
     @EqualsAndHashCode.Exclude
     private final IPlayerFactory playerFactory;
-
-    private final StructureType type;
-
-    private final LazyValue<Rectangle> lazyAnimationRange;
-    private final LazyValue<Double> lazyAnimationCycleDistance;
-    private final LazyValue<StructureSnapshot> lazyStructureSnapshot;
-    private final LazyValue<PropertyContainerSnapshot> lazyPropertyContainerSnapshot;
-
-    @EqualsAndHashCode.Include
-    @GuardedBy("lock")
-    private final IStructureComponent component;
 
     @Deprecated
     private StructureSerializer<?> serializer;
@@ -185,13 +179,10 @@ public final class Structure implements IStructureConst, IPropertyHolder
         @Assisted PropertyContainer propertyContainer,
         @Assisted StructureType type,
         @Assisted IStructureComponent component,
-        ILocalizer localizer,
         DatabaseManager databaseManager,
-        StructureRegistry structureRegistry,
         StructureToggleHelper structureOpeningHelper,
         StructureAnimationRequestBuilder structureToggleRequestBuilder,
         IPlayerFactory playerFactory,
-        IExecutor executor,
         IRedstoneManager redstoneManager,
         StructureActivityManager structureActivityManager,
         IChunkLoader chunkLoader,
@@ -220,13 +211,10 @@ public final class Structure implements IStructureConst, IPropertyHolder
         this.ownersView = Collections.unmodifiableMap(this.owners);
 
         this.config = config;
-        this.localizer = localizer;
         this.databaseManager = databaseManager;
-        this.structureRegistry = structureRegistry;
         this.structureOpeningHelper = structureOpeningHelper;
         this.structureToggleRequestBuilder = structureToggleRequestBuilder;
         this.playerFactory = playerFactory;
-        this.executor = executor;
 
         this.type = type;
 
@@ -463,7 +451,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      *     or the prime owner when this data is not available.
      * @return The result of the attempt.
      */
-    final CompletableFuture<StructureToggleResult> toggle(StructureAnimationRequest request, IPlayer responsible)
+    CompletableFuture<StructureToggleResult> toggle(StructureAnimationRequest request, IPlayer responsible)
     {
         return structureOpeningHelper.toggle(this, request, responsible);
     }

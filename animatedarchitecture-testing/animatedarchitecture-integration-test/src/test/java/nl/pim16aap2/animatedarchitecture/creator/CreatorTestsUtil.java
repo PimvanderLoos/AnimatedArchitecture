@@ -27,10 +27,10 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManage
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -76,7 +76,7 @@ public class CreatorTestsUtil
 
     protected StructureOwner structureOwner;
 
-    protected StructureBaseBuilder structureBaseBuilder;
+    protected StructureBuilder structureBaseBuilder;
 
     protected ILocalizer localizer;
 

@@ -13,38 +13,69 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Builder for {@link StructureBase} instances implemented as a guided builder.
+ * Builder for {@link Structure} instances implemented as a guided builder.
  */
-public final class StructureBaseBuilder
+public final class StructureBuilder
 {
-    private final StructureBase.IFactory baseFactory;
+    private final Structure.IFactory structureFactory;
 
     @Inject
-    StructureBaseBuilder(StructureBase.IFactory baseFactory)
+    StructureBuilder(Structure.IFactory structureFactory)
     {
-        this.baseFactory = baseFactory;
+        this.structureFactory = structureFactory;
     }
 
     /**
-     * Creates a new guided builder for a {@link StructureBase}.
+     * Creates a new guided builder for a {@link Structure}.
+     * <p>
+     * This method is a shortcut for {@link #builder(StructureType, IStructureComponent)} with the component set to a
+     * new instance provided by {@link StructureType#newComponent()}.
      *
+     * @param type
+     *     The type of structure to create.
      * @return A new guided builder.
      */
-    public IBuilderUID builder()
+    public IBuilderUID builder(StructureType type)
     {
-        return new Builder(baseFactory);
+        return builder(Objects.requireNonNull(type), type.newComponent());
+    }
+
+    /**
+     * Creates a new guided builder for a {@link Structure}.
+     *
+     * @param type
+     *     The type of structure to create.
+     * @param component
+     *     The component of the structure to create. This is likely to be {@link StructureType#newComponent()}.
+     * @return A new guided builder.
+     */
+    public IBuilderUID builder(StructureType type, IStructureComponent component)
+    {
+        return new Builder(structureFactory, Objects.requireNonNull(type), Objects.requireNonNull(component));
     }
 
     @RequiredArgsConstructor
     private static final class Builder
-        implements IBuilderUID, IBuilderName, IBuilderCuboid, IBuilderPowerBlock, IBuilderWorld,
-        IBuilderIsLocked, IBuilderOpenDir, IBuilderPrimeOwner, IBuilderOwners, IBuilderProperties,
+        implements
+        IBuilderUID,
+        IBuilderName,
+        IBuilderCuboid,
+        IBuilderPowerBlock,
+        IBuilderWorld,
+        IBuilderIsLocked,
+        IBuilderOpenDir,
+        IBuilderPrimeOwner,
+        IBuilderOwners,
+        IBuilderProperties,
         IBuilder
     {
-        private final StructureBase.IFactory baseFactory;
+        private final Structure.IFactory structureFactory;
+        private final StructureType structureType;
+        private final IStructureComponent component;
 
         private long structureUID;
         private String name;
@@ -61,6 +92,12 @@ public final class StructureBaseBuilder
         public long getUID()
         {
             return structureUID;
+        }
+
+        @Override
+        public StructureType getStructureType()
+        {
+            return structureType;
         }
 
         @Override
@@ -144,25 +181,26 @@ public final class StructureBaseBuilder
         }
 
         @Override
-        public Structure.BaseHolder build()
+        public Structure build()
         {
-            return new Structure.BaseHolder(
-                baseFactory.create(
-                    structureUID,
-                    name,
-                    cuboid,
-                    powerBlock,
-                    world,
-                    isLocked,
-                    openDir,
-                    primeOwner,
-                    owners,
-                    propertyContainer
-                ));
+            return structureFactory.create(
+                structureUID,
+                name,
+                cuboid,
+                powerBlock,
+                world,
+                isLocked,
+                openDir,
+                primeOwner,
+                owners,
+                propertyContainer,
+                structureType,
+                component
+            );
         }
     }
 
-    public interface IUIDProvider
+    private interface IConstantsProvider
     {
         /**
          * Gets the UID of the structure to create.
@@ -170,6 +208,13 @@ public final class StructureBaseBuilder
          * @return The UID.
          */
         long getUID();
+
+        /**
+         * Gets the type of structure to create.
+         *
+         * @return The type of structure.
+         */
+        StructureType getStructureType();
     }
 
     public interface IBuilderUID
@@ -185,7 +230,7 @@ public final class StructureBaseBuilder
         IBuilderName uid(long structureUID);
     }
 
-    public interface IBuilderName extends IUIDProvider
+    public interface IBuilderName extends IConstantsProvider
     {
         /**
          * Sets the name of the structure.
@@ -197,7 +242,7 @@ public final class StructureBaseBuilder
         IBuilderCuboid name(String name);
     }
 
-    public interface IBuilderCuboid extends IUIDProvider
+    public interface IBuilderCuboid extends IConstantsProvider
     {
         /**
          * Sets the cuboid of the structure. The cuboid refers to the 3d area defined by the min/max coordinate
@@ -224,7 +269,7 @@ public final class StructureBaseBuilder
         }
     }
 
-    public interface IBuilderPowerBlock extends IUIDProvider
+    public interface IBuilderPowerBlock extends IConstantsProvider
     {
         /**
          * Sets the location of the power block of the structure.
@@ -236,7 +281,7 @@ public final class StructureBaseBuilder
         IBuilderWorld powerBlock(Vector3Di powerBlock);
     }
 
-    public interface IBuilderWorld extends IUIDProvider
+    public interface IBuilderWorld
     {
         /**
          * Sets the world the structure exists in.
@@ -248,7 +293,7 @@ public final class StructureBaseBuilder
         IBuilderIsLocked world(IWorld world);
     }
 
-    public interface IBuilderIsLocked extends IUIDProvider
+    public interface IBuilderIsLocked
     {
         /**
          * Sets the locked-status of the structure.
@@ -260,7 +305,7 @@ public final class StructureBaseBuilder
         IBuilderOpenDir isLocked(boolean isLocked);
     }
 
-    public interface IBuilderOpenDir extends IUIDProvider
+    public interface IBuilderOpenDir
     {
         /**
          * Sets the open direction of the structure.
@@ -272,7 +317,7 @@ public final class StructureBaseBuilder
         IBuilderPrimeOwner openDir(MovementDirection openDir);
     }
 
-    public interface IBuilderPrimeOwner extends IUIDProvider
+    public interface IBuilderPrimeOwner
     {
         /**
          * Sets the prime owner of the structure. This is the player who initially created the structure. This is the
@@ -285,7 +330,7 @@ public final class StructureBaseBuilder
         IBuilderOwners primeOwner(StructureOwner primeOwner);
     }
 
-    public interface IBuilderOwners extends IUIDProvider
+    public interface IBuilderOwners
     {
         /**
          * Sets the (co-)owner(s) of the structure (including the prime owner).
@@ -297,7 +342,7 @@ public final class StructureBaseBuilder
         IBuilderProperties ownersOfStructure(@Nullable Map<UUID, StructureOwner> owners);
     }
 
-    public interface IBuilderProperties extends IUIDProvider
+    public interface IBuilderProperties extends IConstantsProvider
     {
         /**
          * Sets the properties of the structure to the default values.
@@ -328,8 +373,6 @@ public final class StructureBaseBuilder
          * Only properties that are supported by the structure type will be set. See
          * {@link StructureType#getProperties()}. Trying to set an unsupported property will result in an exception.
          *
-         * @param structureType
-         *     The type of structure to set the properties for.
          * @param properties
          *     The properties to set. These should be provided in pairs of 2. The first element of the pair should be
          *     the property, the second element should be the value to set. If the property is nullable, the value may
@@ -341,15 +384,15 @@ public final class StructureBaseBuilder
          *     <p>
          *     If the property is not valid for the structure type this property container was created for.
          */
-        default IBuilder propertiesOfStructure(StructureType structureType, @Nullable Object @Nullable ... properties)
+        default IBuilder propertiesOfStructure(@Nullable Object @Nullable ... properties)
         {
             if (properties == null)
-                return propertiesOfStructure(structureType);
+                return propertiesOfStructure(getStructureType());
 
             if (properties.length % 2 != 0)
                 throw new IllegalArgumentException("Properties must be provided in pairs of 2.");
 
-            final var propertyContainer = PropertyContainer.forType(structureType);
+            final var propertyContainer = PropertyContainer.forType(getStructureType());
             for (int idx = 0; idx < properties.length; idx += 2)
             {
                 final Property<?> property = (Property<?>) Util.requireNonNull(
@@ -365,44 +408,38 @@ public final class StructureBaseBuilder
         }
 
         /**
-         * Type-safe version of {@link #propertiesOfStructure(StructureType, Object...)} for 1 property.
+         * Type-safe version of {@link #propertiesOfStructure(Object...)} for 1 property.
          */
         default <T> IBuilder propertiesOfStructure(
-            StructureType structureType,
             Property<T> property0, @Nullable T value0)
         {
             return propertiesOfStructure(
-                structureType,
                 property0, (Object) value0
             );
         }
 
         /**
-         * Type-safe version of {@link #propertiesOfStructure(StructureType, Object...)} for 2 properties.
+         * Type-safe version of {@link #propertiesOfStructure(Object...)} for 2 properties.
          */
         default <T, U> IBuilder propertiesOfStructure(
-            StructureType structureType,
             Property<T> property0, @Nullable T value0,
             Property<U> property1, @Nullable U value1)
         {
             return propertiesOfStructure(
-                structureType,
                 property0, value0,
                 property1, (Object) value1
             );
         }
 
         /**
-         * Type-safe version of {@link #propertiesOfStructure(StructureType, Object...)} for 3 properties.
+         * Type-safe version of {@link #propertiesOfStructure(Object...)} for 3 properties.
          */
         default <T, U, V> IBuilder propertiesOfStructure(
-            StructureType structureType,
             Property<T> property0, @Nullable T value0,
             Property<U> property1, @Nullable U value1,
             Property<V> property2, @Nullable V value2)
         {
             return propertiesOfStructure(
-                structureType,
                 property0, value0,
                 property1, value1,
                 property2, (Object) value2
@@ -410,17 +447,15 @@ public final class StructureBaseBuilder
         }
 
         /**
-         * Type-safe version of {@link #propertiesOfStructure(StructureType, Object...)} for 4 properties.
+         * Type-safe version of {@link #propertiesOfStructure(Object...)} for 4 properties.
          */
         default <T, U, V, W> IBuilder propertiesOfStructure(
-            StructureType structureType,
             Property<T> property0, @Nullable T value0,
             Property<U> property1, @Nullable U value1,
             Property<V> property2, @Nullable V value2,
             Property<W> property3, @Nullable W value3)
         {
             return propertiesOfStructure(
-                structureType,
                 property0, value0,
                 property1, value1,
                 property2, value2,
@@ -429,13 +464,13 @@ public final class StructureBaseBuilder
         }
     }
 
-    public interface IBuilder extends IUIDProvider
+    public interface IBuilder
     {
         /**
-         * Builds the {@link StructureBase} based on the provided input.
+         * Builds the {@link Structure} based on the provided input.
          *
          * @return The next step of the guided builder process.
          */
-        Structure.BaseHolder build();
+        Structure build();
     }
 }

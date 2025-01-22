@@ -12,7 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -150,7 +150,7 @@ public class UnitTestUtil
     }
 
     /**
-     * Creates a new {@link StructureBaseBuilder} and accompanying StructureBase factory.
+     * Creates a new {@link StructureBuilder} and accompanying StructureBase factory.
      *
      * @return The result of the creation.
      */
@@ -171,12 +171,12 @@ public class UnitTestUtil
             new AssistedFactoryMocker<>(classStructureBase, classStructureBaseFactory);
 
         final Constructor<?> ctorStructureBaseBuilder =
-            StructureBaseBuilder.class.getDeclaredConstructor(classStructureBaseFactory);
+            StructureBuilder.class.getDeclaredConstructor(classStructureBaseFactory);
 
         ctorStructureBaseBuilder.setAccessible(true);
 
         final var builder =
-            (StructureBaseBuilder) ctorStructureBaseBuilder.newInstance(assistedFactoryMocker.getFactory());
+            (StructureBuilder) ctorStructureBaseBuilder.newInstance(assistedFactoryMocker.getFactory());
 
         return new StructureBaseBuilderResult(builder, assistedFactoryMocker);
     }
@@ -657,7 +657,7 @@ public class UnitTestUtil
     }
 
     /**
-     * The result of creating a new {@link StructureBaseBuilder}.
+     * The result of creating a new {@link StructureBuilder}.
      *
      * @param structureBaseBuilder
      *     The builder that was created.
@@ -665,7 +665,7 @@ public class UnitTestUtil
      *     The mocker for the factory. Use {@link AssistedFactoryMocker#setMock(Class, Object)} to set its parameters.
      */
     public record StructureBaseBuilderResult(
-        StructureBaseBuilder structureBaseBuilder,
+        StructureBuilder structureBaseBuilder,
         AssistedFactoryMocker<?, ?> assistedFactoryMocker)
     {}
 

@@ -41,7 +41,7 @@ class StructureSerializerTest
         Property.OPEN_STATUS
     );
 
-    private StructureBaseBuilder.IBuilderProperties structureBaseBuilder;
+    private StructureBuilder.IBuilderProperties structureBaseBuilder;
     private String serializedProperties;
     private Structure.BaseHolder structureBase;
 
@@ -56,7 +56,7 @@ class StructureSerializerTest
         Mockito.when(structureRegistry.computeIfAbsent(Mockito.anyLong(), Mockito.any()))
             .thenAnswer(invocation -> invocation.getArgument(1, Supplier.class).get());
 
-        final StructureBaseBuilder factory = new StructureBaseBuilder(assistedFactoryMocker.getFactory());
+        final StructureBuilder factory = new StructureBuilder(assistedFactoryMocker.getFactory());
 
 
         final String structureName = "randomDoorName";

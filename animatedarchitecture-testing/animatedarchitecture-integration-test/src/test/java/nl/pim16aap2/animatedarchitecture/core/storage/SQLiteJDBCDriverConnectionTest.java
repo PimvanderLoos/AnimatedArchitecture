@@ -17,9 +17,9 @@ import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.storage.sqlite.DataSourceInfoSQLite;
 import nl.pim16aap2.animatedarchitecture.core.storage.sqlite.SQLiteJDBCDriverConnection;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
@@ -129,7 +129,7 @@ public class SQLiteJDBCDriverConnectionTest
 
     private StructureTypeManager structureTypeManager;
 
-    private StructureBaseBuilder structureBaseBuilder;
+    private StructureBuilder structureBaseBuilder;
 
     private StructureRegistry structureRegistry;
 

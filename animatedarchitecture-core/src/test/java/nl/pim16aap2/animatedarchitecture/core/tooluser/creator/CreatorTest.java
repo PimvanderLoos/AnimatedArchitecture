@@ -19,7 +19,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Procedure;
@@ -108,7 +108,7 @@ public class CreatorTest
             .thenReturn(Mockito.mock(StructureAnimationRequestBuilder.IBuilderStructure.class));
 
         context = new ToolUser.Context(
-            Mockito.mock(StructureBaseBuilder.class),
+            Mockito.mock(StructureBuilder.class),
             localizer,
             ITextFactory.getSimpleTextFactory(),
             Mockito.mock(ToolUserManager.class),

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -182,7 +182,7 @@ class GarageDoorTestUtil
          *
          * @return The new GarageDoor instance.
          */
-        public GarageDoor createGarageDoor(StructureBaseBuilder structureBaseBuilder)
+        public GarageDoor createGarageDoor(StructureBuilder structureBaseBuilder)
         {
             final var base = structureBaseBuilder
                 .builder()
