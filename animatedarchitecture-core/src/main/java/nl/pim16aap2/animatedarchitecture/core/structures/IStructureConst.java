@@ -321,4 +321,11 @@ public interface IStructureConst extends IPropertyHolderConst
      * @return The {@link PropertyContainerSnapshot} of this structure.
      */
     IPropertyContainerConst getPropertyContainerSnapshot();
+
+    /**
+     * Checks if this structure can move perpetually.
+     *
+     * @return True if this structure can move perpetually.
+     */
+    boolean canMovePerpetually();
 }

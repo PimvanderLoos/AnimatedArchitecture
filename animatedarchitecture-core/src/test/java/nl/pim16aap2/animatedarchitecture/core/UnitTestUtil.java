@@ -154,7 +154,7 @@ public class UnitTestUtil
      *
      * @return The result of the creation.
      */
-    public static StructureBaseBuilderResult newStructureBaseBuilder()
+    public static StructureBuilderResult newStructureBuilder()
         throws ClassNotFoundException,
                IllegalAccessException,
                InstantiationException,
@@ -170,15 +170,15 @@ public class UnitTestUtil
         final AssistedFactoryMocker<?, ?> assistedFactoryMocker =
             new AssistedFactoryMocker<>(classStructureBase, classStructureBaseFactory);
 
-        final Constructor<?> ctorStructureBaseBuilder =
+        final Constructor<?> ctorStructureBuilder =
             StructureBuilder.class.getDeclaredConstructor(classStructureBaseFactory);
 
-        ctorStructureBaseBuilder.setAccessible(true);
+        ctorStructureBuilder.setAccessible(true);
 
         final var builder =
-            (StructureBuilder) ctorStructureBaseBuilder.newInstance(assistedFactoryMocker.getFactory());
+            (StructureBuilder) ctorStructureBuilder.newInstance(assistedFactoryMocker.getFactory());
 
-        return new StructureBaseBuilderResult(builder, assistedFactoryMocker);
+        return new StructureBuilderResult(builder, assistedFactoryMocker);
     }
 
     /**
@@ -659,13 +659,13 @@ public class UnitTestUtil
     /**
      * The result of creating a new {@link StructureBuilder}.
      *
-     * @param structureBaseBuilder
+     * @param structureBuilder
      *     The builder that was created.
      * @param assistedFactoryMocker
      *     The mocker for the factory. Use {@link AssistedFactoryMocker#setMock(Class, Object)} to set its parameters.
      */
-    public record StructureBaseBuilderResult(
-        StructureBuilder structureBaseBuilder,
+    public record StructureBuilderResult(
+        StructureBuilder structureBuilder,
         AssistedFactoryMocker<?, ?> assistedFactoryMocker)
     {}
 

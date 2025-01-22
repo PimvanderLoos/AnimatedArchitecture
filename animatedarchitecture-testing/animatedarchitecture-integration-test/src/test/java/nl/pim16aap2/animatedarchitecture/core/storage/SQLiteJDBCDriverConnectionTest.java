@@ -58,7 +58,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBaseBuilder;
+import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBuilder;
 import static nl.pim16aap2.testing.logging.LogAssertionsUtil.MessageComparisonMethod;
 
 @WithLogCapture
@@ -129,7 +129,7 @@ public class SQLiteJDBCDriverConnectionTest
 
     private StructureTypeManager structureTypeManager;
 
-    private StructureBuilder structureBaseBuilder;
+    private StructureBuilder structureBuilder;
 
     private StructureRegistry structureRegistry;
 
@@ -158,9 +158,9 @@ public class SQLiteJDBCDriverConnectionTest
 
         structureTypeManager = new StructureTypeManager(debuggableRegistry, localizationManager);
 
-        final var builderResult = newStructureBaseBuilder();
+        final var builderResult = newStructureBuilder();
         builderResult.assistedFactoryMocker().setMock(StructureRegistry.class, structureRegistry);
-        structureBaseBuilder = builderResult.structureBaseBuilder();
+        structureBuilder = builderResult.structureBuilder();
 
         initStructures();
 
@@ -802,7 +802,7 @@ public class SQLiteJDBCDriverConnectionTest
         storage = new SQLiteJDBCDriverConnection(
             DATA_SOURCE_INFO,
             flywayManager,
-            structureBaseBuilder,
+            structureBuilder,
             structureRegistry,
             structureTypeManager,
             worldFactory,
@@ -817,7 +817,7 @@ public class SQLiteJDBCDriverConnectionTest
         Vector3Di powerBlock = new Vector3Di(144, 75, 153);
         Vector3Di rotationPoint = new Vector3Di(144, 75, 153);
         structure1 = new BigDoor(
-            structureBaseBuilder
+            structureBuilder
                 .builder()
                 .uid(1L)
                 .name(STRUCTURE_1_NAME)
@@ -842,7 +842,7 @@ public class SQLiteJDBCDriverConnectionTest
         powerBlock = new Vector3Di(144, 75, 153);
 
         structure2 = new Drawbridge(
-            structureBaseBuilder
+            structureBuilder
                 .builder()
                 .uid(2L)
                 .name(STRUCTURES_2_3_NAME)
@@ -866,7 +866,7 @@ public class SQLiteJDBCDriverConnectionTest
         powerBlock = new Vector3Di(144, 75, 153);
         int blocksToMove = 8;
         structure3 = new Portcullis(
-            structureBaseBuilder
+            structureBuilder
                 .builder()
                 .uid(3L)
                 .name(STRUCTURES_2_3_NAME)

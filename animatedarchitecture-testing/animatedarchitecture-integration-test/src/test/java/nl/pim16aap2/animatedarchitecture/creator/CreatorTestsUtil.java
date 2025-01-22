@@ -62,7 +62,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.getWorld;
-import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBaseBuilder;
+import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBuilder;
 
 public class CreatorTestsUtil
 {
@@ -76,7 +76,7 @@ public class CreatorTestsUtil
 
     protected StructureOwner structureOwner;
 
-    protected StructureBuilder structureBaseBuilder;
+    protected StructureBuilder structureBuilder;
 
     protected ILocalizer localizer;
 
@@ -160,7 +160,7 @@ public class CreatorTestsUtil
         localizer = UnitTestUtil.initLocalizer();
         limitsManager = new LimitsManager(permissionsManager, config);
 
-        final var builderResult = newStructureBaseBuilder();
+        final var builderResult = newStructureBuilder();
         builderResult.assistedFactoryMocker()
             .setMock(ILocalizer.class, localizer)
             .setMock(
@@ -168,7 +168,7 @@ public class CreatorTestsUtil
                 StructureRegistry.unCached(debuggableRegistry, Mockito.mock(StructureDeletionManager.class))
             );
 
-        structureBaseBuilder = builderResult.structureBaseBuilder();
+        structureBuilder = builderResult.structureBuilder();
 
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
         //noinspection deprecation
@@ -181,7 +181,7 @@ public class CreatorTestsUtil
             .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
         context = new ToolUser.Context(
-            structureBaseBuilder,
+            structureBuilder,
             localizer,
             ITextFactory.getSimpleTextFactory(),
             toolUserManager,
@@ -316,7 +316,7 @@ public class CreatorTestsUtil
 
     protected Structure.BaseHolder constructStructureBase(StructureType type, long uid, Object... properties)
     {
-        return structureBaseBuilder
+        return structureBuilder
             .builder()
             .uid(uid)
             .name(structureName)

@@ -729,7 +729,7 @@ public abstract class ToolUser
     @Getter
     public static final class Context
     {
-        private final StructureBuilder structureBaseBuilder;
+        private final StructureBuilder structureBuilder;
         private final ILocalizer localizer;
         private final ITextFactory textFactory;
         private final ToolUserManager toolUserManager;
@@ -745,7 +745,7 @@ public abstract class ToolUser
 
         @Inject
         public Context(
-            StructureBuilder structureBaseBuilder,
+            StructureBuilder structureBuilder,
             ILocalizer localizer,
             ITextFactory textFactory,
             ToolUserManager toolUserManager,
@@ -759,7 +759,7 @@ public abstract class ToolUser
             CommandFactory commandFactory,
             Step.Factory.IFactory stepFactory)
         {
-            this.structureBaseBuilder = structureBaseBuilder;
+            this.structureBuilder = structureBuilder;
             this.localizer = localizer;
             this.toolUserManager = toolUserManager;
             this.databaseManager = databaseManager;

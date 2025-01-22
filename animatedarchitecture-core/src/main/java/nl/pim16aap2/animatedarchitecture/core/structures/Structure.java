@@ -269,6 +269,13 @@ public final class Structure implements IStructureConst, IPropertyHolder
         return component.calculateAnimationCycleDistance(this);
     }
 
+    @Override
+    @Locked.Read("lock")
+    public boolean canMovePerpetually()
+    {
+        return component.canMovePerpetually(this);
+    }
+
     /**
      * Constructs a new animation component for this structure.
      *

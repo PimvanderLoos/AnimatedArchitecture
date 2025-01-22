@@ -13,8 +13,8 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
-import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import org.jetbrains.annotations.Nullable;
@@ -224,7 +224,7 @@ public final class Animator implements IAnimator
 
     private boolean isPerpetualMovement()
     {
-        return this.animationType.allowsPerpetualAnimation() && structure instanceof IPerpetualMover;
+        return this.animationType.allowsPerpetualAnimation() && structure.canMovePerpetually();
     }
 
     /**
@@ -468,7 +468,7 @@ public final class Animator implements IAnimator
     {
         // Perpetual movers will usually not require to stop gracefully; Their blocks are not meant to
         // travel to a given position, so they can stop at any position and adding a stopCount can look glitchy.
-        if (structure instanceof IPerpetualMover)
+        if (structure.canMovePerpetually())
             return 0;
 
         final int finishDurationTicks = Math.round((float) FINISH_DURATION / serverTickTime);
@@ -604,8 +604,10 @@ public final class Animator implements IAnimator
      */
     private void updateCoords()
     {
-        if (structure instanceof IStructureWithOpenStatus withOpenStatus)
-            withOpenStatus.setOpenStatus(!withOpenStatus.isOpen());
+        // Invert the open status of the structure if it has the open status property.
+        final IPropertyValue<Boolean> openStatus = structure.getPropertyValue(Property.OPEN_STATUS);
+        if (openStatus.isSet())
+            structure.setPropertyValue(Property.OPEN_STATUS, !Objects.requireNonNull(openStatus.value()));
 
         if (!newCuboid.equals(snapshot.getCuboid()))
             structure.setCoordinates(newCuboid);

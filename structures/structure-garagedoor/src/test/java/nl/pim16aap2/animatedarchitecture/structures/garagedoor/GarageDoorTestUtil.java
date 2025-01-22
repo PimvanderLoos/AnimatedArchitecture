@@ -182,9 +182,9 @@ class GarageDoorTestUtil
          *
          * @return The new GarageDoor instance.
          */
-        public GarageDoor createGarageDoor(StructureBuilder structureBaseBuilder)
+        public GarageDoor createGarageDoor(StructureBuilder structureBuilder)
         {
-            final var base = structureBaseBuilder
+            final var base = structureBuilder
                 .builder()
                 .uid(1)
                 .name("Garage Door")

@@ -64,7 +64,7 @@ public abstract class Creator extends ToolUser
 
     protected final LimitsManager limitsManager;
 
-    protected final StructureBuilder structureBaseBuilder;
+    protected final StructureBuilder structureBuilder;
 
     protected final DatabaseManager databaseManager;
 
@@ -221,7 +221,7 @@ public abstract class Creator extends ToolUser
         this.structureAnimationRequestBuilder = context.getStructureAnimationRequestBuilder();
         this.structureActivityManager = context.getStructureActivityManager();
         this.limitsManager = context.getLimitsManager();
-        this.structureBaseBuilder = context.getStructureBaseBuilder();
+        this.structureBuilder = context.getStructureBuilder();
         this.databaseManager = context.getDatabaseManager();
         this.economyManager = context.getEconomyManager();
         this.commandFactory = context.getCommandFactory();
@@ -444,17 +444,17 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Constructs the {@link Structure.BaseHolder} for the current structure. This is the same for all structures.
+     * Constructs the {@link Structure} for the current structure. This is the same for all structures.
      *
-     * @return The {@link Structure.BaseHolder} for the current structure.
+     * @return The {@link Structure} for the current structure.
      */
-    protected final synchronized Structure.BaseHolder constructStructureData()
+    protected final synchronized Structure constructStructureData()
     {
         final var owner =
             new StructureOwner(structureUidPlaceholder, PermissionLevel.CREATOR, getPlayer().getPlayerData());
 
-        return structureBaseBuilder
-            .builder()
+        return structureBuilder
+            .builder(structureType)
             .uid(structureUidPlaceholder)
             .name(Util.requireNonNull(name, "Name"))
             .cuboid(Util.requireNonNull(cuboid, "cuboid"))

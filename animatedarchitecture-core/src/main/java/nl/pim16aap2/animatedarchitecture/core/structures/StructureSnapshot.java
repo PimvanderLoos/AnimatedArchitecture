@@ -34,16 +34,17 @@ public final class StructureSnapshot implements IStructureConst
     private final long uid;
     private final IWorld world;
     private final Rectangle animationRange;
-    private Vector3Di powerBlock;
-    private String name;
-    private Cuboid cuboid;
-    private MovementDirection openDirection;
-    private boolean isLocked;
+    private final Vector3Di powerBlock;
+    private final String name;
+    private final Cuboid cuboid;
+    private final MovementDirection openDirection;
+    private final boolean isLocked;
     private final StructureOwner primeOwner;
     private final Map<UUID, StructureOwner> ownersMap;
     private final StructureType type;
     private final MovementDirection cycledOpenDirection;
     private final double minimumAnimationTime;
+    private final boolean canMovePerpetually;
 
     @Delegate
     @Getter
@@ -65,6 +66,7 @@ public final class StructureSnapshot implements IStructureConst
             structure.getType(),
             structure.getCycledOpenDirection(),
             structure.getMinimumAnimationTime(),
+            structure.canMovePerpetually(),
             structure.getPropertyContainerSnapshot()
         );
     }
@@ -86,6 +88,12 @@ public final class StructureSnapshot implements IStructureConst
     {
         final @Nullable StructureOwner owner = getOwnersMap().get(uuid);
         return owner != null && owner.permission().isLowerThanOrEquals(permissionLevel);
+    }
+
+    @Override
+    public boolean canMovePerpetually()
+    {
+        return canMovePerpetually;
     }
 
     @Override

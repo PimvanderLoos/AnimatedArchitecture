@@ -11,13 +11,13 @@ import java.util.Optional;
 
 class GarageDoorTest
 {
-    private StructureBuilder structureBaseBuilder;
+    private StructureBuilder structureBuilder;
 
     @BeforeEach
     public void beforeEach()
         throws Exception
     {
-        structureBaseBuilder = UnitTestUtil.newStructureBaseBuilder().structureBaseBuilder();
+        structureBuilder = UnitTestUtil.newStructureBuilder().structureBuilder();
     }
 
     @Test
@@ -37,7 +37,7 @@ class GarageDoorTest
      */
     private void verifyPotentialNewCoordinates(GarageDoorTestUtil.OpeningData openingData)
     {
-        final GarageDoor garageDoor = openingData.createGarageDoor(structureBaseBuilder);
+        final GarageDoor garageDoor = openingData.createGarageDoor(structureBuilder);
 
         final Optional<Cuboid> potentialNewCoordinates = garageDoor.getPotentialNewCoordinates();
         Assertions.assertTrue(

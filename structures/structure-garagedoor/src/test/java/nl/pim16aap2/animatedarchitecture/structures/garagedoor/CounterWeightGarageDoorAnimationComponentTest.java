@@ -17,13 +17,13 @@ import org.mockito.Mockito;
 class CounterWeightGarageDoorAnimationComponentTest
 {
     private AnimationRequestData.IFactory animationRequestDataFactory;
-    private StructureBuilder structureBaseBuilder;
+    private StructureBuilder structureBuilder;
 
     @BeforeEach
     public void beforeEach()
         throws Exception
     {
-        structureBaseBuilder = UnitTestUtil.newStructureBaseBuilder().structureBaseBuilder();
+        structureBuilder = UnitTestUtil.newStructureBuilder().structureBuilder();
 
         this.animationRequestDataFactory = new AssistedFactoryMocker<>(
             AnimationRequestData.class,
@@ -49,7 +49,7 @@ class CounterWeightGarageDoorAnimationComponentTest
      */
     private void verifyFinalPosition(GarageDoorTestUtil.OpeningData openingData)
     {
-        final GarageDoor garageDoor = openingData.createGarageDoor(structureBaseBuilder);
+        final GarageDoor garageDoor = openingData.createGarageDoor(structureBuilder);
 
         final var data = createData(garageDoor);
         final var currentToggleDir = openingData.currentToggleDir();

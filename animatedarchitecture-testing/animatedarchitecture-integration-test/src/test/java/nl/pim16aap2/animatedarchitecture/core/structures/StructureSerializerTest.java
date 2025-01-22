@@ -41,7 +41,7 @@ class StructureSerializerTest
         Property.OPEN_STATUS
     );
 
-    private StructureBuilder.IBuilderProperties structureBaseBuilder;
+    private StructureBuilder.IBuilderProperties structureBuilder;
     private String serializedProperties;
     private Structure.BaseHolder structureBase;
 
@@ -72,7 +72,7 @@ class StructureSerializerTest
         final PlayerData playerData = new PlayerData(UUID.randomUUID(), "player", limits, true, true);
         final StructureOwner structureOwner = new StructureOwner(1, PermissionLevel.CREATOR, playerData);
 
-        structureBaseBuilder = factory
+        structureBuilder = factory
             .builder()
             .uid(1)
             .name(structureName)
@@ -88,7 +88,7 @@ class StructureSerializerTest
         final PropertyContainer propertyManager = PropertyContainer.forType(TestStructureType0.INSTANCE);
         serializedProperties = PropertyContainerSerializer.serialize(propertyManager);
 
-        structureBase = structureBaseBuilder.propertiesOfStructure(propertyManager).build();
+        structureBase = structureBuilder.propertiesOfStructure(propertyManager).build();
     }
 
     @Test
@@ -133,7 +133,7 @@ class StructureSerializerTest
         Assertions.assertEquals(
             testStructureType,
             Assertions.assertDoesNotThrow(() -> instantiator.deserialize(
-                structureBaseBuilder,
+                structureBuilder,
                 1,
                 serialized,
                 serializedProperties))
@@ -151,7 +151,7 @@ class StructureSerializerTest
         Assertions.assertEquals(
             testStructure,
             Assertions.assertDoesNotThrow(() -> instantiator.deserialize(
-                structureBaseBuilder,
+                structureBuilder,
                 1,
                 serialized,
                 serializedProperties))
@@ -168,7 +168,7 @@ class StructureSerializerTest
 
         final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serializeTypeData(realObj));
         final var deserialized = Assertions.assertDoesNotThrow(
-            () -> instantiator.deserialize(structureBaseBuilder, 1, serialized, serializedProperties));
+            () -> instantiator.deserialize(structureBuilder, 1, serialized, serializedProperties));
 
         Assertions.assertEquals(realObj, deserialized);
     }
@@ -186,7 +186,7 @@ class StructureSerializerTest
 
         final String serialized = Assertions.assertDoesNotThrow(() -> instantiator.serializeTypeData(realObj));
         final var deserialized = Assertions.assertDoesNotThrow(
-            () -> instantiator.deserialize(structureBaseBuilder, 1, serialized, serializedProperties));
+            () -> instantiator.deserialize(structureBuilder, 1, serialized, serializedProperties));
 
         Assertions.assertEquals(realObj, deserialized);
     }
@@ -260,11 +260,11 @@ class StructureSerializerTest
     {
         final var instantiator = newSerializer(TestStructureSubTypeConstructorVersions.class, 2);
 
-        Assertions.assertEquals(1, instantiator.deserialize(structureBaseBuilder, 1, "{}", "{}").version);
-        Assertions.assertEquals(2, instantiator.deserialize(structureBaseBuilder, 2, "{}", "{}").version);
+        Assertions.assertEquals(1, instantiator.deserialize(structureBuilder, 1, "{}", "{}").version);
+        Assertions.assertEquals(2, instantiator.deserialize(structureBuilder, 2, "{}", "{}").version);
         Assertions.assertThrows(
             RuntimeException.class,
-            () -> instantiator.deserialize(structureBaseBuilder, 4, "{}", "{}")
+            () -> instantiator.deserialize(structureBuilder, 4, "{}", "{}")
         );
     }
 
@@ -275,11 +275,11 @@ class StructureSerializerTest
 
         Assertions.assertThrows(
             RuntimeException.class,
-            () -> instantiator.deserialize(structureBaseBuilder, 999, "{}", "{}")
+            () -> instantiator.deserialize(structureBuilder, 999, "{}", "{}")
         );
 
-        Assertions.assertEquals(1, instantiator.deserialize(structureBaseBuilder, 1, "{}", "{}").version);
-        Assertions.assertEquals(2, instantiator.deserialize(structureBaseBuilder, 2, "{}", "{}").version);
+        Assertions.assertEquals(1, instantiator.deserialize(structureBuilder, 1, "{}", "{}").version);
+        Assertions.assertEquals(2, instantiator.deserialize(structureBuilder, 2, "{}", "{}").version);
     }
 
     @Test
