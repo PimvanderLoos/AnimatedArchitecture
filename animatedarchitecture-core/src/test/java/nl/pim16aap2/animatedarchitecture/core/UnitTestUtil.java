@@ -41,7 +41,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -314,15 +313,6 @@ public class UnitTestUtil
                     .stream()
                     .collect(Collectors.toMap(owner -> owner.playerData().getUUID(), owner -> owner)))
             );
-
-        final Map<String, Object> propertyMap = safeSupplierSimple(
-            Collections.emptyMap(),
-            () -> StructureSnapshot.getPersistentVariableMap(structure)
-        );
-
-        //noinspection SuspiciousMethodCalls
-        Mockito.doAnswer(invocation -> propertyMap.get(invocation.getArgument(0)))
-            .when(ret).getPersistentVariable(Mockito.anyString());
 
         return ret;
     }

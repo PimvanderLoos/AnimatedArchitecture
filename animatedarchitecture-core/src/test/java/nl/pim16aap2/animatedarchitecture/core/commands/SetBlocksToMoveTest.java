@@ -8,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithBlocksToMove;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
@@ -88,7 +89,8 @@ class SetBlocksToMoveTest
         Mockito.verify(altStructure, Mockito.never()).syncData();
 
         Assertions.assertDoesNotThrow(() -> command.performAction(structure).get(1, TimeUnit.SECONDS));
-        Mockito.verify((IStructureWithBlocksToMove) structure).setBlocksToMove(blocksToMove);
+        Mockito.verify(structure).setPropertyValue(Property.BLOCKS_TO_MOVE, blocksToMove);
+
         Mockito.verify(structure).syncData();
     }
 }

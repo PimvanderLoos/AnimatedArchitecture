@@ -60,7 +60,6 @@ class InfoTest
         Mockito.when(snapshot.getPowerBlock()).thenReturn(new Vector3Di(7, 8, 9));
         Mockito.when(snapshot.getNameAndUid()).thenReturn("Structure (0)");
         Mockito.when(snapshot.getOpenDirection()).thenReturn(MovementDirection.NORTH);
-        Mockito.doReturn(Optional.empty()).when(snapshot).getPersistentVariable(Mockito.anyString());
 
         final StructureType structureType = Mockito.mock(StructureType.class);
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
