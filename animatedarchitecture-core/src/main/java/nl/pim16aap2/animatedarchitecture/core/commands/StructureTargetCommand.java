@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
@@ -19,6 +20,9 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -145,6 +149,18 @@ public abstract class StructureTargetCommand extends BaseCommand
             return;
         }
 
+        if (!hasRequiredProperties(structure.get(), getRequiredProperties()))
+        {
+            log.atFine().log(
+                "Structure %s does not have required properties '%s' for command %s",
+                structure.get(),
+                getRequiredProperties(),
+                this
+            );
+            notifyMissingProperties(structure.get());
+            return;
+        }
+
         try
         {
             performAction(structure.get()).get(5, TimeUnit.MINUTES);
@@ -153,6 +169,24 @@ public abstract class StructureTargetCommand extends BaseCommand
         {
             throw new RuntimeException("Failed to perform command " + this + " for structure " + structure, e);
         }
+    }
+
+    /**
+     * Notifies the {@link ICommandSender} that the targeted {@link Structure} is missing required properties.
+     *
+     * @param structure
+     *     The {@link Structure} that is missing the required properties.
+     */
+    protected void notifyMissingProperties(Structure structure)
+    {
+
+        getCommandSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.structure_target_command.base.error.missing_properties"),
+                TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure)),
+                arg -> arg.highlight(getRequiredProperties())
+            )
+        );
     }
 
     /**
@@ -167,6 +201,22 @@ public abstract class StructureTargetCommand extends BaseCommand
     protected boolean isAllowed(Structure structure, boolean bypassPermission)
     {
         return hasAccessToAttribute(structure, structureAttribute, bypassPermission);
+    }
+
+    /**
+     * Checks if the {@link Structure} has all the required properties.
+     * <p>
+     * See {@link Structure#hasProperties(Collection)}.
+     *
+     * @param structure
+     *     The {@link Structure} to check.
+     * @param requiredProperties
+     *     The required properties.
+     * @return True if the {@link Structure} has all the required properties.
+     */
+    protected boolean hasRequiredProperties(Structure structure, List<Property<?>> requiredProperties)
+    {
+        return (!requiredProperties.isEmpty()) && structure.hasProperties(getRequiredProperties());
     }
 
     /**
@@ -186,6 +236,19 @@ public abstract class StructureTargetCommand extends BaseCommand
         return StructureDescription.of(localizer, getRetrieverResult());
     }
 
+    /**
+     * Gets all required properties for this command.
+     * <p>
+     * If targeted structure does not have all required properties, the command will not be executed.
+     * <p>
+     * By default, this returns an empty list. Subclasses that require specific properties should override this method.
+     *
+     * @return A list of all required properties.
+     */
+    protected List<Property<?>> getRequiredProperties()
+    {
+        return Collections.emptyList();
+    }
 
     /**
      * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult)} when the database action was

@@ -8,12 +8,13 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -23,6 +24,8 @@ import java.util.concurrent.CompletableFuture;
 public class SetOpenStatus extends StructureTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_OPEN_STATUS;
+
+    private static final List<Property<?>> REQUIRED_PROPERTIES = List.of(Property.OPEN_STATUS);
 
     private final boolean isOpen;
 
@@ -67,21 +70,20 @@ public class SetOpenStatus extends StructureTargetCommand
     }
 
     @Override
+    protected void notifyMissingProperties(Structure structure)
+    {
+        getCommandSender().sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.set_open_status.error.missing_property"),
+            TextType.ERROR,
+            arg -> arg.highlight(localizer.getStructureType(structure)),
+            arg -> arg.highlight(structure.getNameAndUid()))
+        );
+    }
+
+    @Override
     protected CompletableFuture<?> performAction(Structure structure)
     {
-        if (!(structure instanceof IStructureWithOpenStatus withOpenStatus))
-        {
-            getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.set_open_status.error.missing_property"),
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(structure)),
-                arg -> arg.highlight(structure.getNameAndUid()))
-            );
-
-            return CompletableFuture.completedFuture(null);
-        }
-
-        final @Nullable Boolean oldStatus = withOpenStatus.setOpenStatus(isOpen).value();
+        final @Nullable Boolean oldStatus = structure.setPropertyValue(Property.OPEN_STATUS, isOpen).value();
         if (oldStatus == null || oldStatus != isOpen)
         {
             // The open status has changed, so we need to update the database and inform the user.
@@ -108,6 +110,12 @@ public class SetOpenStatus extends StructureTargetCommand
         return CompletableFuture.completedFuture(null);
     }
 
+    @Override
+    protected List<Property<?>> getRequiredProperties()
+    {
+        return REQUIRED_PROPERTIES;
+    }
+
     @AssistedFactory
     interface IFactory
     {
@@ -117,8 +125,8 @@ public class SetOpenStatus extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing open status of the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the open status
-         *     will be modified.
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the open status will be
+         *     modified.
          * @param isOpen
          *     The new open status of the structure.
          * @param sendUpdatedInfo
@@ -138,8 +146,8 @@ public class SetOpenStatus extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing open status of the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the open status
-         *     will be modified.
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the open status will be
+         *     modified.
          * @param isOpen
          *     The new open status of the structure.
          * @return See {@link BaseCommand#run()}.
