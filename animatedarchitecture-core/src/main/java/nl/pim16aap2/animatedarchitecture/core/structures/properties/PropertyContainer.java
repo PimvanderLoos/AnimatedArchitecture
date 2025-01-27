@@ -197,6 +197,9 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      */
     static boolean hasProperties(Map<String, IPropertyValue<?>> propertyMap, Collection<Property<?>> properties)
     {
+        if (properties.isEmpty())
+            return true;
+
         return propertyMap
             .keySet()
             .containsAll(properties.stream().map(PropertyContainer::mapKey).collect(Collectors.toSet()));
