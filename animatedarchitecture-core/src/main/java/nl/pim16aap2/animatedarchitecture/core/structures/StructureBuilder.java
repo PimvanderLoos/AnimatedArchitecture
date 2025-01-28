@@ -186,7 +186,9 @@ public final class StructureBuilder
         @Override
         public IBuilder propertiesOfStructure(IPropertyContainerConst propertyContainer)
         {
-            setPropertyContainer(PropertyContainer.of(propertyContainer));
+            final PropertyContainer tmp = PropertyContainer.forType(structureType);
+            tmp.addAll(propertyContainer);
+            setPropertyContainer(tmp);
             return this;
         }
 
@@ -362,7 +364,10 @@ public final class StructureBuilder
     public interface IBuilderProperties extends IConstantsProvider
     {
         /**
-         * Sets the properties of the structure to the default values.
+         * Sets specific properties of the structure.
+         * <p>
+         * These properties override the default values for the structure type. However, the default values are still
+         * used for properties that are not set here.
          *
          * @param propertyContainer
          *     The properties of the structure.

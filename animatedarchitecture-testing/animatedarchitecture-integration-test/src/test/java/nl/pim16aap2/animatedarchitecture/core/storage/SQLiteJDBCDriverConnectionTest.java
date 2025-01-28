@@ -155,9 +155,7 @@ public class SQLiteJDBCDriverConnectionTest
 
         structureTypeManager = new StructureTypeManager(debuggableRegistry, localizationManager);
 
-        final var builderResult = newStructureBuilder();
-        builderResult.assistedFactoryMocker().setMock(StructureRegistry.class, structureRegistry);
-        structureBuilder = builderResult.structureBuilder();
+        structureBuilder = newStructureBuilder().structureBuilder();
 
         initStructures();
 
@@ -328,15 +326,7 @@ public class SQLiteJDBCDriverConnectionTest
                 ", and structure name = '" + structure.getName() + "'! Found " + test.size() + " structures!"
         );
 
-        Assertions.assertEquals(structure.getPrimeOwner(), test.getFirst().getPrimeOwner());
-
-        if (!structure.equals(test.getFirst()))
-            Assertions.fail(
-                "Data of retrieved structure is not the same!" +
-                    " ID = " + structure.getUid() +
-                    ", name = " + structure.getName() +
-                    ", found ID = " + test.getFirst().getUid() +
-                    ", found name = " + test.getFirst().getName());
+        Assertions.assertEquals(structure, test.getFirst());
     }
 
     /**

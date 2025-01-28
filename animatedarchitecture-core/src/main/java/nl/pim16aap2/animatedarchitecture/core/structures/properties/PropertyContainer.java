@@ -650,6 +650,24 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     }
 
     /**
+     * Adds all properties from the given property container to this property container.
+     * <p>
+     * Existing properties will be overwritten.
+     *
+     * @param propertyContainer
+     *     The property container to add the properties from.
+     */
+    public void addAll(IPropertyContainerConst propertyContainer)
+    {
+        for (PropertyValuePair<?> propertyValuePair : propertyContainer)
+        {
+            final Property<?> property = propertyValuePair.property();
+            final IPropertyValue<?> value = propertyValuePair.value();
+            setUntypedPropertyValue(property, value.value());
+        }
+    }
+
+    /**
      * Represents a property value that is set.
      *
      * @param value

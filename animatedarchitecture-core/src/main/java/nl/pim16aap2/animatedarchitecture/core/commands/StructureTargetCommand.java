@@ -216,7 +216,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      */
     protected boolean hasRequiredProperties(Structure structure, List<Property<?>> requiredProperties)
     {
-        return (!requiredProperties.isEmpty()) && structure.hasProperties(getRequiredProperties());
+        return requiredProperties.isEmpty() || structure.hasProperties(getRequiredProperties());
     }
 
     /**

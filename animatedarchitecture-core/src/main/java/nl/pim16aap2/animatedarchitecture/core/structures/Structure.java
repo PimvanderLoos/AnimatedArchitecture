@@ -110,19 +110,8 @@ public final class Structure implements IStructureConst, IPropertyHolder
     private boolean isLocked;
 
     @Getter
-    @EqualsAndHashCode.Exclude
     private final StructureOwner primeOwner;
 
-    @EqualsAndHashCode.Exclude
-    private final IRedstoneManager redstoneManager;
-
-    @EqualsAndHashCode.Exclude
-    private final StructureActivityManager structureActivityManager;
-
-    @EqualsAndHashCode.Exclude
-    private final IChunkLoader chunkLoader;
-
-    @EqualsAndHashCode.Exclude
     @GuardedBy("lock")
     private final Map<UUID, StructureOwner> owners;
 
@@ -136,6 +125,15 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @GuardedBy("lock")
     @Getter(value = AccessLevel.PACKAGE, onMethod_ = @Locked.Read("lock"))
     private final IStructureComponent component;
+
+    @EqualsAndHashCode.Exclude
+    private final IRedstoneManager redstoneManager;
+
+    @EqualsAndHashCode.Exclude
+    private final StructureActivityManager structureActivityManager;
+
+    @EqualsAndHashCode.Exclude
+    private final IChunkLoader chunkLoader;
 
     @EqualsAndHashCode.Exclude
     private final LazyValue<Rectangle> lazyAnimationRange;

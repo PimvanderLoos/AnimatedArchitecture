@@ -323,8 +323,12 @@ public class AssistedFactoryMocker<T, U>
     {
         final MappedParameter param = Objects.requireNonNull(
             injectedParameters.get(MappedParameter.getNamedTypeHash(type, name)),
-            "No mocked parameter of type " + type + " and name " + name + " could be found!"
-        );
+            String.format(
+                "No mocked parameter of type %s and name %s could be found in constructor: %s",
+                type,
+                name,
+                targetCtor
+            ));
         param.setValue(mock);
         return this;
     }

@@ -177,6 +177,22 @@ public class UnitTestUtil
     }
 
     /**
+     * Shortcut for {@link #newStructureBuilder()}.
+     *
+     * @param structure
+     *     The structure to set the property container in.
+     * @param properties
+     *     The properties to use.
+     */
+    public static void setPropertyContainerInMockedStructure(Structure structure, Property<?>... properties)
+    {
+        if (properties == null || properties.length == 0)
+            setPropertyContainerInMockedStructure(structure, (List<Property<?>>) null);
+        else
+            setPropertyContainerInMockedStructure(structure, List.of(properties));
+    }
+
+    /**
      * Sets the property container in a mocked structure.
      * <p>
      * If the provided properties are null, it will use the properties from the structure type. See

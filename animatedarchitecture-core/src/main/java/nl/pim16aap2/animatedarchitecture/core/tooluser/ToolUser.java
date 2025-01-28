@@ -739,7 +739,7 @@ public abstract class ToolUser
         private final IProtectionHookManager protectionHookManager;
         private final IAnimatedArchitectureToolUtil animatedArchitectureToolUtil;
         private final CommandFactory commandFactory;
-        private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
+        private final @Nullable StructureAnimationRequestBuilder structureAnimationRequestBuilder;
         private final StructureActivityManager structureActivityManager;
         private final Step.Factory.IFactory stepFactory;
 
@@ -754,7 +754,7 @@ public abstract class ToolUser
             IEconomyManager economyManager,
             IProtectionHookManager protectionHookManager,
             IAnimatedArchitectureToolUtil animatedArchitectureToolUtil,
-            StructureAnimationRequestBuilder structureAnimationRequestBuilder,
+            @Nullable StructureAnimationRequestBuilder structureAnimationRequestBuilder,
             StructureActivityManager structureActivityManager,
             CommandFactory commandFactory,
             Step.Factory.IFactory stepFactory)

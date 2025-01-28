@@ -7,7 +7,6 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithBlocksToMove;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -31,10 +30,6 @@ import java.util.concurrent.TimeUnit;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class SetBlocksToMoveTest
 {
-    private Structure structure;
-
-    private StructureRetriever structureRetriever;
-
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPlayer commandSender;
 
@@ -47,19 +42,9 @@ class SetBlocksToMoveTest
     @BeforeEach
     void init()
     {
-        structure = Mockito.mock(
-            Structure.class,
-            Mockito.withSettings().extraInterfaces(IStructureWithBlocksToMove.class)
-        );
-
-        Mockito.when(structure.syncData())
-            .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
-
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
-        Mockito.when(structure.getType()).thenReturn(structureType);
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
-        structureRetriever = StructureRetrieverFactory.ofStructure(structure);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
@@ -77,20 +62,57 @@ class SetBlocksToMoveTest
     }
 
     @Test
-    void testStructureTypes()
+    void testSetBlocksToMove()
     {
+        final Structure structure = newStructure(Property.BLOCKS_TO_MOVE);
+
         final int blocksToMove = 42;
 
-        final SetBlocksToMove command = factory.newSetBlocksToMove(commandSender, structureRetriever, blocksToMove);
-        final Structure altStructure = Mockito.mock(Structure.class);
-        Mockito.when(altStructure.getType()).thenReturn(structureType);
-
-        Assertions.assertDoesNotThrow(() -> command.performAction(altStructure).get(1, TimeUnit.SECONDS));
-        Mockito.verify(altStructure, Mockito.never()).syncData();
+        final SetBlocksToMove command = factory.newSetBlocksToMove(
+            commandSender,
+            StructureRetrieverFactory.ofStructure(structure),
+            blocksToMove
+        );
+        UnitTestUtil.setField(StructureTargetCommand.class, command, "retrieverResult", structure);
 
         Assertions.assertDoesNotThrow(() -> command.performAction(structure).get(1, TimeUnit.SECONDS));
-        Mockito.verify(structure).setPropertyValue(Property.BLOCKS_TO_MOVE, blocksToMove);
 
+        Mockito.verify(structure).setPropertyValue(Property.BLOCKS_TO_MOVE, blocksToMove);
         Mockito.verify(structure).syncData();
+    }
+
+    @Test
+    void testNoUpdate()
+    {
+        final Structure structure = newStructure(Property.BLOCKS_TO_MOVE);
+
+        final int blocksToMove = 84;
+        structure.setPropertyValue(Property.BLOCKS_TO_MOVE, blocksToMove);
+
+        final SetBlocksToMove command = factory.newSetBlocksToMove(
+            commandSender,
+            StructureRetrieverFactory.ofStructure(structure),
+            blocksToMove
+        );
+
+        Assertions.assertDoesNotThrow(() -> command.performAction(structure).get(1, TimeUnit.SECONDS));
+
+        Mockito.verify(structure, Mockito.times(2)).setPropertyValue(Property.BLOCKS_TO_MOVE, blocksToMove);
+        Mockito.verify(structure, Mockito.never()).syncData();
+    }
+
+    private Structure newStructure(Property<?>... properties)
+    {
+        final Structure structure = Mockito.mock(Structure.class);
+        UnitTestUtil.setPropertyContainerInMockedStructure(structure, properties);
+
+        Mockito.when(structure.syncData())
+            .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
+
+        Mockito.when(structure.getType()).thenReturn(structureType);
+
+        UnitTestUtil.setPropertyContainerInMockedStructure(structure, properties);
+
+        return structure;
     }
 }

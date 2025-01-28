@@ -6,15 +6,16 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.creator.CreatorTestsUtil;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import java.util.Objects;
+
 @Timeout(1)
 class CreatorBigDoorTest extends CreatorTestsUtil
 {
-    private final StructureType type = StructureTypeBigDoor.get();
+    private final StructureType type = Objects.requireNonNull(StructureTypeBigDoor.get());
 
     @BeforeEach
     void setup()
@@ -25,8 +26,6 @@ class CreatorBigDoorTest extends CreatorTestsUtil
     @Test
     void createBigDoor()
     {
-        Assertions.assertNotNull(StructureTypeBigDoor.get());
-
         final Vector3Di rotationPoint = cuboid.getCenterBlock();
         final boolean openStatus = false;
 

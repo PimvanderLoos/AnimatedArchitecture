@@ -25,14 +25,11 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
-import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
@@ -75,8 +72,6 @@ public class CreatorTestsUtil
     protected final IWorld world = getWorld();
     protected MovementDirection openDirection = MovementDirection.COUNTERCLOCKWISE;
 
-    protected StructureOwner structureOwner;
-
     protected StructureBuilder structureBuilder;
 
     protected ILocalizer localizer;
@@ -110,9 +105,6 @@ public class CreatorTestsUtil
     protected IAnimatedArchitectureToolUtil animatedArchitectureToolUtil;
 
     @Mock
-    protected DebuggableRegistry debuggableRegistry;
-
-    @Mock
     protected CommandFactory commandFactory;
 
     protected ILocationFactory locationFactory = new TestLocationFactory();
@@ -138,8 +130,6 @@ public class CreatorTestsUtil
 
         playerData = new PlayerData(uuid, name, limits, true, true);
 
-        structureOwner = new StructureOwner(-1, PermissionLevel.CREATOR, playerData);
-
         Mockito.when(player.getUUID()).thenReturn(uuid);
         Mockito.when(player.getName()).thenReturn(name);
 
@@ -160,16 +150,7 @@ public class CreatorTestsUtil
 
         localizer = UnitTestUtil.initLocalizer();
         limitsManager = new LimitsManager(permissionsManager, config);
-
-        final var builderResult = newStructureBuilder();
-        builderResult.assistedFactoryMocker()
-            .setMock(ILocalizer.class, localizer)
-            .setMock(
-                StructureRegistry.class,
-                StructureRegistry.unCached(debuggableRegistry, Mockito.mock(StructureDeletionManager.class))
-            );
-
-        structureBuilder = builderResult.structureBuilder();
+        structureBuilder = newStructureBuilder().structureBuilder();
 
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
         //noinspection deprecation
@@ -191,7 +172,7 @@ public class CreatorTestsUtil
             economyManager,
             protectionHookManager,
             animatedArchitectureToolUtil,
-            Mockito.mock(StructureAnimationRequestBuilder.class),
+            null,
             Mockito.mock(StructureActivityManager.class),
             commandFactory,
             assistedStepFactory
@@ -326,7 +307,7 @@ public class CreatorTestsUtil
             .world(world)
             .isLocked(false)
             .openDir(openDirection)
-            .primeOwner(structureOwner)
+            .primeOwner(new StructureOwner(uid, PermissionLevel.CREATOR, playerData))
             .ownersOfStructure(null)
             .propertiesOfStructure(PropertyContainer.of(properties))
             .build();

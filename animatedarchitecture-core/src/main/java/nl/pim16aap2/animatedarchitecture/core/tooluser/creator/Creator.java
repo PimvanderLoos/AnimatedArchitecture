@@ -73,7 +73,7 @@ public abstract class Creator extends ToolUser
 
     protected final CommandFactory commandFactory;
 
-    private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
+    private final @Nullable StructureAnimationRequestBuilder structureAnimationRequestBuilder;
 
     private final StructureActivityManager structureActivityManager;
 
@@ -473,6 +473,12 @@ public abstract class Creator extends ToolUser
 
     protected synchronized void showPreview()
     {
+        if (structureAnimationRequestBuilder == null)
+        {
+            log.atWarning().log("No StructureAnimationRequestBuilder available for Creator '%s'", this);
+            return;
+        }
+
         structureAnimationRequestBuilder
             .builder()
             .structure(constructStructure())
