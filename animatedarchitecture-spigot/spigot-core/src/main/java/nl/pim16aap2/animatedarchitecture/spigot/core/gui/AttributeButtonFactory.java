@@ -13,7 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextComponent;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
@@ -218,10 +218,9 @@ class AttributeButtonFactory
 
     private @Nullable GuiElement openStatusButton(Structure structure, PlayerSpigot player, char slotChar)
     {
-        if (!(structure instanceof IStructureWithOpenStatus structureWithOpenStatus))
+        final @Nullable Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
+        if (isOpen == null)
             return null;
-
-        final boolean isOpen = structureWithOpenStatus.isOpen();
 
         final GuiStateElement element = new GuiStateElement(
             slotChar,
