@@ -25,24 +25,6 @@ import java.util.Optional;
 @EqualsAndHashCode
 public class SlidingDoor implements IStructureComponent
 {
-//    @Deserialization
-//    public SlidingDoor(BaseHolder base)
-//    {
-//        super(base, StructureTypeSlidingDoor.get());
-//        this.lock = getLock();
-//    }
-//
-//    /**
-//     * Deprecated constructor for deserialization of version 1 where {@code blocksToMove} was a persistent variable.
-//     */
-//    @Deprecated
-//    @Deserialization(version = 1)
-//    public SlidingDoor(Structure.BaseHolder base, @PersistentVariable(value = "blocksToMove") int blocksToMove)
-//    {
-//        this(base);
-//        setBlocksToMove(blocksToMove);
-//    }
-
     private int getBlocksToMove(IStructureConst structure)
     {
         return structure.getRequiredPropertyValue(Property.BLOCKS_TO_MOVE);

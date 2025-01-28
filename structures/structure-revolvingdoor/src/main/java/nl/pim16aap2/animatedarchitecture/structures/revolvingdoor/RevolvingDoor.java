@@ -23,13 +23,6 @@ import java.util.Optional;
 @EqualsAndHashCode
 public class RevolvingDoor implements IStructureComponent
 {
-//    @Deserialization
-//    public RevolvingDoor(BaseHolder base)
-//    {
-//        super(base, StructureTypeRevolvingDoor.get());
-//        this.lock = getLock();
-//    }
-
     @Override
     public boolean canMovePerpetually(IStructureConst structure)
     {

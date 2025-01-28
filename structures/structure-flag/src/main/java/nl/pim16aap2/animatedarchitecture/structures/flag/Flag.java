@@ -24,27 +24,6 @@ import java.util.Optional;
 @EqualsAndHashCode
 public class Flag implements IStructureComponent
 {
-//    /**
-//     * Describes if the {@link Flag} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West axis
-//     * <b>(= FALSE)</b>.
-//     * <p>
-//     * To be situated along a specific axis means that the blocks move along that axis. For example, if the structure
-//     * moves along the North/South <i>(= Z)</i> axis.
-//     *
-//     * @return True if this structure is animated along the North/South axis.
-//     */
-//    @Getter
-//    @PersistentVariable(value = "northSouthAnimated")
-//    protected final boolean northSouthAnimated;
-//
-//    @Deserialization
-//    public Flag(BaseHolder base, @PersistentVariable(value = "northSouthAnimated") boolean northSouthAnimated)
-//    {
-//        super(base, StructureTypeFlag.get());
-//        this.lock = getLock();
-//        this.northSouthAnimated = northSouthAnimated;
-//    }
-
     @Override
     public boolean canMovePerpetually(IStructureConst structure)
     {

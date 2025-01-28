@@ -22,41 +22,6 @@ import java.util.Optional;
 @EqualsAndHashCode
 public class Clock implements IStructureComponent
 {
-//    @Getter
-//    @PersistentVariable(value = "northSouthAnimated")
-//    protected final boolean northSouthAnimated;
-//
-//    /**
-//     * Describes on which side the hour arm is. If the clock is situated along the North/South axis see
-//     * {@link #northSouthAnimated}, then the hour arm can either be on the {@link BlockFace#WEST} or the
-//     * {@link BlockFace#EAST} side.
-//     * <p>
-//     * This is stored as a direction rather than an integer value (for example the X/Z axis value) so that it could also
-//     * work for {@link Clock}s that have arms that are more than 1 block deep.
-//     *
-//     * @return The side of the hour arm relative to the minute arm.
-//     */
-//    @PersistentVariable(value = "hourArmSide")
-//    @Getter
-//    protected final BlockFace hourArmSide;
-//
-//    @Deserialization
-//    public Clock(
-//        BaseHolder base,
-//        @PersistentVariable(value = "northSouthAnimated") boolean northSouthAnimated,
-//        @PersistentVariable(value = "hourArmSide") BlockFace hourArmSide)
-//    {
-//        super(base, StructureTypeClock.get());
-//        this.lock = getLock();
-//        this.northSouthAnimated = northSouthAnimated;
-//        this.hourArmSide = hourArmSide;
-//    }
-//
-//    public Clock(BaseHolder base)
-//    {
-//        this(base, false, BlockFace.NONE);
-//    }
-
     @Override
     public boolean canMovePerpetually(IStructureConst structure)
     {
@@ -88,11 +53,11 @@ public class Clock implements IStructureComponent
         ).asFlatRectangle();
     }
 
-//    @Override
-//    public double calculateAnimationTime(double target)
-//    {
-//        return 8;
-//    }
+    @Override
+    public double calculateAnimationTime(IStructureConst structure, double target)
+    {
+        return 8;
+    }
 
     @Override
     public MovementDirection getCycledOpenDirection(IStructureConst structure)

@@ -24,13 +24,6 @@ import java.util.Optional;
 @EqualsAndHashCode
 public class Windmill implements IStructureComponent
 {
-//    @Deserialization
-//    public Windmill(BaseHolder base)
-//    {
-//        super(base, StructureTypeWindmill.get());
-//        this.lock = getLock();
-//    }
-
     @Override
     public boolean canMovePerpetually(IStructureConst structure)
     {

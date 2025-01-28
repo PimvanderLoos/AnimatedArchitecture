@@ -26,18 +26,6 @@ public class GarageDoor implements IStructureComponent
 {
     private static final boolean USE_COUNTER_WEIGHT = true;
 
-//    @Getter
-//    @PersistentVariable(value = "northSouthAnimated")
-//    protected final boolean northSouthAnimated;
-//
-//    @Deserialization
-//    public GarageDoor(BaseHolder base, @PersistentVariable(value = "northSouthAnimated") boolean northSouthAnimated)
-//    {
-//        super(base, StructureTypeGarageDoor.get());
-//        this.lock = getLock();
-//        this.northSouthAnimated = northSouthAnimated;
-//    }
-
     /**
      * @return True if the garage door is currently vertical.
      */

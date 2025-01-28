@@ -25,24 +25,6 @@ import java.util.stream.Stream;
 @EqualsAndHashCode
 public class Drawbridge implements IStructureComponent
 {
-//    @Deserialization
-//    public Drawbridge(BaseHolder base)
-//    {
-//        super(base, StructureTypeDrawbridge.get());
-//        this.lock = getLock();
-//    }
-//
-//    /**
-//     * Deprecated constructor for deserialization of version 1 where {@code quarterCircles} was a persistent variable.
-//     */
-//    @Deprecated
-//    @Deserialization(version = 1)
-//    public Drawbridge(BaseHolder base, @PersistentVariable(value = "quarterCircles") int quarterCircles)
-//    {
-//        this(base);
-//        setQuarterCircles(quarterCircles);
-//    }
-
     @Override
     public Optional<Cuboid> getPotentialNewCoordinates(IStructureConst structure)
     {

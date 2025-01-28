@@ -28,24 +28,6 @@ import java.util.stream.Stream;
 @EqualsAndHashCode
 public class BigDoor implements IStructureComponent
 {
-//    @Deserialization
-//    public BigDoor(BaseHolder base)
-//    {
-//        super(base, StructureTypeBigDoor.get());
-//        this.lock = getLock();
-//    }
-//
-//    /**
-//     * Deprecated constructor for deserialization of version 1 where {@code quarterCircles} was a persistent variable.
-//     */
-//    @Deprecated
-//    @Deserialization(version = 1)
-//    public BigDoor(BaseHolder base, @PersistentVariable(value = "quarterCircles") int quarterCircles)
-//    {
-//        this(base);
-//        setQuarterCircles(quarterCircles);
-//    }
-
     @Override
     public MovementDirection getCycledOpenDirection(IStructureConst structure)
     {
