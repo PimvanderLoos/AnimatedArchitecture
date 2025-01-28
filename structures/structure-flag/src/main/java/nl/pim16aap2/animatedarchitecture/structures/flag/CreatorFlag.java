@@ -126,7 +126,7 @@ public class CreatorFlag extends Creator
             setMovementDirection(
                 rotationPoint.x() == cuboid.getMin().x() ? MovementDirection.EAST : MovementDirection.WEST);
 
-        return new Flag(constructStructureData(), northSouthAnimated);
+        return super.constructStructure();
     }
 
     /**

@@ -2,7 +2,6 @@ package nl.pim16aap2.animatedarchitecture.structures.bigdoor;
 
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
@@ -69,11 +68,5 @@ public class CreatorBigDoor extends Creator
     protected synchronized void giveTool()
     {
         giveTool("tool_user.base.stick_name", "creator.big_door.stick_lore");
-    }
-
-    @Override
-    protected synchronized Structure constructStructure()
-    {
-        return new BigDoor(constructStructureData());
     }
 }

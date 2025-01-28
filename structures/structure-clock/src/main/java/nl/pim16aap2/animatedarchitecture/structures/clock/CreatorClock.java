@@ -252,9 +252,10 @@ public class CreatorClock extends Creator
     @Override
     protected synchronized Structure constructStructure()
     {
-        updateOpenDirection();
         Util.requireNonNull(hourArmSide, "hourArmSide");
-        return new Clock(constructStructureData(), northSouthAligned, hourArmSide);
+        updateOpenDirection();
+
+        return super.constructStructure();
     }
 
     @SuppressWarnings("unused") // It is used by the generated toString method.

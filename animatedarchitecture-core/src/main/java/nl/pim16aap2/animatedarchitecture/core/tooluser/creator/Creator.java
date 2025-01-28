@@ -15,6 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureComponent;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
@@ -446,15 +447,17 @@ public abstract class Creator extends ToolUser
     /**
      * Constructs the {@link Structure} for the current structure. This is the same for all structures.
      *
+     * @param component
+     *     The component to use for the structure. Leave null to use the default component.
      * @return The {@link Structure} for the current structure.
      */
-    protected final synchronized Structure constructStructureData()
+    protected final synchronized Structure constructStructureData(@Nullable IStructureComponent component)
     {
         final var owner =
             new StructureOwner(structureUidPlaceholder, PermissionLevel.CREATOR, getPlayer().getPlayerData());
 
         return structureBuilder
-            .builder(structureType)
+            .builder(structureType, component)
             .uid(structureUidPlaceholder)
             .name(Util.requireNonNull(name, "Name"))
             .cuboid(Util.requireNonNull(cuboid, "cuboid"))
@@ -747,7 +750,10 @@ public abstract class Creator extends ToolUser
      *
      * @return The newly-created structure.
      */
-    protected abstract Structure constructStructure();
+    protected Structure constructStructure()
+    {
+        return constructStructureData(null);
+    }
 
     /**
      * Verifies that the world of the selected location matches the world that this structure is being created in.

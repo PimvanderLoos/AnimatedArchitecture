@@ -41,7 +41,7 @@ public final class StructureBuilder
      */
     public IBuilderUID builder(StructureType type)
     {
-        return builder(Objects.requireNonNull(type), type.newComponent());
+        return builder(Objects.requireNonNull(type), null);
     }
 
     /**
@@ -51,11 +51,17 @@ public final class StructureBuilder
      *     The type of structure to create.
      * @param component
      *     The component of the structure to create. This is likely to be {@link StructureType#newComponent()}.
+     *     <p>
+     *     If the component is {@code null}, the value will be provided by {@link StructureType#newComponent()}.
      * @return A new guided builder.
      */
-    public IBuilderUID builder(StructureType type, IStructureComponent component)
+    public IBuilderUID builder(StructureType type, @Nullable IStructureComponent component)
     {
-        return new Builder(structureFactory, Objects.requireNonNull(type), Objects.requireNonNull(component));
+        return new Builder(
+            structureFactory,
+            Objects.requireNonNull(type),
+            Objects.requireNonNullElseGet(component, type::newComponent)
+        );
     }
 
     @RequiredArgsConstructor

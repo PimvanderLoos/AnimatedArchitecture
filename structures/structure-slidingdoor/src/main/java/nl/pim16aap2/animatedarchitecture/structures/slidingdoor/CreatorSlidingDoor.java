@@ -2,7 +2,6 @@ package nl.pim16aap2.animatedarchitecture.structures.slidingdoor;
 
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
@@ -119,11 +118,5 @@ public class CreatorSlidingDoor extends Creator
     protected synchronized void giveTool()
     {
         giveTool("tool_user.base.stick_name", "creator.sliding_door.stick_lore");
-    }
-
-    @Override
-    protected synchronized Structure constructStructure()
-    {
-        return new SlidingDoor(constructStructureData());
     }
 }

@@ -182,11 +182,7 @@ public class CreatorGarageDoor extends Creator
     protected synchronized Structure constructStructure()
     {
         updateRotationPoint();
-
-        return new GarageDoor(
-            constructStructureData(),
-            Util.requireNonNull(northSouthAnimated, "northSouthAnimated")
-        );
+        return super.constructStructure();
     }
 
     @SuppressWarnings("unused") // It is used by the generated toString method.
