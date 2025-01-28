@@ -4,7 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioDescription;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureComponent;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
@@ -58,9 +58,9 @@ public final class StructureTypeBigDoor extends StructureType
     }
 
     @Override
-    public Class<? extends Structure> getStructureClass()
+    public IStructureComponent newComponent()
     {
-        return BigDoor.class;
+        return new BigDoor();
     }
 
     @Override

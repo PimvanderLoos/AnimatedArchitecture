@@ -226,13 +226,6 @@ public abstract class StructureType implements IKeyed
     }
 
     /**
-     * Gets the main structure class of the type.
-     *
-     * @return THe class of the structure.
-     */
-    public abstract Class<? extends Structure> getStructureClass();
-
-    /**
      * Creates (and registers) a new {@link Creator} for this type.
      *
      * @param context
