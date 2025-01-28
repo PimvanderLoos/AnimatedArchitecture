@@ -3,11 +3,10 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
@@ -178,11 +177,23 @@ public final class StructureBuilder
             return this;
         }
 
-        @Override
         @Initializer
-        public IBuilder propertiesOfStructure(PropertyContainer propertyContainer)
+        private void setPropertyContainer(PropertyContainer propertyContainer)
         {
             this.propertyContainer = propertyContainer;
+        }
+
+        @Override
+        public IBuilder propertiesOfStructure(IPropertyContainerConst propertyContainer)
+        {
+            setPropertyContainer(PropertyContainer.of(propertyContainer));
+            return this;
+        }
+
+        @Override
+        public IBuilder withDefaultProperties()
+        {
+            setPropertyContainer(PropertyContainer.forType(structureType));
             return this;
         }
 
@@ -357,117 +368,14 @@ public final class StructureBuilder
          *     The properties of the structure.
          * @return The next step of the guided builder process.
          */
-        IBuilder propertiesOfStructure(PropertyContainer propertyContainer);
+        IBuilder propertiesOfStructure(IPropertyContainerConst propertyContainer);
 
         /**
-         * Sets the properties of the structure to the default values.
+         * Sets the properties of the structure to the default values for the structure type.
          *
-         * @param structureType
-         *     The type of structure to set the properties for.
          * @return The next step of the guided builder process.
          */
-        default IBuilder propertiesOfStructure(StructureType structureType)
-        {
-            return propertiesOfStructure(PropertyContainer.forType(structureType));
-        }
-
-        /**
-         * Sets the properties of the structure to the provided values.
-         * <p>
-         * Any properties not provided will be set to their default values.
-         * <p>
-         * Only properties that are supported by the structure type will be set. See
-         * {@link StructureType#getProperties()}. Trying to set an unsupported property will result in an exception.
-         *
-         * @param properties
-         *     The properties to set. These should be provided in pairs of 2. The first element of the pair should be
-         *     the property, the second element should be the value to set. If the property is nullable, the value may
-         *     be {@code null}.
-         * @return The next step of the guided builder process.
-         *
-         * @throws IllegalArgumentException
-         *     If the properties are not provided in pairs of 2.
-         *     <p>
-         *     If the property is not valid for the structure type this property container was created for.
-         */
-        default IBuilder propertiesOfStructure(@Nullable Object @Nullable ... properties)
-        {
-            if (properties == null)
-                return propertiesOfStructure(getStructureType());
-
-            if (properties.length % 2 != 0)
-                throw new IllegalArgumentException("Properties must be provided in pairs of 2.");
-
-            final var propertyContainer = PropertyContainer.forType(getStructureType());
-            for (int idx = 0; idx < properties.length; idx += 2)
-            {
-                final Property<?> property = (Property<?>) Util.requireNonNull(
-                    properties[idx],
-                    "Property at index " + idx
-                );
-
-                final @Nullable Object value = properties[idx + 1];
-                propertyContainer.setUntypedPropertyValue(property, value);
-            }
-
-            return propertiesOfStructure(propertyContainer);
-        }
-
-        /**
-         * Type-safe version of {@link #propertiesOfStructure(Object...)} for 1 property.
-         */
-        default <T> IBuilder propertiesOfStructure(
-            Property<T> property0, @Nullable T value0)
-        {
-            return propertiesOfStructure(
-                property0, (Object) value0
-            );
-        }
-
-        /**
-         * Type-safe version of {@link #propertiesOfStructure(Object...)} for 2 properties.
-         */
-        default <T, U> IBuilder propertiesOfStructure(
-            Property<T> property0, @Nullable T value0,
-            Property<U> property1, @Nullable U value1)
-        {
-            return propertiesOfStructure(
-                property0, value0,
-                property1, (Object) value1
-            );
-        }
-
-        /**
-         * Type-safe version of {@link #propertiesOfStructure(Object...)} for 3 properties.
-         */
-        default <T, U, V> IBuilder propertiesOfStructure(
-            Property<T> property0, @Nullable T value0,
-            Property<U> property1, @Nullable U value1,
-            Property<V> property2, @Nullable V value2)
-        {
-            return propertiesOfStructure(
-                property0, value0,
-                property1, value1,
-                property2, (Object) value2
-            );
-        }
-
-        /**
-         * Type-safe version of {@link #propertiesOfStructure(Object...)} for 4 properties.
-         */
-        default <T, U, V, W> IBuilder propertiesOfStructure(
-            Property<T> property0, @Nullable T value0,
-            Property<U> property1, @Nullable U value1,
-            Property<V> property2, @Nullable V value2,
-            Property<W> property3, @Nullable W value3)
-        {
-            return propertiesOfStructure(
-                property0, value0,
-                property1, value1,
-                property2, value2,
-                property3, (Object) value3
-            );
-        }
+        IBuilder withDefaultProperties();
     }
 
     public interface IBuilder

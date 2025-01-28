@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 import javax.annotation.Nullable;
 
 /**
- * Represents the value of a property.
+ * Represents the immutable value of a property.
  *
  * @param <T>
  *     The type of the value.

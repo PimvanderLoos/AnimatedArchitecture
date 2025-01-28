@@ -34,6 +34,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
@@ -327,7 +328,7 @@ public class CreatorTestsUtil
             .openDir(openDirection)
             .primeOwner(structureOwner)
             .ownersOfStructure(null)
-            .propertiesOfStructure(properties)
+            .propertiesOfStructure(PropertyContainer.of(properties))
             .build();
     }
 

@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
@@ -200,10 +201,10 @@ class GarageDoorTestUtil
                 .openDir(currentToggleDir)
                 .primeOwner(UnitTestUtil.createStructureOwner(1))
                 .ownersOfStructure(null)
-                .propertiesOfStructure(
+                .propertiesOfStructure(PropertyContainer.of(
                     Property.OPEN_STATUS, false,
                     Property.ROTATION_POINT, rotationPoint
-                )
+                ))
                 .build();
         }
 

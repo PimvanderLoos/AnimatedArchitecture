@@ -24,6 +24,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
@@ -828,10 +829,10 @@ public class SQLiteJDBCDriverConnectionTest
                 .openDir(MovementDirection.EAST)
                 .primeOwner(new StructureOwner(1L, PermissionLevel.CREATOR, PLAYER_DATA_1))
                 .ownersOfStructure(null)
-                .propertiesOfStructure(
+                .propertiesOfStructure(PropertyContainer.of(
                     Property.ROTATION_POINT, rotationPoint,
                     Property.OPEN_STATUS, false
-                )
+                ))
                 .build()
         );
 
@@ -852,10 +853,10 @@ public class SQLiteJDBCDriverConnectionTest
                 .openDir(MovementDirection.NONE)
                 .primeOwner(new StructureOwner(2L, PermissionLevel.CREATOR, PLAYER_DATA_1))
                 .ownersOfStructure(null)
-                .propertiesOfStructure(
+                .propertiesOfStructure(PropertyContainer.of(
                     Property.ROTATION_POINT, rotationPoint,
                     Property.OPEN_STATUS, false
-                )
+                ))
                 .build()
         );
 
@@ -875,10 +876,10 @@ public class SQLiteJDBCDriverConnectionTest
                 .openDir(MovementDirection.UP)
                 .primeOwner(new StructureOwner(3L, PermissionLevel.CREATOR, PLAYER_DATA_2))
                 .ownersOfStructure(null)
-                .propertiesOfStructure(
+                .propertiesOfStructure(PropertyContainer.of(
                     Property.OPEN_STATUS, false,
                     Property.BLOCKS_TO_MOVE, blocksToMove
-                )
+                ))
                 .build()
         );
     }
