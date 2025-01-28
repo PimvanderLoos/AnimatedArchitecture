@@ -17,7 +17,7 @@
         <delombok.source>${project.build.sourceDirectory}</delombok.source>
         <delombok.output>${project.root-dir}/delombok</delombok.output>
 
-        <dependency.annotations.version>26.0.1</dependency.annotations.version>
+        <dependency.annotations.version>26.0.2</dependency.annotations.version>
         <dependency.bytebuddy.version>1.16.1</dependency.bytebuddy.version>
         <dependency.checkstyle.version>10.21.2</dependency.checkstyle.version>
         <dependency.dagger.version>2.54</dependency.dagger.version>
