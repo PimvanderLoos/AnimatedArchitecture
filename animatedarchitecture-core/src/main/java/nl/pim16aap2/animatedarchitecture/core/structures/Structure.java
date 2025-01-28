@@ -793,6 +793,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         return name + ": " + objString + "\n";
     }
 
+    @Override
     @Locked.Read("lock")
     public Collection<StructureOwner> getOwners()
     {
@@ -801,18 +802,21 @@ public final class Structure implements IStructureConst, IPropertyHolder
         return ret;
     }
 
+    @Override
     @Locked.Read("lock")
     public Optional<StructureOwner> getOwner(UUID uuid)
     {
         return Optional.ofNullable(owners.get(uuid));
     }
 
+    @Override
     @Locked.Read("lock")
     public boolean isOwner(UUID uuid)
     {
         return owners.containsKey(uuid);
     }
 
+    @Override
     @Locked.Read("lock")
     public boolean isOwner(UUID uuid, PermissionLevel permissionLevel)
     {

@@ -294,7 +294,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         );
 
         // TODO: Use the type version to upgrade structures if necessary.
-        final int typeVersion = structureBaseRS.getInt("typeVersion");
+        // final int typeVersion = structureBaseRS.getInt("typeVersion");
 
         final String rawProperties = structureBaseRS.getString("properties");
         final PropertyContainer properties = PropertyContainerSerializer.deserialize(structureType, rawProperties);

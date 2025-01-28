@@ -572,8 +572,8 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     /**
      * Type-safe version of {@link #of(Object...)} for 1 property.
      */
-    public static <T0> PropertyContainer of(
-        Property<T0> property0, @Nullable T0 value0
+    public static <A> PropertyContainer of(
+        Property<A> property0, @Nullable A value0
     )
     {
         return of(
@@ -584,9 +584,9 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     /**
      * Type-safe version of {@link #of(Object...)} for 2 properties.
      */
-    public static <T0, T1> PropertyContainer of(
-        Property<T0> property0, @Nullable T0 value0,
-        Property<T1> property1, @Nullable T1 value1
+    public static <A, B> PropertyContainer of(
+        Property<A> property0, @Nullable A value0,
+        Property<B> property1, @Nullable B value1
     )
     {
         return of(
@@ -598,10 +598,10 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     /**
      * Type-safe version of {@link #of(Object...)} for 3 properties.
      */
-    public static <T0, T1, T2> PropertyContainer of(
-        Property<T0> property0, @Nullable T0 value0,
-        Property<T1> property1, @Nullable T1 value1,
-        Property<T2> property2, @Nullable T2 value2
+    public static <A, B, C> PropertyContainer of(
+        Property<A> property0, @Nullable A value0,
+        Property<B> property1, @Nullable B value1,
+        Property<C> property2, @Nullable C value2
     )
     {
         return of(
@@ -614,11 +614,11 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     /**
      * Type-safe version of {@link #of(Object...)} for 4 properties.
      */
-    public static <T0, T1, T2, T3> PropertyContainer of(
-        Property<T0> property0, @Nullable T0 value0,
-        Property<T1> property1, @Nullable T1 value1,
-        Property<T2> property2, @Nullable T2 value2,
-        Property<T3> property3, @Nullable T3 value3
+    public static <A, B, C, D> PropertyContainer of(
+        Property<A> property0, @Nullable A value0,
+        Property<B> property1, @Nullable B value1,
+        Property<C> property2, @Nullable C value2,
+        Property<D> property3, @Nullable D value3
     )
     {
         return of(
@@ -632,12 +632,12 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     /**
      * Type-safe version of {@link #of(Object...)} for 5 properties.
      */
-    public static <T0, T1, T2, T3, T4> PropertyContainer of(
-        Property<T0> property0, @Nullable T0 value0,
-        Property<T1> property1, @Nullable T1 value1,
-        Property<T2> property2, @Nullable T2 value2,
-        Property<T3> property3, @Nullable T3 value3,
-        Property<T4> property4, @Nullable T4 value4
+    public static <A, B, C, D, E> PropertyContainer of(
+        Property<A> property0, @Nullable A value0,
+        Property<B> property1, @Nullable B value1,
+        Property<C> property2, @Nullable C value2,
+        Property<D> property3, @Nullable D value3,
+        Property<E> property4, @Nullable E value4
     )
     {
         return of(
@@ -659,7 +659,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      */
     public void addAll(IPropertyContainerConst propertyContainer)
     {
-        for (PropertyValuePair<?> propertyValuePair : propertyContainer)
+        for (final PropertyValuePair<?> propertyValuePair : propertyContainer)
         {
             final Property<?> property = propertyValuePair.property();
             final IPropertyValue<?> value = propertyValuePair.value();
