@@ -22,17 +22,13 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import nl.pim16aap2.animatedarchitecture.structures.bigdoor.BigDoor;
 import nl.pim16aap2.animatedarchitecture.structures.bigdoor.StructureTypeBigDoor;
-import nl.pim16aap2.animatedarchitecture.structures.drawbridge.Drawbridge;
 import nl.pim16aap2.animatedarchitecture.structures.drawbridge.StructureTypeDrawbridge;
-import nl.pim16aap2.animatedarchitecture.structures.portcullis.Portcullis;
 import nl.pim16aap2.animatedarchitecture.structures.portcullis.StructureTypePortcullis;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorld;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorldFactory;
@@ -115,9 +111,9 @@ public class SQLiteJDBCDriverConnectionTest
 
     private SQLiteJDBCDriverConnection storage;
 
-    private BigDoor structure1;
-    private Drawbridge structure2;
-    private Portcullis structure3;
+    private Structure structure1;
+    private Structure structure2;
+    private Structure structure3;
 
     static
     {
@@ -653,31 +649,21 @@ public class SQLiteJDBCDriverConnectionTest
     public void modifyStructures()
         throws Exception
     {
-        StructureSerializer<?> serializer =
-            Assertions.assertDoesNotThrow(() -> new StructureSerializer<>(structure3.getType()));
-        Assertions.assertNotNull(serializer);
-
         // Test (un)locking (i.e. syncing base data).
         {
             structure3.setLocked(true);
-            Assertions.assertTrue(
-                storage.syncStructureData(
-                    structure3.getSnapshot(),
-                    serializer.serializeTypeData(structure3)));
+            Assertions.assertTrue(storage.syncStructureData(structure3.getSnapshot()));
             UnitTestUtil.optionalEquals(true, storage.getStructure(3L), Structure::isLocked);
 
             structure3.setLocked(false);
-            Assertions.assertTrue(
-                storage.syncStructureData(
-                    structure3.getSnapshot(),
-                    serializer.serializeTypeData(structure3)));
+            Assertions.assertTrue(storage.syncStructureData(structure3.getSnapshot()));
             UnitTestUtil.optionalEquals(false, storage.getStructure(3L), Structure::isLocked);
         }
 
         // Test syncing all data.
         {
             // Save the current data
-            final MovementDirection oldDir = structure3.getOpenDir();
+            final MovementDirection oldDir = structure3.getOpenDirection();
             final MovementDirection newDir = MovementDirection.getOpposite(oldDir);
             Assertions.assertNotSame(oldDir, newDir);
 
@@ -696,58 +682,52 @@ public class SQLiteJDBCDriverConnectionTest
             Assertions.assertNotSame(oldMax, newMax);
 
             final boolean isLocked = structure3.isLocked();
-            final boolean isOpen = structure3.isOpen();
+            final boolean isOpen = structure3.getRequiredPropertyValue(Property.OPEN_STATUS);
 
 
             // update some general data.
             structure3.setLocked(!isLocked);
-            structure3.setOpenStatus(!isOpen);
+            structure3.setPropertyValue(Property.OPEN_STATUS, !isOpen);
             structure3.setPowerBlock(newPowerBlock);
             structure3.setCoordinates(newMin, newMax);
-            structure3.setOpenDir(newDir);
+            structure3.setOpenDirection(newDir);
 
 
             // Update some type-specific data
-            final int blocksToMove = structure3.getBlocksToMove();
+            final int blocksToMove = structure3.getRequiredPropertyValue(Property.BLOCKS_TO_MOVE);
             final int newBlocksToMove = blocksToMove * 2;
             Assertions.assertNotSame(0, blocksToMove);
-            structure3.setBlocksToMove(newBlocksToMove);
+            structure3.setPropertyValue(Property.BLOCKS_TO_MOVE, newBlocksToMove);
 
-            Assertions.assertTrue(
-                storage.syncStructureData(
-                    structure3.getSnapshot(),
-                    serializer.serializeTypeData(structure3)));
+            Assertions.assertTrue(storage.syncStructureData(structure3.getSnapshot()));
 
             Optional<Structure> retrievedOpt = storage.getStructure(3L);
             Assertions.assertTrue(retrievedOpt.isPresent());
-            Portcullis retrieved = (Portcullis) retrievedOpt.get();
+            Structure retrieved = retrievedOpt.get();
 
             // Check base data
             Assertions.assertEquals(!isLocked, retrieved.isLocked());
-            Assertions.assertEquals(!isOpen, retrieved.isOpen());
+            Assertions.assertEquals(!isOpen, retrieved.getRequiredPropertyValue(Property.OPEN_STATUS));
             Assertions.assertEquals(newPowerBlock, retrieved.getPowerBlock());
             Assertions.assertEquals(newMin, retrieved.getMinimum());
             Assertions.assertEquals(newMax, retrieved.getMaximum());
-            Assertions.assertEquals(newDir, retrieved.getOpenDir());
+            Assertions.assertEquals(newDir, retrieved.getOpenDirection());
 
             // Check type-specific data
-            Assertions.assertEquals(blocksToMove * 2, retrieved.getBlocksToMove());
+            Assertions.assertEquals(blocksToMove * 2, retrieved.getRequiredPropertyValue(Property.BLOCKS_TO_MOVE));
 
 
             // reset base data
             structure3.setLocked(isLocked);
-            structure3.setOpenStatus(isOpen);
+            structure3.setPropertyValue(Property.OPEN_STATUS, isOpen);
             structure3.setPowerBlock(oldPowerBlock);
             structure3.setCoordinates(oldMin, oldMax);
-            structure3.setOpenDir(oldDir);
+            structure3.setOpenDirection(oldDir);
 
             // Reset type-specific data
-            structure3.setBlocksToMove(blocksToMove);
+            structure3.setPropertyValue(Property.BLOCKS_TO_MOVE, blocksToMove);
 
-            Assertions.assertTrue(
-                storage.syncStructureData(
-                    structure3.getSnapshot(),
-                    serializer.serializeTypeData(structure3)));
+            Assertions.assertTrue(storage.syncStructureData(structure3.getSnapshot()));
         }
     }
 
@@ -817,71 +797,65 @@ public class SQLiteJDBCDriverConnectionTest
         Vector3Di max = new Vector3Di(144, 131, 167);
         Vector3Di powerBlock = new Vector3Di(144, 75, 153);
         Vector3Di rotationPoint = new Vector3Di(144, 75, 153);
-        structure1 = new BigDoor(
-            structureBuilder
-                .builder()
-                .uid(1L)
-                .name(STRUCTURE_1_NAME)
-                .cuboid(min, max)
-                .powerBlock(powerBlock)
-                .world(WORLD)
-                .isLocked(false)
-                .openDir(MovementDirection.EAST)
-                .primeOwner(new StructureOwner(1L, PermissionLevel.CREATOR, PLAYER_DATA_1))
-                .ownersOfStructure(null)
-                .propertiesOfStructure(PropertyContainer.of(
-                    Property.ROTATION_POINT, rotationPoint,
-                    Property.OPEN_STATUS, false
-                ))
-                .build()
-        );
+        structure1 = structureBuilder
+            .builder(StructureTypeBigDoor.get())
+            .uid(1L)
+            .name(STRUCTURE_1_NAME)
+            .cuboid(min, max)
+            .powerBlock(powerBlock)
+            .world(WORLD)
+            .isLocked(false)
+            .openDir(MovementDirection.EAST)
+            .primeOwner(new StructureOwner(1L, PermissionLevel.CREATOR, PLAYER_DATA_1))
+            .ownersOfStructure(null)
+            .propertiesOfStructure(PropertyContainer.of(
+                Property.ROTATION_POINT, rotationPoint,
+                Property.OPEN_STATUS, false
+            ))
+            .build();
 
         min = new Vector3Di(144, 75, 168);
         max = new Vector3Di(144, 131, 182);
         rotationPoint = new Vector3Di(144, 75, 153);
         powerBlock = new Vector3Di(144, 75, 153);
 
-        structure2 = new Drawbridge(
-            structureBuilder
-                .builder()
-                .uid(2L)
-                .name(STRUCTURES_2_3_NAME)
-                .cuboid(min, max)
-                .powerBlock(powerBlock)
-                .world(WORLD)
-                .isLocked(false)
-                .openDir(MovementDirection.NONE)
-                .primeOwner(new StructureOwner(2L, PermissionLevel.CREATOR, PLAYER_DATA_1))
-                .ownersOfStructure(null)
-                .propertiesOfStructure(PropertyContainer.of(
-                    Property.ROTATION_POINT, rotationPoint,
-                    Property.OPEN_STATUS, false
-                ))
-                .build()
-        );
+        structure2 = structureBuilder
+            .builder(StructureTypeDrawbridge.get())
+            .uid(2L)
+            .name(STRUCTURES_2_3_NAME)
+            .cuboid(min, max)
+            .powerBlock(powerBlock)
+            .world(WORLD)
+            .isLocked(false)
+            .openDir(MovementDirection.NONE)
+            .primeOwner(new StructureOwner(2L, PermissionLevel.CREATOR, PLAYER_DATA_1))
+            .ownersOfStructure(null)
+            .propertiesOfStructure(PropertyContainer.of(
+                Property.ROTATION_POINT, rotationPoint,
+                Property.OPEN_STATUS, false
+            ))
+            .build();
 
         min = new Vector3Di(144, 70, 168);
         max = new Vector3Di(144, 151, 112);
         powerBlock = new Vector3Di(144, 75, 153);
         int blocksToMove = 8;
-        structure3 = new Portcullis(
-            structureBuilder
-                .builder()
-                .uid(3L)
-                .name(STRUCTURES_2_3_NAME)
-                .cuboid(min, max)
-                .powerBlock(powerBlock)
-                .world(WORLD)
-                .isLocked(false)
-                .openDir(MovementDirection.UP)
-                .primeOwner(new StructureOwner(3L, PermissionLevel.CREATOR, PLAYER_DATA_2))
-                .ownersOfStructure(null)
-                .propertiesOfStructure(PropertyContainer.of(
-                    Property.OPEN_STATUS, false,
-                    Property.BLOCKS_TO_MOVE, blocksToMove
-                ))
-                .build()
-        );
+        structure3 = structureBuilder
+            .builder(StructureTypePortcullis.get())
+            .uid(3L)
+            .name(STRUCTURES_2_3_NAME)
+            .cuboid(min, max)
+            .powerBlock(powerBlock)
+            .world(WORLD)
+            .isLocked(false)
+            .openDir(MovementDirection.UP)
+            .primeOwner(new StructureOwner(3L, PermissionLevel.CREATOR, PLAYER_DATA_2))
+            .ownersOfStructure(null)
+            .propertiesOfStructure(PropertyContainer.of(
+                Property.OPEN_STATUS, false,
+                Property.BLOCKS_TO_MOVE, blocksToMove
+            ))
+            .build();
     }
 
     private static IPlayer createPlayer(PlayerData data)
