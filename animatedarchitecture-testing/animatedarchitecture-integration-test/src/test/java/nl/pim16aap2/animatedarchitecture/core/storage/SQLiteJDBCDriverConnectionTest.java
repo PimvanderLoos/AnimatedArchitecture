@@ -829,7 +829,6 @@ public class SQLiteJDBCDriverConnectionTest
                 .primeOwner(new StructureOwner(1L, PermissionLevel.CREATOR, PLAYER_DATA_1))
                 .ownersOfStructure(null)
                 .propertiesOfStructure(
-                    StructureTypeBigDoor.get(),
                     Property.ROTATION_POINT, rotationPoint,
                     Property.OPEN_STATUS, false
                 )
@@ -854,7 +853,6 @@ public class SQLiteJDBCDriverConnectionTest
                 .primeOwner(new StructureOwner(2L, PermissionLevel.CREATOR, PLAYER_DATA_1))
                 .ownersOfStructure(null)
                 .propertiesOfStructure(
-                    StructureTypeDrawbridge.get(),
                     Property.ROTATION_POINT, rotationPoint,
                     Property.OPEN_STATUS, false
                 )
@@ -878,7 +876,6 @@ public class SQLiteJDBCDriverConnectionTest
                 .primeOwner(new StructureOwner(3L, PermissionLevel.CREATOR, PLAYER_DATA_2))
                 .ownersOfStructure(null)
                 .propertiesOfStructure(
-                    StructureTypePortcullis.get(),
                     Property.OPEN_STATUS, false,
                     Property.BLOCKS_TO_MOVE, blocksToMove
                 )

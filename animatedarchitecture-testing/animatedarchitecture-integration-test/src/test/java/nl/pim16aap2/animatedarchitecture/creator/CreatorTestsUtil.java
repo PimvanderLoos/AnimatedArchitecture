@@ -314,10 +314,10 @@ public class CreatorTestsUtil
         }
     }
 
-    protected Structure.BaseHolder constructStructureBase(StructureType type, long uid, Object... properties)
+    protected Structure constructStructureBase(StructureType type, long uid, Object... properties)
     {
         return structureBuilder
-            .builder()
+            .builder(type)
             .uid(uid)
             .name(structureName)
             .cuboid(cuboid)
@@ -327,7 +327,7 @@ public class CreatorTestsUtil
             .openDir(openDirection)
             .primeOwner(structureOwner)
             .ownersOfStructure(null)
-            .propertiesOfStructure(type, properties)
+            .propertiesOfStructure(properties)
             .build();
     }
 

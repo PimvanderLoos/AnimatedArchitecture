@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.structures.bigdoor;
 
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -32,12 +33,12 @@ class CreatorBigDoorTest extends CreatorTestsUtil
         openDirection = MovementDirection.CLOCKWISE;
 
         final CreatorBigDoor creator = new CreatorBigDoor(context, player, null);
-        final BigDoor actualStructure = new BigDoor(constructStructureBase(
+        final Structure actualStructure = constructStructureBase(
             type,
             getTemporaryUid(creator),
             Property.OPEN_STATUS, openStatus,
             Property.ROTATION_POINT, rotationPoint
-        ));
+        );
 
         testCreation(creator, actualStructure,
             structureName,

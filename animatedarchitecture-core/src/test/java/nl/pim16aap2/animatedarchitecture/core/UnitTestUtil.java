@@ -149,7 +149,7 @@ public class UnitTestUtil
     }
 
     /**
-     * Creates a new {@link StructureBuilder} and accompanying StructureBase factory.
+     * Creates a new {@link StructureBuilder} and accompanying Structure factory mocker.
      *
      * @return The result of the creation.
      */
@@ -160,17 +160,13 @@ public class UnitTestUtil
                InvocationTargetException,
                NoSuchMethodException
     {
-        final Class<?> classStructureBase = Class.forName(
-            "nl.pim16aap2.animatedarchitecture.core.structures.StructureBase");
-
-        final Class<?> classStructureBaseFactory = Class.forName(
-            "nl.pim16aap2.animatedarchitecture.core.structures.StructureBase$IFactory");
+        final Class<?> classStructureFactory = Class.forName(Structure.class.getName() + "$IFactory");
 
         final AssistedFactoryMocker<?, ?> assistedFactoryMocker =
-            new AssistedFactoryMocker<>(classStructureBase, classStructureBaseFactory);
+            new AssistedFactoryMocker<>(Structure.class, classStructureFactory);
 
         final Constructor<?> ctorStructureBuilder =
-            StructureBuilder.class.getDeclaredConstructor(classStructureBaseFactory);
+            StructureBuilder.class.getDeclaredConstructor(classStructureFactory);
 
         ctorStructureBuilder.setAccessible(true);
 

@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -37,13 +38,12 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         setBuyStructure(true);
 
         final CreatorPortcullis creator = new CreatorPortcullis(context, player, null);
-        final Portcullis actualStructure = new Portcullis(
-            constructStructureBase(
-                type,
-                getTemporaryUid(creator),
-                Property.OPEN_STATUS, isOpen,
-                Property.BLOCKS_TO_MOVE, blocksToMove
-            ));
+        final Structure actualStructure = constructStructureBase(
+            type,
+            getTemporaryUid(creator),
+            Property.OPEN_STATUS, isOpen,
+            Property.BLOCKS_TO_MOVE, blocksToMove
+        );
 
         testCreation(creator, actualStructure,
             structureName,

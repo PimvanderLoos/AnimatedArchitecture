@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.garagedoor;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import org.junit.jupiter.api.Assertions;
@@ -37,7 +38,7 @@ class GarageDoorTest
      */
     private void verifyPotentialNewCoordinates(GarageDoorTestUtil.OpeningData openingData)
     {
-        final GarageDoor garageDoor = openingData.createGarageDoor(structureBuilder);
+        final Structure garageDoor = openingData.createGarageDoor(structureBuilder);
 
         final Optional<Cuboid> potentialNewCoordinates = garageDoor.getPotentialNewCoordinates();
         Assertions.assertTrue(
