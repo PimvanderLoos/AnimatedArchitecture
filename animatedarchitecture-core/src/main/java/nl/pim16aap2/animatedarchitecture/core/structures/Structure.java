@@ -25,7 +25,6 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSnapshot;
@@ -496,6 +495,17 @@ public final class Structure implements IStructureConst, IPropertyHolder
         verifyRedstoneState();
     }
 
+    /**
+     * Verifies the redstone state of this structure.
+     * <p>
+     * This method will compare the current redstone state of the power block to the current state of this structure and
+     * act accordingly.
+     * <p>
+     * For example, if the structure is powered and this structure is currently closed, it will open the structure.
+     * <p>
+     * Or, if this is a structure that can move perpetually (e.g. a flag), it will stop the animation if the power block
+     * is no longer powered.
+     */
     @Locked.Read("lock")
     public void verifyRedstoneState()
     {
@@ -506,41 +516,68 @@ public final class Structure implements IStructureConst, IPropertyHolder
             return;
 
         final var result = redstoneManager.isBlockPowered(world, powerBlock);
-        if (result == IRedstoneManager.RedstoneStatus.DISABLED)
+        onRedstoneChange(result);
+    }
+
+    /**
+     * Handles a change in redstone power.
+     * <p>
+     * This method makes two assumptions:
+     * <ol>
+     *     <li>The chunk containing the power block is loaded.</li>
+     *     <li>The provided {@code isPowered} value reflects the power state of the power block in the world</li>
+     * </ol>
+     * <p>
+     * If you cannot guarantee these assumptions, use {@link #verifyRedstoneState()} instead.
+     *
+     * @param isPowered
+     *     The power state of the power block in the world.
+     */
+    @Locked.Read("lock")
+    public void onRedstoneChange(boolean isPowered)
+    {
+        if (shouldIgnoreRedstone())
             return;
 
-        if (result == IRedstoneManager.RedstoneStatus.UNPOWERED && component.canMovePerpetually(this))
+        onRedstoneChange(
+            isPowered ?
+                IRedstoneManager.RedstoneStatus.POWERED :
+                IRedstoneManager.RedstoneStatus.UNPOWERED
+        );
+    }
+
+    @GuardedBy("lock")
+    private void onRedstoneChange(IRedstoneManager.RedstoneStatus status)
+    {
+        if (status == IRedstoneManager.RedstoneStatus.DISABLED)
+            return;
+
+        if (status == IRedstoneManager.RedstoneStatus.UNPOWERED && component.canMovePerpetually(this))
         {
             structureActivityManager.stopAnimatorsWithWriteAccess(getUid());
             return;
         }
 
-        onRedstoneChange(result == IRedstoneManager.RedstoneStatus.POWERED);
-    }
-
-    @Locked.Read("lock")
-    void onRedstoneChange(boolean isPowered)
-    {
-        if (shouldIgnoreRedstone())
-            return;
+        final IPropertyValue<Boolean> openStatus = getPropertyValue(Property.OPEN_STATUS);
 
         final StructureActionType actionType;
         if (component.canMovePerpetually(this))
         {
-            if (!isPowered)
+            if (status == IRedstoneManager.RedstoneStatus.UNPOWERED)
             {
                 structureActivityManager.stopAnimatorsWithWriteAccess(getUid());
                 return;
             }
             actionType = StructureActionType.TOGGLE;
         }
-        else if (component instanceof IStructureWithOpenStatus openable)
+        else if (openStatus.isSet())
         {
-            if (isPowered && openable.isOpenable())
+            final boolean isOpen = Boolean.TRUE.equals(openStatus.value());
+            if (status == IRedstoneManager.RedstoneStatus.POWERED && !isOpen)
             {
                 actionType = StructureActionType.OPEN;
             }
-            else if (!isPowered && openable.isCloseable())
+            else if (status == IRedstoneManager.RedstoneStatus.UNPOWERED && isOpen)
             {
                 actionType = StructureActionType.CLOSE;
             }
@@ -548,7 +585,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
             {
                 log.atFinest().log(
                     "Aborted toggle attempt with %s redstone for openable structure: %s",
-                    (isPowered ? "powered" : "unpowered"), this);
+                    status,
+                    this
+                );
                 return;
             }
         }
@@ -556,7 +595,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
         {
             log.atFinest().log(
                 "Aborted toggle attempt with %s redstone for structure: %s",
-                (isPowered ? "powered" : "unpowered"), this);
+                status,
+                this
+            );
             return;
         }
 
