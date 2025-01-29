@@ -372,8 +372,11 @@ class TimedCacheTest
             .timeOut(Duration.ofMillis(100))
             .build();
 
-        Assertions.assertFalse(timedCache.putIfAbsent("key", "value").isPresent());
-        optionalEquals(timedCache.putIfAbsent("key", "value"), "value");
+        Assertions.assertFalse(timedCache.putIfAbsent("key", "value0").isPresent());
+        Assertions.assertEquals("value0", timedCache.get("key").orElse(null));
+
+        optionalEquals(timedCache.putIfAbsent("key", "value1"), "value0");
+        Assertions.assertEquals("value0", timedCache.get("key").orElse(null));
 
         clock.addMillis(110);
 

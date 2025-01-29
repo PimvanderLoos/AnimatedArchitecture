@@ -265,7 +265,7 @@ public sealed class TimedCache<K, V>
     /**
      * See {@link ConcurrentHashMap#putIfAbsent(Object, Object)}.
      *
-     * @return An empty {@link Optional} if no mapped existed for the key. If a mapping did exist, the value that was
+     * @return An empty {@link Optional} if no mapping existed for the key. If a mapping did exist, the value that was
      * associated with the key is returned instead.
      */
     public Optional<V> putIfAbsent(K key, V value)
@@ -278,7 +278,7 @@ public sealed class TimedCache<K, V>
                 return timedValueCreator.apply(value);
 
             returnValue.set(tValue.getValue(refresh));
-            return null;
+            return tValue;
         });
 
         return Optional.ofNullable(returnValue.get());
