@@ -32,7 +32,7 @@ class CreatorBigDoorTest extends CreatorTestsUtil
         openDirection = MovementDirection.CLOCKWISE;
 
         final CreatorBigDoor creator = new CreatorBigDoor(context, player, null);
-        final Structure actualStructure = constructStructureBase(
+        final Structure actualStructure = constructStructure(
             type,
             getTemporaryUid(creator),
             Property.OPEN_STATUS, openStatus,

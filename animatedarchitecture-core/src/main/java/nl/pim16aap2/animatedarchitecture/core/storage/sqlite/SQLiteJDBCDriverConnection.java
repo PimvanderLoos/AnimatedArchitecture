@@ -226,10 +226,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return getConnection(DatabaseState.OK);
     }
 
-    private Optional<Structure> constructStructure(ResultSet structureBaseRS)
+    private Optional<Structure> constructStructure(ResultSet structureRS)
         throws Exception
     {
-        final @Nullable String structureTypeResult = structureBaseRS.getString("type");
+        final @Nullable String structureTypeResult = structureRS.getString("type");
         final Optional<StructureType> structureTypeOpt = structureTypeManager.getFromFullName(structureTypeResult);
 
         if (!structureTypeOpt.map(structureTypeManager::isRegistered).orElse(false))
@@ -239,7 +239,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             return Optional.empty();
         }
 
-        final long structureUID = structureBaseRS.getLong("id");
+        final long structureUID = structureRS.getLong("id");
 
         final Optional<Structure> registeredStructure = structureRegistry.getRegisteredStructure(structureUID);
         if (registeredStructure.isPresent())
@@ -248,55 +248,55 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final StructureType structureType = structureTypeOpt.orElseThrow();
 
         final Optional<MovementDirection> animationDirection =
-            Optional.ofNullable(MovementDirection.valueOf(structureBaseRS.getInt("animationDirection")));
+            Optional.ofNullable(MovementDirection.valueOf(structureRS.getInt("animationDirection")));
 
         if (animationDirection.isEmpty())
             return Optional.empty();
 
         final Vector3Di min = new Vector3Di(
-            structureBaseRS.getInt("xMin"),
-            structureBaseRS.getInt("yMin"),
-            structureBaseRS.getInt("zMin")
+            structureRS.getInt("xMin"),
+            structureRS.getInt("yMin"),
+            structureRS.getInt("zMin")
         );
         final Vector3Di max = new Vector3Di(
-            structureBaseRS.getInt("xMax"),
-            structureBaseRS.getInt("yMax"),
-            structureBaseRS.getInt("zMax")
+            structureRS.getInt("xMax"),
+            structureRS.getInt("yMax"),
+            structureRS.getInt("zMax")
         );
         final Vector3Di powerBlock = new Vector3Di(
-            structureBaseRS.getInt("powerBlockX"),
-            structureBaseRS.getInt("powerBlockY"),
-            structureBaseRS.getInt("powerBlockZ")
+            structureRS.getInt("powerBlockX"),
+            structureRS.getInt("powerBlockY"),
+            structureRS.getInt("powerBlockZ")
         );
 
-        final IWorld world = worldFactory.create(structureBaseRS.getString("world"));
+        final IWorld world = worldFactory.create(structureRS.getString("world"));
 
-        final long bitflag = structureBaseRS.getLong("bitflag");
+        final long bitflag = structureRS.getLong("bitflag");
         final boolean isLocked = IBitFlag.hasFlag(StructureFlag.getFlagValue(StructureFlag.IS_LOCKED), bitflag);
 
-        final String name = structureBaseRS.getString("name");
+        final String name = structureRS.getString("name");
 
         final PlayerData playerData = new PlayerData(
-            UUID.fromString(structureBaseRS.getString("playerUUID")),
-            structureBaseRS.getString("playerName"),
+            UUID.fromString(structureRS.getString("playerUUID")),
+            structureRS.getString("playerName"),
             new LimitContainer(
-                getOptionalInt(structureBaseRS, "limitStructureSize"),
-                getOptionalInt(structureBaseRS, "limitStructureCount"),
-                getOptionalInt(structureBaseRS, "limitPowerBlockDistance"),
-                getOptionalInt(structureBaseRS, "limitBlocksToMove")),
-            structureBaseRS.getLong("permissions")
+                getOptionalInt(structureRS, "limitStructureSize"),
+                getOptionalInt(structureRS, "limitStructureCount"),
+                getOptionalInt(structureRS, "limitPowerBlockDistance"),
+                getOptionalInt(structureRS, "limitBlocksToMove")),
+            structureRS.getLong("permissions")
         );
 
         final StructureOwner primeOwner = new StructureOwner(
             structureUID,
-            Objects.requireNonNull(PermissionLevel.fromValue(structureBaseRS.getInt("permission"))),
+            Objects.requireNonNull(PermissionLevel.fromValue(structureRS.getInt("permission"))),
             playerData
         );
 
         // TODO: Use the type version to upgrade structures if necessary.
-        // final int typeVersion = structureBaseRS.getInt("typeVersion");
+        // final int typeVersion = structureRS.getInt("typeVersion");
 
-        final String rawProperties = structureBaseRS.getString("properties");
+        final String rawProperties = structureRS.getString("properties");
         final PropertyContainer properties = PropertyContainerSerializer.deserialize(structureType, rawProperties);
 
         final Map<UUID, StructureOwner> ownersOfStructure = getOwnersOfStructure(structureUID);
@@ -630,47 +630,47 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     /**
      * Attempts to construct a subclass of {@link Structure} from a ResultSet containing all data pertaining the
-     * {@link Structure} (as stored in the "structureBase" table), as well as the owner (name, UUID, permission) and the
+     * {@link Structure} (as stored in the "Structure" table), as well as the owner (name, UUID, permission) and the
      * typeTableName.
      *
-     * @param structureBaseRS
-     *     The {@link ResultSet} containing a row from the "structureBase" table as well as a row from the
+     * @param structureRS
+     *     The {@link ResultSet} containing a row from the "Structure" table as well as a row from the
      *     "StructureOwnerPlayer" table.
      * @return An instance of a subclass of {@link Structure} if it could be created.
      */
     @Locked.Read
-    private Optional<Structure> getStructure(ResultSet structureBaseRS)
+    private Optional<Structure> getStructure(ResultSet structureRS)
         throws Exception
     {
         // Make sure the ResultSet isn't empty.
-        if (!structureBaseRS.isBeforeFirst())
+        if (!structureRS.isBeforeFirst())
             return Optional.empty();
 
-        return constructStructure(structureBaseRS);
+        return constructStructure(structureRS);
     }
 
     /**
      * Attempts to construct a list of subclasses of {@link Structure} from a ResultSet containing all data pertaining
-     * to one or more {@link Structure}s (as stored in the "structureBase" table), as well as the owner (name, UUID,
+     * to one or more {@link Structure}s (as stored in the "Structure" table), as well as the owner (name, UUID,
      * permission) and the typeTableName.
      *
-     * @param structureBaseRS
-     *     The {@link ResultSet} containing one or more rows from the "structureBase" table as well as matching rows
-     *     from the "StructureOwnerPlayer" table.
+     * @param structureRS
+     *     The {@link ResultSet} containing one or more rows from the "Structure" table as well as matching rows from
+     *     the "StructureOwnerPlayer" table.
      * @return An optional with a list of {@link Structure}s if any could be constructed. If none could be constructed,
      * an empty {@link Optional} is returned instead.
      */
-    private List<Structure> getStructures(ResultSet structureBaseRS)
+    private List<Structure> getStructures(ResultSet structureRS)
         throws Exception
     {
         // Make sure the ResultSet isn't empty.
-        if (!structureBaseRS.isBeforeFirst())
+        if (!structureRS.isBeforeFirst())
             return Collections.emptyList();
 
         final List<Structure> structures = new ArrayList<>();
 
-        while (structureBaseRS.next())
-            constructStructure(structureBaseRS).ifPresent(structures::add);
+        while (structureRS.next())
+            constructStructure(structureRS).ifPresent(structures::add);
 
         return structures;
     }

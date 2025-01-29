@@ -296,7 +296,7 @@ public class CreatorTestsUtil
         }
     }
 
-    protected Structure constructStructureBase(StructureType type, long uid, Object... properties)
+    protected Structure constructStructure(StructureType type, long uid, Object... properties)
     {
         return structureBuilder
             .builder(type)

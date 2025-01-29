@@ -38,7 +38,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         setBuyStructure(true);
 
         final CreatorPortcullis creator = new CreatorPortcullis(context, player, null);
-        final Structure actualStructure = constructStructureBase(
+        final Structure actualStructure = constructStructure(
             type,
             getTemporaryUid(creator),
             Property.OPEN_STATUS, isOpen,
