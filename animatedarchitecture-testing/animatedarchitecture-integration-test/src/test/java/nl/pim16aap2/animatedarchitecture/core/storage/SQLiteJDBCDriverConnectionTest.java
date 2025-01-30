@@ -789,7 +789,7 @@ public class SQLiteJDBCDriverConnectionTest
         Vector3Di rotationPoint = new Vector3Di(144, 75, 153);
         structure1 = structureBuilder
             .builder(StructureTypeBigDoor.get())
-            .uid(1L)
+            .uid(UnitTestUtil.newStructureID(1))
             .name(STRUCTURE_1_NAME)
             .cuboid(min, max)
             .powerBlock(powerBlock)
@@ -811,7 +811,7 @@ public class SQLiteJDBCDriverConnectionTest
 
         structure2 = structureBuilder
             .builder(StructureTypeDrawbridge.get())
-            .uid(2L)
+            .uid(UnitTestUtil.newStructureID(2))
             .name(STRUCTURES_2_3_NAME)
             .cuboid(min, max)
             .powerBlock(powerBlock)
@@ -832,7 +832,7 @@ public class SQLiteJDBCDriverConnectionTest
         int blocksToMove = 8;
         structure3 = structureBuilder
             .builder(StructureTypePortcullis.get())
-            .uid(3L)
+            .uid(UnitTestUtil.newStructureID(3))
             .name(STRUCTURES_2_3_NAME)
             .cuboid(min, max)
             .powerBlock(powerBlock)

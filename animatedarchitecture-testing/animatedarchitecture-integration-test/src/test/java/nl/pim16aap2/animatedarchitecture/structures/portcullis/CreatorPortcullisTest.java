@@ -40,7 +40,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         final CreatorPortcullis creator = new CreatorPortcullis(context, player, null);
         final Structure actualStructure = constructStructure(
             type,
-            getTemporaryUid(creator),
+            creator.getUnregisteredUID(),
             Property.OPEN_STATUS, isOpen,
             Property.BLOCKS_TO_MOVE, blocksToMove
         );

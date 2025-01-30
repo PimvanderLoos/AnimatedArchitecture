@@ -13,6 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureID;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -59,6 +60,13 @@ public class UnitTestUtil
 
     private UnitTestUtil()
     {
+    }
+
+    public static StructureID newStructureID(long id)
+    {
+        final StructureID structureID = Mockito.mock();
+        Mockito.when(structureID.getId()).thenReturn(id);
+        return structureID;
     }
 
     public static ILocalizer initLocalizer()

@@ -41,7 +41,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestLocationFactory;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
-import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -282,25 +281,11 @@ public class CreatorTestsUtil
             .thenReturn(status);
     }
 
-    protected long getTemporaryUid(Creator creator)
-    {
-        try
-        {
-            return (Long) ReflectionBuilder.findField(Creator.class)
-                .withName("structureUidPlaceholder")
-                .setAccessible().get().get(creator);
-        }
-        catch (IllegalAccessException e)
-        {
-            throw new RuntimeException("Failed to access field 'structureUidPlaceholder' in class 'Creator'!", e);
-        }
-    }
-
     protected Structure constructStructure(StructureType type, long uid, Object... properties)
     {
         return structureBuilder
             .builder(type)
-            .uid(uid)
+            .uid(UnitTestUtil.newStructureID(uid))
             .name(structureName)
             .cuboid(cuboid)
             .powerBlock(powerblock)

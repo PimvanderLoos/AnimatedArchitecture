@@ -20,6 +20,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureID;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -51,7 +52,6 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 /**
@@ -61,8 +61,6 @@ import java.util.function.Function;
 @Flogger
 public abstract class Creator extends ToolUser
 {
-    private static final AtomicLong STRUCTURE_UID_PLACEHOLDER_COUNTER = new AtomicLong(-1000L);
-
     protected final LimitsManager limitsManager;
 
     protected final StructureBuilder structureBuilder;
@@ -77,7 +75,7 @@ public abstract class Creator extends ToolUser
 
     private final StructureActivityManager structureActivityManager;
 
-    protected final long structureUidPlaceholder = STRUCTURE_UID_PLACEHOLDER_COUNTER.getAndDecrement();
+    protected final StructureID structureID = StructureID.getUnregisteredID();
 
     /**
      * The {@link PropertyContainer} that is used to manage the properties of the structure.
@@ -454,11 +452,11 @@ public abstract class Creator extends ToolUser
     protected final synchronized Structure constructStructureData(@Nullable IStructureComponent component)
     {
         final var owner =
-            new StructureOwner(structureUidPlaceholder, PermissionLevel.CREATOR, getPlayer().getPlayerData());
+            new StructureOwner(structureID.getId(), PermissionLevel.CREATOR, getPlayer().getPlayerData());
 
         return structureBuilder
             .builder(structureType, component)
-            .uid(structureUidPlaceholder)
+            .uid(structureID)
             .name(Util.requireNonNull(name, "Name"))
             .cuboid(Util.requireNonNull(cuboid, "cuboid"))
             .powerBlock(Util.requireNonNull(powerblock, "powerblock"))
@@ -521,7 +519,7 @@ public abstract class Creator extends ToolUser
         removeTool();
         if (super.isActive())
             insertStructure(constructStructure());
-        structureActivityManager.stopAnimators(this.structureUidPlaceholder);
+        structureActivityManager.stopAnimators(this.structureID.getId());
         return true;
     }
 
@@ -1150,7 +1148,6 @@ public abstract class Creator extends ToolUser
      * @return True if the process is in a state where is may be updated outside the normal execution order, false
      * otherwise.
      */
-    @SuppressWarnings("unused") // It is used by the generated toString method.
     protected final synchronized boolean isProcessIsUpdatable()
     {
         return this.processIsUpdatable;
@@ -1165,7 +1162,6 @@ public abstract class Creator extends ToolUser
      * @param cuboid
      *     The cuboid of the structure that is to be created.
      */
-    @SuppressWarnings("unused")
     protected final synchronized void setCuboid(Cuboid cuboid)
     {
         this.cuboid = cuboid;
@@ -1180,7 +1176,6 @@ public abstract class Creator extends ToolUser
      * @param powerblock
      *     The power block of the structure that is to be created.
      */
-    @SuppressWarnings("unused")
     protected final synchronized void setPowerblock(Vector3Di powerblock)
     {
         this.powerblock = powerblock;
@@ -1195,7 +1190,6 @@ public abstract class Creator extends ToolUser
      * @param movementDirection
      *     The movement direction of the structure that is to be created.
      */
-    @SuppressWarnings("unused")
     protected final synchronized void setMovementDirection(MovementDirection movementDirection)
     {
         this.movementDirection = movementDirection;
@@ -1210,7 +1204,6 @@ public abstract class Creator extends ToolUser
      * @param world
      *     The world in which the structure that is to be created is located.
      */
-    @SuppressWarnings("unused")
     protected final synchronized void setWorld(IWorld world)
     {
         this.world = world;
@@ -1239,9 +1232,20 @@ public abstract class Creator extends ToolUser
      * @param locked
      *     True if the structure that is to be created is locked, false otherwise.
      */
-    @SuppressWarnings("unused")
     protected final synchronized void setLocked(boolean locked)
     {
         isLocked = locked;
+    }
+
+    /**
+     * Gets the unregistered UID of the structure.
+     * <p>
+     * This is a unique ID that is used to identify the structure before it is registered in the database.
+     *
+     * @return The unregistered UID of the structure.
+     */
+    public final long getUnregisteredUID()
+    {
+        return structureID.getId();
     }
 }

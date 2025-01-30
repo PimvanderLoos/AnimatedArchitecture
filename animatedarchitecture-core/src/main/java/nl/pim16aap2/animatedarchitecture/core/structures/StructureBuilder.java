@@ -107,9 +107,9 @@ public final class StructureBuilder
 
         @Override
         @Initializer
-        public IBuilderName uid(long structureUID)
+        public IBuilderName uid(StructureID structureUID)
         {
-            this.structureUID = structureUID;
+            this.structureUID = structureUID.getId();
             return this;
         }
 
@@ -239,14 +239,28 @@ public final class StructureBuilder
     public interface IBuilderUID
     {
         /**
-         * Provides the UID of the structure to create. If this structure hasn't been added to the database yet, this
-         * value should be -1.
+         * Provides the 'unassigned' UID as the UID of the structure to create.
+         * <p>
+         * Using the 'unassigned' UID means that the structure has not been assigned a UID yet and will be assigned one
+         * by the storage system when it is saved.
+         *
+         * @return The next step of the guided builder process.
+         */
+        default IBuilderName unassigned()
+        {
+            return uid(StructureID.getUnassignedID());
+        }
+
+        /**
+         * Provides the UID of the structure to create.
+         * <p>
+         * If no UID is known yet, use {@link #unassigned()} instead.
          *
          * @param structureUID
          *     The UID.
          * @return The next step of the guided builder process.
          */
-        IBuilderName uid(long structureUID);
+        IBuilderName uid(StructureID structureUID);
     }
 
     public interface IBuilderName extends IConstantsProvider

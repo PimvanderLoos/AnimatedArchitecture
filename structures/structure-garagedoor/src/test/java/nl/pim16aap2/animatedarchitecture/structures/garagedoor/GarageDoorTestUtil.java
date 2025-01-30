@@ -192,7 +192,7 @@ class GarageDoorTestUtil
         {
             return structureBuilder
                 .builder(StructureTypeGarageDoor.get())
-                .uid(1)
+                .uid(UnitTestUtil.newStructureID(1))
                 .name("Garage Door")
                 .cuboid(startCuboid)
                 .powerBlock(new Vector3Di(0, 0, 0))

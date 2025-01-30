@@ -303,7 +303,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final Structure structure =
             structureBuilder
                 .builder(structureType)
-                .uid(structureUID)
+                .uid(AssignedUIDSqlite.getAssignedUID(structureUID))
                 .name(name)
                 .cuboid(new Cuboid(min, max))
                 .powerBlock(powerBlock)
@@ -419,7 +419,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             {
                 final Structure recreated = structureBuilder
                     .builder(structure.getType())
-                    .uid(structureUID)
+                    .uid(AssignedUIDSqlite.getAssignedUID(structureUID))
                     .name(structure.getName())
                     .cuboid(structure.getCuboid())
                     .powerBlock(structure.getPowerBlock())

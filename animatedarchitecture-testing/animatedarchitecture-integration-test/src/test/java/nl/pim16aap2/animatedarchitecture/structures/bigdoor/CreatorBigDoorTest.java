@@ -34,7 +34,7 @@ class CreatorBigDoorTest extends CreatorTestsUtil
         final CreatorBigDoor creator = new CreatorBigDoor(context, player, null);
         final Structure actualStructure = constructStructure(
             type,
-            getTemporaryUid(creator),
+            creator.getUnregisteredUID(),
             Property.OPEN_STATUS, openStatus,
             Property.ROTATION_POINT, rotationPoint
         );
