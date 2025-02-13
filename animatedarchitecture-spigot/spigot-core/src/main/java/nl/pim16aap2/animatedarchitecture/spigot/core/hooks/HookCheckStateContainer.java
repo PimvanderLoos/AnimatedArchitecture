@@ -203,7 +203,7 @@ final class HookCheckStateContainer
         if (executor.isMainThread())
         {
             runPreChecksSync(executor, player, world);
-            results = CompletableFuture.runAsync(() -> runPreChecksSync(executor, player, world));
+            results = CompletableFuture.runAsync(() -> runPreChecksAsync(executor, player, world));
         }
         else
         {
