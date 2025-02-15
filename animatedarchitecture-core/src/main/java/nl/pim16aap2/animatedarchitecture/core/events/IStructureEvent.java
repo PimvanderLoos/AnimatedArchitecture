@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.events;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 
 import java.util.Optional;
 
@@ -11,11 +11,11 @@ import java.util.Optional;
 public interface IStructureEvent extends IAnimatedArchitectureEvent
 {
     /**
-     * Gets the {@link AbstractStructure} that was created.
+     * Gets the {@link Structure} that was created.
      *
-     * @return The {@link AbstractStructure} that will be created.
+     * @return The {@link Structure} that will be created.
      */
-    AbstractStructure getStructure();
+    Structure getStructure();
 
     /**
      * Gets the {@link IPlayer} that was responsible for the creation this structure.

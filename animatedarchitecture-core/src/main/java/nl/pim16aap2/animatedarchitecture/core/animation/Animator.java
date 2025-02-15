@@ -11,10 +11,10 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimationHook;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
-import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +56,7 @@ public final class Animator implements IAnimator
      * The structure whose blocks are going to be moved.
      */
     @Getter
-    private final AbstractStructure structure;
+    private final Structure structure;
 
     /**
      * A snapshot of the structure created before the toggle.
@@ -180,7 +180,7 @@ public final class Animator implements IAnimator
      * Once created, the animation does not start immediately. Use {@link #startAnimation()} to start it.
      *
      * @param structure
-     *     The {@link AbstractStructure} that is being animated.
+     *     The {@link Structure} that is being animated.
      * @param data
      *     The data of the movement request.
      * @param animationComponent
@@ -189,7 +189,7 @@ public final class Animator implements IAnimator
      *     The manager of the animated blocks. This is responsible for handling the lifecycle of the animated blocks.
      */
     public Animator(
-        AbstractStructure structure,
+        Structure structure,
         AnimationRequestData data,
         IAnimationComponent animationComponent,
         IAnimatedBlockContainer animatedBlockContainer)
@@ -224,7 +224,7 @@ public final class Animator implements IAnimator
 
     private boolean isPerpetualMovement()
     {
-        return this.animationType.allowsPerpetualAnimation() && structure instanceof IPerpetualMover;
+        return this.animationType.allowsPerpetualAnimation() && structure.canMovePerpetually();
     }
 
     /**
@@ -274,7 +274,7 @@ public final class Animator implements IAnimator
     }
 
     /**
-     * Replaces all blocks of the {@link AbstractStructure} with animated blocks and starts the animation.
+     * Replaces all blocks of the {@link Structure} with animated blocks and starts the animation.
      * <p>
      * Note that if {@link #skipAnimation} is true, the blocks will be placed in the new position immediately without
      * any animations.
@@ -468,7 +468,7 @@ public final class Animator implements IAnimator
     {
         // Perpetual movers will usually not require to stop gracefully; Their blocks are not meant to
         // travel to a given position, so they can stop at any position and adding a stopCount can look glitchy.
-        if (structure instanceof IPerpetualMover)
+        if (structure.canMovePerpetually())
             return 0;
 
         final int finishDurationTicks = Math.round((float) FINISH_DURATION / serverTickTime);
@@ -600,12 +600,14 @@ public final class Animator implements IAnimator
     }
 
     /**
-     * Updates the coordinates of a {@link AbstractStructure} and toggles its open status.
+     * Updates the coordinates of a {@link Structure} and toggles its open status.
      */
     private void updateCoords()
     {
-        if (structure instanceof IStructureWithOpenStatus withOpenStatus)
-            withOpenStatus.setOpenStatus(!withOpenStatus.isOpen());
+        // Invert the open status of the structure if it has the open status property.
+        final IPropertyValue<Boolean> openStatus = structure.getPropertyValue(Property.OPEN_STATUS);
+        if (openStatus.isSet())
+            structure.setPropertyValue(Property.OPEN_STATUS, !Objects.requireNonNull(openStatus.value()));
 
         if (!newCuboid.equals(snapshot.getCuboid()))
             structure.setCoordinates(newCuboid);
@@ -613,9 +615,9 @@ public final class Animator implements IAnimator
     }
 
     /**
-     * Gets the UID of the {@link AbstractStructure} being moved.
+     * Gets the UID of the {@link Structure} being moved.
      *
-     * @return The UID of the {@link AbstractStructure} being moved.
+     * @return The UID of the {@link Structure} being moved.
      */
     public long getStructureUID()
     {

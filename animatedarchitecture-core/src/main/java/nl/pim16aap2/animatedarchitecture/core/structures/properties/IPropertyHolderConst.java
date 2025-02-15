@@ -4,6 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.SequencedCollection;
 
 /**
  * Represents a read-only property holder.
@@ -59,6 +60,24 @@ public interface IPropertyHolderConst
     default boolean hasProperties(Property<?>... properties)
     {
         return hasProperties(List.of(properties));
+    }
+
+    /**
+     * Checks if this property holder has all the given properties.
+     *
+     * @param properties
+     *     The properties to check.
+     * @return {@code true} if this property holder has all the given properties, {@code false} otherwise.
+     */
+    default boolean hasProperties(SequencedCollection<Property<?>> properties)
+    {
+        if (properties.isEmpty())
+            return true;
+
+        if (properties.size() == 1)
+            return hasProperty(properties.getFirst());
+
+        return hasProperties((Collection<Property<?>>) properties);
     }
 
     /**

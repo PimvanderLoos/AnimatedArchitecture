@@ -13,7 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareLockChange
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareRemoveOwnerEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -44,14 +44,14 @@ public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitec
 
 
     @Override
-    public IStructureCreatedEvent createStructureCreatedEvent(AbstractStructure preview, @Nullable IPlayer responsible)
+    public IStructureCreatedEvent createStructureCreatedEvent(Structure preview, @Nullable IPlayer responsible)
     {
         return new StructureCreatedEvent(preview, responsible);
     }
 
     @Override
     public IStructurePrepareCreateEvent createPrepareStructureCreateEvent(
-        AbstractStructure structure,
+        Structure structure,
         @Nullable IPlayer responsible)
     {
         return new StructurePrepareCreateEvent(structure, responsible);
@@ -59,7 +59,7 @@ public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitec
 
     @Override
     public IStructurePrepareDeleteEvent createPrepareDeleteStructureEvent(
-        AbstractStructure structure,
+        Structure structure,
         @Nullable IPlayer responsible)
     {
         return new StructurePrepareDeleteEvent(structure, responsible);
@@ -67,7 +67,7 @@ public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitec
 
     @Override
     public IStructurePrepareAddOwnerEvent createStructurePrepareAddOwnerEvent(
-        AbstractStructure structure,
+        Structure structure,
         StructureOwner newOwner,
         @Nullable IPlayer responsible)
     {
@@ -76,7 +76,7 @@ public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitec
 
     @Override
     public IStructurePrepareRemoveOwnerEvent createStructurePrepareRemoveOwnerEvent(
-        AbstractStructure structure,
+        Structure structure,
         StructureOwner removedOwner,
         @Nullable IPlayer responsible)
     {
@@ -85,7 +85,7 @@ public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitec
 
     @Override
     public IStructurePrepareLockChangeEvent createStructurePrepareLockChangeEvent(
-        AbstractStructure structure,
+        Structure structure,
         boolean newLockStatus,
         @Nullable IPlayer responsible)
     {
@@ -115,7 +115,7 @@ public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitec
 
     @Override
     public IStructureEventToggleStart createToggleStartEvent(
-        AbstractStructure structure,
+        Structure structure,
         StructureSnapshot structureSnapshot,
         StructureActionCause cause,
         StructureActionType actionType,
@@ -139,7 +139,7 @@ public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitec
 
     @Override
     public IStructureEventToggleEnd createToggleEndEvent(
-        AbstractStructure structure,
+        Structure structure,
         StructureSnapshot snapshot,
         StructureActionCause cause,
         StructureActionType actionType,

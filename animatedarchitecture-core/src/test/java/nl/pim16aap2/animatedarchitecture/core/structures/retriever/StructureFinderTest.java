@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures.retriever;
 
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.junit.jupiter.api.Assertions;
@@ -354,10 +354,10 @@ class StructureFinderTest
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         setDatabaseIdentifierResults(uids, names);
 
-        final List<AbstractStructure> structures = new ArrayList<>(uids.size());
+        final List<Structure> structures = new ArrayList<>(uids.size());
         for (int idx = 0; idx < names.size(); ++idx)
         {
-            final AbstractStructure structure = Mockito.mock(AbstractStructure.class);
+            final Structure structure = Mockito.mock(Structure.class);
             when(structure.getUid()).thenReturn(uids.get(idx));
             when(structure.getName()).thenReturn(names.get(idx));
             structures.add(idx, structure);

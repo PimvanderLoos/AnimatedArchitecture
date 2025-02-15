@@ -329,18 +329,19 @@ public final class Property<T> implements IKeyed
          */
         private void register(Property<?> property)
         {
-            registeredProperties.compute(property.getFullKey(), (key, value) ->
-            {
-                if (value != null)
-                    log.atSevere().log(
-                        "Property with name '%s' has already been registered with value '%s'!" +
-                            " It will be replaced by property '%s'!",
-                        key,
-                        value,
-                        property
-                    );
-                return property;
-            });
+            registeredProperties.compute(
+                property.getFullKey(), (key, value) ->
+                {
+                    if (value != null)
+                        log.atSevere().log(
+                            "Property with name '%s' has already been registered with value '%s'!" +
+                                " It will be replaced by property '%s'!",
+                            key,
+                            value,
+                            property
+                        );
+                    return property;
+                });
         }
 
         @Override

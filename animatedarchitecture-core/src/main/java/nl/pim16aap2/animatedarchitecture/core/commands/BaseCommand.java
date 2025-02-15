@@ -6,7 +6,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
@@ -74,7 +74,7 @@ public abstract class BaseCommand
      * @return True if the command sender has access to the provided attribute for the given structure.
      */
     protected boolean hasAccessToAttribute(
-        AbstractStructure door,
+        Structure door,
         StructureAttribute doorAttribute,
         boolean hasBypassPermission)
     {
@@ -208,7 +208,7 @@ public abstract class BaseCommand
     }
 
     /**
-     * Attempts to get an {@link AbstractStructure} based on the provided {@link StructureRetrieverFactory} and the
+     * Attempts to get an {@link Structure} based on the provided {@link StructureRetrieverFactory} and the
      * current {@link ICommandSender}.
      * <p>
      * If no structure is found, the {@link ICommandSender} will be informed.
@@ -217,9 +217,9 @@ public abstract class BaseCommand
      *     The {@link StructureRetrieverFactory} to use
      * @param permissionLevel
      *     The minimum {@link PermissionLevel} required to retrieve the structure.
-     * @return The {@link AbstractStructure} if one could be retrieved.
+     * @return The {@link Structure} if one could be retrieved.
      */
-    protected CompletableFuture<Optional<AbstractStructure>> getStructure(
+    protected CompletableFuture<Optional<Structure>> getStructure(
         StructureRetriever doorRetriever,
         PermissionLevel permissionLevel)
     {

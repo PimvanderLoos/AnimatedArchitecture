@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes;
 
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
 /**
@@ -9,7 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 public interface IHorizontalAxisAligned
 {
     /**
-     * Describes if the {@link AbstractStructure} is animated along the North/South (-/+ Z) axis <b>(= TRUE)</b> or
+     * Describes if the {@link Structure} is animated along the North/South (-/+ Z) axis <b>(= TRUE)</b> or
      * along the East/West (+/- X) axis <b>(= FALSE)</b>.
      *
      * @return True if this structure is animated along the North/South axis.

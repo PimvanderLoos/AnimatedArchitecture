@@ -48,7 +48,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
- * Represents a utility singleton that is used to open {@link AbstractStructure}s.
+ * Represents a utility singleton that is used to open {@link Structure}s.
  */
 @Flogger
 final class StructureToggleHelper
@@ -112,10 +112,10 @@ final class StructureToggleHelper
 
 
     /**
-     * Aborts an attempt to toggle a {@link AbstractStructure} and cleans up leftover data from this attempt.
+     * Aborts an attempt to toggle a {@link Structure} and cleans up leftover data from this attempt.
      *
      * @param structure
-     *     The {@link AbstractStructure}.
+     *     The {@link Structure}.
      * @param result
      *     The reason the action was aborted.
      * @param cause
@@ -130,7 +130,7 @@ final class StructureToggleHelper
      * @return The same result that was passed in as argument.
      */
     private CompletableFuture<StructureToggleResult> abort(
-        AbstractStructure structure,
+        Structure structure,
         StructureToggleResult result,
         StructureActionCause cause,
         IPlayer responsible,
@@ -220,11 +220,11 @@ final class StructureToggleHelper
 
     /**
      * See
-     * {@link IAnimatedArchitectureEventFactory#createToggleStartEvent(AbstractStructure, StructureSnapshot,
+     * {@link IAnimatedArchitectureEventFactory#createToggleStartEvent(Structure, StructureSnapshot,
      * StructureActionCause, StructureActionType, IPlayer, double, boolean, Cuboid)}.
      */
     private IStructureEventToggleStart callToggleStartEvent(
-        AbstractStructure structure,
+        Structure structure,
         StructureSnapshot snapshot,
         StructureActionCause cause,
         StructureActionType actionType,
@@ -249,10 +249,10 @@ final class StructureToggleHelper
 
     /**
      * See
-     * {@link IAnimatedArchitectureEventFactory#createToggleStartEvent(AbstractStructure, StructureSnapshot,
+     * {@link IAnimatedArchitectureEventFactory#createToggleStartEvent(Structure, StructureSnapshot,
      * StructureActionCause, StructureActionType, IPlayer, double, boolean, Cuboid)}.
      */
-    private IStructureEventToggleStart callToggleStartEvent(AbstractStructure structure, AnimationRequestData data)
+    private IStructureEventToggleStart callToggleStartEvent(Structure structure, AnimationRequestData data)
     {
         return callToggleStartEvent(
             structure,
@@ -275,7 +275,7 @@ final class StructureToggleHelper
      * Registers a new block mover. Must be called from the main thread.
      */
     private boolean registerBlockMover(
-        AbstractStructure structure,
+        Structure structure,
         AnimationRequestData data,
         IAnimationComponent component,
         @Nullable IPlayer player,
@@ -303,14 +303,14 @@ final class StructureToggleHelper
 
     private CompletableFuture<StructureToggleResult> toggle(
         StructureSnapshot snapshot,
-        AbstractStructure targetStructure,
+        Structure targetStructure,
         AnimationRequestData data,
         IAnimationComponent component,
         IMessageable messageReceiver,
         @Nullable IPlayer player,
         AnimationType animationType)
     {
-        if (snapshot.getOpenDir() == MovementDirection.NONE)
+        if (snapshot.getOpenDirection() == MovementDirection.NONE)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("OpenDir cannot be 'NONE'!");
             return CompletableFuture.completedFuture(StructureToggleResult.ERROR);
@@ -389,7 +389,7 @@ final class StructureToggleHelper
 
     private CompletableFuture<StructureToggleResult> toggle(
         long stamp,
-        AbstractStructure targetStructure,
+        Structure targetStructure,
         AnimationRequestData data,
         IAnimationComponent component,
         @Nullable IPlayer player,
@@ -408,7 +408,7 @@ final class StructureToggleHelper
     }
 
     CompletableFuture<StructureToggleResult> toggle(
-        AbstractStructure structure,
+        Structure structure,
         StructureAnimationRequest request,
         IPlayer responsible)
     {
@@ -488,10 +488,9 @@ final class StructureToggleHelper
      *
      * @param player
      *     The player whose limit to compare against this structure's size.
-     * @return True if {@link AbstractStructure#getBlockCount()} exceeds the {@link Limit#STRUCTURE_SIZE} for this
-     * structure.
+     * @return True if {@link Structure#getBlockCount()} exceeds the {@link Limit#STRUCTURE_SIZE} for this structure.
      */
-    private boolean exceedSizeLimit(AbstractStructure structure, IPlayer player)
+    private boolean exceedSizeLimit(Structure structure, IPlayer player)
     {
         return limitsManager.exceedsLimit(player, Limit.STRUCTURE_SIZE, structure.getBlockCount());
     }
@@ -502,7 +501,7 @@ final class StructureToggleHelper
      * If the player is not allowed to break the block(s), they'll receive a message about this.
      *
      * @param structure
-     *     The {@link AbstractStructure} being opened.
+     *     The {@link Structure} being opened.
      * @param cuboid0
      *     The first area of blocks to check.
      * @param cuboid1
@@ -631,20 +630,20 @@ final class StructureToggleHelper
     }
 
     /**
-     * Checks if a {@link AbstractStructure} can be toggled or not.
+     * Checks if a {@link Structure} can be toggled or not.
      * <p>
      * It checks the following items:
      * <p>
-     * - The {@link AbstractStructure} is not already being animated.
+     * - The {@link Structure} is not already being animated.
      * <p>
-     * - The {@link AbstractStructure} is enabled.
+     * - The {@link Structure} is enabled.
      * <p>
-     * - The {@link AbstractStructure} is not locked.
+     * - The {@link Structure} is not locked.
      * <p>
-     * - All chunks this {@link AbstractStructure} might interact with are loaded.
+     * - All chunks this {@link Structure} might interact with are loaded.
      *
      * @param structure
-     *     The {@link AbstractStructure}.
+     *     The {@link Structure}.
      * @param type
      *     The type of structure being toggled.
      * @param newCuboid

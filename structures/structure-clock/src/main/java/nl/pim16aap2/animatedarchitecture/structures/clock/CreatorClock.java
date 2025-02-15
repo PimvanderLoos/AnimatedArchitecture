@@ -5,7 +5,7 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
@@ -250,11 +250,12 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected synchronized AbstractStructure constructStructure()
+    protected synchronized Structure constructStructure()
     {
-        updateOpenDirection();
         Util.requireNonNull(hourArmSide, "hourArmSide");
-        return new Clock(constructStructureData(), northSouthAligned, hourArmSide);
+        updateOpenDirection();
+
+        return super.constructStructure();
     }
 
     @SuppressWarnings("unused") // It is used by the generated toString method.

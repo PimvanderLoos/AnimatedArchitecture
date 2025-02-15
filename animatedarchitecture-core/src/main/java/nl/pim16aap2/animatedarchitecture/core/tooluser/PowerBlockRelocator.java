@@ -9,7 +9,7 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.AsyncStepExecutor;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorVoid;
@@ -27,14 +27,14 @@ import java.util.concurrent.CompletableFuture;
 @ToString(callSuper = true)
 public class PowerBlockRelocator extends ToolUser
 {
-    private final AbstractStructure structure;
+    private final Structure structure;
 
     @GuardedBy("this")
     private @Nullable ILocation newLoc;
 
     @AssistedInject
     public PowerBlockRelocator(
-        ToolUser.Context context, @Assisted IPlayer player, @Assisted AbstractStructure structure)
+        ToolUser.Context context, @Assisted IPlayer player, @Assisted Structure structure)
     {
         super(context, player);
         this.structure = structure;
@@ -133,6 +133,6 @@ public class PowerBlockRelocator extends ToolUser
     @AssistedFactory
     public interface IFactory
     {
-        PowerBlockRelocator create(IPlayer player, AbstractStructure structure);
+        PowerBlockRelocator create(IPlayer player, Structure structure);
     }
 }

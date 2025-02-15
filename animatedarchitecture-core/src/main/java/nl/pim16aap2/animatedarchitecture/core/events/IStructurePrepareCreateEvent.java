@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.events;
 
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 
 /**
  * Represents the event where a structure will be created.
@@ -8,13 +8,13 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 public interface IStructurePrepareCreateEvent extends IStructureEvent, ICancellableAnimatedArchitectureEvent
 {
     /**
-     * Gets the {@link AbstractStructure} that was created.
+     * Gets the {@link Structure} that was created.
      * <p>
-     * Note that this is NOT the final {@link AbstractStructure} that will exist after creation; it is merely a
+     * Note that this is NOT the final {@link Structure} that will exist after creation; it is merely a
      * preview!
      *
-     * @return The {@link AbstractStructure} that will be created.
+     * @return The {@link Structure} that will be created.
      */
     @Override
-    AbstractStructure getStructure();
+    Structure getStructure();
 }

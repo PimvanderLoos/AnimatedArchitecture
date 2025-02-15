@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareRemoveOwnerEvent;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,7 @@ public class StructurePrepareRemoveOwnerEvent extends StructureEvent implements 
     private final StructureOwner removedStructureOwner;
 
     public StructurePrepareRemoveOwnerEvent(
-        AbstractStructure structure,
+        Structure structure,
         @Nullable IPlayer responsible,
         StructureOwner removedStructureOwner)
     {

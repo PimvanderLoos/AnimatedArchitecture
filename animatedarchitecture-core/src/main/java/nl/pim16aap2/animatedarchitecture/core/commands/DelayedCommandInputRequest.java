@@ -11,7 +11,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
@@ -27,7 +27,7 @@ import java.util.function.Supplier;
  * Represents a request for delayed additional input for a command.
  * <p>
  * Taking the {@link AddOwner} command as an example, it could be initialized using a GUI, in which case it is known who
- * the {@link ICommandSender} is and what the target {@link AbstractStructure} is. However, for some GUIs (e.g. Spigot),
+ * the {@link ICommandSender} is and what the target {@link Structure} is. However, for some GUIs (e.g. Spigot),
  * it is not yet known who the target player is and what the desired permission level is. This class can then be used to
  * retrieve the additional data that is required to execute the command.
  *

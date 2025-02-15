@@ -13,7 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.AsyncStepExecutor;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorBoolean;
@@ -76,7 +76,7 @@ public class ToolUserTest
         ).setMock(ILocalizer.class, localizer).getFactory();
 
         context = new ToolUser.Context(
-            Mockito.mock(StructureBaseBuilder.class),
+            Mockito.mock(StructureBuilder.class),
             localizer,
             textFactory,
             toolUserManager,
@@ -142,7 +142,8 @@ public class ToolUserTest
             createStep(
                 stepFactory,
                 "step_1",
-                new AsyncStepExecutor<>(Integer.class, ignored ->
+                new AsyncStepExecutor<>(
+                    Integer.class, ignored ->
                 {
                     sleep(500);
                     return toolUser.appendValueAsync(1);

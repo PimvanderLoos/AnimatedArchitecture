@@ -15,10 +15,12 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureComponent;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureID;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -50,21 +52,18 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 /**
- * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractStructure}s.
+ * Represents a specialization of the {@link ToolUser} that is used for creating new {@link Structure}s.
  */
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 @Flogger
 public abstract class Creator extends ToolUser
 {
-    private static final AtomicLong STRUCTURE_UID_PLACEHOLDER_COUNTER = new AtomicLong(-1000L);
-
     protected final LimitsManager limitsManager;
 
-    protected final StructureBaseBuilder structureBaseBuilder;
+    protected final StructureBuilder structureBuilder;
 
     protected final DatabaseManager databaseManager;
 
@@ -72,11 +71,11 @@ public abstract class Creator extends ToolUser
 
     protected final CommandFactory commandFactory;
 
-    private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
+    private final @Nullable StructureAnimationRequestBuilder structureAnimationRequestBuilder;
 
     private final StructureActivityManager structureActivityManager;
 
-    protected final long structureUidPlaceholder = STRUCTURE_UID_PLACEHOLDER_COUNTER.getAndDecrement();
+    protected final StructureID structureID = StructureID.getUnregisteredID();
 
     /**
      * The {@link PropertyContainer} that is used to manage the properties of the structure.
@@ -221,7 +220,7 @@ public abstract class Creator extends ToolUser
         this.structureAnimationRequestBuilder = context.getStructureAnimationRequestBuilder();
         this.structureActivityManager = context.getStructureActivityManager();
         this.limitsManager = context.getLimitsManager();
-        this.structureBaseBuilder = context.getStructureBaseBuilder();
+        this.structureBuilder = context.getStructureBuilder();
         this.databaseManager = context.getDatabaseManager();
         this.economyManager = context.getEconomyManager();
         this.commandFactory = context.getCommandFactory();
@@ -444,19 +443,20 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Constructs the {@link AbstractStructure.BaseHolder} for the current structure. This is the same for all
-     * structures.
+     * Constructs the {@link Structure} for the current structure. This is the same for all structures.
      *
-     * @return The {@link AbstractStructure.BaseHolder} for the current structure.
+     * @param component
+     *     The component to use for the structure. Leave null to use the default component.
+     * @return The {@link Structure} for the current structure.
      */
-    protected final synchronized AbstractStructure.BaseHolder constructStructureData()
+    protected final synchronized Structure constructStructureData(@Nullable IStructureComponent component)
     {
         final var owner =
-            new StructureOwner(structureUidPlaceholder, PermissionLevel.CREATOR, getPlayer().getPlayerData());
+            new StructureOwner(structureID.getId(), PermissionLevel.CREATOR, getPlayer().getPlayerData());
 
-        return structureBaseBuilder
-            .builder()
-            .uid(structureUidPlaceholder)
+        return structureBuilder
+            .builder(structureType, component)
+            .uid(structureID)
             .name(Util.requireNonNull(name, "Name"))
             .cuboid(Util.requireNonNull(cuboid, "cuboid"))
             .powerBlock(Util.requireNonNull(powerblock, "powerblock"))
@@ -471,6 +471,12 @@ public abstract class Creator extends ToolUser
 
     protected synchronized void showPreview()
     {
+        if (structureAnimationRequestBuilder == null)
+        {
+            log.atWarning().log("No StructureAnimationRequestBuilder available for Creator '%s'", this);
+            return;
+        }
+
         structureAnimationRequestBuilder
             .builder()
             .structure(constructStructure())
@@ -513,7 +519,7 @@ public abstract class Creator extends ToolUser
         removeTool();
         if (super.isActive())
             insertStructure(constructStructure());
-        structureActivityManager.stopAnimators(this.structureUidPlaceholder);
+        structureActivityManager.stopAnimators(this.structureID.getId());
         return true;
     }
 
@@ -533,8 +539,9 @@ public abstract class Creator extends ToolUser
      */
     protected final void giveTool(String nameKey, String loreKey)
     {
-        super.giveTool(nameKey, loreKey, textFactory.newText().append(
-            localizer.getMessage("creator.base.received_tool"), TextType.INFO, getStructureArg()));
+        super.giveTool(
+            nameKey, loreKey, textFactory.newText().append(
+                localizer.getMessage("creator.base.received_tool"), TextType.INFO, getStructureArg()));
     }
 
     /**
@@ -682,7 +689,8 @@ public abstract class Creator extends ToolUser
     {
         if (!confirm)
         {
-            getPlayer().sendMessage(textFactory, TextType.INFO,
+            getPlayer().sendMessage(
+                textFactory, TextType.INFO,
                 localizer.getMessage("creator.base.error.creation_cancelled"));
             abort();
             return true;
@@ -746,7 +754,10 @@ public abstract class Creator extends ToolUser
      *
      * @return The newly-created structure.
      */
-    protected abstract AbstractStructure constructStructure();
+    protected Structure constructStructure()
+    {
+        return constructStructureData(null);
+    }
 
     /**
      * Verifies that the world of the selected location matches the world that this structure is being created in.
@@ -773,7 +784,7 @@ public abstract class Creator extends ToolUser
      * @param structure
      *     The structure to send to the {@link DatabaseManager}.
      */
-    protected void insertStructure(AbstractStructure structure)
+    protected void insertStructure(Structure structure)
     {
         databaseManager
             .addStructure(structure, getPlayer())
@@ -840,7 +851,7 @@ public abstract class Creator extends ToolUser
     /**
      * Gets the list of valid open directions for this type. It returns a subset of
      * {@link StructureType#getValidMovementDirections()} based on the current physical aspects of the
-     * {@link AbstractStructure}.
+     * {@link Structure}.
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
@@ -893,8 +904,8 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Attempts to complete the step in the {@link Procedure} that sets the second position of the
-     * {@link AbstractStructure} that is being created.
+     * Attempts to complete the step in the {@link Procedure} that sets the second position of the {@link Structure}
+     * that is being created.
      *
      * @param loc
      *     The selected location of the rotation point.
@@ -922,7 +933,7 @@ public abstract class Creator extends ToolUser
 
     /**
      * Attempts to complete the step in the {@link Procedure} that sets the location of the rotation point for the
-     * {@link AbstractStructure} that is being created.
+     * {@link Structure} that is being created.
      *
      * @param loc
      *     The selected location of the rotation point.
@@ -1137,7 +1148,6 @@ public abstract class Creator extends ToolUser
      * @return True if the process is in a state where is may be updated outside the normal execution order, false
      * otherwise.
      */
-    @SuppressWarnings("unused") // It is used by the generated toString method.
     protected final synchronized boolean isProcessIsUpdatable()
     {
         return this.processIsUpdatable;
@@ -1152,7 +1162,6 @@ public abstract class Creator extends ToolUser
      * @param cuboid
      *     The cuboid of the structure that is to be created.
      */
-    @SuppressWarnings("unused")
     protected final synchronized void setCuboid(Cuboid cuboid)
     {
         this.cuboid = cuboid;
@@ -1167,7 +1176,6 @@ public abstract class Creator extends ToolUser
      * @param powerblock
      *     The power block of the structure that is to be created.
      */
-    @SuppressWarnings("unused")
     protected final synchronized void setPowerblock(Vector3Di powerblock)
     {
         this.powerblock = powerblock;
@@ -1182,7 +1190,6 @@ public abstract class Creator extends ToolUser
      * @param movementDirection
      *     The movement direction of the structure that is to be created.
      */
-    @SuppressWarnings("unused")
     protected final synchronized void setMovementDirection(MovementDirection movementDirection)
     {
         this.movementDirection = movementDirection;
@@ -1197,7 +1204,6 @@ public abstract class Creator extends ToolUser
      * @param world
      *     The world in which the structure that is to be created is located.
      */
-    @SuppressWarnings("unused")
     protected final synchronized void setWorld(IWorld world)
     {
         this.world = world;
@@ -1226,9 +1232,20 @@ public abstract class Creator extends ToolUser
      * @param locked
      *     True if the structure that is to be created is locked, false otherwise.
      */
-    @SuppressWarnings("unused")
     protected final synchronized void setLocked(boolean locked)
     {
         isLocked = locked;
+    }
+
+    /**
+     * Gets the unregistered UID of the structure.
+     * <p>
+     * This is a unique ID that is used to identify the structure before it is registered in the database.
+     *
+     * @return The unregistered UID of the structure.
+     */
+    public final long getUnregisteredUID()
+    {
+        return structureID.getId();
     }
 }

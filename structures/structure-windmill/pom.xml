@@ -4,7 +4,7 @@
 
     <artifactId>structure-windmill</artifactId>
     <packaging>jar</packaging>
-    <version>1</version>
+    <version>10</version>
 
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
@@ -15,9 +15,9 @@
     <properties>
         <mainClass>nl.pim16aap2.animatedarchitecture.structures.windmill.StructureTypeWindmill</mainClass>
         <typeName>Windmill</typeName>
-        <version>1</version>
-        <supportedApiVersions>1.*</supportedApiVersions>
-        <TypeDependencies>animatedarchitecture:drawbridge(1;2)</TypeDependencies>
+        <typeVersion>${project.version}</typeVersion>
+        <supportedApiVersions>2.*</supportedApiVersions>
+        <TypeDependencies>animatedarchitecture:drawbridge(10;10)</TypeDependencies>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
     </properties>
 
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>structure-drawbridge</artifactId>
-            <version>1</version>
+            <version>10</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

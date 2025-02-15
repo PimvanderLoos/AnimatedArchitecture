@@ -6,7 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructureEventToggleStart;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import org.bukkit.event.HandlerList;
@@ -24,7 +24,7 @@ public class StructureEventToggleStart extends StructureToggleEvent implements I
     private final Cuboid newCuboid;
 
     @Getter
-    private final AbstractStructure structure;
+    private final Structure structure;
 
     /**
      * Constructs a structure action event.
@@ -48,7 +48,7 @@ public class StructureEventToggleStart extends StructureToggleEvent implements I
      *     The {@link Cuboid} representing the area the structure will take up after the toggle.
      */
     public StructureEventToggleStart(
-        AbstractStructure structure,
+        Structure structure,
         StructureSnapshot snapshot,
         StructureActionCause cause,
         StructureActionType actionType,

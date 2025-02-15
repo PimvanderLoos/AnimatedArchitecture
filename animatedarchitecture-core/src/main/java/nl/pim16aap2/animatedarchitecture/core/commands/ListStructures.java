@@ -6,7 +6,7 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -44,7 +44,7 @@ public class ListStructures extends BaseCommand
     @Override
     protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        final CompletableFuture<List<AbstractStructure>> structures;
+        final CompletableFuture<List<Structure>> structures;
         if (permissions.hasAdminPermission() || !getCommandSender().isPlayer())
             structures = structureRetriever.getStructures();
         else
@@ -53,7 +53,7 @@ public class ListStructures extends BaseCommand
         return structures.thenAccept(this::sendStructureList);
     }
 
-    private void sendStructureList(List<AbstractStructure> structures)
+    private void sendStructureList(List<Structure> structures)
     {
         if (structures.isEmpty())
         {
@@ -83,7 +83,7 @@ public class ListStructures extends BaseCommand
          *     <p>
          *     This is also the entity that will be informed about the structures that were found.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing any number of {@link AbstractStructure}s.
+         *     A {@link StructureRetrieverFactory} representing any number of {@link Structure}s.
          * @return See {@link BaseCommand#run()}.
          */
         ListStructures newListStructures(ICommandSender commandSender, StructureRetriever structureRetriever);

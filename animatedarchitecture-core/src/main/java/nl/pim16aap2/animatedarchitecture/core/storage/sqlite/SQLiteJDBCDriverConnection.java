@@ -23,15 +23,15 @@ import nl.pim16aap2.animatedarchitecture.core.storage.FlywayManager;
 import nl.pim16aap2.animatedarchitecture.core.storage.IDataSourceInfo;
 import nl.pim16aap2.animatedarchitecture.core.storage.IStorage;
 import nl.pim16aap2.animatedarchitecture.core.storage.SQLStatement;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureSerializer;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSerializer;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
@@ -89,7 +89,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Getter
     private volatile DatabaseState databaseState;
 
-    private final StructureBaseBuilder structureBaseBuilder;
+    private final StructureBuilder structureBuilder;
 
     private final StructureRegistry structureRegistry;
 
@@ -101,14 +101,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     public SQLiteJDBCDriverConnection(
         DataSourceInfoSQLite dataSourceInfo,
         FlywayManager flywayManager,
-        StructureBaseBuilder structureBaseBuilder,
+        StructureBuilder structureBuilder,
         StructureRegistry structureRegistry,
         StructureTypeManager structureTypeManager,
         IWorldFactory worldFactory,
         DebuggableRegistry debuggableRegistry)
     {
         this.dataSourceInfo = dataSourceInfo;
-        this.structureBaseBuilder = structureBaseBuilder;
+        this.structureBuilder = structureBuilder;
         this.structureRegistry = structureRegistry;
         this.structureTypeManager = structureTypeManager;
         this.worldFactory = worldFactory;
@@ -226,81 +226,84 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return getConnection(DatabaseState.OK);
     }
 
-    private Optional<AbstractStructure> constructStructure(ResultSet structureBaseRS)
+    private Optional<Structure> constructStructure(ResultSet structureRS)
         throws Exception
     {
-        final @Nullable String structureTypeResult = structureBaseRS.getString("type");
-        final Optional<StructureType> structureType = structureTypeManager.getFromFullName(structureTypeResult);
+        final @Nullable String structureTypeResult = structureRS.getString("type");
+        final Optional<StructureType> structureTypeOpt = structureTypeManager.getFromFullName(structureTypeResult);
 
-        if (!structureType.map(structureTypeManager::isRegistered).orElse(false))
+        if (!structureTypeOpt.map(structureTypeManager::isRegistered).orElse(false))
         {
             log.atSevere().withStackTrace(StackSize.FULL).log(
                 "Type with ID: '%s' has not been registered (yet)!", structureTypeResult);
             return Optional.empty();
         }
 
-        final long structureUID = structureBaseRS.getLong("id");
+        final long structureUID = structureRS.getLong("id");
 
-        // SonarLint assumes that structureType could be empty (S3655) (appears to miss the mapping operation above),
-        // while this actually won't happen.
-        @SuppressWarnings("squid:S3655") //
-        final StructureSerializer<?> serializer = structureType.get().getStructureSerializer();
-
-        final Optional<AbstractStructure> registeredStructure = structureRegistry.getRegisteredStructure(structureUID);
+        final Optional<Structure> registeredStructure = structureRegistry.getRegisteredStructure(structureUID);
         if (registeredStructure.isPresent())
             return registeredStructure;
 
+        final StructureType structureType = structureTypeOpt.orElseThrow();
+
         final Optional<MovementDirection> animationDirection =
-            Optional.ofNullable(MovementDirection.valueOf(structureBaseRS.getInt("animationDirection")));
+            Optional.ofNullable(MovementDirection.valueOf(structureRS.getInt("animationDirection")));
 
         if (animationDirection.isEmpty())
             return Optional.empty();
 
         final Vector3Di min = new Vector3Di(
-            structureBaseRS.getInt("xMin"),
-            structureBaseRS.getInt("yMin"),
-            structureBaseRS.getInt("zMin")
+            structureRS.getInt("xMin"),
+            structureRS.getInt("yMin"),
+            structureRS.getInt("zMin")
         );
         final Vector3Di max = new Vector3Di(
-            structureBaseRS.getInt("xMax"),
-            structureBaseRS.getInt("yMax"),
-            structureBaseRS.getInt("zMax")
+            structureRS.getInt("xMax"),
+            structureRS.getInt("yMax"),
+            structureRS.getInt("zMax")
         );
         final Vector3Di powerBlock = new Vector3Di(
-            structureBaseRS.getInt("powerBlockX"),
-            structureBaseRS.getInt("powerBlockY"),
-            structureBaseRS.getInt("powerBlockZ")
+            structureRS.getInt("powerBlockX"),
+            structureRS.getInt("powerBlockY"),
+            structureRS.getInt("powerBlockZ")
         );
 
-        final IWorld world = worldFactory.create(structureBaseRS.getString("world"));
+        final IWorld world = worldFactory.create(structureRS.getString("world"));
 
-        final long bitflag = structureBaseRS.getLong("bitflag");
+        final long bitflag = structureRS.getLong("bitflag");
         final boolean isLocked = IBitFlag.hasFlag(StructureFlag.getFlagValue(StructureFlag.IS_LOCKED), bitflag);
 
-        final String name = structureBaseRS.getString("name");
+        final String name = structureRS.getString("name");
 
         final PlayerData playerData = new PlayerData(
-            UUID.fromString(structureBaseRS.getString("playerUUID")),
-            structureBaseRS.getString("playerName"),
+            UUID.fromString(structureRS.getString("playerUUID")),
+            structureRS.getString("playerName"),
             new LimitContainer(
-                getOptionalInt(structureBaseRS, "limitStructureSize"),
-                getOptionalInt(structureBaseRS, "limitStructureCount"),
-                getOptionalInt(structureBaseRS, "limitPowerBlockDistance"),
-                getOptionalInt(structureBaseRS, "limitBlocksToMove")),
-            structureBaseRS.getLong("permissions")
+                getOptionalInt(structureRS, "limitStructureSize"),
+                getOptionalInt(structureRS, "limitStructureCount"),
+                getOptionalInt(structureRS, "limitPowerBlockDistance"),
+                getOptionalInt(structureRS, "limitBlocksToMove")),
+            structureRS.getLong("permissions")
         );
 
         final StructureOwner primeOwner = new StructureOwner(
             structureUID,
-            Objects.requireNonNull(PermissionLevel.fromValue(structureBaseRS.getInt("permission"))),
+            Objects.requireNonNull(PermissionLevel.fromValue(structureRS.getInt("permission"))),
             playerData
         );
 
+        // TODO: Use the type version to upgrade structures if necessary.
+        // final int typeVersion = structureRS.getInt("typeVersion");
+
+        final String rawProperties = structureRS.getString("properties");
+        final PropertyContainer properties = PropertyContainerSerializer.deserialize(structureType, rawProperties);
+
         final Map<UUID, StructureOwner> ownersOfStructure = getOwnersOfStructure(structureUID);
-        final var structureData =
-            structureBaseBuilder
-                .builder()
-                .uid(structureUID)
+        final Structure structure =
+            structureBuilder
+                .builder(structureType)
+                .uid(AssignedUIDSqlite.getAssignedUID(structureUID))
                 .name(name)
                 .cuboid(new Cuboid(min, max))
                 .powerBlock(powerBlock)
@@ -308,20 +311,17 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .isLocked(isLocked)
                 .openDir(animationDirection.get())
                 .primeOwner(primeOwner)
-                .ownersOfStructure(ownersOfStructure);
+                .ownersOfStructure(ownersOfStructure)
+                .propertiesOfStructure(properties)
+                .build();
 
-        final String rawTypeData = structureBaseRS.getString("typeData");
-        final String rawProperties = structureBaseRS.getString("properties");
-        final int typeVersion = structureBaseRS.getInt("typeVersion");
+        final Optional<Structure> registered = structureRegistry.putIfAbsent(structure);
+        // If the UID was not already registered, we return the now-registered structure we just created.
+        if (registered.isEmpty())
+            return Optional.of(structure);
 
-        return Optional.of(
-            serializer.deserialize(
-                structureRegistry,
-                structureData,
-                typeVersion,
-                rawTypeData,
-                rawProperties
-            ));
+        // If the UID was registered since last we checked, we discard the new structure and return the registered one.
+        return registered;
     }
 
     @Override
@@ -344,9 +344,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Write
     private Long insert(
         Connection conn,
-        AbstractStructure structure,
+        Structure structure,
         StructureType structureType,
-        String typeSpecificData,
         String propertiesData)
     {
         final PlayerData playerData = structure.getPrimeOwner().playerData();
@@ -371,11 +370,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .setNextInt(structure.getPowerBlock().y())
                 .setNextInt(structure.getPowerBlock().z())
                 .setNextLong(LocationUtil.getChunkId(structure.getPowerBlock()))
-                .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
+                .setNextInt(MovementDirection.getValue(structure.getOpenDirection()))
                 .setNextLong(getFlag(structure))
                 .setNextString(structureType.getFullKey())
                 .setNextInt(structureType.getVersion())
-                .setNextString(typeSpecificData)
                 .setNextString(propertiesData),
             resultSet ->
             {
@@ -406,39 +404,47 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Write
-    public Optional<AbstractStructure> insert(AbstractStructure structure)
+    public Optional<Structure> insert(Structure structure)
     {
-        final StructureSerializer<?> serializer = structure.getType().getStructureSerializer();
-
         try
         {
-            final String typeData = serializer.serializeTypeData(structure);
             final String properties = PropertyContainerSerializer.serialize(structure);
 
             final long structureUID = executeTransaction(
-                conn -> insert(conn, structure, structure.getType(), typeData, properties),
+                conn -> insert(conn, structure, structure.getType(), properties),
                 -1L
             );
 
             if (structureUID > 0)
             {
-                return Optional.of(serializer.deserialize(
-                    structureRegistry,
-                    structureBaseBuilder
-                        .builder()
-                        .uid(structureUID)
-                        .name(structure.getName())
-                        .cuboid(structure.getCuboid())
-                        .powerBlock(structure.getPowerBlock())
-                        .world(structure.getWorld())
-                        .isLocked(structure.isLocked())
-                        .openDir(structure.getOpenDir())
-                        .primeOwner(remapStructureOwner(structure.getPrimeOwner(), structureUID))
-                        .ownersOfStructure(remapStructureOwners(structure.getOwners(), structureUID)),
-                    structure.getType().getVersion(),
-                    typeData,
-                    properties)
-                );
+                final Structure recreated = structureBuilder
+                    .builder(structure.getType())
+                    .uid(AssignedUIDSqlite.getAssignedUID(structureUID))
+                    .name(structure.getName())
+                    .cuboid(structure.getCuboid())
+                    .powerBlock(structure.getPowerBlock())
+                    .world(structure.getWorld())
+                    .isLocked(structure.isLocked())
+                    .openDir(structure.getOpenDirection())
+                    .primeOwner(remapStructureOwner(structure.getPrimeOwner(), structureUID))
+                    .ownersOfStructure(remapStructureOwners(structure.getOwners(), structureUID))
+                    .propertiesOfStructure(structure.getPropertyContainerSnapshot())
+                    .build();
+
+                final Optional<Structure> registered = structureRegistry.putIfAbsent(recreated);
+                if (registered.isEmpty())
+                    return Optional.of(recreated);
+
+                throw new IllegalStateException(String.format(
+                    """
+                        Structure with UID: '%d' was already registered while creating a new structure!
+                        Registered structure: %s
+                        New structure:        %s
+                        """,
+                    structureUID,
+                    registered,
+                    recreated
+                ));
             }
         }
         catch (Exception t)
@@ -484,7 +490,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Write
-    public boolean syncStructureData(IStructureConst structure, String typeData)
+    public boolean syncStructureData(IStructureConst structure)
     {
         final String serializedProperties = PropertyContainerSerializer.serialize(structure);
 
@@ -508,10 +514,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             .setNextInt(structure.getPowerBlock().z())
             .setNextLong(LocationUtil.getChunkId(structure.getPowerBlock()))
 
-            .setNextInt(MovementDirection.getValue(structure.getOpenDir()))
+            .setNextInt(MovementDirection.getValue(structure.getOpenDirection()))
             .setNextLong(getFlag(structure))
             .setNextInt(structure.getType().getVersion())
-            .setNextString(typeData)
             .setNextString(serializedProperties)
 
             .setNextLong(structure.getUid())) > 0;
@@ -624,55 +629,55 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     /**
-     * Attempts to construct a subclass of {@link AbstractStructure} from a ResultSet containing all data pertaining the
-     * {@link AbstractStructure} (as stored in the "structureBase" table), as well as the owner (name, UUID, permission)
-     * and the typeTableName.
+     * Attempts to construct a subclass of {@link Structure} from a ResultSet containing all data pertaining the
+     * {@link Structure} (as stored in the "Structure" table), as well as the owner (name, UUID, permission) and the
+     * typeTableName.
      *
-     * @param structureBaseRS
-     *     The {@link ResultSet} containing a row from the "structureBase" table as well as a row from the
+     * @param structureRS
+     *     The {@link ResultSet} containing a row from the "Structure" table as well as a row from the
      *     "StructureOwnerPlayer" table.
-     * @return An instance of a subclass of {@link AbstractStructure} if it could be created.
+     * @return An instance of a subclass of {@link Structure} if it could be created.
      */
     @Locked.Read
-    private Optional<AbstractStructure> getStructure(ResultSet structureBaseRS)
+    private Optional<Structure> getStructure(ResultSet structureRS)
         throws Exception
     {
         // Make sure the ResultSet isn't empty.
-        if (!structureBaseRS.isBeforeFirst())
+        if (!structureRS.isBeforeFirst())
             return Optional.empty();
 
-        return constructStructure(structureBaseRS);
+        return constructStructure(structureRS);
     }
 
     /**
-     * Attempts to construct a list of subclasses of {@link AbstractStructure} from a ResultSet containing all data
-     * pertaining to one or more {@link AbstractStructure}s (as stored in the "structureBase" table), as well as the
-     * owner (name, UUID, permission) and the typeTableName.
+     * Attempts to construct a list of subclasses of {@link Structure} from a ResultSet containing all data pertaining
+     * to one or more {@link Structure}s (as stored in the "Structure" table), as well as the owner (name, UUID,
+     * permission) and the typeTableName.
      *
-     * @param structureBaseRS
-     *     The {@link ResultSet} containing one or more rows from the "structureBase" table as well as matching rows
-     *     from the "StructureOwnerPlayer" table.
-     * @return An optional with a list of {@link AbstractStructure}s if any could be constructed. If none could be
-     * constructed, an empty {@link Optional} is returned instead.
+     * @param structureRS
+     *     The {@link ResultSet} containing one or more rows from the "Structure" table as well as matching rows from
+     *     the "StructureOwnerPlayer" table.
+     * @return An optional with a list of {@link Structure}s if any could be constructed. If none could be constructed,
+     * an empty {@link Optional} is returned instead.
      */
-    private List<AbstractStructure> getStructures(ResultSet structureBaseRS)
+    private List<Structure> getStructures(ResultSet structureRS)
         throws Exception
     {
         // Make sure the ResultSet isn't empty.
-        if (!structureBaseRS.isBeforeFirst())
+        if (!structureRS.isBeforeFirst())
             return Collections.emptyList();
 
-        final List<AbstractStructure> structures = new ArrayList<>();
+        final List<Structure> structures = new ArrayList<>();
 
-        while (structureBaseRS.next())
-            constructStructure(structureBaseRS).ifPresent(structures::add);
+        while (structureRS.next())
+            constructStructure(structureRS).ifPresent(structures::add);
 
         return structures;
     }
 
     @Override
     @Locked.Read
-    public Optional<AbstractStructure> getStructure(long structureUID)
+    public Optional<Structure> getStructure(long structureUID)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURE_BASE_FROM_ID
@@ -685,7 +690,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public Optional<AbstractStructure> getStructure(UUID playerUUID, long structureUID)
+    public Optional<Structure> getStructure(UUID playerUUID, long structureUID)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURE_BASE_FROM_ID_FOR_PLAYER
@@ -784,7 +789,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructures(UUID playerUUID, String structureName, PermissionLevel maxPermission)
+    public List<Structure> getStructures(UUID playerUUID, String structureName, PermissionLevel maxPermission)
     {
         return executeQuery(
             SQLStatement.GET_NAMED_STRUCTURES_OWNED_BY_PLAYER
@@ -799,14 +804,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructures(UUID playerUUID, String name)
+    public List<Structure> getStructures(UUID playerUUID, String name)
     {
         return getStructures(playerUUID, name, PermissionLevel.CREATOR);
     }
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructures(String name)
+    public List<Structure> getStructures(String name)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURES_WITH_NAME
@@ -819,7 +824,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructures(UUID playerUUID, PermissionLevel maxPermission)
+    public List<Structure> getStructures(UUID playerUUID, PermissionLevel maxPermission)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURES_OWNED_BY_PLAYER_WITH_LEVEL
@@ -833,14 +838,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructures(UUID playerUUID)
+    public List<Structure> getStructures(UUID playerUUID)
     {
         return getStructures(playerUUID, PermissionLevel.CREATOR);
     }
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructuresOfType(String typeName)
+    public List<Structure> getStructuresOfType(String typeName)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURES_OF_TYPE
@@ -853,7 +858,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructuresOfType(String typeName, int version)
+    public List<Structure> getStructuresOfType(String typeName, int version)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURES_OF_VERSIONED_TYPE
@@ -961,7 +966,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     @Override
     @Locked.Read
-    public List<AbstractStructure> getStructuresInChunk(long chunkId)
+    public List<Structure> getStructuresInChunk(long chunkId)
     {
         return executeQuery(
             SQLStatement.GET_STRUCTURES_IN_CHUNK

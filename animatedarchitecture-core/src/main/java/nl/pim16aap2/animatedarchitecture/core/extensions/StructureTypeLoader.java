@@ -52,7 +52,7 @@ public final class StructureTypeLoader extends Restartable
      * <p>
      * This version is used to check if an extension is compatible with the current API version.
      */
-    public static final Semver CURRENT_EXTENSION_API_VERSION = Semver.of(1, 0, 0);
+    public static final Semver CURRENT_EXTENSION_API_VERSION = Semver.of(2, 0, 0);
 
     /**
      * The title of the section in the manifest that contains the structure type metadata.

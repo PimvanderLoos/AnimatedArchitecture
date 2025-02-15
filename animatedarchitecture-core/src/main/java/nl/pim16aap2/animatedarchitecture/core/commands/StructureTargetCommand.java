@@ -9,8 +9,9 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
@@ -19,6 +20,9 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -43,14 +47,14 @@ public abstract class StructureTargetCommand extends BaseCommand
      * The result of the {@link #structureRetriever}.
      * <p>
      * This will not be available until after {@link #executeCommand(PermissionsStatus)} has started, but before
-     * {@link #performAction(AbstractStructure)} is called.
+     * {@link #performAction(Structure)} is called.
      * <p>
      * Even after the result has been set, it may still be null in case no doors were found.
      */
     @Getter(onMethod_ = @Locked.Read)
     @Setter(onMethod_ = @Locked.Write)
     @GuardedBy("$lock")
-    private @Nullable AbstractStructure retrieverResult;
+    private @Nullable Structure retrieverResult;
 
     @Contract("_, _, _, _, _, true, null -> fail")
     protected StructureTargetCommand(
@@ -104,7 +108,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      * @param structure
      *     The structure to send the updated info of.
      */
-    protected void sendUpdatedInfo(AbstractStructure structure)
+    protected void sendUpdatedInfo(Structure structure)
     {
         if (sendUpdatedInfo)
             Util.requireNonNull(commandFactory, "CommandFactor")
@@ -119,7 +123,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      * @param permissions
      *     Whether the ICommandSender has user and/or admin permissions.
      */
-    private void processStructureResult(Optional<AbstractStructure> structure, PermissionsStatus permissions)
+    private void processStructureResult(Optional<Structure> structure, PermissionsStatus permissions)
     {
         if (structure.isEmpty())
         {
@@ -145,6 +149,18 @@ public abstract class StructureTargetCommand extends BaseCommand
             return;
         }
 
+        if (!hasRequiredProperties(structure.get(), getRequiredProperties()))
+        {
+            log.atFine().log(
+                "Structure %s does not have required properties '%s' for command %s",
+                structure.get(),
+                getRequiredProperties(),
+                this
+            );
+            notifyMissingProperties(structure.get());
+            return;
+        }
+
         try
         {
             performAction(structure.get()).get(5, TimeUnit.MINUTES);
@@ -156,27 +172,61 @@ public abstract class StructureTargetCommand extends BaseCommand
     }
 
     /**
-     * Checks if execution of this command is allowed for the given {@link AbstractStructure}.
+     * Notifies the {@link ICommandSender} that the targeted {@link Structure} is missing required properties.
      *
      * @param structure
-     *     The {@link AbstractStructure} that is the target for this command.
+     *     The {@link Structure} that is missing the required properties.
+     */
+    protected void notifyMissingProperties(Structure structure)
+    {
+
+        getCommandSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.structure_target_command.base.error.missing_properties"),
+                TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure)),
+                arg -> arg.highlight(getRequiredProperties())
+            )
+        );
+    }
+
+    /**
+     * Checks if execution of this command is allowed for the given {@link Structure}.
+     *
+     * @param structure
+     *     The {@link Structure} that is the target for this command.
      * @param bypassPermission
      *     Whether the {@link ICommandSender} has bypass access.
      * @return True if execution of this command is allowed.
      */
-    protected boolean isAllowed(AbstractStructure structure, boolean bypassPermission)
+    protected boolean isAllowed(Structure structure, boolean bypassPermission)
     {
         return hasAccessToAttribute(structure, structureAttribute, bypassPermission);
     }
 
     /**
-     * Performs the action of this command on the {@link AbstractStructure}.
+     * Checks if the {@link Structure} has all the required properties.
+     * <p>
+     * See {@link Structure#hasProperties(Collection)}.
      *
      * @param structure
-     *     The {@link AbstractStructure} to perform the action on.
+     *     The {@link Structure} to check.
+     * @param requiredProperties
+     *     The required properties.
+     * @return True if the {@link Structure} has all the required properties.
+     */
+    protected boolean hasRequiredProperties(Structure structure, List<Property<?>> requiredProperties)
+    {
+        return requiredProperties.isEmpty() || structure.hasProperties(getRequiredProperties());
+    }
+
+    /**
+     * Performs the action of this command on the {@link Structure}.
+     *
+     * @param structure
+     *     The {@link Structure} to perform the action on.
      * @return The future of the command execution.
      */
-    protected abstract CompletableFuture<?> performAction(AbstractStructure structure);
+    protected abstract CompletableFuture<?> performAction(Structure structure);
 
     /**
      * @return The structure description of the {@link #retrieverResult}.
@@ -186,6 +236,19 @@ public abstract class StructureTargetCommand extends BaseCommand
         return StructureDescription.of(localizer, getRetrieverResult());
     }
 
+    /**
+     * Gets all required properties for this command.
+     * <p>
+     * If targeted structure does not have all required properties, the command will not be executed.
+     * <p>
+     * By default, this returns an empty list. Subclasses that require specific properties should override this method.
+     *
+     * @return A list of all required properties.
+     */
+    protected List<Property<?>> getRequiredProperties()
+    {
+        return Collections.emptyList();
+    }
 
     /**
      * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult)} when the database action was
@@ -248,7 +311,7 @@ public abstract class StructureTargetCommand extends BaseCommand
     {
         private static final StructureDescription EMPTY_DESCRIPTION = new StructureDescription("Structure", "null");
 
-        private static StructureDescription of(ILocalizer localizer, @Nullable AbstractStructure structure)
+        private static StructureDescription of(ILocalizer localizer, @Nullable Structure structure)
         {
             if (structure != null)
                 return new StructureDescription(

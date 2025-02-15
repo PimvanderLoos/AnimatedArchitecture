@@ -11,7 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.util.LazyValue;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -59,7 +58,7 @@ public abstract class StructureType implements IKeyed
 
     /**
      * Gets a set of all theoretically valid {@link MovementDirection} for this given type. It does NOT take the
-     * physical aspects of the {@link AbstractStructure} into consideration. Therefore, the actual set of valid
+     * physical aspects of the {@link Structure} into consideration. Therefore, the actual set of valid
      * {@link MovementDirection}s is most likely going to be a subset of those returned by this method.
      *
      * @return A set of all valid {@link MovementDirection} for this given type.
@@ -69,7 +68,7 @@ public abstract class StructureType implements IKeyed
 
     /**
      * Gets a list of all theoretically valid {@link MovementDirection} for this given type. It does NOT take the
-     * physical aspects of the {@link AbstractStructure} into consideration. Therefore, the actual list of valid
+     * physical aspects of the {@link Structure} into consideration. Therefore, the actual list of valid
      * {@link MovementDirection}s is most likely going to be a subset of those returned by this method.
      *
      * @return A list of all valid {@link MovementDirection} for this given type.
@@ -84,8 +83,6 @@ public abstract class StructureType implements IKeyed
      */
     @Getter
     private final List<Property<?>> properties;
-
-    private final LazyValue<StructureSerializer<?>> lazyStructureSerializer;
 
     /**
      * Constructs a new {@link StructureType}. Don't forget to also register it using
@@ -103,7 +100,7 @@ public abstract class StructureType implements IKeyed
      *     <p>
      *     This is used for serialization purposes. If you change the structure in a way that makes it incompatible with
      *     the previous version, you should increase this number. This will allow you to handle the transition between
-     *     the old and new version. See {@link StructureSerializer} for more information.
+     *     the old and new version.
      * @param validMovementDirections
      *     The valid movement directions for this structure.
      * @param supportedProperties
@@ -130,8 +127,6 @@ public abstract class StructureType implements IKeyed
         this.properties = List.copyOf(supportedProperties);
         this.localizationKey = localizationKey;
         this.fullNameWithVersion = this.getFullKey() + ":" + version;
-
-        lazyStructureSerializer = new LazyValue<>(() -> new StructureSerializer<>(this));
     }
 
     /**
@@ -156,7 +151,7 @@ public abstract class StructureType implements IKeyed
      *     <p>
      *     This is used for serialization purposes. If you change the structure in a way that makes it incompatible with
      *     the previous version, you should increase this number. This will allow you to handle the transition between
-     *     the old and new version. See {@link StructureSerializer} for more information.
+     *     the old and new version.
      * @param validMovementDirections
      *     The valid movement directions for this structure.
      * @param supportedProperties
@@ -181,6 +176,13 @@ public abstract class StructureType implements IKeyed
             localizationKey
         );
     }
+
+    /**
+     * Constructs a new {@link IStructureComponent} for this type.
+     *
+     * @return A new {@link IStructureComponent} for this type.
+     */
+    public abstract IStructureComponent newComponent();
 
     /**
      * Gets the simple name of the {@link StructureType}.
@@ -212,16 +214,6 @@ public abstract class StructureType implements IKeyed
     }
 
     /**
-     * Gets the {@link StructureSerializer} for this type.
-     *
-     * @return The {@link StructureSerializer}.
-     */
-    public final StructureSerializer<?> getStructureSerializer()
-    {
-        return lazyStructureSerializer.get();
-    }
-
-    /**
      * Checks if a given {@link MovementDirection} is valid for this type.
      *
      * @param movementDirection
@@ -232,13 +224,6 @@ public abstract class StructureType implements IKeyed
     {
         return validMovementDirections.contains(movementDirection);
     }
-
-    /**
-     * Gets the main structure class of the type.
-     *
-     * @return THe class of the structure.
-     */
-    public abstract Class<? extends AbstractStructure> getStructureClass();
 
     /**
      * Creates (and registers) a new {@link Creator} for this type.

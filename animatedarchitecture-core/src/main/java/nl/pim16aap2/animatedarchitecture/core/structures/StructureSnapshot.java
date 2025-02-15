@@ -11,7 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
@@ -35,22 +34,23 @@ public final class StructureSnapshot implements IStructureConst
     private final long uid;
     private final IWorld world;
     private final Rectangle animationRange;
-    private Vector3Di powerBlock;
-    private String name;
-    private Cuboid cuboid;
-    private MovementDirection openDir;
-    private boolean isLocked;
+    private final Vector3Di powerBlock;
+    private final String name;
+    private final Cuboid cuboid;
+    private final MovementDirection openDirection;
+    private final boolean isLocked;
     private final StructureOwner primeOwner;
     private final Map<UUID, StructureOwner> ownersMap;
     private final StructureType type;
+    private final MovementDirection cycledOpenDirection;
+    private final double minimumAnimationTime;
+    private final boolean canMovePerpetually;
+
     @Delegate
     @Getter
     private final IPropertyContainerConst propertyContainerSnapshot;
 
-    @Getter(AccessLevel.NONE)
-    private final Map<String, Object> persistentVariableMap;
-
-    StructureSnapshot(AbstractStructure structure)
+    StructureSnapshot(Structure structure)
     {
         this(
             structure.getUid(),
@@ -59,13 +59,15 @@ public final class StructureSnapshot implements IStructureConst
             structure.getPowerBlock(),
             structure.getName(),
             structure.getCuboid(),
-            structure.getOpenDir(),
+            structure.getOpenDirection(),
             structure.isLocked(),
             structure.getPrimeOwner(),
             Map.copyOf(structure.getOwnersView()),
             structure.getType(),
-            structure.getPropertyContainerSnapshot(),
-            getPersistentVariableMap(structure)
+            structure.getCycledOpenDirection(),
+            structure.getMinimumAnimationTime(),
+            structure.canMovePerpetually(),
+            structure.getPropertyContainerSnapshot()
         );
     }
 
@@ -89,6 +91,12 @@ public final class StructureSnapshot implements IStructureConst
     }
 
     @Override
+    public boolean canMovePerpetually()
+    {
+        return canMovePerpetually;
+    }
+
+    @Override
     public Collection<StructureOwner> getOwners()
     {
         return getOwnersMap().values();
@@ -98,39 +106,5 @@ public final class StructureSnapshot implements IStructureConst
     public StructureSnapshot getSnapshot()
     {
         return this;
-    }
-
-    /**
-     * Gets the value of a property of this structure.
-     * <p>
-     * This can be used to retrieve type-specific properties of a structure.
-     *
-     * @param key
-     *     The key of the property.
-     * @return The value of the property, or {@link Optional#empty()} if the property does not exist.
-     */
-    public Optional<Object> getPersistentVariable(String key)
-    {
-        return Optional.ofNullable(persistentVariableMap.get(key));
-    }
-
-    /**
-     * Gets the property map of a structure.
-     *
-     * @param structure
-     *     The structure to get the property map of.
-     * @return The property map of the structure.
-     */
-    @VisibleForTesting
-    public static Map<String, Object> getPersistentVariableMap(AbstractStructure structure)
-    {
-        try
-        {
-            return structure.getType().getStructureSerializer().getPersistentVariableMap(structure);
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 }

@@ -2,7 +2,6 @@ package nl.pim16aap2.animatedarchitecture.structures.drawbridge;
 
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
@@ -69,11 +68,5 @@ public class CreatorDrawbridge extends Creator
     protected synchronized void giveTool()
     {
         giveTool("tool_user.base.stick_name", "creator.draw_bridge.stick_lore");
-    }
-
-    @Override
-    protected synchronized AbstractStructure constructStructure()
-    {
-        return new Drawbridge(constructStructureData());
     }
 }

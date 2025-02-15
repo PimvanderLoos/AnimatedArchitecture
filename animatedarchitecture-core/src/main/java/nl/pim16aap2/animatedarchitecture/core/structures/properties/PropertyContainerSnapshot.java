@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,6 +25,7 @@ import java.util.Spliterator;
 @ThreadSafe
 public final class PropertyContainerSnapshot implements IPropertyHolderConst, IPropertyContainerConst
 {
+    @Getter(AccessLevel.PACKAGE)
     private final Map<String, IPropertyValue<?>> propertyMap;
     private final Set<PropertyValuePair<?>> propertySet;
 

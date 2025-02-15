@@ -41,63 +41,63 @@
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>structure-bigdoor</artifactId>
-            <version>1</version>
+            <version>10</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>structure-clock</artifactId>
-            <version>1</version>
+            <version>10</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>structure-drawbridge</artifactId>
-            <version>1</version>
+            <version>10</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>structure-flag</artifactId>
-            <version>1</version>
+            <version>10</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>structure-garagedoor</artifactId>
-            <version>1</version>
+            <version>10</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>structure-portcullis</artifactId>
-            <version>1</version>
+            <version>10</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>structure-revolvingdoor</artifactId>
-            <version>1</version>
+            <version>10</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>structure-slidingdoor</artifactId>
-            <version>1</version>
+            <version>10</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>structure-windmill</artifactId>
-            <version>1</version>
+            <version>10</version>
             <scope>test</scope>
         </dependency>
 

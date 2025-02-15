@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.junit.jupiter.api.Assertions;
@@ -67,7 +67,7 @@ class StructureAnimationRequestTest
     @Test
     void testIsValidActionTypeNotOpenableToggle()
     {
-        final AbstractStructure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
+        final Structure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
         final var request = newToggleRequest(structure, player, StructureActionType.TOGGLE);
 
         Assertions.assertTrue(request.isValidActionType(structure));
@@ -77,7 +77,7 @@ class StructureAnimationRequestTest
     @Test
     void testIsValidActionTypeNotOpenableOpen()
     {
-        final AbstractStructure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
+        final Structure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
         final var request = newToggleRequest(structure, player, StructureActionType.OPEN);
 
         Assertions.assertFalse(request.isValidActionType(structure));
@@ -89,7 +89,7 @@ class StructureAnimationRequestTest
     @Test
     void testIsValidActionTypeNotOpenableClose()
     {
-        final AbstractStructure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
+        final Structure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
         final var request = newToggleRequest(structure, player, StructureActionType.CLOSE);
 
         Assertions.assertFalse(request.isValidActionType(structure));
@@ -102,12 +102,8 @@ class StructureAnimationRequestTest
     @Test
     void testIsValidActionTypeOpenable()
     {
-        final AbstractStructure structure = Mockito.mock(
-            Mockito
-                .withSettings()
-                .extraInterfaces(IStructureWithOpenStatus.class)
-                .defaultAnswer(Mockito.RETURNS_MOCKS)
-        );
+        final Structure structure = Mockito.mock(Mockito.RETURNS_MOCKS);
+        UnitTestUtil.setPropertyContainerInMockedStructure(structure, Property.OPEN_STATUS);
 
         final var requestToggle = newToggleRequest(structure, player, StructureActionType.TOGGLE);
         Assertions.assertTrue(requestToggle.isValidActionType(structure));
@@ -123,7 +119,7 @@ class StructureAnimationRequestTest
     }
 
     private StructureAnimationRequest newToggleRequest(
-        AbstractStructure structure,
+        Structure structure,
         IPlayer player,
         StructureActionType actionType)
     {

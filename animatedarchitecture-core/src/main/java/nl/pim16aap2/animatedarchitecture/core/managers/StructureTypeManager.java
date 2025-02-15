@@ -197,7 +197,7 @@ public final class StructureTypeManager implements IDebuggable
             return;
         final List<Class<?>> classes = new ArrayList<>(types.size());
         for (final StructureType type : types)
-            classes.add(type.getStructureClass());
+            classes.add(type.getClass());
         this.localizationManager.addResourcesFromClass(classes);
     }
 

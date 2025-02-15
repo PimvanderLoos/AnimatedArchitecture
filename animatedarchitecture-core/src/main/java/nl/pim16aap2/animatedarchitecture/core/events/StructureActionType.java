@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.events;
 
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 
 /**
  * Represents the different kinds of actions that are applicable to a structure.
@@ -8,17 +8,17 @@ import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 public enum StructureActionType
 {
     /**
-     * Open a {@link AbstractStructure} if it is currently open, otherwise close it.
+     * Open a {@link Structure} if it is currently open, otherwise close it.
      */
     TOGGLE,
 
     /**
-     * Open a {@link AbstractStructure}, but only if it is currently closed.
+     * Open a {@link Structure}, but only if it is currently closed.
      */
     OPEN,
 
     /**
-     * Close a {@link AbstractStructure}, but only if it is currently opened.
+     * Close a {@link Structure}, but only if it is currently opened.
      */
     CLOSE
 }

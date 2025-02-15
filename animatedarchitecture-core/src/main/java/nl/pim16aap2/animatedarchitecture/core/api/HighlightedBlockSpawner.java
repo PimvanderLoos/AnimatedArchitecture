@@ -2,16 +2,18 @@ package nl.pim16aap2.animatedarchitecture.core.api;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithRotationPoint;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
+import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -84,16 +86,20 @@ public abstract class HighlightedBlockSpawner
             Color.GOLD
         );
 
-        if (structure instanceof IStructureWithRotationPoint withRotationPoint)
+        final var rotationPointProperty = structure.getPropertyValue(Property.ROTATION_POINT);
+        if (rotationPointProperty.isSet() && rotationPointProperty.value() != null)
+        {
+            final Vector3Di rotationPoint = Objects.requireNonNull(rotationPointProperty.value());
             spawnHighlightedBlock(
                 player,
                 world,
                 duration,
-                withRotationPoint.getRotationPoint().x() + 0.5,
-                withRotationPoint.getRotationPoint().y(),
-                withRotationPoint.getRotationPoint().z() + 0.5,
+                rotationPoint.x() + 0.5,
+                rotationPoint.y(),
+                rotationPoint.z() + 0.5,
                 Color.DARK_PURPLE
             );
+        }
 
         spawnHighlightedBlock(
             player,
@@ -126,14 +132,14 @@ public abstract class HighlightedBlockSpawner
      * @param duration
      *     The amount of time the highlighted blocks should be visible for.
      */
-    public void spawnHighlightedBlocks(AbstractStructure structure, IPlayer player, @Nullable Duration duration)
+    public void spawnHighlightedBlocks(Structure structure, IPlayer player, @Nullable Duration duration)
     {
         getExecutor().runOnMainThread(() -> spawnHighlightedBlocks0(structure, player, duration));
     }
 
     protected abstract IExecutor getExecutor();
 
-    private void spawnHighlightedBlocks0(AbstractStructure structure, IPlayer player, @Nullable Duration duration)
+    private void spawnHighlightedBlocks0(Structure structure, IPlayer player, @Nullable Duration duration)
     {
         spawnHighlightedBlocks((IStructureConst) structure, player, duration);
 

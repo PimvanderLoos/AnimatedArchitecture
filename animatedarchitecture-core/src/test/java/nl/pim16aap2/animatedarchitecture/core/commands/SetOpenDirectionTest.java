@@ -5,7 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -33,7 +33,7 @@ import static nl.pim16aap2.animatedarchitecture.core.commands.CommandTestingUtil
 class SetOpenDirectionTest
 {
     @Mock
-    private AbstractStructure structure;
+    private Structure structure;
 
     @Mock
     private StructureType structureType;
@@ -85,11 +85,11 @@ class SetOpenDirectionTest
 
         Assertions.assertDoesNotThrow(() -> command.performAction(structure).get(1, TimeUnit.SECONDS));
         Mockito.verify(structure, Mockito.never()).syncData();
-        Mockito.verify(structure, Mockito.never()).setOpenDir(movementDirection);
+        Mockito.verify(structure, Mockito.never()).setOpenDirection(movementDirection);
 
         Mockito.when(structureType.isValidOpenDirection(movementDirection)).thenReturn(true);
         Assertions.assertDoesNotThrow(() -> command.performAction(structure).get(1, TimeUnit.SECONDS));
-        Mockito.verify(structure).setOpenDir(movementDirection);
+        Mockito.verify(structure).setOpenDirection(movementDirection);
         Mockito.verify(structure).syncData();
     }
 }

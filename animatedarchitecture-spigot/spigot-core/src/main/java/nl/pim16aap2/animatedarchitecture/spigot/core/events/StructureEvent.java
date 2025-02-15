@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.events;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructureEvent;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -23,7 +23,7 @@ abstract class StructureEvent extends AnimatedArchitectureSpigotEvent implements
      * The structure that is targeted by the event.
      */
     @Getter
-    protected final AbstractStructure structure;
+    protected final Structure structure;
 
     /**
      * The player responsible for the event.
@@ -38,7 +38,7 @@ abstract class StructureEvent extends AnimatedArchitectureSpigotEvent implements
     @Getter
     protected final Optional<IPlayer> responsible;
 
-    protected StructureEvent(AbstractStructure structure, @Nullable IPlayer responsible)
+    protected StructureEvent(Structure structure, @Nullable IPlayer responsible)
     {
         this.structure = structure;
         this.responsible = Optional.ofNullable(responsible);

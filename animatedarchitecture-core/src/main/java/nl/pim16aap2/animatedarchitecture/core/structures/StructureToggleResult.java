@@ -14,22 +14,22 @@ public enum StructureToggleResult
     SUCCESS("constants.structure_toggle_result.success"),
 
     /**
-     * No {@link StructureBase}s were found, so none were toggled.
+     * No {@link Structure}s were found, so none were toggled.
      */
     NO_STRUCTURES_FOUND("constants.structure_toggle_result.no_structures_found"),
 
     /**
-     * The {@link StructureBase} could not be toggled because it is already 'busy': i.e. it is currently moving.
+     * The {@link Structure} could not be toggled because it is already 'busy': i.e. it is currently moving.
      */
     BUSY("constants.structure_toggle_result.structure_is_busy"),
 
     /**
-     * The {@link StructureBase} could not be toggled because it is locked.
+     * The {@link Structure} could not be toggled because it is locked.
      */
     LOCKED("constants.structure_toggle_result.structure_is_locked"),
 
     /**
-     * Some undefined error occurred while attempting to toggle this {@link StructureBase}.
+     * Some undefined error occurred while attempting to toggle this {@link Structure}.
      */
     ERROR("constants.structure_toggle_result.generic_toggle_failure"),
 
@@ -39,13 +39,12 @@ public enum StructureToggleResult
     MISSING_REQUIRED_PROPERTY_OPEN_STATUS(ERROR.localizationKey),
 
     /**
-     * The {@link StructureBase} could not be toggled because it could not find the target coordinates to move to.
+     * The {@link Structure} could not be toggled because it could not find the target coordinates to move to.
      */
     CANNOT_FIND_COORDINATES(ERROR.localizationKey),
 
     /**
-     * The {@link StructureBase} could not be toggled because it was requested to skip an animation that cannot be
-     * skipped.
+     * The {@link Structure} could not be toggled because it was requested to skip an animation that cannot be skipped.
      */
     CANNOT_SKIP_UNSKIPPABLE(ERROR.localizationKey),
 
@@ -55,50 +54,50 @@ public enum StructureToggleResult
     CANNOT_SKIP("constants.structure_toggle_result.cannot_skip"),
 
     /**
-     * The exact instance of the {@link StructureBase} that is to be toggled isn't registered in the
+     * The exact instance of the {@link Structure} that is to be toggled isn't registered in the
      * {@link StructureRegistry}.
      */
     INSTANCE_UNREGISTERED("constants.structure_toggle_result.invalid_state"),
 
     /**
-     * The {@link StructureBase} could not be toggled because it was cancelled.
+     * The {@link Structure} could not be toggled because it was cancelled.
      */
     CANCELLED("constants.structure_toggle_result.cancelled"),
 
     /**
-     * The {@link StructureBase} exceeded the size limit.
+     * The {@link Structure} exceeded the size limit.
      */
     TOO_BIG("constants.structure_toggle_result.too_big"),
 
     /**
      * The player who tried to toggle it or, if not present (e.g. when toggled via redstone"), the original creator does
-     * not have permission to open to toggle the {@link StructureBase} because they are not allowed to break blocks in
-     * the new location. This happens when a compatibility hook interferes (e.g. WorldGuard).
+     * not have permission to open to toggle the {@link Structure} because they are not allowed to break blocks in the
+     * new location. This happens when a compatibility hook interferes (e.g. WorldGuard).
      */
     NO_PERMISSION("constants.structure_toggle_result.no_permission_for_location"),
 
     /**
-     * An attempt to toggle (or open/close) a {@link StructureBase} failed because it was obstructed.
+     * An attempt to toggle (or open/close) a {@link Structure} failed because it was obstructed.
      */
     OBSTRUCTED("constants.structure_toggle_result.obstructed"),
 
     /**
-     * The {@link StructureBase} did not have enough space to move.
+     * The {@link Structure} did not have enough space to move.
      */
     NO_DIRECTION("constants.structure_toggle_result.no_direction"),
 
     /**
-     * The {@link StructureBase} could not be opened because it is already open.
+     * The {@link Structure} could not be opened because it is already open.
      */
     ALREADY_OPEN("constants.structure_toggle_result.already_open"),
 
     /**
-     * The {@link StructureBase} could not be closed because it is already closed.
+     * The {@link Structure} could not be closed because it is already closed.
      */
     ALREADY_CLOSED("constants.structure_toggle_result.already_closed"),
 
     /**
-     * The {@link StructureBase} could not be toggled because its type was disabled at compile time.
+     * The {@link Structure} could not be toggled because its type was disabled at compile time.
      */
     TYPE_DISABLED("constants.structure_toggle_result.type_disabled"),
     ;

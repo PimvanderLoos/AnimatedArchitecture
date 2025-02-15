@@ -4,7 +4,6 @@ package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
@@ -127,11 +126,5 @@ public class CreatorPortcullis extends Creator
     protected synchronized void giveTool()
     {
         giveTool("tool_user.base.stick_name", "creator.portcullis.stick_lore");
-    }
-
-    @Override
-    protected synchronized AbstractStructure constructStructure()
-    {
-        return new Portcullis(constructStructureData());
     }
 }

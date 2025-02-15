@@ -25,15 +25,13 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
-import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
@@ -43,7 +41,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestLocationFactory;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
-import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -62,7 +59,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.getWorld;
-import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBaseBuilder;
+import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBuilder;
 
 public class CreatorTestsUtil
 {
@@ -74,9 +71,7 @@ public class CreatorTestsUtil
     protected final IWorld world = getWorld();
     protected MovementDirection openDirection = MovementDirection.COUNTERCLOCKWISE;
 
-    protected StructureOwner structureOwner;
-
-    protected StructureBaseBuilder structureBaseBuilder;
+    protected StructureBuilder structureBuilder;
 
     protected ILocalizer localizer;
 
@@ -109,9 +104,6 @@ public class CreatorTestsUtil
     protected IAnimatedArchitectureToolUtil animatedArchitectureToolUtil;
 
     @Mock
-    protected DebuggableRegistry debuggableRegistry;
-
-    @Mock
     protected CommandFactory commandFactory;
 
     protected ILocationFactory locationFactory = new TestLocationFactory();
@@ -137,8 +129,6 @@ public class CreatorTestsUtil
 
         playerData = new PlayerData(uuid, name, limits, true, true);
 
-        structureOwner = new StructureOwner(-1, PermissionLevel.CREATOR, playerData);
-
         Mockito.when(player.getUUID()).thenReturn(uuid);
         Mockito.when(player.getName()).thenReturn(name);
 
@@ -159,16 +149,7 @@ public class CreatorTestsUtil
 
         localizer = UnitTestUtil.initLocalizer();
         limitsManager = new LimitsManager(permissionsManager, config);
-
-        final var builderResult = newStructureBaseBuilder();
-        builderResult.assistedFactoryMocker()
-            .setMock(ILocalizer.class, localizer)
-            .setMock(
-                StructureRegistry.class,
-                StructureRegistry.unCached(debuggableRegistry, Mockito.mock(StructureDeletionManager.class))
-            );
-
-        structureBaseBuilder = builderResult.structureBaseBuilder();
+        structureBuilder = newStructureBuilder().structureBuilder();
 
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
         //noinspection deprecation
@@ -181,7 +162,7 @@ public class CreatorTestsUtil
             .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
         context = new ToolUser.Context(
-            structureBaseBuilder,
+            structureBuilder,
             localizer,
             ITextFactory.getSimpleTextFactory(),
             toolUserManager,
@@ -190,7 +171,7 @@ public class CreatorTestsUtil
             economyManager,
             protectionHookManager,
             animatedArchitectureToolUtil,
-            Mockito.mock(StructureAnimationRequestBuilder.class),
+            null,
             Mockito.mock(StructureActivityManager.class),
             commandFactory,
             assistedStepFactory
@@ -208,17 +189,17 @@ public class CreatorTestsUtil
         // Immediately return whatever structure was being added to the database as if it was successful.
         Mockito
             .when(databaseManager.addStructure(ArgumentMatchers.any()))
-            .thenAnswer((Answer<CompletableFuture<Optional<AbstractStructure>>>) invocation ->
-                CompletableFuture.completedFuture(Optional.of((AbstractStructure) invocation.getArguments()[0]))
+            .thenAnswer((Answer<CompletableFuture<Optional<Structure>>>) invocation ->
+                CompletableFuture.completedFuture(Optional.of((Structure) invocation.getArguments()[0]))
             );
 
         Mockito
             .when(databaseManager.addStructure(
-                ArgumentMatchers.any(AbstractStructure.class),
+                ArgumentMatchers.any(Structure.class),
                 Mockito.any(IPlayer.class)))
             .thenAnswer((Answer<CompletableFuture<DatabaseManager.StructureInsertResult>>) invocation ->
                 CompletableFuture.completedFuture(new DatabaseManager.StructureInsertResult(
-                    Optional.of(invocation.getArgument(0, AbstractStructure.class)),
+                    Optional.of(invocation.getArgument(0, Structure.class)),
                     false))
             );
 
@@ -300,34 +281,20 @@ public class CreatorTestsUtil
             .thenReturn(status);
     }
 
-    protected long getTemporaryUid(Creator creator)
+    protected Structure constructStructure(StructureType type, long uid, Object... properties)
     {
-        try
-        {
-            return (Long) ReflectionBuilder.findField(Creator.class)
-                .withName("structureUidPlaceholder")
-                .setAccessible().get().get(creator);
-        }
-        catch (IllegalAccessException e)
-        {
-            throw new RuntimeException("Failed to access field 'structureUidPlaceholder' in class 'Creator'!", e);
-        }
-    }
-
-    protected AbstractStructure.BaseHolder constructStructureBase(StructureType type, long uid, Object... properties)
-    {
-        return structureBaseBuilder
-            .builder()
-            .uid(uid)
+        return structureBuilder
+            .builder(type)
+            .uid(UnitTestUtil.newStructureID(uid))
             .name(structureName)
             .cuboid(cuboid)
             .powerBlock(powerblock)
             .world(world)
             .isLocked(false)
             .openDir(openDirection)
-            .primeOwner(structureOwner)
+            .primeOwner(new StructureOwner(uid, PermissionLevel.CREATOR, playerData))
             .ownersOfStructure(null)
-            .propertiesOfStructure(type, properties)
+            .propertiesOfStructure(PropertyContainer.of(properties))
             .build();
     }
 
@@ -346,7 +313,7 @@ public class CreatorTestsUtil
         }
     }
 
-    public void testCreation(Creator creator, AbstractStructure actualStructure, Object... input)
+    public void testCreation(Creator creator, Structure actualStructure, Object... input)
     {
         applySteps(creator, input);
         Mockito.verify(creator.getPlayer(), Mockito.never())

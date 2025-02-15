@@ -6,7 +6,7 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -66,7 +66,7 @@ public class SetOpenDirection extends StructureTargetCommand
     }
 
     @Override
-    protected CompletableFuture<?> performAction(AbstractStructure structure)
+    protected CompletableFuture<?> performAction(Structure structure)
     {
         if (!structure.getType().isValidOpenDirection(movementDirection))
         {
@@ -80,7 +80,7 @@ public class SetOpenDirection extends StructureTargetCommand
             return CompletableFuture.completedFuture(null);
         }
 
-        structure.setOpenDir(movementDirection);
+        structure.setOpenDirection(movementDirection);
         return structure
             .syncData()
             .thenAccept(this::handleDatabaseActionResult)
@@ -96,8 +96,8 @@ public class SetOpenDirection extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing open direction of the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the open
-         *     direction will be modified.
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the open direction will
+         *     be modified.
          * @param movementDirection
          *     The new movement direction.
          * @param sendUpdatedInfo
@@ -117,8 +117,8 @@ public class SetOpenDirection extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing open direction of the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the open
-         *     direction will be modified.
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the open direction will
+         *     be modified.
          * @param movementDirection
          *     The new movement direction.
          * @return See {@link BaseCommand#run()}.

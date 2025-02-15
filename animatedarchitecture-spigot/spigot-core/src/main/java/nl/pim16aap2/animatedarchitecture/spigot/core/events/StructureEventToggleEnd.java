@@ -6,7 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructureEventToggleEnd;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +20,7 @@ public class StructureEventToggleEnd extends StructureToggleEvent implements ISt
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
-    private final AbstractStructure structure;
+    private final Structure structure;
 
     /**
      * Constructs a structure action event.
@@ -40,7 +40,7 @@ public class StructureEventToggleEnd extends StructureToggleEvent implements ISt
      *     If true, the structure will skip the animation and open instantly.
      */
     public StructureEventToggleEnd(
-        AbstractStructure structure,
+        Structure structure,
         StructureSnapshot snapshot,
         StructureActionCause cause,
         StructureActionType actionType,

@@ -10,9 +10,10 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureID;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -41,7 +42,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,6 +60,13 @@ public class UnitTestUtil
 
     private UnitTestUtil()
     {
+    }
+
+    public static StructureID newStructureID(long id)
+    {
+        final StructureID structureID = Mockito.mock();
+        Mockito.when(structureID.getId()).thenReturn(id);
+        return structureID;
     }
 
     public static ILocalizer initLocalizer()
@@ -150,35 +157,47 @@ public class UnitTestUtil
     }
 
     /**
-     * Creates a new {@link StructureBaseBuilder} and accompanying StructureBase factory.
+     * Creates a new {@link StructureBuilder} and accompanying Structure factory mocker.
      *
      * @return The result of the creation.
      */
-    public static StructureBaseBuilderResult newStructureBaseBuilder()
+    public static StructureBuilderResult newStructureBuilder()
         throws ClassNotFoundException,
                IllegalAccessException,
                InstantiationException,
                InvocationTargetException,
                NoSuchMethodException
     {
-        final Class<?> classStructureBase = Class.forName(
-            "nl.pim16aap2.animatedarchitecture.core.structures.StructureBase");
-
-        final Class<?> classStructureBaseFactory = Class.forName(
-            "nl.pim16aap2.animatedarchitecture.core.structures.StructureBase$IFactory");
+        final Class<?> classStructureFactory = Class.forName(Structure.class.getName() + "$IFactory");
 
         final AssistedFactoryMocker<?, ?> assistedFactoryMocker =
-            new AssistedFactoryMocker<>(classStructureBase, classStructureBaseFactory);
+            new AssistedFactoryMocker<>(Structure.class, classStructureFactory);
 
-        final Constructor<?> ctorStructureBaseBuilder =
-            StructureBaseBuilder.class.getDeclaredConstructor(classStructureBaseFactory);
+        final Constructor<?> ctorStructureBuilder =
+            StructureBuilder.class.getDeclaredConstructor(classStructureFactory);
 
-        ctorStructureBaseBuilder.setAccessible(true);
+        ctorStructureBuilder.setAccessible(true);
 
         final var builder =
-            (StructureBaseBuilder) ctorStructureBaseBuilder.newInstance(assistedFactoryMocker.getFactory());
+            (StructureBuilder) ctorStructureBuilder.newInstance(assistedFactoryMocker.getFactory());
 
-        return new StructureBaseBuilderResult(builder, assistedFactoryMocker);
+        return new StructureBuilderResult(builder, assistedFactoryMocker);
+    }
+
+    /**
+     * Shortcut for {@link #newStructureBuilder()}.
+     *
+     * @param structure
+     *     The structure to set the property container in.
+     * @param properties
+     *     The properties to use.
+     */
+    public static void setPropertyContainerInMockedStructure(Structure structure, Property<?>... properties)
+    {
+        if (properties == null || properties.length == 0)
+            setPropertyContainerInMockedStructure(structure, (List<Property<?>>) null);
+        else
+            setPropertyContainerInMockedStructure(structure, List.of(properties));
     }
 
     /**
@@ -195,7 +214,7 @@ public class UnitTestUtil
      *     The properties to use. If null, the properties from the structure type will be used.
      */
     public static void setPropertyContainerInMockedStructure(
-        AbstractStructure structure,
+        Structure structure,
         @Nullable List<Property<?>> providedProperties)
     {
         final List<Property<?>> properties = providedProperties == null
@@ -237,9 +256,9 @@ public class UnitTestUtil
     }
 
     /**
-     * Creates a new {@link StructureSnapshot} for a given {@link AbstractStructure}.
+     * Creates a new {@link StructureSnapshot} for a given {@link Structure}.
      * <p>
-     * If the provided structure is not a mock, it will return the result of {@link AbstractStructure#getSnapshot()}.
+     * If the provided structure is not a mock, it will return the result of {@link Structure#getSnapshot()}.
      * <p>
      * If the provided structure is a mock, it will return a mocked {@link StructureSnapshot} that uses as much data as
      * possible from the provided structure.
@@ -248,7 +267,7 @@ public class UnitTestUtil
      *     The structure to create a snapshot for.
      * @return The created snapshot.
      */
-    public static StructureSnapshot createStructureSnapshotForStructure(AbstractStructure structure)
+    public static StructureSnapshot createStructureSnapshotForStructure(Structure structure)
     {
         if (!Mockito.mockingDetails(structure).isMock())
             return structure.getSnapshot();
@@ -297,7 +316,9 @@ public class UnitTestUtil
             () -> PropertyContainer.forType(Objects.requireNonNull(structure.getType())),
             structure::getPropertyContainerSnapshot));
 
-        Mockito.when(ret.getOpenDir()).thenReturn(safeSupplierSimple(MovementDirection.NONE, structure::getOpenDir));
+        Mockito
+            .when(ret.getOpenDirection())
+            .thenReturn(safeSupplierSimple(MovementDirection.NONE, structure::getOpenDirection));
 
         Mockito.when(ret.isLocked()).thenReturn(safeSupplierSimple(false, structure::isLocked));
 
@@ -312,15 +333,6 @@ public class UnitTestUtil
                     .stream()
                     .collect(Collectors.toMap(owner -> owner.playerData().getUUID(), owner -> owner)))
             );
-
-        final Map<String, Object> propertyMap = safeSupplierSimple(
-            Collections.emptyMap(),
-            () -> StructureSnapshot.getPersistentVariableMap(structure)
-        );
-
-        //noinspection SuspiciousMethodCalls
-        Mockito.doAnswer(invocation -> propertyMap.get(invocation.getArgument(0)))
-            .when(ret).getPersistentVariable(Mockito.anyString());
 
         return ret;
     }
@@ -655,15 +667,15 @@ public class UnitTestUtil
     }
 
     /**
-     * The result of creating a new {@link StructureBaseBuilder}.
+     * The result of creating a new {@link StructureBuilder}.
      *
-     * @param structureBaseBuilder
+     * @param structureBuilder
      *     The builder that was created.
      * @param assistedFactoryMocker
      *     The mocker for the factory. Use {@link AssistedFactoryMocker#setMock(Class, Object)} to set its parameters.
      */
-    public record StructureBaseBuilderResult(
-        StructureBaseBuilder structureBaseBuilder,
+    public record StructureBuilderResult(
+        StructureBuilder structureBuilder,
         AssistedFactoryMocker<?, ?> assistedFactoryMocker)
     {}
 

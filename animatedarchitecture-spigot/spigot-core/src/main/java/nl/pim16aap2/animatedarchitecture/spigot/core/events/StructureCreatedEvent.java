@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.events;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructureCreatedEvent;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +16,7 @@ public class StructureCreatedEvent extends StructureEvent implements IStructureC
 {
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
-    public StructureCreatedEvent(AbstractStructure structure, @Nullable IPlayer responsible)
+    public StructureCreatedEvent(Structure structure, @Nullable IPlayer responsible)
     {
         super(structure, responsible);
     }

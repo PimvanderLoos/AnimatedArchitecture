@@ -10,10 +10,10 @@ import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextComponent;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
@@ -62,7 +62,7 @@ class AttributeButtonFactory
     private void lockButtonExecute(
         boolean newState,
         GuiElement.Click change,
-        AbstractStructure structure,
+        Structure structure,
         PlayerSpigot player)
     {
         commandFactory
@@ -73,7 +73,7 @@ class AttributeButtonFactory
             .exceptionally(FutureUtil::exceptionally);
     }
 
-    private GuiElement lockButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
+    private GuiElement lockButton(Structure structure, PlayerSpigot player, char slotChar)
     {
         final GuiStateElement element = new GuiStateElement(
             slotChar,
@@ -99,7 +99,7 @@ class AttributeButtonFactory
         return element;
     }
 
-    private GuiElement toggleButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
+    private GuiElement toggleButton(Structure structure, PlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -123,7 +123,7 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement previewButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
+    private GuiElement previewButton(Structure structure, PlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -148,7 +148,7 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement infoButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
+    private GuiElement infoButton(Structure structure, PlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -168,7 +168,7 @@ class AttributeButtonFactory
     }
 
     private GuiElement deleteButton(
-        AbstractStructure structure, PlayerSpigot player, char slotChar)
+        Structure structure, PlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -184,7 +184,7 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement relocatePowerBlockButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
+    private GuiElement relocatePowerBlockButton(Structure structure, PlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -205,7 +205,7 @@ class AttributeButtonFactory
     }
 
     private void isOpenButtonExecute(
-        boolean isOpen, GuiElement.Click change, AbstractStructure structure, PlayerSpigot player)
+        boolean isOpen, GuiElement.Click change, Structure structure, PlayerSpigot player)
     {
         commandFactory
             .newSetOpenStatus(player, structureRetrieverFactory.of(structure), isOpen)
@@ -216,12 +216,11 @@ class AttributeButtonFactory
             .exceptionally(FutureUtil::exceptionally);
     }
 
-    private @Nullable GuiElement openStatusButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
+    private @Nullable GuiElement openStatusButton(Structure structure, PlayerSpigot player, char slotChar)
     {
-        if (!(structure instanceof IStructureWithOpenStatus structureWithOpenStatus))
+        final @Nullable Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
+        if (isOpen == null)
             return null;
-
-        final boolean isOpen = structureWithOpenStatus.isOpen();
 
         final GuiStateElement element = new GuiStateElement(
             slotChar,
@@ -248,7 +247,7 @@ class AttributeButtonFactory
     }
 
     private void setOpenDirectionLore(
-        StaticGuiElement staticGuiElement, AbstractStructure structure, MovementDirection direction)
+        StaticGuiElement staticGuiElement, Structure structure, MovementDirection direction)
     {
         staticGuiElement.setText(
             localizer.getMessage(
@@ -264,7 +263,7 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement openDirectionButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
+    private GuiElement openDirectionButton(Structure structure, PlayerSpigot player, char slotChar)
     {
         final AtomicReference<StaticGuiElement> staticGuiElementRef = new AtomicReference<>();
 
@@ -292,11 +291,11 @@ class AttributeButtonFactory
         );
         staticGuiElementRef.set(staticElement);
 
-        setOpenDirectionLore(staticElement, structure, structure.getOpenDir());
+        setOpenDirectionLore(staticElement, structure, structure.getOpenDirection());
         return staticElement;
     }
 
-    private GuiElement blocksToMoveButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
+    private GuiElement blocksToMoveButton(Structure structure, PlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -316,7 +315,7 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement addOwnerButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
+    private GuiElement addOwnerButton(Structure structure, PlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -336,7 +335,7 @@ class AttributeButtonFactory
         );
     }
 
-    private GuiElement removeOwnerButton(AbstractStructure structure, PlayerSpigot player, char slotChar)
+    private GuiElement removeOwnerButton(Structure structure, PlayerSpigot player, char slotChar)
     {
         return new StaticGuiElement(
             slotChar,
@@ -361,7 +360,7 @@ class AttributeButtonFactory
      */
     public @Nullable GuiElement of(
         StructureAttribute attribute,
-        AbstractStructure structure,
+        Structure structure,
         PlayerSpigot player,
         char slotChar)
     {

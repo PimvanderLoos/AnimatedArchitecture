@@ -4,7 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.testing.MockInjector;
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class ListStructuresTest
 {
-    private List<AbstractStructure> structures;
+    private List<Structure> structures;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPlayer playerCommandSender;
@@ -46,7 +46,7 @@ class ListStructuresTest
         final int size = 3;
         structures = new ArrayList<>(size);
         for (int idx = 0; idx < size; ++idx)
-            structures.add(Mockito.mock(AbstractStructure.class));
+            structures.add(Mockito.mock(Structure.class));
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 

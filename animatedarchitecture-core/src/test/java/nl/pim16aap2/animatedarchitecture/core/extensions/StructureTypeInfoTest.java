@@ -269,11 +269,6 @@ class StructureTypeInfoTest
         final var key = new NamespacedKey(namespace, typeName);
 
         final StructureType structureType = Mockito.mock(Mockito.withSettings().stubOnly());
-
-        Mockito
-            .when(structureType.getStructureSerializer())
-            .thenReturn(Mockito.mock(Mockito.withSettings().stubOnly()));
-
         Mockito.when(structureType.getNamespacedKey()).thenReturn(key);
         Mockito.when(structureType.getSimpleName()).thenReturn(key.getKey());
         Mockito.when(structureType.getVersion()).thenReturn(version);

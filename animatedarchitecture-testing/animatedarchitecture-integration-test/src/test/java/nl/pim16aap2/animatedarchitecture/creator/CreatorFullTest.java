@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.creator;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
@@ -32,7 +32,7 @@ class CreatorFullTest extends CreatorTestsUtil
 {
     private final List<Property<?>> properties = List.of(Property.OPEN_STATUS, Property.ROTATION_POINT);
 
-    private AbstractStructure structure;
+    private Structure structure;
 
     @Override
     @BeforeEach
@@ -49,7 +49,7 @@ class CreatorFullTest extends CreatorTestsUtil
             .when(structureType.getProperties())
             .thenReturn(properties);
 
-        structure = Mockito.mock(AbstractStructure.class);
+        structure = Mockito.mock(Structure.class);
 
         Mockito
             .when(structure.getType())
@@ -121,9 +121,9 @@ class CreatorFullTest extends CreatorTestsUtil
 
     private static class CreatorTestImpl extends Creator
     {
-        private final AbstractStructure structure;
+        private final Structure structure;
 
-        protected CreatorTestImpl(ToolUser.Context context, IPlayer player, AbstractStructure structure)
+        protected CreatorTestImpl(ToolUser.Context context, IPlayer player, Structure structure)
         {
             super(context, structure.getType(), player, null);
             this.structure = structure;
@@ -152,7 +152,7 @@ class CreatorFullTest extends CreatorTestsUtil
         }
 
         @Override
-        protected @NotNull AbstractStructure constructStructure()
+        protected @NotNull Structure constructStructure()
         {
             return structure;
         }

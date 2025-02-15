@@ -4,7 +4,7 @@
 
     <artifactId>structure-portcullis</artifactId>
     <packaging>jar</packaging>
-    <version>1</version>
+    <version>10</version>
 
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
@@ -15,8 +15,8 @@
     <properties>
         <mainClass>nl.pim16aap2.animatedarchitecture.structures.portcullis.StructureTypePortcullis</mainClass>
         <typeName>Portcullis</typeName>
-        <version>2</version>
-        <supportedApiVersions>1.*</supportedApiVersions>
+        <typeVersion>${project.version}</typeVersion>
+        <supportedApiVersions>2.*</supportedApiVersions>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
     </properties>
 

@@ -10,7 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
@@ -43,11 +43,11 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
     @EqualsAndHashCode.Exclude
     private final StructureSpecificationManager structureSpecificationManager;
 
-    private final List<AbstractStructure> options;
+    private final List<Structure> options;
 
     private DelayedStructureSpecificationInputRequest(
         Duration timeout,
-        List<AbstractStructure> options,
+        List<Structure> options,
         IPlayer player, ILocalizer localizer,
         ITextFactory textFactory,
         StructureSpecificationManager structureSpecificationManager)
@@ -73,7 +73,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
         player.sendMessage(text);
     }
 
-    private Optional<AbstractStructure> parseInput(Optional<String> input)
+    private Optional<Structure> parseInput(Optional<String> input)
     {
         final OptionalLong uidOpt = MathUtil.parseLong(input);
         if (uidOpt.isEmpty())
@@ -88,7 +88,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
      *
      * @return The structure that the user specified.
      */
-    public CompletableFuture<Optional<AbstractStructure>> get()
+    public CompletableFuture<Optional<Structure>> get()
     {
         return super.getInputResult().thenApply(this::parseInput);
     }
@@ -99,7 +99,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
         structureSpecificationManager.cancelRequest(player);
     }
 
-    private void appendStructureInfo(Text text, AbstractStructure structure, Optional<ILocation> location)
+    private void appendStructureInfo(Text text, Structure structure, Optional<ILocation> location)
     {
         final long distance = location
             .map(loc -> Math.round(structure.getCuboid().getCenter().getDistance(loc)))
@@ -150,9 +150,9 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
          * If the list of options contains only one element, the future will be completed with that element and no
          * request will be sent to the user.
          */
-        public CompletableFuture<Optional<AbstractStructure>> get(
+        public CompletableFuture<Optional<Structure>> get(
             Duration timeout,
-            List<AbstractStructure> options,
+            List<Structure> options,
             IPlayer player)
         {
             if (options.size() == 1)
@@ -188,7 +188,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
          * If the list of options contains only one element, the future will be completed with that element and no
          * request will be sent to the user.
          */
-        public CompletableFuture<Optional<AbstractStructure>> get(List<AbstractStructure> options, IPlayer player)
+        public CompletableFuture<Optional<Structure>> get(List<Structure> options, IPlayer player)
         {
             return get(Duration.ofSeconds(config.specificationTimeout()), options, player);
         }

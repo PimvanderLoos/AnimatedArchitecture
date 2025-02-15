@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 class PowerBlockRelocatorTest
 {
     @Mock
-    private AbstractStructure structure;
+    private Structure structure;
 
     @Mock
     private IWorld world;
@@ -80,11 +80,11 @@ class PowerBlockRelocatorTest
             .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
         Mockito.when(context.getStepFactory()).thenReturn(assistedStepFactory);
 
-        Mockito.when(factory.create(Mockito.any(IPlayer.class), Mockito.any(AbstractStructure.class)))
+        Mockito.when(factory.create(Mockito.any(IPlayer.class), Mockito.any(Structure.class)))
             .thenAnswer(invoc -> new PowerBlockRelocator(
                 context,
                 invoc.getArgument(0, IPlayer.class),
-                invoc.getArgument(1, AbstractStructure.class)
+                invoc.getArgument(1, Structure.class)
             ));
     }
 

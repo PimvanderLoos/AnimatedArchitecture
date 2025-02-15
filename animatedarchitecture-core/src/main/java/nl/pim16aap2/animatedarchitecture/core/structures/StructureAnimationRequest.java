@@ -18,7 +18,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithOpenStatus;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
@@ -112,14 +112,14 @@ public class StructureAnimationRequest
             .exceptionally(throwable -> FutureUtil.exceptionally(throwable, StructureToggleResult.ERROR));
     }
 
-    private CompletableFuture<StructureToggleResult> execute(Optional<AbstractStructure> structureOpt)
+    private CompletableFuture<StructureToggleResult> execute(Optional<Structure> structureOpt)
     {
         if (structureOpt.isEmpty())
         {
             log.atInfo().log("Toggle failure (no structure found): %s", this);
             return CompletableFuture.completedFuture(StructureToggleResult.ERROR);
         }
-        final AbstractStructure structure = structureOpt.get();
+        final Structure structure = structureOpt.get();
         final IPlayer actualResponsible = getActualResponsible(structure);
         verifyValidity(actualResponsible);
 
@@ -140,12 +140,12 @@ public class StructureAnimationRequest
      *     The structure for which to verify the action type.
      * @return True if the action type is valid, false otherwise.
      */
-    boolean isValidActionType(AbstractStructure structure)
+    boolean isValidActionType(Structure structure)
     {
         if (actionType == StructureActionType.TOGGLE)
             return true;
 
-        if (structure instanceof IStructureWithOpenStatus)
+        if (structure.hasProperty(Property.OPEN_STATUS))
             return true;
 
         final String errorKey = actionType == StructureActionType.OPEN
@@ -178,7 +178,7 @@ public class StructureAnimationRequest
      *     The structure for which to find the responsible player.
      * @return The player responsible for toggling the structure.
      */
-    private IPlayer getActualResponsible(AbstractStructure structure)
+    private IPlayer getActualResponsible(Structure structure)
     {
         if (responsible != null)
             return responsible;

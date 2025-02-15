@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.structures.windmill;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureComponent;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
@@ -14,7 +14,7 @@ import java.util.List;
 
 public final class StructureTypeWindmill extends StructureType
 {
-    private static final int TYPE_VERSION = 1;
+    private static final int TYPE_VERSION = 10;
 
     private static final StructureTypeWindmill INSTANCE = new StructureTypeWindmill();
 
@@ -47,9 +47,9 @@ public final class StructureTypeWindmill extends StructureType
     }
 
     @Override
-    public Class<? extends AbstractStructure> getStructureClass()
+    public IStructureComponent newComponent()
     {
-        return Windmill.class;
+        return new Windmill();
     }
 
     @Override

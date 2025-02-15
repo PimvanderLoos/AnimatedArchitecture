@@ -6,8 +6,12 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureComponent;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
@@ -126,11 +130,12 @@ class GarageDoorTestUtil
          * @param name
          *     The name of the opening data. This is used to make the data more readable in test logs.
          * @param currentToggleDir
-         *     The current toggle direction. See {@link GarageDoor#getCurrentToggleDir()}.
+         *     The current toggle direction. See
+         *     {@link IStructureComponent#getCurrentToggleDirection(IStructureConst)}.
          * @param rotationPoint
-         *     The rotation point. See {@link GarageDoor#getRotationPoint()}.
+         *     The rotation point. See {@link Property#ROTATION_POINT}.
          * @param startCuboid
-         *     The start cuboid. See {@link GarageDoor#getCuboid()}.
+         *     The start cuboid. See {@link Structure#getCuboid()}.
          * @param endCuboid
          *     The cuboid that will describe the structure after a potential toggle.
          */
@@ -153,13 +158,14 @@ class GarageDoorTestUtil
          * @param name
          *     The name of the opening data. This is used to make the data more readable in test logs.
          * @param currentToggleDir
-         *     The current toggle direction. See {@link GarageDoor#getCurrentToggleDir()}.
+         *     The current toggle direction. See
+         *     {@link IStructureComponent#getCurrentToggleDirection(IStructureConst)}.
          * @param rotationPoint
-         *     The rotation point. See {@link GarageDoor#getRotationPoint()}.
+         *     The rotation point. See {@link Property#ROTATION_POINT}.
          * @param startMin
-         *     The start minimum coordinates used to construct the cuboid. See {@link GarageDoor#getCuboid()}.
+         *     The start minimum coordinates used to construct the cuboid. See {@link Structure#getCuboid()}.
          * @param startMax
-         *     The start maximum coordinates used to construct the cuboid. See {@link GarageDoor#getCuboid()}.
+         *     The start maximum coordinates used to construct the cuboid. See {@link Structure#getCuboid()}.
          * @param endMin
          *     The minimum coordinates of the new cuboid after the toggle.
          * @param endMax
@@ -182,11 +188,11 @@ class GarageDoorTestUtil
          *
          * @return The new GarageDoor instance.
          */
-        public GarageDoor createGarageDoor(StructureBaseBuilder structureBaseBuilder)
+        public Structure createGarageDoor(StructureBuilder structureBuilder)
         {
-            final var base = structureBaseBuilder
-                .builder()
-                .uid(1)
+            return structureBuilder
+                .builder(StructureTypeGarageDoor.get())
+                .uid(UnitTestUtil.newStructureID(1))
                 .name("Garage Door")
                 .cuboid(startCuboid)
                 .powerBlock(new Vector3Di(0, 0, 0))
@@ -195,17 +201,11 @@ class GarageDoorTestUtil
                 .openDir(currentToggleDir)
                 .primeOwner(UnitTestUtil.createStructureOwner(1))
                 .ownersOfStructure(null)
-                .propertiesOfStructure(
-                    StructureTypeGarageDoor.get(),
+                .propertiesOfStructure(PropertyContainer.of(
                     Property.OPEN_STATUS, false,
                     Property.ROTATION_POINT, rotationPoint
-                )
+                ))
                 .build();
-
-            final boolean isNorthSouthAnimated =
-                currentToggleDir == MovementDirection.NORTH || currentToggleDir == MovementDirection.SOUTH;
-
-            return new GarageDoor(base, isNorthSouthAnimated);
         }
 
         /**

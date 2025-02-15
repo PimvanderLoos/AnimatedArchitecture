@@ -12,7 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
@@ -89,41 +89,41 @@ public final class PowerBlockManager extends Restartable implements StructureDel
     }
 
     /**
-     * Gets all {@link AbstractStructure}s that have a powerblock at a location in a world.
+     * Gets all {@link Structure}s that have a powerblock at a location in a world.
      *
      * @param location
      *     The location.
-     * @return All {@link AbstractStructure}s that have a powerblock at a location in a world.
+     * @return All {@link Structure}s that have a powerblock at a location in a world.
      */
-    public CompletableFuture<List<AbstractStructure>> structuresFromPowerBlockLoc(ILocation location)
+    public CompletableFuture<List<Structure>> structuresFromPowerBlockLoc(ILocation location)
     {
         return this.structuresFromPowerBlockLoc(location.getPosition(), location.getWorld().worldName());
     }
 
     /**
-     * Gets all {@link AbstractStructure}s that have a powerblock at a location in a world.
+     * Gets all {@link Structure}s that have a powerblock at a location in a world.
      *
      * @param loc
      *     The location.
      * @param world
      *     The world.
-     * @return All {@link AbstractStructure}s that have a powerblock at a location in a world.
+     * @return All {@link Structure}s that have a powerblock at a location in a world.
      */
-    public CompletableFuture<List<AbstractStructure>> structuresFromPowerBlockLoc(Vector3Di loc, IWorld world)
+    public CompletableFuture<List<Structure>> structuresFromPowerBlockLoc(Vector3Di loc, IWorld world)
     {
         return this.structuresFromPowerBlockLoc(loc, world.worldName());
     }
 
     /**
-     * Gets all {@link AbstractStructure}s that have a powerblock at a location in a world.
+     * Gets all {@link Structure}s that have a powerblock at a location in a world.
      *
      * @param loc
      *     The location.
      * @param worldName
      *     The name of the world.
-     * @return All {@link AbstractStructure}s that have a powerblock at a location in a world.
+     * @return All {@link Structure}s that have a powerblock at a location in a world.
      */
-    public CompletableFuture<List<AbstractStructure>> structuresFromPowerBlockLoc(Vector3Di loc, String worldName)
+    public CompletableFuture<List<Structure>> structuresFromPowerBlockLoc(Vector3Di loc, String worldName)
     {
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -143,7 +143,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
      *     The name of the world to search in.
      * @return The UIDs of the structures that whose powerblocks lie in the same chunk as the location.
      */
-    public CompletableFuture<List<AbstractStructure>> structuresInChunk(Vector3Di loc, String worldName)
+    public CompletableFuture<List<Structure>> structuresInChunk(Vector3Di loc, String worldName)
     {
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -154,7 +154,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         return mapUidsToStructures(powerBlockWorld.getPowerBlocksInChunk(loc));
     }
 
-    private CompletableFuture<List<AbstractStructure>> mapUidsToStructures(CompletableFuture<LongList> uids)
+    private CompletableFuture<List<Structure>> mapUidsToStructures(CompletableFuture<LongList> uids)
     {
         return uids
             .thenApplyAsync(lst -> lst.longStream().mapToObj(databaseManager::getStructure).toList())
@@ -183,17 +183,17 @@ public final class PowerBlockManager extends Restartable implements StructureDel
     }
 
     /**
-     * Updates the position of the power block of a {@link AbstractStructure} in the database.
+     * Updates the position of the power block of a {@link Structure} in the database.
      *
      * @param structure
-     *     The {@link AbstractStructure}.
+     *     The {@link Structure}.
      * @param oldPos
      *     The old position.
      * @param newPos
      *     The new position.
      */
     @SuppressWarnings("unused")
-    public void updatePowerBlockLoc(AbstractStructure structure, Vector3Di oldPos, Vector3Di newPos)
+    public void updatePowerBlockLoc(Structure structure, Vector3Di oldPos, Vector3Di newPos)
     {
         structure.setPowerBlock(newPos);
         structure.syncData().exceptionally(FutureUtil::exceptionally);

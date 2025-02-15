@@ -8,9 +8,9 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.util.LazyValue;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Collection;
 import java.util.Collections;
@@ -85,6 +85,27 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         this.propertyMap = propertyMap;
         this.unmodifiablePropertyMap = Collections.unmodifiableMap(propertyMap);
         this.propertySet = new LazyValue<>(() -> getNewPropertySet(this.unmodifiablePropertyMap));
+    }
+
+    /**
+     * Creates a copy of the given property container.
+     *
+     * @param other
+     *     The property container to copy.
+     * @return A new property container with the same properties as the given property container.
+     */
+    public static PropertyContainer of(IPropertyContainerConst other)
+    {
+        if (other instanceof PropertyContainer propertyContainer)
+            return new PropertyContainer(new HashMap<>(propertyContainer.propertyMap));
+        else if (other instanceof PropertyContainerSnapshot snapshot)
+            return new PropertyContainer(new HashMap<>(snapshot.getPropertyMap()));
+        else
+            return new PropertyContainer(
+                other.stream().collect(
+                    Collectors.toMap(
+                        val -> mapKey(val.property()),
+                        PropertyValuePair::value)));
     }
 
     /**
@@ -197,6 +218,9 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      */
     static boolean hasProperties(Map<String, IPropertyValue<?>> propertyMap, Collection<Property<?>> properties)
     {
+        if (properties.isEmpty())
+            return true;
+
         return propertyMap
             .keySet()
             .containsAll(properties.stream().map(PropertyContainer::mapKey).collect(Collectors.toSet()));
@@ -486,6 +510,161 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
             })
             .filter(Objects::nonNull)
             .collect(Collectors.toUnmodifiableSet());
+    }
+
+    /**
+     * Creates a new {@link PropertyContainer} from the given properties.
+     *
+     * @param properties
+     *     A group of interleaved property-value pairs.
+     *     <p>
+     *     The even indices must be non-null {@link Property}s.
+     *     <p>
+     *     The odd indices are the (nullable) values for the properties.
+     * @return A new {@link PropertyContainer} with the given properties.
+     *
+     * @throws IllegalArgumentException
+     *     If the properties are not provided in pairs of 2.
+     *     <p>
+     *     If an object at an even index is not a {@link Property}.
+     * @throws NullPointerException
+     *     If a property is {@code null}.
+     * @throws ClassCastException
+     *     If the value of a property cannot be cast to the type of the preceding property using
+     *     {@link Property#cast(Object)}.
+     */
+    public static PropertyContainer of(@Nullable Object @Nullable ... properties)
+    {
+        if (properties == null)
+            return new PropertyContainer(HashMap.newHashMap(0));
+
+        if (properties.length % 2 != 0)
+            throw new IllegalArgumentException("Properties must be provided in pairs of 2.");
+
+        final PropertyContainer ret = new PropertyContainer(HashMap.newHashMap(properties.length / 2));
+        for (int idx = 0; idx < properties.length; idx += 2)
+        {
+            final Object untypedProperty = Util.requireNonNull(
+                properties[idx],
+                "Property at index " + idx
+            );
+
+            final Property<?> property;
+            try
+            {
+                property = (Property<?>) untypedProperty;
+            }
+            catch (ClassCastException exception)
+            {
+                throw new IllegalArgumentException(
+                    "Expected object at index " + idx + " to be a Property, but it was " + untypedProperty.getClass(),
+                    exception
+                );
+            }
+
+            final @Nullable Object value = properties[idx + 1];
+            ret.setUntypedPropertyValue(property, value);
+        }
+
+        return ret;
+    }
+
+    /**
+     * Type-safe version of {@link #of(Object...)} for 1 property.
+     */
+    public static <A> PropertyContainer of(
+        Property<A> property0, @Nullable A value0
+    )
+    {
+        return of(
+            property0, (Object) value0
+        );
+    }
+
+    /**
+     * Type-safe version of {@link #of(Object...)} for 2 properties.
+     */
+    public static <A, B> PropertyContainer of(
+        Property<A> property0, @Nullable A value0,
+        Property<B> property1, @Nullable B value1
+    )
+    {
+        return of(
+            property0, value0,
+            property1, (Object) value1
+        );
+    }
+
+    /**
+     * Type-safe version of {@link #of(Object...)} for 3 properties.
+     */
+    public static <A, B, C> PropertyContainer of(
+        Property<A> property0, @Nullable A value0,
+        Property<B> property1, @Nullable B value1,
+        Property<C> property2, @Nullable C value2
+    )
+    {
+        return of(
+            property0, value0,
+            property1, value1,
+            property2, (Object) value2
+        );
+    }
+
+    /**
+     * Type-safe version of {@link #of(Object...)} for 4 properties.
+     */
+    public static <A, B, C, D> PropertyContainer of(
+        Property<A> property0, @Nullable A value0,
+        Property<B> property1, @Nullable B value1,
+        Property<C> property2, @Nullable C value2,
+        Property<D> property3, @Nullable D value3
+    )
+    {
+        return of(
+            property0, value0,
+            property1, value1,
+            property2, value2,
+            property3, (Object) value3
+        );
+    }
+
+    /**
+     * Type-safe version of {@link #of(Object...)} for 5 properties.
+     */
+    public static <A, B, C, D, E> PropertyContainer of(
+        Property<A> property0, @Nullable A value0,
+        Property<B> property1, @Nullable B value1,
+        Property<C> property2, @Nullable C value2,
+        Property<D> property3, @Nullable D value3,
+        Property<E> property4, @Nullable E value4
+    )
+    {
+        return of(
+            property0, value0,
+            property1, value1,
+            property2, value2,
+            property3, value3,
+            property4, (Object) value4
+        );
+    }
+
+    /**
+     * Adds all properties from the given property container to this property container.
+     * <p>
+     * Existing properties will be overwritten.
+     *
+     * @param propertyContainer
+     *     The property container to add the properties from.
+     */
+    public void addAll(IPropertyContainerConst propertyContainer)
+    {
+        for (final PropertyValuePair<?> propertyValuePair : propertyContainer)
+        {
+            final Property<?> property = propertyValuePair.property();
+            final IPropertyValue<?> value = propertyValuePair.value();
+            setUntypedPropertyValue(property, value.value());
+        }
     }
 
     /**

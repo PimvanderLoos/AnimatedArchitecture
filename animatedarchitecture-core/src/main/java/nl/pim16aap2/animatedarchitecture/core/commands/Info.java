@@ -10,7 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -58,7 +58,7 @@ public class Info extends StructureTargetCommand
     }
 
     @Override
-    protected CompletableFuture<?> performAction(AbstractStructure structure)
+    protected CompletableFuture<?> performAction(Structure structure)
     {
         final StructureSnapshot snapshot = structure.getSnapshot();
         try
@@ -187,7 +187,7 @@ public class Info extends StructureTargetCommand
     private void decorateOpenDirection(StructureSnapshot structure, Text text)
     {
         final var argument = text.getTextArgumentFactory().clickable(
-            localizer.getMessage(structure.getOpenDir().getLocalizationKey()),
+            localizer.getMessage(structure.getOpenDirection().getLocalizationKey()),
             String.format(
                 "/animatedarchitecture setopendirection %s %d true",
                 localizer.getMessage(structure.getCycledOpenDirection().getLocalizationKey()),
@@ -346,8 +346,8 @@ public class Info extends StructureTargetCommand
          *     The {@link ICommandSender} responsible for retrieving the structure info and the receiver of the
          *     structure's information.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link AbstractStructure} for which the information
-         *     will be retrieved.
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the information will be
+         *     retrieved.
          * @return See {@link BaseCommand#run()}.
          */
         Info newInfo(ICommandSender commandSender, StructureRetriever structureRetriever);

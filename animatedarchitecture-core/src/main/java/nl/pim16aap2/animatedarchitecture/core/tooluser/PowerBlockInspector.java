@@ -7,7 +7,7 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorLocation;
@@ -56,7 +56,7 @@ public class PowerBlockInspector extends ToolUser
             .structuresFromPowerBlockLoc(loc.getPosition(), loc.getWorld())
             .thenAccept(lst ->
             {
-                final List<AbstractStructure> filtered;
+                final List<Structure> filtered;
                 if (bypassPermission)
                     filtered = lst;
                 else
@@ -72,12 +72,12 @@ public class PowerBlockInspector extends ToolUser
         return true;
     }
 
-    private void sendPowerBlockInfo(IPlayer player, List<AbstractStructure> filtered)
+    private void sendPowerBlockInfo(IPlayer player, List<Structure> filtered)
     {
         final Text text = textFactory.newText();
         text.append(localizer.getMessage("tool_user.power_block_inspected.result.header"), TextType.INFO).append('\n');
 
-        for (final AbstractStructure structure : filtered)
+        for (final Structure structure : filtered)
             text.append(" * ").append(structure.getNameAndUid(), TextType.HIGHLIGHT).append('\n');
 
         player.sendMessage(text);

@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
+import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
@@ -12,7 +13,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,12 +21,14 @@ import java.util.UUID;
  * <p>
  * Please read the documentation of {@link nl.pim16aap2.animatedarchitecture.core.structures} for more information about
  * the structure system.
+ * <p>
+ * Never cast an {@link IStructureConst} to a {@link Structure}, even when it looks like it might be possible. Doing so
+ * can lead to all kinds of issues, including deadlocks.
  */
-@SuppressWarnings("unused")
 public interface IStructureConst extends IPropertyHolderConst
 {
     /**
-     * @return A {@link StructureSnapshot} of this {@link StructureBase}.
+     * @return A {@link StructureSnapshot} of this {@link IStructureConst}.
      */
     StructureSnapshot getSnapshot();
 
@@ -82,23 +84,53 @@ public interface IStructureConst extends IPropertyHolderConst
     }
 
     /**
-     * Gets the IWorld this {@link AbstractStructure} exists in.
+     * Gets the IWorld this {@link Structure} exists in.
      *
-     * @return The IWorld this {@link AbstractStructure} exists in
+     * @return The IWorld this {@link Structure} exists in
      */
     IWorld getWorld();
 
     /**
-     * Gets the UID of the {@link AbstractStructure} as used in the database. Guaranteed to be unique and available.
+     * Gets the UID of the {@link Structure} as used in the database. Guaranteed to be unique and available.
      *
-     * @return The UID of the {@link AbstractStructure} as used in the database.
+     * @return The UID of the {@link Structure} as used in the database.
      */
     long getUid();
 
     /**
-     * Check if the {@link AbstractStructure} is currently locked. When locked, structures cannot be opened.
+     * Gets the basic information of this structure.
+     * <p>
+     * This includes the name, UID, type, and prime owner of this structure.
      *
-     * @return True if the {@link AbstractStructure} is locked
+     * @return The basic information of this structure.
+     */
+    default String getBasicInfo()
+    {
+        return String.format(
+            "%d (%s) - %s: %s",
+            getUid(),
+            getPrimeOwner(),
+            getType().getFullKey(),
+            getName()
+        );
+    }
+
+    /**
+     * Gets the lower time limit for an animation.
+     * <p>
+     * Because animated blocks have a speed limit, as determined by {@link IConfig#maxBlockSpeed()}, there is also a
+     * minimum amount of time for its animation.
+     * <p>
+     * The exact time limit depends on the shape, size, and type of structure.
+     *
+     * @return The lower animation time limit for this structure in seconds.
+     */
+    double getMinimumAnimationTime();
+
+    /**
+     * Check if the {@link Structure} is currently locked. When locked, structures cannot be opened.
+     *
+     * @return True if the {@link Structure} is locked
      */
     boolean isLocked();
 
@@ -199,14 +231,14 @@ public interface IStructureConst extends IPropertyHolderConst
     }
 
     /**
-     * Gets the {@link MovementDirection} this {@link AbstractStructure} will open if currently closed.
+     * Gets the {@link MovementDirection} this {@link Structure} will open if currently closed.
      * <p>
      * Note that if it's currently in the open status, it is supposed go in the opposite direction, as the closing
      * direction is the opposite of the opening direction. This isn't taken into account by this method.
      *
-     * @return The {@link MovementDirection} this {@link AbstractStructure} will open in.
+     * @return The {@link MovementDirection} this {@link Structure} will open in.
      */
-    MovementDirection getOpenDir();
+    MovementDirection getOpenDirection();
 
     /**
      * Gets the position of power block of this structure.
@@ -236,12 +268,12 @@ public interface IStructureConst extends IPropertyHolderConst
     }
 
     /**
-     * Retrieve the total number of blocks this {@link AbstractStructure} is made out of. If invalidated or not
-     * calculated * yet, it is (re)calculated first.
+     * Retrieve the total number of blocks this {@link Structure} is made out of. If invalidated or not calculated *
+     * yet, it is (re)calculated first.
      * <p>
      * It's calculated once and then stored until invalidated.
      *
-     * @return Total number of blocks this {@link AbstractStructure} is made out of.
+     * @return Total number of blocks this {@link Structure} is made out of.
      */
     default int getBlockCount()
     {
@@ -270,25 +302,15 @@ public interface IStructureConst extends IPropertyHolderConst
     }
 
     /**
-     * Cycle the {@link MovementDirection} direction this {@link AbstractStructure} will open in. By default, it will
-     * loop over all valid directions. See {@link StructureType#getValidOpenDirectionsList()}. However, subclasses may
-     * override this behavior.
+     * Cycle the {@link MovementDirection} direction this {@link Structure} will open in. By default, it will loop over
+     * all valid directions. See {@link StructureType#getValidOpenDirectionsList()}. However, subclasses may override
+     * this behavior.
      * <p>
      * Note that this does not actually change the open direction; it merely tells you which direction comes next!
      *
-     * @return The new {@link MovementDirection} direction this {@link AbstractStructure} will open in.
+     * @return The new {@link MovementDirection} direction this {@link Structure} will open in.
      */
-    default MovementDirection getCycledOpenDirection()
-    {
-        final List<MovementDirection> validOpenDirections = getType().getValidOpenDirectionsList();
-        final MovementDirection currentDir = getOpenDir();
-
-        if (validOpenDirections.size() <= 1)
-            return currentDir;
-
-        final int index = Math.max(0, validOpenDirections.indexOf(currentDir));
-        return validOpenDirections.get((index + 1) % validOpenDirections.size());
-    }
+    MovementDirection getCycledOpenDirection();
 
     @Override
     boolean equals(Object o);
@@ -299,4 +321,11 @@ public interface IStructureConst extends IPropertyHolderConst
      * @return The {@link PropertyContainerSnapshot} of this structure.
      */
     IPropertyContainerConst getPropertyContainerSnapshot();
+
+    /**
+     * Checks if this structure can move perpetually.
+     *
+     * @return True if this structure can move perpetually.
+     */
+    boolean canMovePerpetually();
 }

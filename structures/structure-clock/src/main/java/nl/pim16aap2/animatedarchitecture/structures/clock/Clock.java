@@ -1,77 +1,35 @@
 package nl.pim16aap2.animatedarchitecture.structures.clock;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Locked;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
-import nl.pim16aap2.animatedarchitecture.core.annotations.Deserialization;
-import nl.pim16aap2.animatedarchitecture.core.annotations.PersistentVariable;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IStructureWithRotationPoint;
-import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IHorizontalAxisAligned;
-import nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes.IPerpetualMover;
-import nl.pim16aap2.animatedarchitecture.core.util.BlockFace;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureComponent;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 
 import java.util.Optional;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a Clock structure type.
  */
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class Clock
-    extends AbstractStructure
-    implements IHorizontalAxisAligned, IPerpetualMover, IStructureWithRotationPoint
+@Flogger
+@ToString
+@EqualsAndHashCode
+public class Clock implements IStructureComponent
 {
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private final ReentrantReadWriteLock lock;
-
-    @Getter
-    @PersistentVariable(value = "northSouthAnimated")
-    protected final boolean northSouthAnimated;
-
-    /**
-     * Describes on which side the hour arm is. If the clock is situated along the North/South axis see
-     * {@link #northSouthAnimated}, then the hour arm can either be on the {@link BlockFace#WEST} or the
-     * {@link BlockFace#EAST} side.
-     * <p>
-     * This is stored as a direction rather than an integer value (for example the X/Z axis value) so that it could also
-     * work for {@link Clock}s that have arms that are more than 1 block deep.
-     *
-     * @return The side of the hour arm relative to the minute arm.
-     */
-    @PersistentVariable(value = "hourArmSide")
-    @Getter
-    protected final BlockFace hourArmSide;
-
-    @Deserialization
-    public Clock(
-        BaseHolder base,
-        @PersistentVariable(value = "northSouthAnimated") boolean northSouthAnimated,
-        @PersistentVariable(value = "hourArmSide") BlockFace hourArmSide)
+    @Override
+    public boolean canMovePerpetually(IStructureConst structure)
     {
-        super(base, StructureTypeClock.get());
-        this.lock = getLock();
-        this.northSouthAnimated = northSouthAnimated;
-        this.hourArmSide = hourArmSide;
-    }
-
-    public Clock(BaseHolder base)
-    {
-        this(base, false, BlockFace.NONE);
+        return true;
     }
 
     @Override
-    protected double calculateAnimationCycleDistance()
+    public double calculateAnimationCycleDistance(IStructureConst structure)
     {
         // Not needed for this type, as this type has no real cycle.
         // Its movement is based on the in-game time.
@@ -79,10 +37,9 @@ public class Clock
     }
 
     @Override
-    @Locked.Read("lock")
-    protected Rectangle calculateAnimationRange()
+    public Rectangle calculateAnimationRange(IStructureConst structure)
     {
-        final Cuboid cuboid = getCuboid();
+        final Cuboid cuboid = structure.getCuboid();
 
         // The clock needs to be an odd-sized square, so the radius is always half the height (rounded up).
         final int circleRadius = MathUtil.ceil(cuboid.getDimensions().y() / 2.0D);
@@ -90,42 +47,37 @@ public class Clock
         final int boxRadius = MathUtil.ceil(Math.sqrt(2 * Math.pow(circleRadius, 2)));
         final int delta = boxRadius - circleRadius;
 
-        return (isNorthSouthAnimated() ? cuboid.grow(0, delta, delta) : cuboid.grow(delta, delta, 0)).asFlatRectangle();
+        return (isNorthSouthAnimated(structure) ?
+            cuboid.grow(0, delta, delta) :
+            cuboid.grow(delta, delta, 0)
+        ).asFlatRectangle();
     }
 
     @Override
-    protected double calculateAnimationTime(double target)
+    public double calculateAnimationTime(IStructureConst structure, double target)
     {
         return 8;
     }
 
     @Override
-    public MovementDirection getCycledOpenDirection()
+    public MovementDirection getCycledOpenDirection(IStructureConst structure)
     {
-        return getOpenDir();
+        return structure.getOpenDirection();
     }
 
     @Override
-    @Locked.Read("lock")
-    protected IAnimationComponent constructAnimationComponent(AnimationRequestData data)
+    public IAnimationComponent constructAnimationComponent(IStructureConst structure, AnimationRequestData data)
     {
-        return new ClockAnimationComponent(data, getCurrentToggleDir(), isNorthSouthAnimated());
+        return new ClockAnimationComponent(
+            data,
+            getCurrentToggleDirection(structure),
+            isNorthSouthAnimated(structure)
+        );
     }
 
     @Override
-    public Optional<Cuboid> getPotentialNewCoordinates()
+    public Optional<Cuboid> getPotentialNewCoordinates(IStructureConst structure)
     {
-        return Optional.of(getCuboid());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Always the same as {@link #getOpenDir()}, as this archetype makes no distinction between opening and closing.
-     */
-    @Override
-    public MovementDirection getCurrentToggleDir()
-    {
-        return getOpenDir();
+        return Optional.of(structure.getCuboid());
     }
 }

@@ -12,7 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.RollingCache;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.AbstractStructure;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -370,7 +370,7 @@ public final class StructureFinder
      *
      * @return A list of all structures that match the given search parameters.
      */
-    public CompletableFuture<List<AbstractStructure>> getStructures()
+    public CompletableFuture<List<Structure>> getStructures()
     {
         return getStructures(DEFAULT_FULL_MATCH);
     }
@@ -405,7 +405,7 @@ public final class StructureFinder
 
     /**
      * Gets all structures that have been found using the given search parameters as a list of
-     * {@link AbstractStructure}s.
+     * {@link Structure}s.
      *
      * @param fullMatch
      *     When true, only the entries that have a complete match are returned. E.g. for an input of "door", "door"
@@ -414,15 +414,15 @@ public final class StructureFinder
      * @return A list of all structures that match the given search parameters.
      */
     @Locked.Read("lock")
-    public CompletableFuture<List<AbstractStructure>> getStructures(boolean fullMatch)
+    public CompletableFuture<List<Structure>> getStructures(boolean fullMatch)
     {
         final String lastInput0 = lastInput;
         return waitForDescriptions().thenCompose(descriptions ->
         {
             final List<MinimalStructureDescription> targetList = filterIfNeeded(descriptions, lastInput0, fullMatch);
 
-            @SuppressWarnings("unchecked") final CompletableFuture<Optional<AbstractStructure>>[] retrieved =
-                (CompletableFuture<Optional<AbstractStructure>>[]) new CompletableFuture[targetList.size()];
+            @SuppressWarnings("unchecked") final CompletableFuture<Optional<Structure>>[] retrieved =
+                (CompletableFuture<Optional<Structure>>[]) new CompletableFuture[targetList.size()];
 
             for (int idx = 0; idx < targetList.size(); ++idx)
                 retrieved[idx] = structureRetrieverFactory

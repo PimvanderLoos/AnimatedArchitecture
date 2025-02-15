@@ -6,7 +6,8 @@ import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureBaseBuilder;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.Assertions;
@@ -17,13 +18,13 @@ import org.mockito.Mockito;
 class CounterWeightGarageDoorAnimationComponentTest
 {
     private AnimationRequestData.IFactory animationRequestDataFactory;
-    private StructureBaseBuilder structureBaseBuilder;
+    private StructureBuilder structureBuilder;
 
     @BeforeEach
     public void beforeEach()
         throws Exception
     {
-        structureBaseBuilder = UnitTestUtil.newStructureBaseBuilder().structureBaseBuilder();
+        structureBuilder = UnitTestUtil.newStructureBuilder().structureBuilder();
 
         this.animationRequestDataFactory = new AssistedFactoryMocker<>(
             AnimationRequestData.class,
@@ -49,7 +50,7 @@ class CounterWeightGarageDoorAnimationComponentTest
      */
     private void verifyFinalPosition(GarageDoorTestUtil.OpeningData openingData)
     {
-        final GarageDoor garageDoor = openingData.createGarageDoor(structureBaseBuilder);
+        final Structure garageDoor = openingData.createGarageDoor(structureBuilder);
 
         final var data = createData(garageDoor);
         final var currentToggleDir = openingData.currentToggleDir();
@@ -74,7 +75,7 @@ class CounterWeightGarageDoorAnimationComponentTest
         );
     }
 
-    private AnimationRequestData createData(GarageDoor garageDoor)
+    private AnimationRequestData createData(Structure garageDoor)
     {
         return animationRequestDataFactory.newToggleRequestData(
             garageDoor.getSnapshot(),
