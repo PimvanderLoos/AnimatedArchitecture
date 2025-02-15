@@ -37,6 +37,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +46,7 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 /**
@@ -412,12 +414,11 @@ final class StructureToggleHelper
         StructureAnimationRequest request,
         IPlayer responsible)
     {
-        final StructureSnapshot snapshot;
-        final AnimationRequestData data;
-        final IAnimationComponent component;
+        final AtomicReference<StructureSnapshot> snapshot = new AtomicReference<>();
+        final AtomicReference<AnimationRequestData> data = new AtomicReference<>();
+        final AtomicReference<IAnimationComponent> component = new AtomicReference<>();
 
-        structure.getLock().readLock().lock();
-        try
+        final @Nullable CompletableFuture<StructureToggleResult> abortedResult = structure.withReadLock(() ->
         {
             if (request.isSkipAnimation() && !structure.canSkipAnimation())
                 return abort(
@@ -451,30 +452,36 @@ final class StructureToggleHelper
                 );
 
             final double animationTime = structure.getAnimationTime(request.getTime());
-            snapshot = structure.getSnapshot();
+            snapshot.setPlain(structure.getSnapshot());
 
-            data = movementRequestDataFactory.newToggleRequestData(
-                snapshot,
-                request.getCause(),
-                animationTime,
-                request.isSkipAnimation(),
-                request.isPreventPerpetualMovement(),
-                newCuboid.get(),
-                responsible,
-                request.getAnimationType(),
-                request.getActionType()
+            data.setPlain(
+                movementRequestDataFactory.newToggleRequestData(
+                    Util.requireNonNull(snapshot.get(), "Structure Snapshot"),
+                    request.getCause(),
+                    animationTime,
+                    request.isSkipAnimation(),
+                    request.isPreventPerpetualMovement(),
+                    Util.requireNonNull(newCuboid.get(), "New Cuboid"),
+                    responsible,
+                    request.getAnimationType(),
+                    request.getActionType()
+                ));
+            component.setPlain(
+                structure.constructAnimationComponent(Util.requireNonNull(data.get(), "AnimationRequestData"))
             );
-            component = structure.constructAnimationComponent(data);
-        }
-        finally
-        {
-            structure.getLock().readLock().unlock();
-        }
+
+            //noinspection DataFlowIssue
+            return null;
+        });
+
+        if (abortedResult != null)
+            return abortedResult;
+
         return toggle(
-            snapshot,
+            Util.requireNonNull(snapshot.get(), "Structure Snapshot"),
             structure,
-            data,
-            component,
+            Util.requireNonNull(data.get(), "AnimationRequestData"),
+            Util.requireNonNull(component.get(), "AnimationComponent"),
             request.getMessageReceiver(),
             responsible,
             request.getAnimationType()

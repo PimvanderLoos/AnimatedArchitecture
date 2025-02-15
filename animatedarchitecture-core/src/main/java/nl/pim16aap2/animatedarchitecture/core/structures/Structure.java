@@ -73,8 +73,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     private static final double DEFAULT_ANIMATION_SPEED = 1.5D;
 
     @EqualsAndHashCode.Exclude
-    @Getter(AccessLevel.PACKAGE)
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     @Getter
     private final long uid;
@@ -721,10 +720,13 @@ public final class Structure implements IStructureConst, IPropertyHolder
                 throw new IllegalStateException("Timed out waiting for write lock for structure: " + getUid());
             }
         }
-        catch (InterruptedException e)
+        catch (InterruptedException ex)
         {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Interrupted while trying to obtain write lock for structure: " + getUid());
+            throw new IllegalStateException(
+                "Interrupted while trying to obtain write lock for structure: " + getUid(),
+                ex
+            );
         }
     }
 
@@ -1013,7 +1015,8 @@ public final class Structure implements IStructureConst, IPropertyHolder
             if (structureOwner.permission() == PermissionLevel.CREATOR)
             {
                 log.atSevere().withStackTrace(StackSize.FULL).log(
-                    "Failed to add Owner '%s' as owner to structure: %d because a permission level of 0 is not allowed!",
+                    "Failed to add Owner '%s' as owner to structure: " +
+                        "%d because a permission level of 0 is not allowed!",
                     structureOwner.playerData(),
                     this.getUid()
                 );
