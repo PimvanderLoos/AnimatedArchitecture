@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
+import com.google.common.flogger.LazyArgs;
 import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dagger.assisted.Assisted;
@@ -717,6 +718,15 @@ public final class Structure implements IStructureConst, IPropertyHolder
             }
             else
             {
+                FutureUtil.logPossibleDeadlockTimeout(
+                    LazyArgs.lazy(() -> String.format(
+                        "Timed out waiting for write lock for structure: %d",
+                        getUid())
+                    ),
+                    timeOutMs,
+                    isMainThread
+                );
+
                 throw new IllegalStateException("Timed out waiting for write lock for structure: " + getUid());
             }
         }
