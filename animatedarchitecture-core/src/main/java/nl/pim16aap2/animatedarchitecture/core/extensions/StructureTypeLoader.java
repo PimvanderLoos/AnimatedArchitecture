@@ -1,17 +1,16 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
-import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidNameSpacedKeyException;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
-import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.semver4j.Semver;
@@ -30,8 +29,9 @@ import java.nio.file.PathMatcher;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
@@ -47,6 +47,21 @@ import java.util.stream.Stream;
 @Flogger
 public final class StructureTypeLoader extends Restartable
 {
+    /**
+     * The file names of the legacy extension jars.
+     */
+    private static final Set<String> LEGACY_EXTENSION_JARS = Set.of(
+        "BigDoor.jar",
+        "Drawbridge.jar",
+        "Windmill.jar",
+        "Clock.jar",
+        "Flag.jar",
+        "GarageDoor.jar",
+        "Portcullis.jar",
+        "RevolvingDoor.jar",
+        "SlidingDoor.jar"
+    );
+
     /**
      * The current extension API version.
      * <p>
@@ -114,13 +129,16 @@ public final class StructureTypeLoader extends Restartable
      *     The path to a file for which to create the structure type info.
      * @return The {@link StructureTypeInfo} of the file, if it could be constructed.
      */
-    private Optional<StructureTypeInfo> getStructureTypeInfo(Path file)
+    private ParsedStructureTypeInfo getStructureTypeInfo(Path file)
     {
         log.atFine().log("Attempting to load StructureType from jar: %s", file);
         if (!file.toString().endsWith(".jar"))
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log("'%s' is not a valid jar file!", file);
-            return Optional.empty();
+            return ParsedStructureTypeInfo.failed(
+                file,
+                StructureTypeInfoParseResult.INVALID_JAR,
+                "File is not a jar file: " + file
+            );
         }
 
         @Nullable Manifest manifest = null;
@@ -142,7 +160,8 @@ public final class StructureTypeLoader extends Restartable
                 file,
                 manifestToString(manifest)
             );
-            return Optional.empty();
+
+            return ParsedStructureTypeInfo.genericError(file);
         }
     }
 
@@ -297,14 +316,40 @@ public final class StructureTypeLoader extends Restartable
                 .stream()
                 .map(zipFileSystem::getPath)
                 .map(this::getStructureTypeInfo)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
                 .forEach(info -> extractEmbeddedStructureType(info, zipFileSystem, jarFile));
         }
         catch (IOException | URISyntaxException e)
         {
             log.atSevere().withCause(e).log("Failed to read resource from file: %s", jarFile);
         }
+    }
+
+    /**
+     * Extracts an embedded structure type.
+     *
+     * @param parsedInfo
+     *     The parsed structure type info.
+     * @param zipFileSystem
+     *     The file system of the jar file.
+     * @param jarFile
+     *     The jar file that contains the embedded structure type.
+     */
+    private void extractEmbeddedStructureType(
+        ParsedStructureTypeInfo parsedInfo,
+        FileSystem zipFileSystem,
+        Path jarFile)
+    {
+        if (!parsedInfo.isSuccessful())
+        {
+            log.atSevere().log(
+                "Failed to extract embedded structure type from jar: '%s'. Reason: %s",
+                jarFile,
+                parsedInfo.context()
+            );
+            return;
+        }
+
+        extractEmbeddedStructureType(Objects.requireNonNull(parsedInfo.structureTypeInfo()), zipFileSystem, jarFile);
     }
 
     /**
@@ -366,6 +411,7 @@ public final class StructureTypeLoader extends Restartable
                 // Sort inverted to get e.g. my-structure-v2 before my-structure-v1
                 .sorted(Comparator.reverseOrder())
                 .map(this::getStructureTypeInfo)
+                .map(this::handleParsedStructureTypeInfo)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.groupingBy(info ->
@@ -393,6 +439,70 @@ public final class StructureTypeLoader extends Restartable
 
         structureTypeManager.register(loadedStructureTypes);
         return loadedStructureTypes;
+    }
+
+    /**
+     * Handles the result of parsing a {@link StructureTypeInfo} from a manifest.
+     * <p>
+     * If the parse was successful, the structure type is returned.
+     * <p>
+     * If the parse was not successful, we log the error, perform any other necessary actions, and return an empty
+     * optional.
+     *
+     * @param parsedStructureTypeInfo
+     *     The parsed structure type info.
+     * @return The structure type if the parse was successful.
+     */
+    private Optional<StructureTypeInfo> handleParsedStructureTypeInfo(ParsedStructureTypeInfo parsedStructureTypeInfo)
+    {
+        if (parsedStructureTypeInfo.isSuccessful())
+            return Optional.of(Objects.requireNonNull(parsedStructureTypeInfo.structureTypeInfo()));
+
+        log.atSevere().log(
+            "Failed to load structure type from file: '%s'. Reason: %s",
+            parsedStructureTypeInfo.file(),
+            parsedStructureTypeInfo.context()
+        );
+
+        // These states are too invalid to assume it's even a structure jar at all.
+        // So we don't handle them any further.
+        final var result = parsedStructureTypeInfo.parseResult();
+        if (result == StructureTypeInfoParseResult.INVALID_JAR ||
+            result == StructureTypeInfoParseResult.NO_ATTRIBUTES)
+            return Optional.empty();
+
+        handleInvalidStructureFile(parsedStructureTypeInfo.file());
+
+        return Optional.empty();
+    }
+
+    /**
+     * Handles an invalid structure file.
+     * <p>
+     * If the file is a legacy extension jar, it will be deleted.
+     *
+     * @param file
+     *     The file to handle.
+     */
+    private void handleInvalidStructureFile(Path file)
+    {
+        if (!LEGACY_EXTENSION_JARS.contains(file.getFileName().toString()))
+            return;
+
+        log.atWarning().log(
+            "Found legacy extension jar '%s'. " +
+                "Going to delete it now... The updated version has been installed automatically.",
+            file.getFileName()
+        );
+
+        try
+        {
+            Files.delete(file);
+        }
+        catch (IOException e)
+        {
+            log.atSevere().withCause(e).log("Failed to delete legacy extension jar: %s", file);
+        }
     }
 
     /**
@@ -461,32 +571,80 @@ public final class StructureTypeLoader extends Restartable
      * @throws IllegalArgumentException
      *     If the manifest does not contain the required section.
      */
-    static Optional<StructureTypeInfo> getStructureTypeInfo(
+    static ParsedStructureTypeInfo getStructureTypeInfo(
         String entryTitle,
         Path file,
         Manifest manifest)
         throws NullPointerException
     {
         final @Nullable var attributes = manifest.getEntries().get(entryTitle);
+
         if (attributes == null)
-            throw new IllegalArgumentException(
-                "The manifest of file: '" + file + "' does not contain the section '" + entryTitle + "'!");
+            return ParsedStructureTypeInfo.failed(
+                file,
+                StructureTypeInfoParseResult.NO_ATTRIBUTES,
+                String.format(
+                    "The manifest of file '%s' does not contain the section '%s!",
+                    file,
+                    entryTitle
+                ));
 
-        final String className =
-            Util.requireNonNull(manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS), "Main-Class");
+        final @Nullable String className = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
+        if (className == null)
+            return ParsedStructureTypeInfo.failed(
+                file,
+                StructureTypeInfoParseResult.MISSING_ATTRIBUTE,
+                String.format(
+                    "The manifest of file '%s' does not contain the main class!",
+                    file
+                ));
 
-        return Optional.of(new StructureTypeInfo(
-            new NamespacedKey(
-                attributes.getValue("Namespace"),
-                attributes.getValue("TypeName")),
-            MathUtil
-                .parseInt(attributes.getValue("Version"))
-                .orElseThrow(() -> new NoSuchElementException("Version not found")),
-            className,
-            file,
-            Util.requireNonNull(attributes.getValue("SupportedApiVersions"), "SupportedApiVersions"),
-            attributes.getValue("TypeDependencies"))
-        );
+        final OptionalInt version = MathUtil.parseInt(attributes.getValue("Version"));
+        if (version.isEmpty())
+            return ParsedStructureTypeInfo.failed(
+                file,
+                StructureTypeInfoParseResult.MISSING_ATTRIBUTE,
+                String.format(
+                    "The manifest of file '%s' does not contain the version!",
+                    file
+                ));
+
+        final @Nullable NamespacedKey namespacedKey;
+        try
+        {
+            namespacedKey = new NamespacedKey(
+                Objects.requireNonNullElse(attributes.getValue("Namespace"), ""),
+                Objects.requireNonNullElse(attributes.getValue("TypeName"), "")
+            );
+        }
+        catch (InvalidNameSpacedKeyException e)
+        {
+            return ParsedStructureTypeInfo.failed(
+                file,
+                StructureTypeInfoParseResult.INVALID_NAMESPACED_KEY,
+                "The manifest of file '" + file + "' contains an invalid namespaced key: " + e.getMessage()
+            );
+        }
+
+        final @Nullable String supportedApiVersions = attributes.getValue("SupportedApiVersions");
+        if (supportedApiVersions == null)
+            return ParsedStructureTypeInfo.failed(
+                file,
+                StructureTypeInfoParseResult.MISSING_ATTRIBUTE,
+                String.format(
+                    "The manifest of file '%s' does not contain the supported API versions!",
+                    file
+                ));
+
+        return ParsedStructureTypeInfo.success(
+            new StructureTypeInfo(
+                namespacedKey,
+                version.getAsInt(),
+                className,
+                file,
+                supportedApiVersions,
+                attributes.getValue("TypeDependencies")
+            ));
     }
 
     @Override
@@ -497,6 +655,128 @@ public final class StructureTypeLoader extends Restartable
 
         extractEmbeddedStructureTypes(FileUtil.getJarFile(this.getClass()).toAbsolutePath());
         loadStructureTypesFromDirectory();
+    }
+
+    /**
+     * Represents the result of parsing a {@link StructureTypeInfo} from a manifest.
+     *
+     * @param file
+     *     The path to the file that was parsed.
+     * @param structureTypeInfo
+     *     The parsed structure type info. This is always null if the parse result is not
+     *     {@link StructureTypeInfoParseResult#SUCCESS}.
+     *     <p>
+     *     When it is successful, it is never null.
+     * @param parseResult
+     *     The result of the parse.
+     * @param context
+     *     Additional context for the parse result.
+     */
+    record ParsedStructureTypeInfo(
+        Path file,
+        @Nullable StructureTypeInfo structureTypeInfo,
+        StructureTypeInfoParseResult parseResult,
+        @Nullable String context
+    )
+    {
+        /**
+         * Creates a new {@link ParsedStructureTypeInfo} with a failed parse result.
+         *
+         * @param file
+         *     The path to the file that was parsed.
+         * @param parseResult
+         *     The reason for the failed parse.
+         * @param context
+         *     Additional context for the parse result.
+         * @return The failed {@link ParsedStructureTypeInfo}.
+         */
+        static ParsedStructureTypeInfo failed(
+            Path file,
+            StructureTypeInfoParseResult parseResult,
+            @Nullable String context)
+        {
+            return new ParsedStructureTypeInfo(file, null, parseResult, context);
+        }
+
+        /**
+         * Creates a new {@link ParsedStructureTypeInfo} with a generic error.
+         *
+         * @param file
+         *     The path to the file that was parsed.
+         * @return The generic error {@link ParsedStructureTypeInfo}.
+         */
+        static ParsedStructureTypeInfo genericError(Path file)
+        {
+            return new ParsedStructureTypeInfo(
+                file,
+                null,
+                StructureTypeInfoParseResult.GENERIC_ERROR,
+                "A generic error occurred."
+            );
+        }
+
+        /**
+         * Creates a new {@link ParsedStructureTypeInfo} with a successful parse result.
+         *
+         * @param structureTypeInfo
+         *     The parsed structure type info.
+         * @return The successful {@link ParsedStructureTypeInfo}.
+         */
+        static ParsedStructureTypeInfo success(StructureTypeInfo structureTypeInfo)
+        {
+            return new ParsedStructureTypeInfo(
+                structureTypeInfo.getJarFile(),
+                structureTypeInfo,
+                StructureTypeInfoParseResult.SUCCESS,
+                null
+            );
+        }
+
+        /**
+         * Checks if the parse was successful.
+         *
+         * @return True if the parse was successful.
+         */
+        boolean isSuccessful()
+        {
+            return parseResult == StructureTypeInfoParseResult.SUCCESS;
+        }
+    }
+
+    /**
+     * Represents the result of parsing a {@link StructureTypeInfo} from a manifest.
+     */
+    enum StructureTypeInfoParseResult
+    {
+        /**
+         * The structure type info was successfully parsed.
+         */
+        SUCCESS,
+
+        /**
+         * An error occurred while parsing the structure type info.
+         */
+        GENERIC_ERROR,
+
+        /**
+         * The manifest of the jar file does not contain any attributes.
+         */
+        NO_ATTRIBUTES,
+
+        /**
+         * The manifest of the jar file does not contain the required attribute.
+         */
+        MISSING_ATTRIBUTE,
+
+        /**
+         * The manifest of the jar file contains an invalid namespaced key or the contains no key at all.
+         */
+        INVALID_NAMESPACED_KEY,
+
+        /**
+         * The file is not a valid jar file.
+         */
+        INVALID_JAR,
     }
 
     /**

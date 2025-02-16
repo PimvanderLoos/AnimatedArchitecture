@@ -136,9 +136,9 @@ class StructureTypeLoaderTest
         final var file = Paths.get("/does/not/exist.jar");
         final var structureTypeInfoOpt = StructureTypeLoader.getStructureTypeInfo("EntryTitle", file, manifest);
 
-        Assertions.assertTrue(structureTypeInfoOpt.isPresent());
-
-        final var structureTypeInfo = structureTypeInfoOpt.get();
+        Assertions.assertTrue(structureTypeInfoOpt.isSuccessful());
+        final var structureTypeInfo = structureTypeInfoOpt.structureTypeInfo();
+        Assertions.assertNotNull(structureTypeInfo);
 
         Assertions.assertEquals(key, structureTypeInfo.getNamespacedKey());
         Assertions.assertEquals(1, structureTypeInfo.getVersion());
@@ -150,9 +150,9 @@ class StructureTypeLoaderTest
             structureTypeInfo.getDependencies()
         );
 
-        Assertions.assertThrows(
-            IllegalArgumentException.class,
-            () -> StructureTypeLoader.getStructureTypeInfo("EntryTitle", file, new Manifest())
+        Assertions.assertEquals(
+            StructureTypeLoader.StructureTypeInfoParseResult.NO_ATTRIBUTES,
+            StructureTypeLoader.getStructureTypeInfo("EntryTitle", file, new Manifest()).parseResult()
         );
     }
 }
