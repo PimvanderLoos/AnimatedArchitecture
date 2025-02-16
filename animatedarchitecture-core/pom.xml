@@ -15,9 +15,6 @@
     <properties>
         <project.root-dir>${project.basedir}/..</project.root-dir>
 
-        <actions.run.id>-1</actions.run.id>
-        <actions.run.number>-1</actions.run.number>
-
         <!-- Default build data values. These will be overwritten by git-commit-id-maven-plugin -->
         <git.branch>unknown</git.branch>
         <git.commit.id>unknown</git.commit.id>
@@ -48,6 +45,36 @@
 
     <build>
         <plugins>
+            <!-- Set the build number/id of the GitHub Actions build      -->
+            <!-- This is used to set the build information in build_data  -->
+            <!-- We use ant so we can set these values to '-1' when unset -->
+            <!-- Otherwise, it would not replace the placeholder at all   -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${dependency.maven-antrun.version}</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <exportAntProperties>true</exportAntProperties>
+                            <target>
+                                <property environment="env"/>
+                                <condition property="actions.run.number" value="${env.GITHUB_RUN_NUMBER}" else="-1">
+                                    <isset property="env.GITHUB_RUN_NUMBER"/>
+                                </condition>
+                                <condition property="actions.run.id" value="${env.GITHUB_RUN_ID}" else="-1">
+                                    <isset property="env.GITHUB_RUN_ID"/>
+                                </condition>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
