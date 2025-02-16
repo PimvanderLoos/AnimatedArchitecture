@@ -45,7 +45,11 @@ class StructureTypeLoaderIntegrationTest
         final int jarCount =
             Objects.requireNonNull(extensionsPath.toFile().list((dir, name) -> name.endsWith(".jar"))).length;
 
-        Assertions.assertEquals(9, jarCount);
+        Assertions.assertEquals(
+            9,
+            jarCount,
+            "Expected 9 jar files, but found " + jarCount + " in directory " + extensionsPath.toAbsolutePath()
+        );
 
         final var structureTypeLoader = new StructureTypeLoader(
             restartableHolder,
