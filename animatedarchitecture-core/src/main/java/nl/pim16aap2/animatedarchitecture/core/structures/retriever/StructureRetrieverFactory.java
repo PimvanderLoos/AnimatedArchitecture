@@ -2,8 +2,8 @@ package nl.pim16aap2.animatedarchitecture.core.structures.retriever;
 
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedStructureSpecificationInputRequest;
@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
  * structureRetrieverFactory.of("MyDoor");
  *
  * // Wrap an existing structure in a retriever:
- * structureRetrieverFactory.of(myAbstractStructure);
+ * structureRetrieverFactory.of(myStructure);
  * }</pre>
  * <p>
  * <h1 id="sect-finders">Structure Finders</h1>
