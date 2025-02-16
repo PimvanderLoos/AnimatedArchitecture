@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
+import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidNameSpacedKeyException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -41,8 +42,8 @@ class NamespacedKeyTest
     @Test
     public void testNullNamespace()
     {
-        final IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
+        final InvalidNameSpacedKeyException exception = assertThrows(
+            InvalidNameSpacedKeyException.class,
             () -> new NamespacedKey(null, "name")
         );
         assertEquals("Namespace cannot be null.", exception.getMessage());
@@ -51,8 +52,8 @@ class NamespacedKeyTest
     @Test
     public void testNullName()
     {
-        final IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
+        final InvalidNameSpacedKeyException exception = assertThrows(
+            InvalidNameSpacedKeyException.class,
             () -> new NamespacedKey("owner", null)
         );
         assertEquals("Name cannot be null.", exception.getMessage());
@@ -61,8 +62,8 @@ class NamespacedKeyTest
     @Test
     public void testInvalidCharactersInNamespace()
     {
-        final IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
+        final InvalidNameSpacedKeyException exception = assertThrows(
+            InvalidNameSpacedKeyException.class,
             () -> new NamespacedKey("Owner!", "name")
         );
         assertEquals("Namespace must match the regex rule: ^[a-z0-9_-]+$. Found: Owner!", exception.getMessage());
@@ -71,8 +72,8 @@ class NamespacedKeyTest
     @Test
     public void testInvalidCharactersInName()
     {
-        final IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
+        final InvalidNameSpacedKeyException exception = assertThrows(
+            InvalidNameSpacedKeyException.class,
             () -> new NamespacedKey("owner", "Name!")
         );
         assertEquals("Name must match the regex rule: ^[a-z0-9_-]+$. Found: Name!", exception.getMessage());

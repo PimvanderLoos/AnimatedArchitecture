@@ -5,6 +5,7 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidNameSpacedKeyException;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
@@ -281,6 +282,8 @@ final class StructureTypeInfo implements IKeyed
          *     The maximum version of the dependency. Inclusive.
          *     <p>
          *     Must be larger than {@code minVersion}.
+         * @throws InvalidNameSpacedKeyException
+         *     If the key is invalid.
          */
         Dependency(String key, int minVersion, int maxVersion)
         {
