@@ -11,12 +11,14 @@ nl.pim16aap2.animatedarchitecture.core.data.cache
 nl.pim16aap2.animatedarchitecture.core.data.cache.timed
 nl.pim16aap2.animatedarchitecture.core.data.graph
 nl.pim16aap2.animatedarchitecture.core.events
+nl.pim16aap2.animatedarchitecture.core.exceptions
 nl.pim16aap2.animatedarchitecture.core.extensions
 nl.pim16aap2.animatedarchitecture.core.localization
 nl.pim16aap2.animatedarchitecture.core.managers
 nl.pim16aap2.animatedarchitecture.core.storage
 nl.pim16aap2.animatedarchitecture.core.storage.sqlite
 nl.pim16aap2.animatedarchitecture.core.structures
+nl.pim16aap2.animatedarchitecture.core.structures.properties
 nl.pim16aap2.animatedarchitecture.core.structures.retriever
 nl.pim16aap2.animatedarchitecture.core.structures.structurearchetypes
 nl.pim16aap2.animatedarchitecture.core.text
