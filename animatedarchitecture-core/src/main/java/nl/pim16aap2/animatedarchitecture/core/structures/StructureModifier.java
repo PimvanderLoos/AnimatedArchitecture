@@ -24,7 +24,7 @@ public final class StructureModifier
      * as using this object through other means can leave the structure in an incorrect state. So, if you think you need
      * to access this class, please think again and again until you realise that you do not.
      * <p>
-     * Instead, use the publicly accessible methods in the database manager and the structure classes.
+     * Instead, use the publicly accessible methods in the database manager and the structure class.
      *
      * @param friendKey
      *     The friend key of the database manager class. This is used to verify that the caller is allowed to obtain

@@ -8,8 +8,8 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedStructureSpecificationInputRequest;
 import org.jetbrains.annotations.Nullable;
@@ -28,24 +28,24 @@ import java.util.concurrent.CompletableFuture;
  * For example:
  * <pre>{@code
  * // Get the referenced structure if there is exactly 1 match.
- * final CompletableFuture<Optional<AbstractStructure>> result =
+ * final CompletableFuture<Optional<Structure>> result =
  *     structureRetriever.getStructure();
  *
  * // Get the referenced structure if there is exactly 1 match that the player is an admin of.
- * final CompletableFuture<Optional<AbstractStructure>> result =
+ * final CompletableFuture<Optional<Structure>> result =
  *     structureRetriever.getStructure(player, PermissionLevel.ADMIN);
  *
  * // Get the referenced structure that the player is the creator of. If there is more than 1 match, the player
  * // will be asked to select one (if supported).
- * final CompletableFuture<Optional<AbstractStructure>> result =
+ * final CompletableFuture<Optional<Structure>> result =
  *     structureRetriever.getStructureInteractive(player, PermissionLevel.CREATOR);
  *
  * // Get all structures that match the description.
- * final CompletableFuture<List<AbstractStructure>> result =
+ * final CompletableFuture<List<Structure>> result =
  *     structureRetriever.getStructures();
  *
  * // Get all structures that match the description and that the player is a user of.
- * final CompletableFuture<List<AbstractStructure>> result =
+ * final CompletableFuture<List<Structure>> result =
  *     structureRetriever.getStructures(player, PermissionLevel.USER);
  * }</pre>
  */
@@ -250,8 +250,7 @@ public sealed abstract class StructureRetriever
      *
      * @param list
      *     The list of (future) structures.
-     * @return An optional (future) {@link Structure} if exactly 1 existed in the list, otherwise an empty
-     * optional.
+     * @return An optional (future) {@link Structure} if exactly 1 existed in the list, otherwise an empty optional.
      */
     private static CompletableFuture<Optional<Structure>> listToOptional(
         CompletableFuture<List<Structure>> list)

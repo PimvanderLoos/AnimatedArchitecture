@@ -88,7 +88,7 @@ public class PropertyContainerSerializerTest
     }
 
     @Test
-    void testSerializeAbstractStructure()
+    void testSerializeStructure()
     {
         final Structure structure = Mockito.mock(Structure.class);
         Mockito.when(structure.getType()).thenReturn(structureType);
