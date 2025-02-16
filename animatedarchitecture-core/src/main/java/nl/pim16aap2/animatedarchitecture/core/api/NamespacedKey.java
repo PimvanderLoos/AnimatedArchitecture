@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.api;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidNameSpacedKeyException;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 
 import javax.annotation.Nullable;
@@ -58,6 +59,8 @@ public final class NamespacedKey
      *     The namespace of the key.
      * @param name
      *     The name of the key.
+     * @throws InvalidNameSpacedKeyException
+     *     If either the namespace or name is null or does not match the regex rule.
      */
     public NamespacedKey(String namespace, String name)
     {
@@ -79,6 +82,9 @@ public final class NamespacedKey
      * @param input
      *     The input to create the {@link NamespacedKey} from.
      * @return The created {@link NamespacedKey}.
+     *
+     * @throws InvalidNameSpacedKeyException
+     *     If either the namespace or name is null or does not match the regex rule.
      */
     public static NamespacedKey of(String input)
     {
@@ -100,17 +106,22 @@ public final class NamespacedKey
      *     The String to test.
      * @return The test String in lowercase if it is valid.
      *
-     * @throws IllegalArgumentException
+     * @throws InvalidNameSpacedKeyException
      *     If the test is null or does not match the regex rule.
      */
     static String verify(String title, @Nullable String test)
     {
         if (test == null)
-            throw new IllegalArgumentException(title + " cannot be null.");
+            throw new InvalidNameSpacedKeyException(title + " cannot be null.");
 
         final String testLower = test.toLowerCase(Locale.ROOT);
         if (!PATTERN.matcher(testLower).matches())
-            throw new IllegalArgumentException(title + " must match the regex rule: " + PATTERN + ". Found: " + test);
+            throw InvalidNameSpacedKeyException.format(
+                "%s must match the regex rule: %s. Found: %s",
+                title,
+                PATTERN,
+                test
+            );
         return testLower;
     }
 }

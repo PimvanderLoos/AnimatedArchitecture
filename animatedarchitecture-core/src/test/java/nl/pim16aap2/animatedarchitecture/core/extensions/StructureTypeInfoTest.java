@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidNameSpacedKeyException;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.jetbrains.annotations.Nullable;
@@ -188,8 +189,8 @@ class StructureTypeInfoTest
     @Test
     void testInvalidNameDependencyConstructor()
     {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new Dependency("", 1, 1));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new Dependency(" ", 1, 1));
+        Assertions.assertThrows(InvalidNameSpacedKeyException.class, () -> new Dependency("", 1, 1));
+        Assertions.assertThrows(InvalidNameSpacedKeyException.class, () -> new Dependency(" ", 1, 1));
     }
 
     @Test
