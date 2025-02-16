@@ -12,8 +12,8 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.RollingCache;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
@@ -85,7 +85,7 @@ public final class StructureFinder
     /**
      * The lock used to synchronize access to the cache and other fields.
      */
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     /**
      * The factory used to create structure retrievers when converting the results of the search to structures.
@@ -404,8 +404,7 @@ public final class StructureFinder
     }
 
     /**
-     * Gets all structures that have been found using the given search parameters as a list of
-     * {@link Structure}s.
+     * Gets all structures that have been found using the given search parameters as a list of {@link Structure}s.
      *
      * @param fullMatch
      *     When true, only the entries that have a complete match are returned. E.g. for an input of "door", "door"
