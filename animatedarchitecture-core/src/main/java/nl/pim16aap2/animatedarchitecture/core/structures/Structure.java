@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
+import com.google.common.flogger.LazyArgs;
 import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dagger.assisted.Assisted;
@@ -15,6 +16,7 @@ import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IRedstoneManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
@@ -50,6 +52,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -71,8 +74,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     private static final double DEFAULT_ANIMATION_SPEED = 1.5D;
 
     @EqualsAndHashCode.Exclude
-    @Getter(AccessLevel.PACKAGE)
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     @Getter
     private final long uid;
@@ -127,6 +129,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
     private final IStructureComponent component;
 
     @EqualsAndHashCode.Exclude
+    private final IExecutor executor;
+
+    @EqualsAndHashCode.Exclude
     private final IRedstoneManager redstoneManager;
 
     @EqualsAndHashCode.Exclude
@@ -173,6 +178,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         @Assisted PropertyContainer propertyContainer,
         @Assisted StructureType type,
         @Assisted IStructureComponent component,
+        IExecutor executor,
         DatabaseManager databaseManager,
         StructureToggleHelper structureOpeningHelper,
         StructureAnimationRequestBuilder structureToggleRequestBuilder,
@@ -193,6 +199,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         this.openDirection = openDirection;
         this.primeOwner = primeOwner;
         this.propertyContainer = propertyContainer;
+        this.executor = executor;
         this.redstoneManager = redstoneManager;
         this.structureActivityManager = structureActivityManager;
         this.chunkLoader = chunkLoader;
@@ -366,7 +373,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     {
         lazyAnimationRange.reset();
         lazyAnimationCycleDistance.reset();
-        invalidateBasicData();
+        invalidateSnapshot();
     }
 
     /**
@@ -378,7 +385,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * <p>
      * If the animation may be affected in any way, use {@link #invalidateAnimationData()} instead.
      */
-    private void invalidateBasicData()
+    private void invalidateSnapshot()
     {
         lazyStructureSnapshot.reset();
     }
@@ -676,15 +683,61 @@ public final class Structure implements IStructureConst, IPropertyHolder
     }
 
     /**
-     * Use {@link #withWriteLock(Supplier)} instead.
+     * @deprecated Use a {@code withWriteLock} method that does not end with {@code 0} instead.
      */
-    @Locked.Write("lock")
+    @Deprecated
     private <T> T withWriteLock0(boolean resetAnimationData, Supplier<T> supplier)
     {
-        final T result = supplier.get();
-        if (resetAnimationData)
-            invalidateAnimationData();
-        return result;
+        final boolean isMainThread = executor.isMainThread();
+
+        // We want to avoid blocking the main thread for too long, so we use a time out of 500ms.
+        // Note that hitting the time-out is not intended behavior and needs additional handling
+        // regardless of the thread. We're just more lenient when it's async.
+        final int timeOutMs = isMainThread ? 500 : 5_000;
+
+        try
+        {
+            // If we're on the main thread, we try to obtain the write lock in a manner
+            // that ignores fairness, as the main thread should always have priority.
+            // If that fails or if we're not on the main thread, we try to obtain the write
+            // lock with a timeout.
+            if ((isMainThread && this.lock.writeLock().tryLock()) ||
+                this.lock.writeLock().tryLock(timeOutMs, TimeUnit.MILLISECONDS))
+            {
+                try
+                {
+                    final T result = supplier.get();
+                    if (resetAnimationData)
+                        invalidateAnimationData();
+                    return result;
+                }
+                finally
+                {
+                    this.lock.writeLock().unlock();
+                }
+            }
+            else
+            {
+                FutureUtil.logPossibleDeadlockTimeout(
+                    LazyArgs.lazy(() -> String.format(
+                        "Timed out waiting for write lock for structure: %d",
+                        getUid())
+                    ),
+                    timeOutMs,
+                    isMainThread
+                );
+
+                throw new IllegalStateException("Timed out waiting for write lock for structure: " + getUid());
+            }
+        }
+        catch (InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(
+                "Interrupted while trying to obtain write lock for structure: " + getUid(),
+                ex
+            );
+        }
     }
 
     /**
@@ -703,24 +756,26 @@ public final class Structure implements IStructureConst, IPropertyHolder
     public <T> T withWriteLock(Supplier<T> supplier)
     {
         assertWriteLockable();
+        //noinspection deprecation
         return withWriteLock0(true, supplier);
     }
 
-    /**
-     * Use {@link #withWriteLock(Runnable)} instead.
-     */
-    @Locked.Write("lock")
-    private void withWriteLock0(boolean resetAnimationData, Runnable runnable)
+    public <T> T withWriteLock(boolean resetAnimationData, Supplier<T> supplier)
     {
-        runnable.run();
-        if (resetAnimationData)
-            invalidateAnimationData();
+        assertWriteLockable();
+        //noinspection deprecation
+        return withWriteLock0(resetAnimationData, supplier);
     }
 
     private void withWriteLock(boolean resetAnimationData, Runnable runnable)
     {
         assertWriteLockable();
-        withWriteLock0(resetAnimationData, runnable);
+        //noinspection deprecation
+        withWriteLock0(resetAnimationData, () ->
+        {
+            runnable.run();
+            return null;
+        });
     }
 
     /**
@@ -841,13 +896,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
             });
     }
 
-    @Locked.Write("lock")
-    private void setPowerBlock0(Vector3Di pos)
-    {
-        invalidateBasicData();
-        powerBlock = pos;
-    }
-
     /**
      * Updates the position of the powerblock.
      *
@@ -856,10 +904,12 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public void setPowerBlock(Vector3Di pos)
     {
-        // TODO: Use nicer system than 0().
-        assertWriteLockable();
-        setPowerBlock0(pos);
-        verifyRedstoneState();
+        withWriteLock(false, () ->
+        {
+            invalidateSnapshot();
+            powerBlock = pos;
+            verifyRedstoneState();
+        });
     }
 
     /**
@@ -875,7 +925,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
             () ->
             {
                 this.name = name;
-                invalidateBasicData();
+                invalidateSnapshot();
             });
     }
 
@@ -899,13 +949,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
             });
     }
 
-    @Locked.Write("lock")
-    private void setLocked0(boolean locked)
-    {
-        isLocked = locked;
-        invalidateBasicData();
-    }
-
     /**
      * Changes the lock status of this structure. Locked structures cannot be opened.
      *
@@ -914,28 +957,16 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public void setLocked(boolean locked)
     {
-        assertWriteLockable();
-        setLocked0(locked);
-        verifyRedstoneState();
-    }
-
-    @Locked.Write("lock")
-    private @Nullable StructureOwner removeOwner0(UUID ownerUUID)
-    {
-        if (primeOwner.playerData().getUUID().equals(ownerUUID))
+        withWriteLock(false, () ->
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
-                "Failed to remove owner: '%s' as owner from structure: '%d'" +
-                    " because removing an owner with a permission level of 0 is not allowed!",
-                primeOwner.playerData(),
-                this.getUid()
-            );
-            return null;
-        }
-        final @Nullable StructureOwner removed = owners.remove(ownerUUID);
-        if (removed != null)
-            invalidateBasicData();
-        return removed;
+            isLocked = locked;
+            invalidateSnapshot();
+
+            if (!locked)
+                // Now that we're unlocked, we should verify the redstone state.
+                // We schedule this to happen later to avoid running it under a write lock.
+                executor.runAsyncLater(this::verifyRedstoneState, 1);
+        });
     }
 
     /**
@@ -953,25 +984,23 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     @Nullable StructureOwner removeOwner(UUID ownerUUID)
     {
-        assertWriteLockable();
-        return removeOwner0(ownerUUID);
-    }
-
-    @Locked.Write("lock")
-    private boolean addOwner0(StructureOwner structureOwner)
-    {
-        if (structureOwner.permission() == PermissionLevel.CREATOR)
+        return withWriteLock(false, () ->
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
-                "Failed to add Owner '%s' as owner to structure: %d because a permission level of 0 is not allowed!",
-                structureOwner.playerData(),
-                this.getUid()
-            );
-            return false;
-        }
-        owners.put(structureOwner.playerData().getUUID(), structureOwner);
-        invalidateBasicData();
-        return true;
+            if (primeOwner.playerData().getUUID().equals(ownerUUID))
+            {
+                log.atSevere().withStackTrace(StackSize.FULL).log(
+                    "Failed to remove owner: '%s' as owner from structure: '%d'" +
+                        " because removing an owner with a permission level of 0 is not allowed!",
+                    primeOwner.playerData(),
+                    this.getUid()
+                );
+                return null;
+            }
+            final @Nullable StructureOwner removed = owners.remove(ownerUUID);
+            if (removed != null)
+                invalidateSnapshot();
+            return removed;
+        });
     }
 
     /**
@@ -991,8 +1020,22 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     boolean addOwner(StructureOwner structureOwner)
     {
-        assertWriteLockable();
-        return addOwner0(structureOwner);
+        return withWriteLock(false, () ->
+        {
+            if (structureOwner.permission() == PermissionLevel.CREATOR)
+            {
+                log.atSevere().withStackTrace(StackSize.FULL).log(
+                    "Failed to add Owner '%s' as owner to structure: " +
+                        "%d because a permission level of 0 is not allowed!",
+                    structureOwner.playerData(),
+                    this.getUid()
+                );
+                return false;
+            }
+            owners.put(structureOwner.playerData().getUUID(), structureOwner);
+            invalidateSnapshot();
+            return true;
+        });
     }
 
     /**
@@ -1042,12 +1085,14 @@ public final class Structure implements IStructureConst, IPropertyHolder
         return setPropertyValue0(property, value);
     }
 
-    @Locked.Write("lock")
     private <T> IPropertyValue<T> setPropertyValue0(Property<T> property, @Nullable T value)
     {
-        final var ret = propertyContainer.setPropertyValue(property, value);
-        handlePropertyChange(property);
-        return ret;
+        return withWriteLock(false, () ->
+        {
+            final var ret = propertyContainer.setPropertyValue(property, value);
+            handlePropertyChange(property);
+            return ret;
+        });
     }
 
     /**
@@ -1063,7 +1108,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     {
         lazyPropertyContainerSnapshot.reset();
         property.getPropertyScopes().forEach(this::handlePropertyScopeChange);
-        invalidateBasicData();
+        invalidateSnapshot();
     }
 
     /**

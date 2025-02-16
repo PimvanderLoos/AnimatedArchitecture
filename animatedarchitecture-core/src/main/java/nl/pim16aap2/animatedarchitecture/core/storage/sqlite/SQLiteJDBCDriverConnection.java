@@ -62,6 +62,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      */
     @SuppressWarnings("unused")
     private static final String FAKE_UUID = "0000";
+
+    @SuppressWarnings("unused") // Use by lombok.
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     /**
      * The database file.
@@ -325,7 +329,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Write
+    @Locked.Write("lock")
     public boolean deleteStructureType(StructureType structureType)
     {
         final boolean removed = executeTransaction(
@@ -341,7 +345,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return removed;
     }
 
-    @Locked.Write
+    @Locked.Write("lock")
     private Long insert(
         Connection conn,
         Structure structure,
@@ -403,7 +407,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Write
+    @Locked.Write("lock")
     public Optional<Structure> insert(Structure structure)
     {
         try
@@ -489,7 +493,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Write
+    @Locked.Write("lock")
     public boolean syncStructureData(IStructureConst structure)
     {
         final String serializedProperties = PropertyContainerSerializer.serialize(structure);
@@ -523,7 +527,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public List<DatabaseManager.StructureIdentifier> getPartialIdentifiers(
         String input,
         @Nullable IPlayer player,
@@ -559,7 +563,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return executeQuery(query, this::collectIdentifiers, Collections.emptyList());
     }
 
-    @Locked.Read
+    @Locked.Read("lock")
     private List<DatabaseManager.StructureIdentifier> collectIdentifiers(ResultSet resultSet)
         throws SQLException
     {
@@ -587,7 +591,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return ret;
     }
 
-    @Locked.Write
+    @Locked.Write("lock")
     private void insertOrIgnorePlayer(Connection conn, PlayerData playerData)
     {
         executeUpdate(
@@ -613,7 +617,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *     The owner of the structure whose player ID to retrieve.
      * @return The database ID of the player.
      */
-    @Locked.Write
+    @Locked.Write("lock")
     private long getPlayerID(Connection conn, StructureOwner structureOwner)
     {
         insertOrIgnorePlayer(conn, structureOwner.playerData());
@@ -638,7 +642,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *     "StructureOwnerPlayer" table.
      * @return An instance of a subclass of {@link Structure} if it could be created.
      */
-    @Locked.Read
+    @Locked.Read("lock")
     private Optional<Structure> getStructure(ResultSet structureRS)
         throws Exception
     {
@@ -676,7 +680,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public Optional<Structure> getStructure(long structureUID)
     {
         return executeQuery(
@@ -689,7 +693,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public Optional<Structure> getStructure(UUID playerUUID, long structureUID)
     {
         return executeQuery(
@@ -703,7 +707,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Write
+    @Locked.Write("lock")
     public boolean removeStructure(long structureUID)
     {
         return executeUpdate(SQLStatement.DELETE_STRUCTURE
@@ -712,7 +716,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Write
+    @Locked.Write("lock")
     public boolean removeStructures(UUID playerUUID, String structureName)
     {
         return executeUpdate(SQLStatement.DELETE_NAMED_STRUCTURE_OF_PLAYER
@@ -722,7 +726,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public boolean isAnimatedArchitectureWorld(String worldName)
     {
         return executeQuery(
@@ -735,7 +739,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public int getStructureCountForPlayer(UUID playerUUID)
     {
         return executeQuery(
@@ -748,7 +752,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public int getStructureCountForPlayer(UUID playerUUID, String structureName)
     {
         return executeQuery(
@@ -762,7 +766,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public int getStructureCountByName(String structureName)
     {
         return executeQuery(
@@ -775,7 +779,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public int getOwnerCountOfStructure(long structureUID)
     {
         return executeQuery(
@@ -788,7 +792,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public List<Structure> getStructures(UUID playerUUID, String structureName, PermissionLevel maxPermission)
     {
         return executeQuery(
@@ -803,14 +807,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public List<Structure> getStructures(UUID playerUUID, String name)
     {
         return getStructures(playerUUID, name, PermissionLevel.CREATOR);
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public List<Structure> getStructures(String name)
     {
         return executeQuery(
@@ -823,7 +827,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public List<Structure> getStructures(UUID playerUUID, PermissionLevel maxPermission)
     {
         return executeQuery(
@@ -837,14 +841,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public List<Structure> getStructures(UUID playerUUID)
     {
         return getStructures(playerUUID, PermissionLevel.CREATOR);
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public List<Structure> getStructuresOfType(String typeName)
     {
         return executeQuery(
@@ -857,7 +861,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public List<Structure> getStructuresOfType(String typeName, int version)
     {
         return executeQuery(
@@ -871,7 +875,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Write
+    @Locked.Write("lock")
     public boolean updatePlayerData(PlayerData playerData)
     {
         return executeUpdate(SQLStatement.UPDATE_PLAYER_DATA
@@ -886,7 +890,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public Optional<PlayerData> getPlayerData(UUID uuid)
     {
         return executeQuery(
@@ -907,7 +911,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public List<PlayerData> getPlayerData(String playerName)
     {
 
@@ -936,7 +940,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public Int2ObjectMap<LongList> getPowerBlockData(long chunkId)
     {
         return executeQuery(
@@ -965,7 +969,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Read
+    @Locked.Read("lock")
     public List<Structure> getStructuresInChunk(long chunkId)
     {
         return executeQuery(
@@ -978,7 +982,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Write
+    @Locked.Write("lock")
     public boolean removeOwner(long structureUID, UUID playerUUID)
     {
         return executeUpdate(SQLStatement.REMOVE_STRUCTURE_OWNER
@@ -987,7 +991,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             .setLong(2, structureUID)) > 0;
     }
 
-    @Locked.Read
+    @Locked.Read("lock")
     private Map<UUID, StructureOwner> getOwnersOfStructure(long structureUID)
     {
         return executeQuery(
@@ -1027,7 +1031,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     }
 
     @Override
-    @Locked.Write
+    @Locked.Write("lock")
     public boolean addOwner(long structureUID, PlayerData player, PermissionLevel permission)
     {
         // permission level 0 is reserved for the creator, and negative values are not allowed.
@@ -1086,7 +1090,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *     The {@link DelayedPreparedStatement}.
      * @return Either the number of rows modified by the update, or -1 if an error occurred.
      */
-    @Locked.Write
+    @Locked.Write("lock")
     private int executeUpdate(DelayedPreparedStatement delayedPreparedStatement)
     {
         try (@Nullable Connection conn = getConnection())
@@ -1115,8 +1119,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *     The {@link DelayedPreparedStatement}.
      * @return Either the number of rows modified by the update, or -1 if an error occurred.
      */
-    @Locked.Write
-    private static int executeUpdate(Connection conn, DelayedPreparedStatement delayedPreparedStatement)
+    @Locked.Write("lock")
+    private int executeUpdate(Connection conn, DelayedPreparedStatement delayedPreparedStatement)
     {
         logStatement(delayedPreparedStatement);
         try (PreparedStatement ps = delayedPreparedStatement.construct(conn))
@@ -1143,7 +1147,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *     The type of the result to return.
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
-    @Locked.Read
+    @Locked.Read("lock")
     @Contract(" _, _, !null -> !null;")
     private @Nullable <T> T executeQuery(
         DelayedPreparedStatement query,
@@ -1180,7 +1184,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *     The type of the result to return.
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
-    @Locked.Read
+    @Locked.Read("lock")
     @SuppressWarnings("unused")
     @Contract(" _, _, !null -> !null;")
     private @Nullable <T> T executeBatchQuery(
@@ -1224,7 +1228,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *     The type of the result to return.
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
-    @Locked.Read
+    @Locked.Read("lock")
     @Contract(" _, _, _, !null -> !null")
     private @Nullable <T> T executeQuery(
         Connection conn,
@@ -1257,7 +1261,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *     The type of the result to return.
      * @return The result of the Function.
      */
-    @Locked.Read
+    @Locked.Read("lock")
     @SuppressWarnings("unused")
     @Contract(" _, !null  -> !null")
     private @Nullable <T> T execute(CheckedFunction<Connection, T, Exception> fun, @Nullable T fallback)
@@ -1278,7 +1282,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *     The type of the result to return.
      * @return The result of the Function.
      */
-    @Locked.Read
+    @Locked.Read("lock")
     @Contract(" _, !null, _ -> !null")
     private @Nullable <T> T execute(
         CheckedFunction<Connection, T, Exception> fun,
@@ -1327,7 +1331,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      *     The type of the result to return.
      * @return The result of the Function.
      */
-    @Locked.Read
+    @Locked.Read("lock")
     @Contract(" _, !null -> !null")
     private @Nullable <T> T executeTransaction(CheckedFunction<Connection, T, Exception> fun, @Nullable T fallback)
     {

@@ -1,16 +1,21 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
+import com.google.common.flogger.LazyArg;
+import com.google.common.flogger.LazyArgs;
+import com.google.common.flogger.StackSize;
 import lombok.experimental.UtilityClass;
 import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
@@ -20,6 +25,68 @@ import java.util.function.Function;
 @UtilityClass
 public final class FutureUtil
 {
+    /**
+     * Logs a possible deadlock timeout.
+     *
+     * @param context
+     *     The context in which the deadlock occurred.
+     * @param timeoutMs
+     *     The timeout in milliseconds. This is the time that the thread was waiting before considering it a deadlock.
+     * @param isMainThread
+     *     Whether the thread that timed out is the main thread.
+     */
+    public static void logPossibleDeadlockTimeout(LazyArg<?> context, int timeoutMs, boolean isMainThread)
+    {
+        log.atSevere()
+            .atMostEvery(30, TimeUnit.SECONDS)
+            .withStackTrace(StackSize.FULL)
+            .log("""
+                    Possible deadlock detected! Please contact pim16aap2 with the following information:
+                    \s
+                    Timeout after %dms on %s/%d (Main thread: %b)
+                    Context: %s
+                    \s
+                    Thread dump: %s
+                    """,
+                timeoutMs,
+                Thread.currentThread().getName(),
+                Thread.currentThread().threadId(),
+                isMainThread,
+
+                context,
+
+                LazyArgs.lazy(FutureUtil::dumpThreadStacks)
+            );
+    }
+
+    /**
+     * Dumps the stack traces of all threads.
+     *
+     * @return The stack traces of all threads represented as a string.
+     */
+    private static String dumpThreadStacks()
+    {
+        final StringBuilder dump = new StringBuilder();
+        Thread.getAllStackTraces().forEach((thread, stackTrace) ->
+        {
+            dump.append(
+                String.format("\nThread: %s (State: %s, ID: %d)\n",
+                    thread.getName(),
+                    thread.getState(),
+                    thread.threadId())
+            );
+
+            Arrays.stream(stackTrace)
+                .forEach(element -> dump
+                    .append("    at ")
+                    .append(element)
+                    .append('\n')
+                );
+        });
+
+        return dump.toString();
+    }
+
     /**
      * See {@link #getAllCompletableFutureResults(CompletableFuture[])}.
      */
