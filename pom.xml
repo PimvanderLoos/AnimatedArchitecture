@@ -39,6 +39,7 @@
         <dependency.logcaptor.version>2.10.1</dependency.logcaptor.version>
         <dependency.lombok-plugin.version>1.18.20.0</dependency.lombok-plugin.version>
         <dependency.lombok.version>1.18.36</dependency.lombok.version>
+        <dependency.maven-antrun.version>3.1.0</dependency.maven-antrun.version>
         <dependency.maven-build-helper.version>3.5.0</dependency.maven-build-helper.version>
         <dependency.maven-checkstyle.version>3.6.0</dependency.maven-checkstyle.version>
         <dependency.maven-clean.version>3.4.0</dependency.maven-clean.version>
