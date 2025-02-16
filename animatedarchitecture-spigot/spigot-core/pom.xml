@@ -8,7 +8,7 @@
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>animatedarchitecture-spigot</artifactId>
-        <version>0.7.0-SNAPSHOT</version>
+        <version>0.8.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -34,24 +34,24 @@
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>spigot-v1_20</artifactId>
-            <version>0.7.0-SNAPSHOT</version>
+            <version>0.8.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>spigot-v1_21</artifactId>
-            <version>0.7.0-SNAPSHOT</version>
+            <version>0.8.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>spigot-util</artifactId>
-            <version>0.7.0-SNAPSHOT</version>
+            <version>0.8.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>hooks-bundle</artifactId>
-            <version>0.7.0-SNAPSHOT</version>
+            <version>0.8.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
