@@ -20,7 +20,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
@@ -60,6 +59,23 @@ public final class StructureTypeLoader extends Restartable
         "Portcullis.jar",
         "RevolvingDoor.jar",
         "SlidingDoor.jar"
+    );
+
+    /**
+     * The file names of the invalid extension jars which were released in 0.7.0.
+     * <p>
+     * These filenames contain the ':' character which is not allowed in filenames on Windows.
+     */
+    private static final Set<String> INVALID_EXTENSION_JARS = Set.of(
+        "animatedarchitecture:bigdoor.jar",
+        "animatedarchitecture:clock.jar",
+        "animatedarchitecture:drawbridge.jar",
+        "animatedarchitecture:flag.jar",
+        "animatedarchitecture:garagedoor.jar",
+        "animatedarchitecture:portcullis.jar",
+        "animatedarchitecture:revolvingdoor.jar",
+        "animatedarchitecture:slidingdoor.jar",
+        "animatedarchitecture:windmill.jar"
     );
 
     /**
@@ -138,6 +154,29 @@ public final class StructureTypeLoader extends Restartable
                 file,
                 StructureTypeInfoParseResult.INVALID_JAR,
                 "File is not a jar file: " + file
+            );
+        }
+
+        if (INVALID_EXTENSION_JARS.contains(file.getFileName().toString()))
+        {
+            log.atSevere().log(
+                "Found extension with invalid name '%s'. Going to delete it now...",
+                file.getFileName()
+            );
+
+            try
+            {
+                Files.delete(file);
+            }
+            catch (IOException e)
+            {
+                log.atSevere().withCause(e).log("Failed to delete extension with invalid name '%s'", file);
+            }
+
+            return ParsedStructureTypeInfo.failed(
+                file,
+                StructureTypeInfoParseResult.GENERIC_ERROR,
+                "Extension has invalid name '" + file + "'"
             );
         }
 
@@ -318,7 +357,7 @@ public final class StructureTypeLoader extends Restartable
                 .map(this::getStructureTypeInfo)
                 .forEach(info -> extractEmbeddedStructureType(info, zipFileSystem, jarFile));
         }
-        catch (IOException | URISyntaxException e)
+        catch (Exception e)
         {
             log.atSevere().withCause(e).log("Failed to read resource from file: %s", jarFile);
         }
@@ -371,7 +410,8 @@ public final class StructureTypeLoader extends Restartable
         final Path structureTypePath =
             zipFileSystem.getPath(structureTypeInfo.getJarFile().toAbsolutePath().toString());
 
-        final Path targetPath = extensionsDirectory.resolve(structureTypeInfo.getFullKey() + ".jar");
+        final Path targetPath =
+            extensionsDirectory.resolve(structureTypeInfo.getFullKey().replaceAll(":", "_") + ".jar");
 
         try (InputStream is = Files.newInputStream(structureTypePath))
         {
@@ -418,7 +458,6 @@ public final class StructureTypeLoader extends Restartable
                     performPreloadCheck(CURRENT_EXTENSION_API_VERSION, alreadyLoadedTypes, info))
                 );
         }
-
         catch (IOException e)
         {
             log.atSevere().withCause(e).log("Failed to load structure types from directory: %s", directory);
