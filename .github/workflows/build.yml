@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - master
-      - release
+      - 'release/**'
   pull_request:
     branches:
       - master
-      - release
+      - 'release/**'
 
   workflow_dispatch:
 
@@ -51,11 +51,10 @@ jobs:
           if-no-files-found: error
           compression-level: 0
 
-      # Publish java doc page when a commit/PR is pushed/merged to master
       - name: Deploy Javadoc
         uses: JamesIves/github-pages-deploy-action@v4.7.2
         with:
           branch: gh-pages
-          folder: target/site/apidocs
+          folder: target/reports/apidocs
           target-folder: javadoc
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
