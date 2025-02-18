@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 /**
  * This class allows reading the build data (e.g. commit hash and actions ID) from the 'build_data' file in the jar.
@@ -58,14 +58,15 @@ public final class BuildDataReader implements IDebuggable
                 throw new IllegalArgumentException("Failed to parse build data from input: " + Arrays.toString(lines));
             return new BuildData(
                 (String) lines[0],
-                parseInt("build number", (String) lines[1]),
-                parseInt("build id", (String) lines[2]));
+                parseLong("build number", (String) lines[1]),
+                parseLong("build id", (String) lines[2])
+            );
         }
     }
 
-    private int parseInt(String name, String str)
+    private long parseLong(String name, String str)
     {
-        final OptionalInt ret = MathUtil.parseInt(str);
+        final OptionalLong ret = MathUtil.parseLong(str);
         if (ret.isEmpty())
             log.atSevere().log("Failed to parse %s from input: '%s'", name, str);
         return ret.orElse(-1);
@@ -117,6 +118,6 @@ public final class BuildDataReader implements IDebuggable
      * @param buildId
      *     The unique id of the build. Using GitHub Actions, this refers to GITHUB_RUN_ID.
      */
-    public record BuildData(String git, int buildNumber, int buildId)
+    public record BuildData(String git, long buildNumber, long buildId)
     {}
 }
