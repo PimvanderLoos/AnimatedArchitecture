@@ -52,7 +52,7 @@ jobs:
           compression-level: 0
 
       - name: Deploy Javadoc
-        uses: JamesIves/github-pages-deploy-action@v4.7.2
+        uses: JamesIves/github-pages-deploy-action@v4.7.3
         with:
           branch: gh-pages
           folder: target/reports/apidocs
