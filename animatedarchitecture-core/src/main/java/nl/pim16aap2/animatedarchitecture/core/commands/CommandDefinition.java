@@ -113,6 +113,12 @@ public final class CommandDefinition
         null
     );
 
+    public static final CommandDefinition SET_PROPERTY = new CommandDefinition(
+        "SET_PROPERTY",
+        Constants.PERMISSION_PREFIX_USER + "setproperty",
+        StructureAttribute.SET_PROPERTY.getAdminPermissionNode()
+    );
+
     public static final CommandDefinition SET_OPEN_DIRECTION = new CommandDefinition(
         "SET_OPEN_DIRECTION",
         Constants.PERMISSION_PREFIX_USER + "base",
