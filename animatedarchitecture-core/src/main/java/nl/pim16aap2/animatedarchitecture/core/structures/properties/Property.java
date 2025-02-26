@@ -293,6 +293,16 @@ public final class Property<T> implements IKeyed
     }
 
     /**
+     * Checks if this property can be added to a structure.
+     *
+     * @return True if this property can be added to a structure
+     */
+    public boolean canBeAdded()
+    {
+        return propertyAccessLevel != PropertyAccessLevel.HIDDEN;
+    }
+
+    /**
      * The registry of all registered properties.
      * <p>
      * All instances of the {@link Property} class are registered in this class.

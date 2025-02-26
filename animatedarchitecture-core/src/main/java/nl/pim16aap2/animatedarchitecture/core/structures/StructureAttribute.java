@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 
 
 import lombok.Getter;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 
 import java.util.Arrays;
@@ -68,6 +69,11 @@ public enum StructureAttribute
      * Relocate the power block.
      */
     RELOCATE_POWERBLOCK(PermissionLevel.ADMIN),
+
+    /**
+     * Sets a {@link Property} for a structure.
+     */
+    SET_PROPERTY(PermissionLevel.ADMIN),
 
     /**
      * Turns a structure on or off. When on, the structure will rotate until turned off or until the chunks are

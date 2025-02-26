@@ -43,6 +43,8 @@ public final class CommandFactory
     @Delegate
     private final SetOpenDirection.IFactory setOpenDirectionFactory;
     @Delegate
+    private final SetPropertyCommand.IFactory setPropertyCommandFactory;
+    @Delegate
     private final StopStructures.IFactory stopDoorsFactory;
     @Delegate
     private final Lock.IFactory lockFactory;
@@ -87,6 +89,7 @@ public final class CommandFactory
         SetName.IFactory setNameFactory,
         SetOpenStatus.IFactory setOpenStatusFactory, SetOpenStatusDelayed setOpenStatusDelayed,
         SetOpenDirection.IFactory setOpenDirectionFactory, SetOpenDirectionDelayed setOpenDirectionDelayed,
+        SetPropertyCommand.IFactory setPropertyCommandFactory,
         Specify.IFactory specifyFactory,
         StopStructures.IFactory stopDoorsFactory,
         Version.IFactory versionFactory)
@@ -109,6 +112,7 @@ public final class CommandFactory
         this.updateCreatorFactory = updateCreatorFactory;
         this.removeOwnerFactory = removeOwnerFactory;
         this.setOpenDirectionFactory = setOpenDirectionFactory;
+        this.setPropertyCommandFactory = setPropertyCommandFactory;
         this.stopDoorsFactory = stopDoorsFactory;
         this.lockFactory = lockFactory;
         this.setNameFactory = setNameFactory;
