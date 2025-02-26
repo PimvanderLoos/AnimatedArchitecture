@@ -303,7 +303,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult, Structure)} when the database action
      * was cancelled.
      */
-    protected void handleDatabaseActionCancelled(@Nullable Structure retrieverResult)
+    protected void handleDatabaseActionCancelled(Structure retrieverResult)
     {
         getCommandSender().sendError(textFactory, localizer.getMessage("commands.base.error.action_cancelled"));
     }
@@ -312,7 +312,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult, Structure)} when the database action
      * was successful.
      */
-    protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
+    protected void handleDatabaseActionSuccess(Structure retrieverResult)
     {
     }
 
@@ -320,7 +320,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult, Structure)} when the database action
      * failed.
      */
-    protected void handleDatabaseActionFail(@Nullable Structure retrieverResult)
+    protected void handleDatabaseActionFail(Structure retrieverResult)
     {
         getCommandSender().sendError(textFactory, localizer.getMessage("constants.error.generic"));
     }
