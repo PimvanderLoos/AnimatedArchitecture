@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.slidingdoor;
 
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -9,19 +10,19 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorInteger;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalInt;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Implementation of the {@link Creator} class for the {@link SlidingDoor} structure.
  */
 @ToString(callSuper = true)
+@ExtensionMethod(CompletableFutureExtensions.class)
 public class CreatorSlidingDoor extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypeSlidingDoor.get();
@@ -88,8 +89,8 @@ public class CreatorSlidingDoor extends Creator
     {
         commandFactory
             .getSetBlocksToMoveDelayed()
-            .runDelayed(getPlayer(), this, blocks -> CompletableFuture.completedFuture(handleInput(blocks)), null)
-            .exceptionally(FutureUtil::exceptionally);
+            .runDelayed(getPlayer(), this, this::handleInput, null)
+            .handleExceptional(ex -> handleExceptional(ex, "sliding_door_prepare_blocks_to_move"));
     }
 
     protected synchronized boolean provideBlocksToMove(int blocksToMove)

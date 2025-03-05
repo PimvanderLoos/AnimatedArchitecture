@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -193,59 +192,5 @@ public final class FutureUtil
     public @Nullable <T> T exceptionally(Throwable throwable)
     {
         return exceptionally(throwable, null);
-    }
-
-    /**
-     * See {@link #exceptionally(Throwable, Object)} with a fallback value of {@link Optional#empty()}.
-     *
-     * @return Always {@link Optional#empty()}.
-     */
-    public <T> Optional<T> exceptionallyOptional(Throwable throwable)
-    {
-        return exceptionally(throwable, Optional.empty());
-    }
-
-    /**
-     * See {@link #exceptionally(Throwable, Object)} with a fallback value of {@link Collections#emptyList()}.
-     *
-     * @return Always {@link Collections#emptyList()}.
-     */
-    public <T> List<T> exceptionallyList(Throwable throwable)
-    {
-        return exceptionally(throwable, Collections.emptyList());
-    }
-
-    /**
-     * Handles exceptional completion of a {@link CompletableFuture}. This ensures that the target is finished
-     * exceptionally as well, to propagate the exception.
-     *
-     * @param throwable
-     *     The {@link Throwable} to log.
-     * @param fallback
-     *     The fallback value to return.
-     * @param target
-     *     The {@link CompletableFuture} to complete.
-     * @return The fallback value.
-     */
-    public <T, U> T exceptionallyCompletion(Throwable throwable, T fallback, CompletableFuture<U> target)
-    {
-        target.completeExceptionally(throwable);
-        return fallback;
-    }
-
-    /**
-     * Handles exceptional completion of a {@link CompletableFuture}. This ensures that the target is finished
-     * exceptionally as well, to propagate the exception.
-     *
-     * @param throwable
-     *     The {@link Throwable} to log.
-     * @param target
-     *     The {@link CompletableFuture} to complete.
-     * @return Always null;
-     */
-    public <T> Void exceptionallyCompletion(Throwable throwable, CompletableFuture<T> target)
-    {
-        target.completeExceptionally(throwable);
-        return null;
     }
 }

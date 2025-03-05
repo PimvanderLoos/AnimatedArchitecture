@@ -1,7 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
-
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -34,7 +32,7 @@ public interface IExecutor
         if (isMainThread())
             return CompletableFuture.completedFuture(supplier.get());
         else
-            return scheduleOnMainThread(supplier).exceptionally(FutureUtil::exceptionally);
+            return scheduleOnMainThread(supplier);
     }
 
     /**
@@ -49,6 +47,7 @@ public interface IExecutor
      *     The type of the result.
      * @return The result of the action.
      */
+    @SuppressWarnings("FutureReturnValueIgnored") // We don't ignore the future, we flatten it immediately.
     default <T> CompletableFuture<T> composeOnMainThread(Supplier<CompletableFuture<T>> supplier)
     {
         if (isMainThread())

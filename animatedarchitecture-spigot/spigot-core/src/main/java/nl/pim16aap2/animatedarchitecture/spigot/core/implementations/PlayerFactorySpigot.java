@@ -1,10 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.OfflinePlayerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
 import org.bukkit.Bukkit;
@@ -21,6 +21,7 @@ import java.util.concurrent.CompletableFuture;
  * Represents an implementation of {@link IPlayerFactory} for the Spigot platform.
  */
 @Singleton
+@Flogger
 public class PlayerFactorySpigot implements IPlayerFactory
 {
     private final DatabaseManager databaseManager;
@@ -50,6 +51,10 @@ public class PlayerFactorySpigot implements IPlayerFactory
         return databaseManager
             .getPlayerData(uuid)
             .thenApply(playerData -> playerData.<IPlayer>map(OfflinePlayerSpigot::new))
-            .exceptionally(FutureUtil::exceptionallyOptional);
+            .exceptionally(ex ->
+            {
+                log.atSevere().withCause(ex).log("Failed to create player for UUID: %s", uuid);
+                return Optional.empty();
+            });
     }
 }

@@ -3,11 +3,14 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.experimental.ExtensionMethod;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -21,6 +24,8 @@ import java.util.concurrent.CompletableFuture;
  * <p>
  * See {@link Creator#update(String, Object)}.
  */
+@Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 public final class UpdateCreator extends BaseCommand
 {
     private final String stepName;
@@ -63,7 +68,13 @@ public final class UpdateCreator extends BaseCommand
             return CompletableFuture.completedFuture(null);
         }
 
-        creator.update(stepName, stepValue);
+        creator
+            .update(stepName, stepValue)
+            .handleExceptional(e ->
+            {
+                getCommandSender().sendError(textFactory, localizer.getMessage("commands.base.error.generic"));
+                log.atSevere().withCause(e).log("Failed to update creator process.");
+            });
         return CompletableFuture.completedFuture(null);
     }
 

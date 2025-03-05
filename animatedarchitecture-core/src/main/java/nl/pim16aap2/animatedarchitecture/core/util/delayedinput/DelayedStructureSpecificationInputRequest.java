@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.util.delayedinput;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
@@ -14,7 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 
 import javax.inject.Inject;
@@ -30,15 +31,19 @@ import java.util.concurrent.CompletableFuture;
 @Flogger
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+@ExtensionMethod(CompletableFutureExtensions.class)
 public final class DelayedStructureSpecificationInputRequest extends DelayedInputRequest<String>
 {
     private final IPlayer player;
+
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private final ILocalizer localizer;
+
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private final ITextFactory textFactory;
+
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private final StructureSpecificationManager structureSpecificationManager;
@@ -90,7 +95,10 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
      */
     public CompletableFuture<Optional<Structure>> get()
     {
-        return super.getInputResult().thenApply(this::parseInput);
+        return super
+            .getInputResult()
+            .thenApply(this::parseInput)
+            .withExceptionContext(() -> String.format("Get specified structure from request %s", this));
     }
 
     @Override
@@ -167,7 +175,13 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
                 localizer,
                 textFactory,
                 structureSpecificationManager
-            ).get().exceptionally(FutureUtil::exceptionallyOptional);
+            )
+                .get()
+                .withExceptionContext(() -> String.format(
+                    "Get structure specification from player %s for options %s",
+                    player.getName(),
+                    options
+                ));
         }
 
         /**

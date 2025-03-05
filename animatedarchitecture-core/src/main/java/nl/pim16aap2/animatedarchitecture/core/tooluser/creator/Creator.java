@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.tooluser.creator;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
@@ -38,8 +39,8 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorOpenDirection;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorVoid;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
@@ -52,6 +53,7 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
@@ -59,6 +61,7 @@ import java.util.function.Function;
  */
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 public abstract class Creator extends ToolUser
 {
     protected final LimitsManager limitsManager;
@@ -408,16 +411,40 @@ public abstract class Creator extends ToolUser
                     " while the process is not in an updatable state!");
         processIsUpdatable = false;
 
-        return runWithLock(() ->
-        {
-            insertStep(stepName);
-            return prepareCurrentStep();
-        }).exceptionally(ex ->
-        {
-            log.atSevere().withCause(ex).log(
-                "Failed to handle updated step '%s' with value '%s' in Creator '%s'", stepName, stepValue, this);
-            return false;
-        });
+        return runWithLock(
+            () ->
+            {
+                insertStep(stepName);
+                return prepareCurrentStep();
+            })
+            .withExceptionContext(() -> String.format(
+                "Handle updated step '%s' with value '%s' in Creator '%s'",
+                stepName,
+                stepValue,
+                this
+            ));
+    }
+
+    /**
+     * Handles an exception that occurred during the creation process.
+     * <p>
+     * This method will handle the situation as follows:
+     * <ul>
+     *     <li>Log the exception at SEVERE level.</li>
+     *     <li>Send an error message to the player.</li>
+     *     <li>Abort the creation process.</li>
+     * </ul>
+     *
+     * @param ex
+     *     The exception that occurred.
+     * @param context
+     *     The context in which the exception occurred. E.g. "prepare_set_open_status".
+     */
+    protected final void handleExceptional(Throwable ex, String context)
+    {
+        log.atSevere().withCause(ex).log("Failed to %s for Creator '%s'", context, this);
+        getPlayer().sendError(textFactory, localizer.getMessage("creator.base.error.creation_cancelled"));
+        this.abort();
     }
 
     /**
@@ -427,8 +454,9 @@ public abstract class Creator extends ToolUser
     {
         commandFactory
             .getSetOpenStatusDelayed()
-            .runDelayed(getPlayer(), this, status -> CompletableFuture.completedFuture(handleInput(status)), null)
-            .exceptionally(FutureUtil::exceptionally);
+            .runDelayed(getPlayer(), this, this::handleInput, null)
+            .orTimeout(10, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleExceptional(ex, "prepare_set_open_status"));
     }
 
     /**
@@ -439,7 +467,8 @@ public abstract class Creator extends ToolUser
         commandFactory
             .getSetOpenDirectionDelayed()
             .runDelayed(getPlayer(), this, this::handleInput, null)
-            .exceptionally(FutureUtil::exceptionally);
+            .orTimeout(10, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleExceptional(ex, "prepare_set_open_direction"));
     }
 
     /**
@@ -487,7 +516,8 @@ public abstract class Creator extends ToolUser
             .responsible(getPlayer())
             .build()
             .execute()
-            .exceptionally(FutureUtil::exceptionally);
+            .orTimeout(10, TimeUnit.SECONDS)
+            .handleExceptional(ex -> log.atSevere().withCause(ex).log("Failed to show preview for Creator '%s'", this));
     }
 
     protected synchronized void prepareReviewResult()
@@ -602,7 +632,9 @@ public abstract class Creator extends ToolUser
                     firstPos = loc.getPosition();
                 }
                 return true;
-            });
+            })
+            .orTimeout(10, TimeUnit.SECONDS)
+            .withExceptionContext(() -> String.format("Provide first position '%s' for Creator '%s'", loc, this));
     }
 
     /**
@@ -618,7 +650,8 @@ public abstract class Creator extends ToolUser
     {
         final Cuboid newCuboid = new Cuboid(
             Util.requireNonNull(firstPos, "firstPos"),
-            combinedWith);
+            combinedWith
+        );
 
         final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.STRUCTURE_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
@@ -668,7 +701,9 @@ public abstract class Creator extends ToolUser
                     cuboid = newCuboid.get();
                 }
                 return true;
-            });
+            })
+            .orTimeout(10, TimeUnit.SECONDS)
+            .withExceptionContext(() -> String.format("Provide second position '%s' for Creator '%s'", loc, this));
     }
 
     /**
@@ -802,7 +837,14 @@ public abstract class Creator extends ToolUser
                     getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
                     log.atSevere().log("Failed to insert structure after creation!");
                 }
-            }).exceptionally(FutureUtil::exceptionally);
+            })
+            .orTimeout(30, TimeUnit.SECONDS)
+            .handleExceptional(ex ->
+            {
+                getPlayer().sendError(
+                    textFactory, localizer.getMessage("constants.error.generic"));
+                log.atSevere().withCause(ex).log("Failed to insert structure after creation!");
+            });
     }
 
     /**
@@ -928,7 +970,9 @@ public abstract class Creator extends ToolUser
                     return false;
                 setPowerblock(pos);
                 return true;
-            });
+            })
+            .orTimeout(10, TimeUnit.SECONDS)
+            .withExceptionContext(() -> String.format("Provide power block position '%s' for Creator '%s'", loc, this));
     }
 
     /**

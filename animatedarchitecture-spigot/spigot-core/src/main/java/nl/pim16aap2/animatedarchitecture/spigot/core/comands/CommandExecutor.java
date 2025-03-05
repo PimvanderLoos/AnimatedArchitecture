@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.comands;
 
 import cloud.commandframework.context.CommandContext;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -13,20 +14,19 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureToggleResult;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Class that contains the executors for all commands.
@@ -36,8 +36,11 @@ import javax.inject.Singleton;
  */
 @Singleton
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 class CommandExecutor
 {
+    private static final int DEFAULT_TIMEOUT_SECONDS = 10;
+
     private final CommandFactory commandFactory;
     private final StructureRetrieverFactory structureRetrieverFactory;
     private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
@@ -72,8 +75,9 @@ class CommandExecutor
         {
             commandFactory
                 .newAddOwner(commandSender, structureRetriever, newOwner, permissionLevel)
-                .run()
-                .exceptionally(FutureUtil::exceptionally);
+                .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "addOwner"))
+            ;
         }
         else
         {
@@ -81,23 +85,34 @@ class CommandExecutor
             commandFactory
                 .getAddOwnerDelayed()
                 .provideDelayedInput(commandSender, data)
-                .exceptionally(FutureUtil::exceptionally);
+                .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "addOwner"))
+            ;
         }
     }
 
     void cancel(CommandContext<ICommandSender> context)
     {
-        commandFactory.newCancel(context.getSender()).run().exceptionally(FutureUtil::exceptionally);
+        commandFactory
+            .newCancel(context.getSender())
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "cancel"));
     }
 
     void confirm(CommandContext<ICommandSender> context)
     {
-        commandFactory.newConfirm(context.getSender()).run().exceptionally(FutureUtil::exceptionally);
+        commandFactory
+            .newConfirm(context.getSender())
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "confirm"));
     }
 
     void debug(CommandContext<ICommandSender> context)
     {
-        commandFactory.newDebug(context.getSender()).run().exceptionally(FutureUtil::exceptionally);
+        commandFactory
+            .newDebug(context.getSender())
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "debug"));
     }
 
     void delete(CommandContext<ICommandSender> context)
@@ -105,19 +120,25 @@ class CommandExecutor
         final StructureRetriever structureRetriever = context.get("structureRetriever");
         commandFactory
             .newDelete(context.getSender(), structureRetriever)
-            .run()
-            .exceptionally(FutureUtil::exceptionally);
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "delete"));
     }
 
     void info(CommandContext<ICommandSender> context)
     {
         final StructureRetriever structureRetriever = context.get("structureRetriever");
-        commandFactory.newInfo(context.getSender(), structureRetriever).run().exceptionally(FutureUtil::exceptionally);
+        commandFactory
+            .newInfo(context.getSender(), structureRetriever)
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "info"));
     }
 
     void inspectPowerBlock(CommandContext<ICommandSender> context)
     {
-        commandFactory.newInspectPowerBlock(context.getSender()).run().exceptionally(FutureUtil::exceptionally);
+        commandFactory
+            .newInspectPowerBlock(context.getSender())
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "inspectPowerBlock"));
     }
 
     void listStructures(CommandContext<ICommandSender> context)
@@ -130,7 +151,10 @@ class CommandExecutor
                 StructureRetrieverFactory.StructureFinderMode.NEW_INSTANCE,
                 PermissionLevel.USER)
             .asRetriever();
-        commandFactory.newListStructures(context.getSender(), retriever).run().exceptionally(FutureUtil::exceptionally);
+        commandFactory
+            .newListStructures(context.getSender(), retriever)
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "listStructures"));
     }
 
     void lock(CommandContext<ICommandSender> context)
@@ -140,8 +164,8 @@ class CommandExecutor
         final boolean sendUpdatedInfo = context.getOrDefault("sendUpdatedInfo", false);
         commandFactory
             .newLock(context.getSender(), structureRetriever, lockStatus, sendUpdatedInfo)
-            .run()
-            .exceptionally(FutureUtil::exceptionally);
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "lock"));
     }
 
     void menu(CommandContext<ICommandSender> context)
@@ -154,7 +178,9 @@ class CommandExecutor
         else
             targetPlayer = commandSender.getPlayer().orElseThrow(IllegalArgumentException::new);
 
-        commandFactory.newMenu(commandSender, targetPlayer).run().exceptionally(FutureUtil::exceptionally);
+        commandFactory.newMenu(commandSender, targetPlayer)
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "menu"));
     }
 
     void movePowerBlock(CommandContext<ICommandSender> context)
@@ -162,8 +188,8 @@ class CommandExecutor
         final StructureRetriever structureRetriever = context.get("structureRetriever");
         commandFactory
             .newMovePowerBlock(context.getSender(), structureRetriever)
-            .run()
-            .exceptionally(FutureUtil::exceptionally);
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "movePowerBlock"));
     }
 
     // NullAway doesn't see the @Nullable on structureName.
@@ -174,8 +200,8 @@ class CommandExecutor
         final @Nullable String structureName = nullable(context, "structureName");
         commandFactory
             .newNewStructure(context.getSender(), structureType, structureName)
-            .run()
-            .exceptionally(FutureUtil::exceptionally);
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "newStructure"));
     }
 
     void removeOwner(CommandContext<ICommandSender> context)
@@ -188,21 +214,26 @@ class CommandExecutor
         {
             commandFactory
                 .newRemoveOwner(commandSender, structureRetriever, targetPlayer)
-                .run()
-                .exceptionally(FutureUtil::exceptionally);
+                .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "removeOwner"))
+            ;
         }
         else
         {
             commandFactory
                 .getRemoveOwnerDelayed()
                 .provideDelayedInput(commandSender, targetPlayer)
-                .exceptionally(FutureUtil::exceptionally);
+                .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "removeOwner"))
+            ;
         }
     }
 
     void restart(CommandContext<ICommandSender> context)
     {
-        commandFactory.newRestart(context.getSender()).run().exceptionally(FutureUtil::exceptionally);
+        commandFactory.newRestart(context.getSender())
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "restart"));
     }
 
     void setBlocksToMove(CommandContext<ICommandSender> context)
@@ -214,21 +245,24 @@ class CommandExecutor
         if (structureRetriever != null)
             commandFactory
                 .newSetBlocksToMove(commandSender, structureRetriever, blocksToMove)
-                .run()
-                .exceptionally(FutureUtil::exceptionally);
+                .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "setBlocksToMove"))
+                ;
         else
             commandFactory
                 .getSetBlocksToMoveDelayed()
                 .provideDelayedInput(commandSender, blocksToMove)
-                .exceptionally(FutureUtil::exceptionally);
+                .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "setBlocksToMove"))
+                ;
     }
 
     void setName(CommandContext<ICommandSender> context)
     {
         commandFactory
             .newSetName(context.getSender(), context.get("name"))
-            .run()
-            .exceptionally(FutureUtil::exceptionally);
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "setName"));
     }
 
     void setOpenStatus(CommandContext<ICommandSender> context)
@@ -241,13 +275,16 @@ class CommandExecutor
         if (structureRetriever != null)
             commandFactory
                 .newSetOpenStatus(commandSender, structureRetriever, isOpen, sendUpdatedInfo)
-                .run()
-                .exceptionally(FutureUtil::exceptionally);
+                .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "setOpenStatus"))
+                ;
         else
             commandFactory
                 .getSetOpenStatusDelayed()
                 .provideDelayedInput(commandSender, isOpen)
-                .exceptionally(FutureUtil::exceptionally);
+                .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "setOpenStatus"))
+                ;
     }
 
     void setOpenDirection(CommandContext<ICommandSender> context)
@@ -260,26 +297,32 @@ class CommandExecutor
         if (structureRetriever != null)
             commandFactory
                 .newSetOpenDirection(commandSender, structureRetriever, direction, sendUpdatedInfo)
-                .run()
-                .exceptionally(FutureUtil::exceptionally);
+                .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "setOpenDirection"))
+                ;
         else
             commandFactory
                 .getSetOpenDirectionDelayed()
                 .provideDelayedInput(commandSender, direction)
-                .exceptionally(FutureUtil::exceptionally);
+                .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "setOpenDirection"))
+                ;
     }
 
     void specify(CommandContext<ICommandSender> context)
     {
         commandFactory
             .newSpecify(context.getSender(), context.get("data"))
-            .run()
-            .exceptionally(FutureUtil::exceptionally);
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "specify"));
     }
 
     void stopStructures(CommandContext<ICommandSender> context)
     {
-        commandFactory.newStopStructures(context.getSender()).run().exceptionally(FutureUtil::exceptionally);
+        commandFactory
+            .newStopStructures(context.getSender())
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "stopStructures"));
     }
 
     private void toggle(CommandContext<ICommandSender> context, StructureActionType structureActionType)
@@ -296,7 +339,8 @@ class CommandExecutor
             .messageReceiver(context.getSender())
             .build()
             .execute()
-            .exceptionally(ex -> handleException(context, ex, StructureToggleResult.ERROR));
+            .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "toggle"));
     }
 
     void toggle(CommandContext<ICommandSender> context)
@@ -325,63 +369,63 @@ class CommandExecutor
             .animationType(AnimationType.PREVIEW)
             .build()
             .execute()
-            .exceptionally(ex -> handleException(context, ex, StructureToggleResult.ERROR));
+            .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "preview"));
     }
 
     void version(CommandContext<ICommandSender> context)
     {
-        commandFactory.newVersion(context.getSender()).run().exceptionally(FutureUtil::exceptionally);
+        commandFactory
+            .newVersion(context.getSender())
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "version"));
     }
 
     void updateCreator(CommandContext<ICommandSender> context)
     {
         commandFactory
             .newUpdateCreator(context.getSender(), context.get("stepName"), context.getOrDefault("stepValue", null))
-            .run()
-            .exceptionally(FutureUtil::exceptionally);
+            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleException(context, ex, "updateCreator"));
     }
 
     private <T> @Nullable T nullable(CommandContext<ICommandSender> context, String key)
     {
-        return context.<@Nullable T>getOrDefault(key, null);
+        final @Nullable T ret = context.getOrDefault(key, null);
+        return ret;
     }
 
     /**
-     * Sends a generic error message to the command sender.
+     * Sends a generic "failed to execute command" error message to command sender if the sender is a player.
      *
      * @param context
      *     The command context to get the command sender from.
      */
-    private void sendGenericError(CommandContext<ICommandSender> context)
+    private void sendGenericErrorMessageToPlayer(CommandContext<ICommandSender> context)
     {
-        context.getSender().sendMessage(textFactory
-            .newText()
-            .append(localizer.getMessage("commands.base.error.generic"), TextType.ERROR)
-        );
+        context.getSender().getPlayer().ifPresent(player ->
+            player.sendMessage(
+                textFactory
+                    .newText()
+                    .append(localizer.getMessage("commands.base.error.generic"), TextType.ERROR)
+            ));
     }
 
     /**
-     * Logs the exception and sends a generic error message to the command sender.
+     * Handles an exception that occurred during command execution.
      * <p>
-     * See {@link #sendGenericError(CommandContext)} and {@link FutureUtil#exceptionally(Throwable, Object)}.
+     * This method will send a generic error message to the player (if the sender is a player) and log the exception.
      *
      * @param context
-     *     The command context to get the command sender from.
+     *     The command context.
      * @param ex
-     *     The exception to log.
-     * @param defaultValue
-     *     The default value to return.
-     * @param <T>
-     *     The type of the default value.
-     * @return The default value.
+     *     The exception that occurred.
+     * @param commandName
+     *     The name of the command that failed.
      */
-    @Contract("_, _, _ -> param3")
-    private <T> @Nullable T handleException(
-        CommandContext<ICommandSender> context,
-        Throwable ex,
-        @Nullable T defaultValue)
+    private void handleException(CommandContext<ICommandSender> context, Throwable ex, String commandName)
     {
-        sendGenericError(context);
-        return FutureUtil.exceptionally(ex, defaultValue);
+        sendGenericErrorMessageToPlayer(context);
+        log.atSevere().withCause(ex).log("Failed to execute %s command!", commandName);
     }
 }

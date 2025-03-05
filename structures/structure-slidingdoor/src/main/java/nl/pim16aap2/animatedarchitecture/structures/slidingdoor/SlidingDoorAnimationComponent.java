@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.slidingdoor;
 
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationUtil;
-import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
@@ -13,8 +13,9 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a {@link Animator} for {@link SlidingDoor}.
+ * Represents an {@link IAnimationComponent} for {@link SlidingDoor} structure types.
  */
+@ToString
 public class SlidingDoorAnimationComponent implements IAnimationComponent
 {
     private final boolean northSouth;

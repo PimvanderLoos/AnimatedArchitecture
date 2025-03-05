@@ -1,12 +1,13 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.AnimatedArchitectureToolUtilSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.entity.Player;
@@ -29,12 +30,14 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a listener that keeps track of various events.
  */
 @Singleton
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 public class EventListeners extends AbstractListener
 {
     private final AnimatedArchitectureToolUtilSpigot animatedArchitectureToolUtil;
@@ -81,7 +84,14 @@ public class EventListeners extends AbstractListener
             .ifPresent(toolUser ->
             {
                 event.setCancelled(true);
-                toolUser.handleInput(SpigotAdapter.wrapLocation(event.getClickedBlock().getLocation()));
+                toolUser
+                    .handleInput(SpigotAdapter.wrapLocation(event.getClickedBlock().getLocation()))
+                    .orTimeout(100, TimeUnit.MILLISECONDS)
+                    .handleExceptional(e -> log.atSevere().withCause(e).log(
+                        "Failed to handle input for player %s clicking block %s",
+                        event.getPlayer().getName(),
+                        event.getClickedBlock().getLocation()
+                    ));
             });
     }
 
@@ -98,7 +108,8 @@ public class EventListeners extends AbstractListener
         {
             databaseManager
                 .updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()))
-                .exceptionally(FutureUtil::exceptionally);
+                .orTimeout(20, TimeUnit.SECONDS)
+                .logExceptions();
         }
         catch (Exception e)
         {
@@ -121,7 +132,10 @@ public class EventListeners extends AbstractListener
             final var wrappedPlayer = SpigotAdapter.wrapPlayer(player);
             delayedCommandInputManager.cancelAll(wrappedPlayer);
             toolUserManager.abortToolUser(player.getUniqueId());
-            databaseManager.updatePlayer(wrappedPlayer).exceptionally(FutureUtil::exceptionally);
+            databaseManager
+                .updatePlayer(wrappedPlayer)
+                .orTimeout(20, TimeUnit.SECONDS)
+                .logExceptions();
         }
         catch (Exception e)
         {

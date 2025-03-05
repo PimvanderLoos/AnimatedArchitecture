@@ -287,7 +287,7 @@ public sealed class TimedCache<K, V>
     /**
      * See {@link ConcurrentHashMap#computeIfAbsent(Object, Function)}.
      */
-    public V computeIfAbsent(K key, Function<K, V> mappingFunction)
+    public @Nullable V computeIfAbsent(K key, Function<K, V> mappingFunction)
     {
         validateState();
         final AtomicReference<V> returnValue = new AtomicReference<>();
@@ -296,8 +296,7 @@ public sealed class TimedCache<K, V>
             @Nullable V innerValue;
             if (tValue == null || tValue.timedOut() || (innerValue = tValue.getValue(refresh)) == null)
             {
-                innerValue = Util.requireNonNull(mappingFunction.apply(k),
-                    "Computed TimedCache value for key: \"" + key + "\"");
+                innerValue = mappingFunction.apply(k);
                 returnValue.set(innerValue);
                 return timedValueCreator.apply(innerValue);
             }
@@ -305,7 +304,7 @@ public sealed class TimedCache<K, V>
             returnValue.set(innerValue);
             return tValue;
         });
-        return Util.requireNonNull(returnValue.get(), "Computed TimedCache value for key: \"" + key + "\"");
+        return returnValue.get();
     }
 
     /**
@@ -334,8 +333,7 @@ public sealed class TimedCache<K, V>
     public V compute(K key, BiFunction<K, @Nullable V, V> mappingFunction)
     {
         validateState();
-        return Util.requireNonNull(cache.compute(key, (k, timedValue)
-            ->
+        return Util.requireNonNull(cache.compute(key, (k, timedValue) ->
         {
             final @Nullable V value;
             if (timedValue == null || timedValue.timedOut())

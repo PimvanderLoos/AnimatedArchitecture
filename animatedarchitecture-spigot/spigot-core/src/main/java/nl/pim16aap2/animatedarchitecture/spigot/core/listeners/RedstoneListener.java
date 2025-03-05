@@ -1,10 +1,12 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.LocationSpigot;
@@ -33,6 +35,7 @@ import java.util.concurrent.TimeoutException;
  */
 @Singleton
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 public class RedstoneListener extends AbstractListener implements IDebuggable
 {
     private final ConfigSpigot config;
@@ -81,7 +84,12 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
         powerBlockManager
             .structuresFromPowerBlockLoc(loc)
             .thenAccept(structures -> structures.forEach(structure -> structure.onRedstoneChange(isPowered)))
-            .exceptionally(FutureUtil::exceptionally);
+            .handleExceptional(ex ->
+                log.atSevere().atMostEvery(1, TimeUnit.SECONDS).withCause(ex).log(
+                    "Exception thrown while handling redstone event at location %s! (isPowered=%s)",
+                    loc,
+                    isPowered
+                ));
     }
 
     /**
@@ -123,7 +131,9 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Exception thrown while handling redstone event!");
+            log.atSevere().atMostEvery(1, TimeUnit.SECONDS).withCause(e).log(
+                "Exception thrown while handling redstone event!"
+            );
         }
     }
 

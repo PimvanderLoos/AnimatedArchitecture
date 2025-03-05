@@ -48,6 +48,7 @@ public final class CompletableFutureExtensions
      * @return A future that completes with the result of the original future or exceptionally with a new exception that
      * includes the provided context.
      */
+    @SuppressWarnings("FutureReturnValueIgnored")
     public static <T> CompletableFuture<T> withExceptionContext(
         CompletableFuture<T> future,
         Supplier<String> context)
@@ -58,7 +59,20 @@ public final class CompletableFutureExtensions
         {
             if (throwable != null)
             {
-                final String contextString = context.get();
+                String contextString;
+                try
+                {
+                    contextString = context.get();
+                }
+                catch (Throwable nestedThrowable)
+                {
+                    log.atSevere().withCause(nestedThrowable).log(
+                        "Failed to get context for exception: %s",
+                        throwable.getMessage() // Log the outer message for context.
+                    );
+                    contextString = "Failed to get context: " + nestedThrowable.getMessage();
+                }
+
                 log.atFinest().withCause(throwable).log(
                     "Exception occurred in CompletableFuture with context: %s",
                     contextString
@@ -93,6 +107,7 @@ public final class CompletableFutureExtensions
      * @param handler
      *     The function to call with any exception that occurs in the future.
      */
+    @SuppressWarnings("FutureReturnValueIgnored")
     public static void handleExceptional(CompletableFuture<?> future, Consumer<Throwable> handler)
     {
         future.whenComplete((result, throwable) ->

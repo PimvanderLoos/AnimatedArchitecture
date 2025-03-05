@@ -4,7 +4,9 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -24,6 +26,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Flogger
 @ToString
 @EqualsAndHashCode
+@ExtensionMethod(CompletableFutureExtensions.class)
 public class DelayedInputRequest<T>
 {
     @ToString.Exclude
@@ -127,13 +130,7 @@ public class DelayedInputRequest<T>
                     cleanup();
                     return result;
                 })
-            .exceptionally(
-                ex ->
-                {
-                    log.atSevere().withCause(ex).log("Exception occurred while waiting for input.");
-                    exceptionally = true;
-                    return Optional.empty();
-                });
+            .withExceptionContext(() -> "Get input for DelayedInputRequest: " + this);
     }
 
     /**

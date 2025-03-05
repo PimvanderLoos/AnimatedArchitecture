@@ -30,9 +30,8 @@
  * <h1 id="sect-modification">Structure Modification</h1>
  * <p>
  * Another thing to keep in mind is that structures are not automatically saved to the database. This means that if you
- * make changes to a structure, those will not be saved to the database until you call either the
- * {@link nl.pim16aap2.animatedarchitecture.core.structures.Structure#syncData()} method or the
- * {@link nl.pim16aap2.animatedarchitecture.core.structures.Structure#syncDataAsync()} method.
+ * make changes to a structure, those will not be saved to the database until you call the
+ * {@link nl.pim16aap2.animatedarchitecture.core.structures.Structure#syncData()} method.
  * <p>
  * When making changes to a structure on behalf of a player, you should use consider using
  * {@link nl.pim16aap2.animatedarchitecture.core.commands} instead. This will ensure that the changes are saved to the

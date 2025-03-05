@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
@@ -21,6 +22,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationReque
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Nullable;
@@ -51,6 +53,7 @@ import java.util.function.Supplier;
  * method.
  */
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 public abstract class ToolUser
 {
     @Getter
@@ -405,12 +408,10 @@ public abstract class ToolUser
 
         try
         {
-            return runWithLock(() -> handleInputWithLock(obj))
-                .exceptionally(ex ->
-                {
-                    throw new RuntimeException(
-                        "An error occurred handling input '" + obj + "' for ToolUser '" + toMinimalString() + "'!", ex);
-                });
+            return runWithLock(() ->
+                handleInputWithLock(obj))
+                .withExceptionContext(() ->
+                    String.format("Handling input '%s' for ToolUser '%s'!", obj, toMinimalString()));
         }
         catch (Exception e)
         {

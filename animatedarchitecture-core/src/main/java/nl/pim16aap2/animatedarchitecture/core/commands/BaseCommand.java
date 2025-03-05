@@ -6,8 +6,8 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -105,6 +105,20 @@ public abstract class BaseCommand
     protected boolean availableForNonPlayers()
     {
         return true;
+    }
+
+    /**
+     * Executes the command with a timeout.
+     *
+     * @param timeout
+     *     The timeout.
+     * @param timeUnit
+     *     The time unit of the timeout.
+     * @return The result of the execution.
+     */
+    public final CompletableFuture<?> run(int timeout, TimeUnit timeUnit)
+    {
+        return run().orTimeout(timeout, timeUnit);
     }
 
     /**
@@ -208,8 +222,8 @@ public abstract class BaseCommand
     }
 
     /**
-     * Attempts to get an {@link Structure} based on the provided {@link StructureRetrieverFactory} and the
-     * current {@link ICommandSender}.
+     * Attempts to get an {@link Structure} based on the provided {@link StructureRetrieverFactory} and the current
+     * {@link ICommandSender}.
      * <p>
      * If no structure is found, the {@link ICommandSender} will be informed.
      *

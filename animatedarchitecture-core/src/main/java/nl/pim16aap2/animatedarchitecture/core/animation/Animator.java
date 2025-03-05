@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.animation;
 import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -15,14 +16,15 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -33,6 +35,7 @@ import static nl.pim16aap2.animatedarchitecture.core.animation.Animation.Animati
  */
 @ToString
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 public final class Animator implements IAnimator
 {
     /**
@@ -83,6 +86,9 @@ public final class Animator implements IAnimator
      */
     private final IAnimationComponent animationComponent;
 
+    /**
+     * The container that holds the blocks that are animated by this animator.
+     */
     private final IAnimatedBlockContainer animatedBlockContainer;
 
     /**
@@ -139,9 +145,15 @@ public final class Animator implements IAnimator
      */
     private final AtomicBoolean hasStarted = new AtomicBoolean(false);
 
+    /**
+     * The type of animation performed by this animator.
+     */
     @Getter
     private final AnimationType animationType;
 
+    /**
+     * The list of animation hooks that are hooked into this animator.
+     */
     private volatile @Nullable List<IAnimationHook> hooks;
 
     /**
@@ -171,7 +183,11 @@ public final class Animator implements IAnimator
      */
     private final Cuboid newCuboid;
 
-
+    /**
+     * The data of the animation.
+     * <p>
+     * This is updated after each animation step.
+     */
     private volatile @Nullable Animation<IAnimatedBlock> animationData;
 
     /**
@@ -588,22 +604,28 @@ public final class Animator implements IAnimator
 
         if (blocking)
         {
-            restoreBlocks.join();
+            restoreBlocks.orTimeout(2, TimeUnit.SECONDS).join();
             updateStructure.run();
         }
         else
         {
             restoreBlocks
                 .thenRun(updateStructure)
-                .exceptionally(FutureUtil::exceptionally);
+                .handleExceptional(ex ->
+                    log.atSevere().withCause(ex).log("Failed to finish animation! IsAborted: %b", isAborted));
         }
     }
 
     /**
      * Updates the coordinates of a {@link Structure} and toggles its open status.
+     * <p>
+     * This method should only be called when the structure is in a write lock.
      */
     private void updateCoords()
     {
+        if (!structure.hasWriteLock())
+            throw new IllegalStateException("Trying to update the coordinates of a structure without a write lock!");
+
         // Invert the open status of the structure if it has the open status property.
         final IPropertyValue<Boolean> openStatus = structure.getPropertyValue(Property.OPEN_STATUS);
         if (openStatus.isSet())
@@ -611,7 +633,20 @@ public final class Animator implements IAnimator
 
         if (!newCuboid.equals(snapshot.getCuboid()))
             structure.setCoordinates(newCuboid);
-        structure.syncData().exceptionally(FutureUtil::exceptionally);
+
+        structure
+            .syncData(false)
+            .handleExceptional(ex ->
+                log.atSevere().withCause(ex).log("""
+                        Failed to update the coordinates of the structure!
+                        Animation: %s
+                        
+                        Structure Snapshot: %s
+                        
+                        """,
+                    newCuboid,
+                    snapshot
+                ));
     }
 
     /**

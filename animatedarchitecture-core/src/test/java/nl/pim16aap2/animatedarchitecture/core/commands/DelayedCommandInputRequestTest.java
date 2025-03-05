@@ -25,7 +25,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @Timeout(1)
 @WithLogCapture
@@ -98,7 +97,6 @@ class DelayedCommandInputRequestTest
 
     @Test
     void testException(LogCaptor logCaptor)
-        throws ExecutionException, InterruptedException, TimeoutException
     {
         // Ensure that exceptions are properly propagated.
         final DelayedCommandInputRequest<?> inputRequest = new DelayedCommandInputRequest<>(
@@ -119,7 +117,18 @@ class DelayedCommandInputRequestTest
         final UUID uuid = UUID.randomUUID();
         final String providedInput = UUID.randomUUID().toString();
 
-        inputRequest.provide(new DelayedInput(uuid, providedInput)).get(1, TimeUnit.SECONDS);
+        final ExecutionException exception = Assertions.assertThrows(
+            ExecutionException.class,
+            () -> inputRequest.provide(new DelayedInput(uuid, providedInput)).get(1, TimeUnit.SECONDS)
+        );
+
+        final Throwable nestedException = exception.getCause();
+        Assertions.assertInstanceOf(RuntimeException.class, nestedException);
+        Assertions.assertTrue(
+            nestedException
+                .getMessage()
+                .startsWith("Delayed input request DelayedCommandInputRequest(commandSender=")
+        );
 
         LogAssertionsUtil.assertThrowableLogged(
             logCaptor,
