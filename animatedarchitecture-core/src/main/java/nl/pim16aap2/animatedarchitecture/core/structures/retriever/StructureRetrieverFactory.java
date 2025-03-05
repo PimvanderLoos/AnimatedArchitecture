@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.retriever;
 
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
@@ -83,16 +84,19 @@ public final class StructureRetrieverFactory
     public static final StructureFinderMode DEFAULT_MODE = StructureFinderMode.USE_CACHE;
 
     private final DelayedStructureSpecificationInputRequest.Factory specificationFactory;
+    private final IExecutor executor;
     private final DatabaseManager databaseManager;
     private final StructureFinderCache structureFinderCache;
 
     @Inject
     StructureRetrieverFactory(
         DelayedStructureSpecificationInputRequest.Factory specificationFactory,
+        IExecutor executor,
         DatabaseManager databaseManager,
         StructureFinderCache structureFinderCache)
     {
         this.specificationFactory = specificationFactory;
+        this.executor = executor;
         this.databaseManager = databaseManager;
         this.structureFinderCache = structureFinderCache;
     }
@@ -178,7 +182,7 @@ public final class StructureRetrieverFactory
     {
         return mode == StructureFinderMode.USE_CACHE ?
             structureFinderCache.getStructureFinder(commandSender, input, maxPermission, properties) :
-            new StructureFinder(this, databaseManager, commandSender, input, maxPermission, properties);
+            new StructureFinder(this, executor, databaseManager, commandSender, input, maxPermission, properties);
     }
 
     /**

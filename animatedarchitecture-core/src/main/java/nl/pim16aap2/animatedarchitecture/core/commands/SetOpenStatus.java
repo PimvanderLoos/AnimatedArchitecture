@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -35,12 +36,14 @@ public class SetOpenStatus extends StructureTargetCommand
         @Assisted StructureRetriever structureRetriever,
         @Assisted("isOpen") boolean isOpen,
         @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         CommandFactory commandFactory)
     {
         super(
             commandSender,
+            executor,
             localizer,
             textFactory,
             structureRetriever,
@@ -90,7 +93,7 @@ public class SetOpenStatus extends StructureTargetCommand
             return structure
                 .syncData()
                 .thenAccept(this::handleDatabaseActionResult)
-                .thenRunAsync(() -> sendUpdatedInfo(structure));
+                .thenRunAsync(() -> sendUpdatedInfo(structure), executor.getVirtualExecutor());
         }
 
         // The open status has not changed, so we inform the user.

@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -37,11 +38,12 @@ public final class UpdateCreator extends BaseCommand
         @Assisted ICommandSender commandSender,
         @Assisted String stepName,
         @Assisted @Nullable Object stepValue,
+        IExecutor executor,
         ToolUserManager toolUserManager,
         ILocalizer localizer,
         ITextFactory textFactory)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.stepName = stepName;
         this.stepValue = stepValue;
         this.toolUserManager = toolUserManager;

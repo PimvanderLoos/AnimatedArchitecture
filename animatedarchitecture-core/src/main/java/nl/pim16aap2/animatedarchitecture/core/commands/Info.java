@@ -7,6 +7,7 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -43,11 +44,12 @@ public class Info extends StructureTargetCommand
     Info(
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         HighlightedBlockSpawner glowingBlockSpawner)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.INFO);
+        super(commandSender, executor, localizer, textFactory, structureRetriever, StructureAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;
     }
 

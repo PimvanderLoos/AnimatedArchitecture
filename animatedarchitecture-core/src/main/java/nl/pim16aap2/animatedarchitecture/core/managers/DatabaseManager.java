@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
@@ -29,6 +30,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,16 +58,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 {
     /**
      * The thread pool to use for storage access.
+     * <p>
+     * When scheduling tasks that are not related to the database, use {@link IExecutor#getVirtualExecutor()} instead
+     * (or create a new executor if necessary).
      */
     private volatile ExecutorService threadPool;
 
-    /**
-     * The number of threads to use for storage access.
-     */
-    private static final int THREAD_COUNT = 16;
-
+    private final IExecutor executor;
     private final IStorage db;
-
     private final StructureDeletionManager structureDeletionManager;
     private final IAnimatedArchitectureEventCaller animatedArchitectureEventCaller;
     private final Lazy<PowerBlockManager> powerBlockManager;
@@ -82,6 +82,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      */
     @Inject
     public DatabaseManager(
+        IExecutor executor,
         RestartableHolder restartableHolder,
         IStorage storage,
         StructureDeletionManager structureDeletionManager,
@@ -91,7 +92,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         DebuggableRegistry debuggableRegistry)
     {
         super(restartableHolder);
-        db = storage;
+        this.executor = executor;
+        this.db = storage;
         this.structureDeletionManager = structureDeletionManager;
         this.animatedArchitectureEventCaller = animatedArchitectureEventCaller;
         this.powerBlockManager = powerBlockManager;
@@ -120,10 +122,11 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     @Override
     public void shutDown()
     {
-        threadPool.shutdown();
+        final var threadPool0 = threadPool;
+        threadPool0.shutdown();
         try
         {
-            if (!threadPool.awaitTermination(30, TimeUnit.SECONDS))
+            if (!threadPool0.awaitTermination(30, TimeUnit.SECONDS))
                 log.atSevere().log(
                     "Timed out waiting to terminate DatabaseManager ExecutorService!" +
                         " The database may be out of sync with the world!"
@@ -142,7 +145,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
     private void initThreadPool()
     {
-        this.threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
+        this.threadPool = Executors.newVirtualThreadPerTaskExecutor();
     }
 
     /**
@@ -230,7 +233,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                     animatedArchitectureEventFactory.createStructureCreatedEvent(result.structure().get(), responsible);
 
                 animatedArchitectureEventCaller.callAnimatedArchitectureEvent(structureCreatedEvent);
-            })
+            }, executor.getVirtualExecutor())
             .orTimeout(10, TimeUnit.SECONDS)
             .handleExceptional(ex ->
                 log.atSevere().withCause(ex).log(
@@ -283,7 +286,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                 structureDeletionManager.onStructureDeletion(snapshot);
 
                 return ActionResult.SUCCESS;
-            }, threadPool)
+            }, executor.getVirtualExecutor())
             .withExceptionContext(() -> String.format(
                 "Deleting structure %s with responsible %s",
                 structure.getBasicInfo(),
@@ -689,7 +692,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                 animatedArchitectureEventCaller.callAnimatedArchitectureEvent(event);
                 log.atFinest().log("Processed event: %s", event);
                 return event;
-            })
+            }, executor.getVirtualExecutor())
             .withExceptionContext(() -> String.format("Calling event %s", event));
     }
 
@@ -900,7 +903,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     @Override
     public String getDebugInformation()
     {
-        return "Database status: " + threadPool;
+        return "Database " + StringUtil.toString(threadPool);
     }
 
     /**

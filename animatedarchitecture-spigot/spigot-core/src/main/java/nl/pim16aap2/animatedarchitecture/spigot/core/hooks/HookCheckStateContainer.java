@@ -209,7 +209,7 @@ final class HookCheckStateContainer
             runPreChecksSync(executor, player, world);
             results = CompletableFuture
                 .completedFuture(null)
-                .thenComposeAsync(ignored -> runPreChecksAsync(executor, player, world));
+                .thenComposeAsync(ignored -> runPreChecksAsync(executor, player, world), executor.getVirtualExecutor());
         }
         else
         {

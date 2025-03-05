@@ -128,7 +128,7 @@ class DelayedInputRequestTest
     {
         public DelayedInputRequestImpl(long timeout, TimeUnit timeUnit)
         {
-            super(timeout, timeUnit);
+            super(timeUnit, timeout);
         }
 
         public DelayedInputRequestImpl(long timeout)

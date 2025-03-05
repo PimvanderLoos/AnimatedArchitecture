@@ -1,9 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.retriever;
 
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -28,12 +30,15 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SuppressWarnings({"OptionalGetWithoutIsPresent", "DefaultAnnotationParam"})
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @Timeout(value = 10, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class StructureFinderTest
 {
+    @Mock
+    IExecutor executor;
+
     @Mock
     StructureRetrieverFactory structureRetrieverFactory;
 
@@ -46,6 +51,8 @@ class StructureFinderTest
     @Test
     void propagateMaxPermission()
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         final CompletableFuture<List<DatabaseManager.StructureIdentifier>> databaseResult = new CompletableFuture<>();
         when(databaseManager.getIdentifiersFromPartial(
             Mockito.anyString(),
@@ -56,6 +63,7 @@ class StructureFinderTest
 
         new StructureFinder(
             structureRetrieverFactory,
+            executor,
             databaseManager,
             commandSender,
             "M"
@@ -71,6 +79,7 @@ class StructureFinderTest
 
         new StructureFinder(
             structureRetrieverFactory,
+            executor,
             databaseManager,
             commandSender,
             "M",
@@ -88,6 +97,7 @@ class StructureFinderTest
 
         new StructureFinder(
             structureRetrieverFactory,
+            executor,
             databaseManager,
             commandSender,
             "M",
@@ -108,6 +118,8 @@ class StructureFinderTest
     void testDelayedResults()
         throws InterruptedException, ExecutionException, TimeoutException
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         final CompletableFuture<List<DatabaseManager.StructureIdentifier>> databaseResult = new CompletableFuture<>();
         when(databaseManager.getIdentifiersFromPartial(
             Mockito.anyString(),
@@ -117,7 +129,8 @@ class StructureFinderTest
         ).thenReturn(databaseResult);
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
+            new StructureFinder(structureRetrieverFactory,
+                executor, databaseManager, commandSender, "M");
 
         Assertions.assertTrue(structureFinder.getStructureIdentifiersIfAvailable().isEmpty());
         final CompletableFuture<Set<String>> returned = structureFinder.getStructureIdentifiers();
@@ -157,12 +170,15 @@ class StructureFinderTest
     void testBasic()
         throws ExecutionException, InterruptedException, TimeoutException
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         final List<Long> uids = List.of(0L, 1L, 2L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge");
         setDatabaseIdentifierResults(uids, names);
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "My");
+            new StructureFinder(structureRetrieverFactory,
+                executor, databaseManager, commandSender, "My");
 
         Assertions.assertTrue(structureFinder.getStructureUIDs().isPresent());
         Assertions.assertEquals(names, new ArrayList<>(structureFinder.getStructureIdentifiersIfAvailable().get()));
@@ -185,6 +201,8 @@ class StructureFinderTest
     @Test
     void inputBeforeResults()
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         final List<Long> uids = List.of(0L, 1L, 2L, 3L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         final List<DatabaseManager.StructureIdentifier> identifiers = createStructureIdentifiers(uids, names, true);
@@ -197,7 +215,8 @@ class StructureFinderTest
         ).thenReturn(output);
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
+            new StructureFinder(structureRetrieverFactory,
+                executor, databaseManager, commandSender, "M");
 
         structureFinder.processInput("My", List.of());
         structureFinder.processInput("MyD", List.of());
@@ -219,6 +238,8 @@ class StructureFinderTest
     @Test
     void changedInputBeforeResults()
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         final List<Long> uids = List.of(0L, 1L, 2L, 3L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         final List<DatabaseManager.StructureIdentifier> identifiers = createStructureIdentifiers(uids, names, true);
@@ -231,7 +252,8 @@ class StructureFinderTest
         ).thenReturn(output);
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
+            new StructureFinder(structureRetrieverFactory,
+                executor, databaseManager, commandSender, "M");
 
         structureFinder.processInput("My", List.of());
         structureFinder.processInput("MyD", List.of());
@@ -255,12 +277,15 @@ class StructureFinderTest
     @Test
     void rollback()
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         final List<Long> uids = List.of(0L, 1L, 2L, 3L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         setDatabaseIdentifierResults(uids, names);
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
+            new StructureFinder(structureRetrieverFactory,
+                executor, databaseManager, commandSender, "M");
 
         verify(databaseManager, Mockito.times(1))
             .getIdentifiersFromPartial(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyCollection());
@@ -298,12 +323,15 @@ class StructureFinderTest
     @Test
     void numericalInput()
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         final List<Long> uids = List.of(100L, 101L, 120L, 130L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         setDatabaseIdentifierResults(uids, names);
 
         final StructureFinder structureFinder =
             new StructureFinder(structureRetrieverFactory,
+                executor,
                 databaseManager, commandSender, "1");
 
         structureFinder.processInput("10", List.of());
@@ -320,12 +348,15 @@ class StructureFinderTest
     void exactMatch()
         throws ExecutionException, InterruptedException, TimeoutException
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         final List<Long> uids = List.of(0L, 1L, 2L, 3L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         setDatabaseIdentifierResults(uids, names);
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
+            new StructureFinder(structureRetrieverFactory,
+                executor, databaseManager, commandSender, "M");
 
         Assertions.assertTrue(structureFinder.getStructureUIDs(true).isPresent());
         Assertions.assertTrue(structureFinder.getStructureUIDs(true).get().isEmpty());
@@ -350,6 +381,8 @@ class StructureFinderTest
     void getStructures()
         throws ExecutionException, InterruptedException, TimeoutException
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         final List<Long> uids = List.of(0L, 1L, 2L, 3L);
         final List<String> names = List.of("MyDoor", "MyPortcullis", "MyDrawbridge", "TheirFlag");
         setDatabaseIdentifierResults(uids, names);
@@ -374,7 +407,8 @@ class StructureFinderTest
             });
 
         final StructureFinder structureFinder =
-            new StructureFinder(structureRetrieverFactory, databaseManager, commandSender, "M");
+            new StructureFinder(structureRetrieverFactory,
+                executor, databaseManager, commandSender, "M");
 
         // Only idx=3 is excluded.
         Assertions.assertEquals(structures.subList(0, 3), structureFinder.getStructures().get(1, TimeUnit.SECONDS));

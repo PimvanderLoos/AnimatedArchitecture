@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +37,10 @@ public class DelayedInputRequest<T>
     @EqualsAndHashCode.Exclude
     private final Condition inputCondition = lock.newCondition();
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private final IExecutor executor;
+
     /**
      * The result of this input request.
      */
@@ -65,9 +70,12 @@ public class DelayedInputRequest<T>
      *     The timeout to wait before giving up. Must be larger than 0.
      * @param timeUnit
      *     The unit of time.
+     * @param executor
+     *     The executor used for scheduling tasks.
      */
-    protected DelayedInputRequest(long timeout, TimeUnit timeUnit)
+    protected DelayedInputRequest(long timeout, TimeUnit timeUnit, IExecutor executor)
     {
+        this.executor = executor;
         final long timeoutMillis = timeUnit.toMillis(timeout);
         if (timeoutMillis < 1)
             throw new RuntimeException("Timeout must be larger than 0!");
@@ -79,10 +87,12 @@ public class DelayedInputRequest<T>
      *
      * @param timeout
      *     The amount of time to wait before cancelling the request.
+     * @param executor
+     *     The executor used for scheduling tasks.
      */
-    protected DelayedInputRequest(Duration timeout)
+    protected DelayedInputRequest(Duration timeout, IExecutor executor)
     {
-        this(timeout.toMillis(), TimeUnit.MILLISECONDS);
+        this(timeout.toMillis(), TimeUnit.MILLISECONDS, executor);
     }
 
     private CompletableFuture<Optional<T>> waitForResult(long timeout)
@@ -123,7 +133,7 @@ public class DelayedInputRequest<T>
                     {
                         lock.unlock();
                     }
-                })
+                }, executor.getVirtualExecutor())
             .thenApply(
                 result ->
                 {

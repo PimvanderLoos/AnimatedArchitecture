@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
@@ -26,12 +27,13 @@ public class Delete extends StructureTargetCommand
     @AssistedInject
     Delete(
         @Assisted ICommandSender commandSender,
+        @Assisted StructureRetriever structureRetriever,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever,
         DatabaseManager databaseManager)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.DELETE);
+        super(commandSender, executor, localizer, textFactory, structureRetriever, StructureAttribute.DELETE);
         this.databaseManager = databaseManager;
     }
 

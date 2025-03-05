@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.managers;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
@@ -36,6 +37,7 @@ public final class HeadManager extends Restartable
      */
     private @Nullable TimedCache<UUID, Optional<ItemStack>> headMap;
 
+    private final IExecutor executor;
     private final ConfigSpigot config;
 
     /**
@@ -47,9 +49,10 @@ public final class HeadManager extends Restartable
      *     The AnimatedArchitecture configuration.
      */
     @Inject
-    public HeadManager(RestartableHolder holder, ConfigSpigot config)
+    public HeadManager(RestartableHolder holder, IExecutor executor, ConfigSpigot config)
     {
         super(holder);
+        this.executor = executor;
         this.config = config;
     }
 
@@ -74,7 +77,8 @@ public final class HeadManager extends Restartable
 
         return CompletableFuture
             .supplyAsync(() -> Objects.requireNonNull(
-                headMap0.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName))))
+                    headMap0.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName))),
+                executor.getVirtualExecutor())
             .exceptionally(ex ->
             {
                 log.atSevere().withCause(ex).log(

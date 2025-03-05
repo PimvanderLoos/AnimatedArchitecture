@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -32,12 +33,13 @@ public class SetBlocksToMove extends StructureTargetCommand
     @AssistedInject
     SetBlocksToMove(
         @Assisted ICommandSender commandSender,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         @Assisted StructureRetriever structureRetriever,
-        @Assisted int blocksToMove)
+        @Assisted int blocksToMove,
+        IExecutor executor,
+        ILocalizer localizer,
+        ITextFactory textFactory)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.BLOCKS_TO_MOVE);
+        super(commandSender, executor, localizer, textFactory, structureRetriever, StructureAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;
     }
 

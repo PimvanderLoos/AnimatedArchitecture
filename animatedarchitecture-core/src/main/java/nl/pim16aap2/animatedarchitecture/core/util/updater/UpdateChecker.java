@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -61,7 +62,7 @@ public final class UpdateChecker implements IDebuggable
     {
         //noinspection DataFlowIssue
         CompletableFuture
-            .supplyAsync(this::checkForUpdates0)
+            .supplyAsync(this::checkForUpdates0, Executors.newVirtualThreadPerTaskExecutor())
             .orTimeout(10, TimeUnit.MINUTES)
             .logExceptions();
     }

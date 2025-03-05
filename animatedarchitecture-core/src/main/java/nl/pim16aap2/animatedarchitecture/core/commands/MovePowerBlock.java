@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -29,13 +30,21 @@ public class MovePowerBlock extends StructureTargetCommand
     @AssistedInject
     MovePowerBlock(
         @Assisted ICommandSender commandSender,
+        @Assisted StructureRetriever structureRetriever,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever,
         ToolUserManager toolUserManager,
         PowerBlockRelocator.IFactory powerBlockRelocatorFactory)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.RELOCATE_POWERBLOCK);
+        super(
+            commandSender,
+            executor,
+            localizer,
+            textFactory,
+            structureRetriever,
+            StructureAttribute.RELOCATE_POWERBLOCK
+        );
         this.toolUserManager = toolUserManager;
         this.powerBlockRelocatorFactory = powerBlockRelocatorFactory;
     }
@@ -71,8 +80,8 @@ public class MovePowerBlock extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for moving the powerblock for the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the powerblock
-         *     will be moved.
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the powerblock will be
+         *     moved.
          * @return See {@link BaseCommand#run()}.
          */
         MovePowerBlock newMovePowerBlock(ICommandSender commandSender, StructureRetriever structureRetriever);

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
@@ -41,27 +42,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class PowerBlockManager extends Restartable implements StructureDeletionManager.IDeletionListener
 {
     private final Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
+    private final IExecutor executor;
     private final IConfig config;
     private final DatabaseManager databaseManager;
 
-    /**
-     * Initializes the {@link PowerBlockManager}.
-     *
-     * @param restartableHolder
-     *     The {@link RestartableHolder} that manages this object.
-     * @param config
-     *     The configuration of this plugin.
-     * @param databaseManager
-     *     The database manager to use for power block retrieval.
-     */
     @Inject
     PowerBlockManager(
         RestartableHolder restartableHolder,
+        IExecutor executor,
         IConfig config,
         DatabaseManager databaseManager,
         StructureDeletionManager structureDeletionManager)
     {
         super(restartableHolder);
+        this.executor = executor;
 
         this.config = config;
         this.databaseManager = databaseManager;
@@ -160,7 +154,9 @@ public final class PowerBlockManager extends Restartable implements StructureDel
     private CompletableFuture<List<Structure>> mapUidsToStructures(CompletableFuture<LongList> uids)
     {
         return uids
-            .thenApplyAsync(lst -> lst.longStream().mapToObj(databaseManager::getStructure).toList())
+            .thenApplyAsync(
+                lst -> lst.longStream().mapToObj(databaseManager::getStructure).toList(),
+                executor.getVirtualExecutor())
             .thenCompose(FutureUtil::getAllCompletableFutureResults)
             .thenApply(lst -> lst.stream().filter(Optional::isPresent).map(Optional::get).toList())
             .exceptionally(ex -> FutureUtil.exceptionally(ex, Collections.emptyList()));

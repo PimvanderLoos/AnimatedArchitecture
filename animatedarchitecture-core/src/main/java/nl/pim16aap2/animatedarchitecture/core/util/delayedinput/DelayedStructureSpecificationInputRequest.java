@@ -6,6 +6,7 @@ import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -53,11 +54,13 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
     private DelayedStructureSpecificationInputRequest(
         Duration timeout,
         List<Structure> options,
-        IPlayer player, ILocalizer localizer,
+        IPlayer player,
+        IExecutor executor,
+        ILocalizer localizer,
         ITextFactory textFactory,
         StructureSpecificationManager structureSpecificationManager)
     {
-        super(timeout);
+        super(timeout, executor);
         this.options = options;
         this.player = player;
         this.localizer = localizer;
@@ -135,6 +138,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
     @AllArgsConstructor(onConstructor = @__(@Inject))
     public static final class Factory
     {
+        private final IExecutor executor;
         private final IConfig config;
         private final ILocalizer localizer;
         private final ITextFactory textFactory;
@@ -172,6 +176,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
                 timeout,
                 options,
                 player,
+                executor,
                 localizer,
                 textFactory,
                 structureSpecificationManager

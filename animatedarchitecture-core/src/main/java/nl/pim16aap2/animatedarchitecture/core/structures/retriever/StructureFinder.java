@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Locked;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.RollingCache;
@@ -86,6 +87,11 @@ public final class StructureFinder
      * The lock used to synchronize access to the cache and other fields.
      */
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+
+    /**
+     * The executor used for task scheduling.
+     */
+    private final IExecutor executor;
 
     /**
      * The factory used to create structure retrievers when converting the results of the search to structures.
@@ -179,6 +185,7 @@ public final class StructureFinder
 
     StructureFinder(
         StructureRetrieverFactory structureRetrieverFactory,
+        IExecutor executor,
         DatabaseManager databaseManager,
         ICommandSender commandSender,
         String input,
@@ -186,6 +193,7 @@ public final class StructureFinder
         Collection<Property<?>> properties
     )
     {
+        this.executor = executor;
         this.structureRetrieverFactory = structureRetrieverFactory;
         this.databaseManager = databaseManager;
         this.commandSender = commandSender;
@@ -197,12 +205,21 @@ public final class StructureFinder
 
     StructureFinder(
         StructureRetrieverFactory structureRetrieverFactory,
+        IExecutor executor,
         DatabaseManager databaseManager,
         ICommandSender commandSender,
         String input
     )
     {
-        this(structureRetrieverFactory, databaseManager, commandSender, input, PermissionLevel.CREATOR, Set.of());
+        this(
+            structureRetrieverFactory,
+            executor,
+            databaseManager,
+            commandSender,
+            input,
+            PermissionLevel.CREATOR,
+            Set.of()
+        );
     }
 
     /**
@@ -217,6 +234,7 @@ public final class StructureFinder
      * @param input
      *     The input to process.
      * @param properties
+     *     The properties that the structures must have.
      * @return The current instance of this class.
      */
     @Locked.Write("lock")
@@ -759,37 +777,39 @@ public final class StructureFinder
             return CompletableFuture.completedFuture(cache);
 
         final CompletableFuture<List<MinimalStructureDescription>> result = new CompletableFuture<>();
-        CompletableFuture.runAsync(() ->
-        {
-            try
+        CompletableFuture
+            .runAsync(() ->
             {
-                @Nullable List<MinimalStructureDescription> newCache = null;
-                synchronized (msg)
+                try
                 {
-                    final long deadline = System.nanoTime() + Duration.ofSeconds(DEFAULT_TIMEOUT).toNanos();
-
-                    while (System.nanoTime() < deadline && (newCache = getCache()) == null)
+                    @Nullable List<MinimalStructureDescription> newCache = null;
+                    synchronized (msg)
                     {
-                        final long waitTime = Duration.ofNanos(deadline - System.nanoTime()).toMillis();
-                        if (waitTime > 0)
-                            msg.wait(waitTime);
-                    }
-                    if (newCache == null || System.nanoTime() > deadline)
-                        throw new TimeoutException("Timed out waiting for list of structure descriptions.");
-                }
+                        final long deadline = System.nanoTime() + Duration.ofSeconds(DEFAULT_TIMEOUT).toNanos();
 
-                result.complete(Util.requireNonNull(newCache, "Cache"));
-            }
-            catch (InterruptedException e)
-            {
-                result.completeExceptionally(e);
-                Thread.currentThread().interrupt();
-            }
-            catch (Throwable t)
-            {
-                result.completeExceptionally(t);
-            }
-        }).exceptionally(FutureUtil::exceptionally);
+                        while (System.nanoTime() < deadline && (newCache = getCache()) == null)
+                        {
+                            final long waitTime = Duration.ofNanos(deadline - System.nanoTime()).toMillis();
+                            if (waitTime > 0)
+                                msg.wait(waitTime);
+                        }
+                        if (newCache == null || System.nanoTime() > deadline)
+                            throw new TimeoutException("Timed out waiting for list of structure descriptions.");
+                    }
+
+                    result.complete(Util.requireNonNull(newCache, "Cache"));
+                }
+                catch (InterruptedException e)
+                {
+                    result.completeExceptionally(e);
+                    Thread.currentThread().interrupt();
+                }
+                catch (Throwable t)
+                {
+                    result.completeExceptionally(t);
+                }
+            }, executor.getVirtualExecutor())
+            .exceptionally(FutureUtil::exceptionally);
         return result.exceptionally(t -> FutureUtil.exceptionally(t, Collections.emptyList()));
     }
 

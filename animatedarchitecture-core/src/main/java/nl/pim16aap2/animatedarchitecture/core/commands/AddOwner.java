@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -52,14 +53,15 @@ public class AddOwner extends StructureTargetCommand
     @AssistedInject
     AddOwner(
         @Assisted ICommandSender commandSender,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         @Assisted StructureRetriever doorRetriever,
         @Assisted IPlayer targetPlayer,
         @Assisted @Nullable PermissionLevel targetPermissionLevel,
+        IExecutor executor,
+        ILocalizer localizer,
+        ITextFactory textFactory,
         DatabaseManager databaseManager)
     {
-        super(commandSender, localizer, textFactory, doorRetriever, StructureAttribute.ADD_OWNER);
+        super(commandSender, executor, localizer, textFactory, doorRetriever, StructureAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel == null ? DEFAULT_PERMISSION_LEVEL : targetPermissionLevel;
         this.databaseManager = databaseManager;

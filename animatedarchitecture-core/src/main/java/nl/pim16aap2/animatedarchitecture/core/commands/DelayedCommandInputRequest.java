@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
@@ -99,7 +100,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      *     See {@link BaseCommand#getCommandSender()}.
      * @param commandDefinition
      *     The {@link CommandDefinition} for which the delayed input will be retrieved.
-     * @param executor
+     * @param executorFunction
      *     The function to execute after retrieving the delayed input from the command sender.
      * @param initMessageSupplier
      *     The supplier used to retrieve the message that will be sent to the command sender when this request is
@@ -114,14 +115,15 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         @Assisted long timeout,
         @Assisted ICommandSender commandSender,
         @Assisted CommandDefinition commandDefinition,
-        @Assisted Function<T, CompletableFuture<?>> executor,
+        @Assisted Function<T, CompletableFuture<?>> executorFunction,
         @Assisted @Nullable Supplier<String> initMessageSupplier,
         @Assisted Class<T> inputClass,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         DelayedCommandInputManager delayedCommandInputManager)
     {
-        super(timeout, TimeUnit.MILLISECONDS);
+        super(timeout, TimeUnit.MILLISECONDS, executor);
         this.commandSender = commandSender;
         this.commandDefinition = commandDefinition;
         this.localizer = localizer;
@@ -132,7 +134,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
 
         log.atFinest().log("Started delayed input request for command: %s", this);
 
-        commandOutput = constructOutput(executor);
+        commandOutput = constructOutput(executorFunction);
         init();
     }
 
@@ -160,14 +162,14 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      *     <li>Handle any exceptions that occur during processing</li>
      * </ol>
      *
-     * @param executor
+     * @param executorFunction
      *     The function to execute with the input value when it becomes available
      * @return A CompletableFuture representing the command execution
      */
-    private CompletableFuture<?> constructOutput(Function<T, CompletableFuture<?>> executor)
+    private CompletableFuture<?> constructOutput(Function<T, CompletableFuture<?>> executorFunction)
     {
         return getInputResult()
-            .thenCompose(input -> input.map(executor).orElse(CompletableFuture.completedFuture(null)))
+            .thenCompose(input -> input.map(executorFunction).orElse(CompletableFuture.completedFuture(null)))
             .withExceptionContext(() -> String.format("Delayed input request %s", this));
     }
 
@@ -244,7 +246,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
          *     The command sender who will provide the input.
          * @param commandDefinition
          *     The command definition for which input is being requested.
-         * @param executor
+         * @param executorFunction
          *     The function to execute after retrieving the delayed input.
          * @param initMessageSupplier
          *     Supplier for the initialization message (can be null).
@@ -256,7 +258,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
             long timeout,
             ICommandSender commandSender,
             CommandDefinition commandDefinition,
-            Function<T, CompletableFuture<?>> executor,
+            Function<T, CompletableFuture<?>> executorFunction,
             @Nullable Supplier<String> initMessageSupplier,
             Class<T> inputClass
         );

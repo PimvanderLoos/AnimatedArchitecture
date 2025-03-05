@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -37,10 +38,16 @@ public abstract class BaseCommand
 
     protected final ILocalizer localizer;
     protected final ITextFactory textFactory;
+    protected final IExecutor executor;
 
-    public BaseCommand(ICommandSender commandSender, ILocalizer localizer, ITextFactory textFactory)
+    public BaseCommand(
+        ICommandSender commandSender,
+        IExecutor executor,
+        ILocalizer localizer,
+        ITextFactory textFactory)
     {
         this.commandSender = commandSender;
+        this.executor = executor;
         this.localizer = localizer;
         this.textFactory = textFactory;
     }
@@ -177,7 +184,7 @@ public abstract class BaseCommand
      */
     protected final CompletableFuture<?> startExecution()
     {
-        return hasPermission().thenAcceptAsync(this::handlePermissionResult);
+        return hasPermission().thenAcceptAsync(this::handlePermissionResult, executor.getVirtualExecutor());
     }
 
     private void handlePermissionResult(PermissionsStatus permissionResult)
@@ -253,7 +260,7 @@ public abstract class BaseCommand
                     localizer.getMessage("commands.base.error.cannot_find_target_structure")
                 );
                 return Optional.empty();
-            });
+            }, executor.getVirtualExecutor());
     }
 
     /**

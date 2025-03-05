@@ -170,7 +170,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     @Override
     public CompletableFuture<Boolean> hasPermissionOffline(World world, OfflinePlayer player, String permission)
     {
-        return CompletableFuture.supplyAsync(() -> perms.playerHas(world.getName(), player, permission));
+        return CompletableFuture
+            .supplyAsync(() -> perms.playerHas(world.getName(), player, permission), executor.getVirtualExecutor());
     }
 
     /**

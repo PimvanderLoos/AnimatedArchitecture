@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IGuiFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -24,12 +25,13 @@ public class Menu extends BaseCommand
     @AssistedInject
     Menu(
         @Assisted ICommandSender commandSender,
+        @Assisted @Nullable IPlayer source,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
-        IGuiFactory guiFactory,
-        @Assisted @Nullable IPlayer source)
+        IGuiFactory guiFactory)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.guiFactory = guiFactory;
         this.source = source;
     }

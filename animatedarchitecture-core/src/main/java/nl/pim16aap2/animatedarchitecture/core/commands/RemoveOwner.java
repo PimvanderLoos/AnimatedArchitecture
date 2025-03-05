@@ -5,12 +5,13 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
@@ -34,13 +35,14 @@ public class RemoveOwner extends StructureTargetCommand
     @AssistedInject
     RemoveOwner(
         @Assisted ICommandSender commandSender,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         @Assisted StructureRetriever structureRetriever,
         @Assisted IPlayer targetPlayer,
+        IExecutor executor,
+        ILocalizer localizer,
+        ITextFactory textFactory,
         DatabaseManager databaseManager)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.REMOVE_OWNER);
+        super(commandSender, executor, localizer, textFactory, structureRetriever, StructureAttribute.REMOVE_OWNER);
         this.targetPlayer = targetPlayer;
         this.databaseManager = databaseManager;
     }
@@ -141,8 +143,8 @@ public class RemoveOwner extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for removing a co-owner of the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which a co-owner is
-         *     requested to be removed.
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which a co-owner is requested
+         *     to be removed.
          * @param targetPlayer
          *     The co-owner that is requested to be removed.
          * @return See {@link BaseCommand#run()}.

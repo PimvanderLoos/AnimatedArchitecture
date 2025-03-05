@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,6 +40,29 @@ public final class StringUtil
 
     private StringUtil()
     {
+    }
+
+    /**
+     * Converts an {@link ExecutorService} to a string.
+     * <p>
+     * This method is used for logging/debugging purposes.
+     *
+     * @param executor
+     *     The {@link ExecutorService} to convert.
+     * @return A string representation of the {@link ExecutorService}.
+     */
+    public static String toString(ExecutorService executor)
+    {
+        return String.format("""
+                ExecutorService:
+                - Type:          %s
+                - Is shutdown:   %s
+                - Is terminated: %s
+                """,
+            executor.getClass().getName(),
+            executor.isShutdown(),
+            executor.isTerminated()
+        );
     }
 
     /**

@@ -104,7 +104,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
     private double maxBlockSpeed;
     private int cacheTimeout;
     private boolean enableRedstone;
-    private int redstoneThreadPoolSize;
     private boolean loadChunksForToggle;
     private Locale locale = Locale.ROOT;
     private int headCacheTimeout;
@@ -433,7 +432,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
         headCacheTimeout = addNewConfigEntry(config, "headCacheTimeout", 120, headCacheTimeoutComment);
         coolDown = addNewConfigEntry(config, "coolDown", 0, coolDownComment);
         cacheTimeout = addNewConfigEntry(config, "cacheTimeout", 120, cacheTimeoutComment);
-        redstoneThreadPoolSize = addNewConfigEntry(config, "redstoneThreadPoolSize", -1, redstoneThreadPoolSizeComment);
 
         flagMovementFormula = addNewConfigEntry(
             config,
@@ -902,16 +900,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
     public List<String> getCommandAliases()
     {
         return Collections.unmodifiableList(commandAliases);
-    }
-
-    /**
-     * Gets the size of the thread pool used for redstone events.
-     *
-     * @return The size of the thread pool used for redstone events.
-     */
-    public int redstoneThreadPoolSize()
-    {
-        return redstoneThreadPoolSize < 1 ? DEFAULT_REDSTONE_THREAD_POOL_SIZE : redstoneThreadPoolSize;
     }
 
     /**

@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -35,13 +36,14 @@ public class NewStructure extends BaseCommand
         @Assisted ICommandSender commandSender,
         @Assisted StructureType structureType,
         @Assisted @Nullable String structureName,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         IPermissionsManager permissionsManager,
         ToolUserManager toolUserManager,
         Provider<ToolUser.Context> creatorContextProvider)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.structureType = structureType;
         this.structureName = structureName;
         this.permissionsManager = permissionsManager;

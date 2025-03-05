@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Locked;
 import lombok.Setter;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
@@ -15,7 +16,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -56,9 +56,10 @@ public abstract class StructureTargetCommand extends BaseCommand
     @GuardedBy("$lock")
     private @Nullable Structure retrieverResult;
 
-    @Contract("_, _, _, _, _, true, null -> fail")
+    @Contract("_, _, _, _, _, _, true, null -> fail")
     protected StructureTargetCommand(
         ICommandSender commandSender,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         StructureRetriever structureRetriever,
@@ -66,7 +67,7 @@ public abstract class StructureTargetCommand extends BaseCommand
         boolean sendUpdatedInfo,
         @Nullable CommandFactory commandFactory)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
 
         if (sendUpdatedInfo && commandFactory == null)
             throw new IllegalArgumentException("Command factory cannot be null if sendUpdatedInfo is true.");
@@ -79,12 +80,13 @@ public abstract class StructureTargetCommand extends BaseCommand
 
     protected StructureTargetCommand(
         ICommandSender commandSender,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         StructureRetriever structureRetriever,
         StructureAttribute structureAttribute)
     {
-        this(commandSender, localizer, textFactory, structureRetriever, structureAttribute, false, null);
+        this(commandSender, executor, localizer, textFactory, structureRetriever, structureAttribute, false, null);
     }
 
     @Override
@@ -96,8 +98,10 @@ public abstract class StructureTargetCommand extends BaseCommand
                 setRetrieverResult(structure.orElse(null));
                 return structure;
             })
-            .thenAcceptAsync(structure -> processStructureResult(structure, permissions))
-            .exceptionally(FutureUtil::exceptionally);
+            .thenAcceptAsync(
+                structure -> processStructureResult(structure, permissions),
+                executor.getVirtualExecutor()
+            );
     }
 
     /**

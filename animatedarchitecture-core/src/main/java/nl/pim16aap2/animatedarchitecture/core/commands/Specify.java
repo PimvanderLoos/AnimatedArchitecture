@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -32,11 +33,12 @@ public class Specify extends BaseCommand
     Specify(
         @Assisted ICommandSender commandSender,
         @Assisted String input,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         StructureSpecificationManager structureSpecificationManager)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.input = input;
         this.structureSpecificationManager = structureSpecificationManager;
     }

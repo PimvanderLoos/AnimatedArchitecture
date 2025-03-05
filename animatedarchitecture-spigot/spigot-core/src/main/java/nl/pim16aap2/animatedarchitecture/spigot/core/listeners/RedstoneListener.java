@@ -2,12 +2,12 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.LocationSpigot;
 import org.bukkit.Location;
@@ -26,9 +26,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Represents a listener that keeps track redstone changes.
@@ -38,24 +36,22 @@ import java.util.concurrent.TimeoutException;
 @ExtensionMethod(CompletableFutureExtensions.class)
 public class RedstoneListener extends AbstractListener implements IDebuggable
 {
+    private final IExecutor executor;
     private final ConfigSpigot config;
     private final Set<Material> powerBlockTypes = new CopyOnWriteArraySet<>();
     private final PowerBlockManager powerBlockManager;
 
-    /**
-     * The thread pool to use for handling redstone events.
-     */
-    private volatile @Nullable ExecutorService threadPool;
-
     @Inject
     RedstoneListener(
         RestartableHolder holder,
+        IExecutor executor,
         JavaPlugin plugin,
         ConfigSpigot config,
         PowerBlockManager powerBlockManager,
         DebuggableRegistry debuggableRegistry)
     {
         super(holder, plugin, config::isRedstoneEnabled);
+        this.executor = executor;
         this.config = config;
         this.powerBlockManager = powerBlockManager;
 
@@ -65,7 +61,6 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
     @Override
     public void initialize()
     {
-        initThreadPool();
         super.initialize();
         if (super.isRegistered)
             powerBlockTypes.addAll(config.powerBlockTypes());
@@ -76,7 +71,6 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
     {
         super.shutDown();
         powerBlockTypes.clear();
-        shutDownThreadPool();
     }
 
     private void checkStructures(LocationSpigot loc, boolean isPowered)
@@ -147,15 +141,7 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
     @EventHandler
     public void onBlockRedstoneChange(BlockRedstoneEvent event)
     {
-        final @Nullable ExecutorService currentThreadPool = this.threadPool;
-        if (currentThreadPool == null)
-        {
-            log.atWarning().log(
-                "Redstone event at location %s was not processed because the thread pool was null!",
-                event.getBlock().getLocation()
-            );
-            return;
-        }
+        final @Nullable ExecutorService currentThreadPool = executor.getVirtualExecutor();
         if (currentThreadPool.isShutdown())
         {
             log.atWarning().log(
@@ -169,72 +155,27 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
         if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)
             return;
 
-        if (!powerBlockManager.isAnimatedArchitectureWorld(event.getBlock().getWorld().getName()))
+        final Block block = event.getBlock();
+        if (!powerBlockManager.isAnimatedArchitectureWorld(block.getWorld().getName()))
             return;
 
         CompletableFuture
             .runAsync(() -> processRedstoneEvent(event), currentThreadPool)
-            .orTimeout(5, TimeUnit.SECONDS)
-            .exceptionally(exception ->
-            {
-                if (exception instanceof TimeoutException)
-                {
-                    log.atWarning().log(
-                        "Timed out processing redstone event at location %s: '%s'",
-                        event.getBlock().getLocation(),
-                        exception.getMessage()
-                    );
-                }
-                else
-                {
-                    FutureUtil.exceptionally(exception);
-                }
-                return null;
-            });
-    }
-
-    private synchronized void initThreadPool()
-    {
-        if (threadPool != null)
-            throw new IllegalStateException("Thread pool is already initialized!");
-        threadPool = Executors.newFixedThreadPool(config.redstoneThreadPoolSize());
-    }
-
-    private synchronized void shutDownThreadPool()
-    {
-        final @Nullable ExecutorService currentThreadPool = this.threadPool;
-        this.threadPool = null;
-
-        if (currentThreadPool != null)
-        {
-            currentThreadPool.shutdown();
-            try
-            {
-                if (!currentThreadPool.awaitTermination(30, TimeUnit.SECONDS))
-                    log.atSevere().log(
-                        "Timed out waiting to terminate DatabaseManager ExecutorService!" +
-                            " The database may be out of sync with the world!"
-                    );
-            }
-            catch (InterruptedException e)
-            {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(
-                    "Thread got interrupted waiting for DatabaseManager ExecutorService to terminate!" +
-                        " The database may be out of sync with the world!", e
-                );
-            }
-        }
+            .orTimeout(10, TimeUnit.SECONDS)
+            .handleExceptional(exception ->
+                log.atSevere().atMostEvery(1, TimeUnit.SECONDS).withCause(exception).log(
+                    "Exception thrown while handling redstone event at location %s!",
+                    block
+                ));
     }
 
     @Override
     public String getDebugInformation()
     {
         return String.format(
-            "Listener status: registered=%s, powerBlockTypes=%s, threadPool=%s",
+            "Listener status: registered=%s, powerBlockTypes=%s",
             super.isRegistered,
-            powerBlockTypes,
-            threadPool
+            powerBlockTypes
         );
     }
 }

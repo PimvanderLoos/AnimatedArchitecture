@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -223,7 +224,7 @@ public class ToolUserTest
 
         public synchronized CompletableFuture<Boolean> appendValueAsync(Integer value)
         {
-            return CompletableFuture.supplyAsync(() -> appendValue(value));
+            return CompletableFuture.supplyAsync(() -> appendValue(value), Executors.newVirtualThreadPerTaskExecutor());
         }
 
         public synchronized boolean appendValue(Integer value)

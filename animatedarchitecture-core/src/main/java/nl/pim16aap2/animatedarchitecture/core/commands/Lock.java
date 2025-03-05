@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IAnimatedArchitectureEventFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventCaller;
@@ -34,6 +35,7 @@ public class Lock extends StructureTargetCommand
         @Assisted StructureRetriever structureRetriever,
         @Assisted("isLocked") boolean isLocked,
         @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         CommandFactory commandFactory,
@@ -42,6 +44,7 @@ public class Lock extends StructureTargetCommand
     {
         super(
             commandSender,
+            executor,
             localizer,
             textFactory,
             structureRetriever,
@@ -95,7 +98,7 @@ public class Lock extends StructureTargetCommand
         return structure
             .syncData()
             .thenAccept(this::handleDatabaseActionResult)
-            .thenRunAsync(() -> sendUpdatedInfo(structure));
+            .thenRunAsync(() -> sendUpdatedInfo(structure), executor.getVirtualExecutor());
     }
 
     @AssistedFactory
@@ -107,8 +110,8 @@ public class Lock extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing the locked status of the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the locked
-         *     status will be modified.
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the locked status will
+         *     be modified.
          * @param isLocked
          *     True if the structure should be locked, false if it should be unlocked.
          * @param sendUpdatedInfo
@@ -128,8 +131,8 @@ public class Lock extends StructureTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing the locked status of the structure.
          * @param structureRetriever
-         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the locked
-         *     status will be modified.
+         *     A {@link StructureRetrieverFactory} representing the {@link Structure} for which the locked status will
+         *     be modified.
          * @param isLocked
          *     True if the structure should be locked, false if it should be unlocked.
          * @return See {@link BaseCommand#run()}.

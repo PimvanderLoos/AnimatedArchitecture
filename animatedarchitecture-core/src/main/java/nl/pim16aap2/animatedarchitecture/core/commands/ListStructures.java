@@ -4,10 +4,11 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
@@ -27,11 +28,12 @@ public class ListStructures extends BaseCommand
     @AssistedInject
     ListStructures(
         @Assisted ICommandSender commandSender,
+        @Assisted StructureRetriever structureRetriever,
+        IExecutor executor,
         ILocalizer localizer,
-        ITextFactory textFactory,
-        @Assisted StructureRetriever structureRetriever)
+        ITextFactory textFactory)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.structureRetriever = structureRetriever;
     }
 
