@@ -6,6 +6,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -13,7 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.AsyncStepExecutor;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorVoid;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -25,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Flogger
 @ToString(callSuper = true)
+@ExtensionMethod(CompletableFutureExtensions.class)
 public class PowerBlockRelocator extends ToolUser
 {
     private final Structure structure;
@@ -94,8 +96,16 @@ public class PowerBlockRelocator extends ToolUser
         else
         {
             structure.setPowerBlock(newLoc.getPosition());
-            structure.syncData().exceptionally(FutureUtil::exceptionally);
-            getPlayer().sendSuccess(textFactory, localizer.getMessage("tool_user.powerblock_relocator.success"));
+            structure
+                .syncData()
+                .thenRun(() ->
+                    getPlayer().sendSuccess(textFactory,
+                        localizer.getMessage("tool_user.powerblock_relocator.success")))
+                .handleExceptional(ex ->
+                {
+                    getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
+                    log.atSevere().withCause(ex).log("Failed to sync structure data after powerblock relocation.");
+                });
         }
         return true;
     }

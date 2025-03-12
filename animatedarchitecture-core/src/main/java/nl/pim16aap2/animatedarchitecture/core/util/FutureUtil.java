@@ -6,8 +6,6 @@ import com.google.common.flogger.StackSize;
 import lombok.experimental.ExtensionMethod;
 import lombok.experimental.UtilityClass;
 import lombok.extern.flogger.Flogger;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +13,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 /**
  * Utility class for futures.
@@ -164,35 +161,5 @@ public final class FutureUtil
                 ret.addAll(future.join());
             return ret;
         });
-    }
-
-    /**
-     * Logs a throwable and returns a fallback value.
-     * <p>
-     * Mostly useful for {@link CompletableFuture#exceptionally(Function)}.
-     *
-     * @param throwable
-     *     The throwable to send to the logger.
-     * @param fallback
-     *     The fallback value to return.
-     * @param <T>
-     *     The type of the fallback value.
-     * @return The fallback value.
-     */
-    @Contract("_, !null -> !null")
-    public @Nullable <T> T exceptionally(Throwable throwable, @Nullable T fallback)
-    {
-        log.atSevere().withCause(throwable).log("Exception occurred in CompletableFuture");
-        return fallback;
-    }
-
-    /**
-     * See {@link #exceptionally(Throwable, Object)} with a null fallback value.
-     *
-     * @return Always null
-     */
-    public @Nullable <T> T exceptionally(Throwable throwable)
-    {
-        return exceptionally(throwable, null);
     }
 }
