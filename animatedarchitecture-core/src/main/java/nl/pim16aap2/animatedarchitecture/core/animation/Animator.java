@@ -640,9 +640,7 @@ public final class Animator implements IAnimator
                 log.atSevere().withCause(ex).log("""
                         Failed to update the coordinates of the structure!
                         Animation: %s
-                        
                         Structure Snapshot: %s
-                        
                         """,
                     newCuboid,
                     snapshot

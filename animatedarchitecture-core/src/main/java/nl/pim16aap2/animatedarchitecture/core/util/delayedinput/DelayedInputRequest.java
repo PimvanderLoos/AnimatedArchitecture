@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.util.delayedinput;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Locked;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
@@ -33,6 +34,7 @@ public class DelayedInputRequest<T>
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private final Lock lock = new ReentrantLock();
+
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private final Condition inputCondition = lock.newCondition();
@@ -98,48 +100,46 @@ public class DelayedInputRequest<T>
     private CompletableFuture<Optional<T>> waitForResult(long timeout)
     {
         return CompletableFuture
-            .supplyAsync(
-                () ->
+            .supplyAsync(() ->
+            {
+                lock.lock();
+                try
                 {
-                    lock.lock();
-                    try
-                    {
-                        long now = System.nanoTime();
-                        final long deadline = now + TimeUnit.MILLISECONDS.toNanos(timeout);
+                    long now = System.nanoTime();
+                    final long deadline = now + TimeUnit.MILLISECONDS.toNanos(timeout);
 
-                        while (!this.isDone && now < deadline)
-                        {
-                            //noinspection ResultOfMethodCallIgnored
-                            inputCondition.await(deadline - now, TimeUnit.NANOSECONDS);
-                            now = System.nanoTime();
-                        }
+                    while (!this.isDone && now < deadline)
+                    {
+                        //noinspection ResultOfMethodCallIgnored
+                        inputCondition.await(deadline - now, TimeUnit.NANOSECONDS);
+                        now = System.nanoTime();
+                    }
 
-                        this.timedOut = !this.isDone;
-                        this.isDone = true;
-                        return Optional.ofNullable(value);
-                    }
-                    catch (InterruptedException e)
-                    {
-                        exceptionally = true;
-                        Thread.currentThread().interrupt();
-                        return Optional.<T>empty();
-                    }
-                    catch (Exception e)
-                    {
-                        exceptionally = true;
-                        throw new RuntimeException(e);
-                    }
-                    finally
-                    {
-                        lock.unlock();
-                    }
-                }, executor.getVirtualExecutor())
-            .thenApply(
-                result ->
+                    this.timedOut = !this.isDone;
+                    this.isDone = true;
+                    return Optional.ofNullable(value);
+                }
+                catch (InterruptedException e)
                 {
-                    cleanup();
-                    return result;
-                })
+                    exceptionally = true;
+                    Thread.currentThread().interrupt();
+                    return Optional.<T>empty();
+                }
+                catch (Exception e)
+                {
+                    exceptionally = true;
+                    throw new RuntimeException(e);
+                }
+                finally
+                {
+                    lock.unlock();
+                }
+            }, executor.getVirtualExecutor())
+            .thenApply(result ->
+            {
+                cleanup();
+                return result;
+            })
             .withExceptionContext(() -> "Get input for DelayedInputRequest: " + this);
     }
 
@@ -150,21 +150,14 @@ public class DelayedInputRequest<T>
      * <p>
      * See {@link #completed()}.
      */
+    @Locked("lock")
     public final void cancel()
     {
-        lock.lock();
-        try
-        {
-            if (this.isDone)
-                return;
-            this.isCancelled = true;
-            this.isDone = true;
-            this.inputCondition.signal();
-        }
-        finally
-        {
-            lock.unlock();
-        }
+        if (this.isDone)
+            return;
+        this.isCancelled = true;
+        this.isDone = true;
+        this.inputCondition.signal();
     }
 
     /**
@@ -177,22 +170,15 @@ public class DelayedInputRequest<T>
      * @param value
      *     The new value.
      */
+    @Locked("lock")
     public final void set(@Nullable T value)
     {
-        lock.lock();
-        try
-        {
-            if (this.isDone)
-                throw new IllegalStateException(
-                    String.format("Trying to provide value '%s', but already received value '%s'!", value, this.value));
-            this.isDone = true;
-            this.value = value;
-            inputCondition.signal();
-        }
-        finally
-        {
-            lock.unlock();
-        }
+        if (this.isDone)
+            throw new IllegalStateException(
+                String.format("Trying to provide value '%s', but already received value '%s'!", value, this.value));
+        this.isDone = true;
+        this.value = value;
+        inputCondition.signal();
     }
 
     /**
@@ -259,23 +245,16 @@ public class DelayedInputRequest<T>
      *
      * @return The current status of this request.
      */
+    @Locked("lock")
     public Status getStatus()
     {
-        lock.lock();
-        try
-        {
-            if (isCancelled)
-                return Status.CANCELLED;
-            if (timedOut)
-                return Status.TIMED_OUT;
-            if (exceptionally)
-                return Status.EXCEPTION;
-            return isDone ? Status.COMPLETED : Status.WAITING;
-        }
-        finally
-        {
-            lock.unlock();
-        }
+        if (isCancelled)
+            return Status.CANCELLED;
+        if (timedOut)
+            return Status.TIMED_OUT;
+        if (exceptionally)
+            return Status.EXCEPTION;
+        return isDone ? Status.COMPLETED : Status.WAITING;
     }
 
     /**

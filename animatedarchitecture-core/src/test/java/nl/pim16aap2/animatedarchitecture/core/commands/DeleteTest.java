@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -9,14 +10,12 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -24,7 +23,12 @@ import org.mockito.quality.Strictness;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
@@ -45,32 +49,38 @@ class DeleteTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Delete.IFactory factory;
 
+    @Mock
+    private IExecutor executor;
+
     @BeforeEach
     void init()
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
-        final StructureType doorType = Mockito.mock(StructureType.class);
-        Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
-        Mockito.when(door.getType()).thenReturn(doorType);
+        final StructureType doorType = mock(StructureType.class);
+        when(doorType.getLocalizationKey()).thenReturn("DoorType");
+        when(door.getType()).thenReturn(doorType);
 
-        Mockito.when(door.isOwner(Mockito.any(UUID.class), Mockito.any())).thenReturn(true);
-        Mockito.when(door.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(true);
+        when(door.isOwner(any(UUID.class), any())).thenReturn(true);
+        when(door.isOwner(any(IPlayer.class), any())).thenReturn(true);
         doorRetriever = StructureRetrieverFactory.ofStructure(door);
 
-        Mockito.when(databaseManager.deleteStructure(Mockito.any(), Mockito.any()))
+        when(databaseManager
+            .deleteStructure(any(), any()))
             .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        Mockito.when(factory.newDelete(
-                Mockito.any(ICommandSender.class),
-                Mockito.any(StructureRetriever.class)))
+        when(factory
+            .newDelete(any(ICommandSender.class), any(StructureRetriever.class)))
             .thenAnswer(invoc -> new Delete(
                 invoc.getArgument(0, ICommandSender.class),
+                invoc.getArgument(1, StructureRetriever.class),
+                executor,
                 localizer,
                 ITextFactory.getSimpleTextFactory(),
-                invoc.getArgument(1, StructureRetriever.class),
                 databaseManager)
             );
     }
@@ -78,9 +88,9 @@ class DeleteTest
     @Test
     void testServer()
     {
-        final IServer server = Mockito.mock(IServer.class, Answers.CALLS_REAL_METHODS);
-        Assertions.assertDoesNotThrow(() -> factory.newDelete(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager).deleteStructure(door, null);
+        final IServer server = mock(IServer.class, Answers.CALLS_REAL_METHODS);
+        assertDoesNotThrow(() -> factory.newDelete(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
+        verify(databaseManager).deleteStructure(door, null);
     }
 
     @Test
@@ -88,27 +98,27 @@ class DeleteTest
     {
         // No permissions, so not allowed.
         CommandTestingUtil.initCommandSenderPermissions(commandSender, false, false);
-        Assertions.assertDoesNotThrow(
+        assertDoesNotThrow(
             () -> factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager, Mockito.never()).deleteStructure(door, commandSender);
+        verify(databaseManager, never()).deleteStructure(door, commandSender);
 
         // Has user permission, but not an owner, so not allowed.
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, false);
-        Assertions.assertDoesNotThrow(
+        assertDoesNotThrow(
             () -> factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager, Mockito.never()).deleteStructure(door, commandSender);
+        verify(databaseManager, never()).deleteStructure(door, commandSender);
 
         // Has user permission, and is owner, so allowed.
-        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerCreator));
-        Assertions.assertDoesNotThrow(
+        when(door.getOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerCreator));
+        assertDoesNotThrow(
             () -> factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager, Mockito.times(1)).deleteStructure(door, commandSender);
+        verify(databaseManager, times(1)).deleteStructure(door, commandSender);
 
         // Admin permission, so allowed, despite not being owner.
-        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.empty());
+        when(door.getOwner(commandSender)).thenReturn(Optional.empty());
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
-        Assertions.assertDoesNotThrow(
+        assertDoesNotThrow(
             () -> factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager, Mockito.times(2)).deleteStructure(door, commandSender);
+        verify(databaseManager, times(2)).deleteStructure(door, commandSender);
     }
 }

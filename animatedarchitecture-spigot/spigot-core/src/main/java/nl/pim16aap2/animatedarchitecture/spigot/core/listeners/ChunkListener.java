@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
@@ -9,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
@@ -28,12 +30,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a listener that keeps track of chunks being unloaded.
  */
 @Singleton
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 public class ChunkListener extends AbstractListener
 {
     /**
@@ -76,14 +80,20 @@ public class ChunkListener extends AbstractListener
             world.getName()
         );
 
-        FutureUtil.getAllCompletableFutureResultsFlatMap(rotationPoints, powerBlocks)
+        FutureUtil
+            .getAllCompletableFutureResultsFlatMap(rotationPoints, powerBlocks)
             .thenAccept(lst -> lst.forEach(Structure::onChunkLoad))
-            .exceptionally(FutureUtil::exceptionally);
+            .handleExceptional(ex ->
+                log.atSevere().atMostEvery(5, TimeUnit.SECONDS).withCause(ex).log(
+                    "Processing chunk [%d %d] being loaded in world: %s",
+                    chunk.getX(), chunk.getZ(),
+                    world.getName())
+            );
     }
 
     /**
-     * Listens to chunks being loaded and ensures that {@link Structure#onChunkLoad()} is called for any
-     * structures whose rotation point lies in the chunk that is being loaded.
+     * Listens to chunks being loaded and ensures that {@link Structure#onChunkLoad()} is called for any structures
+     * whose rotation point lies in the chunk that is being loaded.
      *
      * @param event
      *     The chunk load event to process.
@@ -108,8 +118,7 @@ public class ChunkListener extends AbstractListener
     }
 
     /**
-     * Listens to chunks being unloaded and checks if it intersects with the region of the active
-     * {@link Structure}s.
+     * Listens to chunks being unloaded and checks if it intersects with the region of the active {@link Structure}s.
      *
      * @param event
      *     The chunk unload event to process.

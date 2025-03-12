@@ -17,10 +17,11 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command that is used to restart AnimatedArchitecture.
  */
-@ToString
+@ToString(callSuper = true)
 @Flogger
 public class Restart extends BaseCommand
 {
+    @ToString.Exclude
     private final IAnimatedArchitecturePlatformProvider platformProvider;
 
     @AssistedInject

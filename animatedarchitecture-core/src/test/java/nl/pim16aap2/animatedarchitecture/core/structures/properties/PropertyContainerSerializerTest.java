@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
 import com.alibaba.fastjson2.JSON;
+import lombok.extern.slf4j.Slf4j;
 import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -27,6 +28,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -162,6 +164,7 @@ public class PropertyContainerSerializerTest
     @Test
     void testMissingProperties(LogCaptor logCaptor)
     {
+        logCaptor.setLogLevelToTrace();
         final PropertyContainer propertyContainerWithMissingProperties = propertyContainerFromMap(
             createIntermediateMap(
                 Property.ANIMATION_SPEED_MULTIPLIER, -1.5D,

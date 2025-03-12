@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Locked;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -18,6 +19,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
@@ -63,6 +65,7 @@ import java.util.stream.Collectors;
  */
 @Flogger
 @ThreadSafe
+@ExtensionMethod(CompletableFutureExtensions.class)
 public final class StructureFinder
 {
     /**
@@ -449,7 +452,12 @@ public final class StructureFinder
             return FutureUtil
                 .getAllCompletableFutureResults(retrieved)
                 .thenApply(lst -> lst.stream().flatMap(Optional::stream).toList());
-        });
+        }).withExceptionContext(() -> String.format(
+            "Getting structures for lastInput = '%s' (fullMatch = %s) for StructureFinder: %s",
+            lastInput0,
+            fullMatch,
+            this
+        ));
     }
 
     private static List<MinimalStructureDescription> filterIfNeeded(
@@ -809,14 +817,36 @@ public final class StructureFinder
                     result.completeExceptionally(t);
                 }
             }, executor.getVirtualExecutor())
-            .exceptionally(FutureUtil::exceptionally);
-        return result.exceptionally(t -> FutureUtil.exceptionally(t, Collections.emptyList()));
+            .handleExceptional(ex ->
+                log.atSevere().withCause(ex).log(
+                    "Failed to wait for cache to become available for StructureFinder: %s",
+                    this
+                ));
+
+        return result.withExceptionContext(() -> String.format(
+            "Waiting for cache to become available for StructureFinder: %s",
+            this
+        ));
     }
 
     @Locked.Read("lock")
     List<String> getPostponedInputs()
     {
         return new ArrayList<>(postponedInputs);
+    }
+
+    @Override
+    public synchronized String toString()
+    {
+        return "StructureFinder(" +
+            "commandSender=" + this.commandSender +
+            ", maxPermission=" + this.maxPermission +
+            ", history=" + this.history +
+            ", cacheSize=" + (this.cache == null ? 0 : this.cache.size()) +
+            ", postponedInputs=" + this.getPostponedInputs() +
+            ", properties=" + this.properties +
+            ", lastInput=" + this.lastInput +
+            ")";
     }
 
     @Getter

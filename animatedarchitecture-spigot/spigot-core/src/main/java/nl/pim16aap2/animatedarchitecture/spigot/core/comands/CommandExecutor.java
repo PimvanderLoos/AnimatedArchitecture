@@ -75,9 +75,8 @@ class CommandExecutor
         {
             commandFactory
                 .newAddOwner(commandSender, structureRetriever, newOwner, permissionLevel)
-                .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .handleExceptional(ex -> handleException(context, ex, "addOwner"))
-            ;
+                .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "addOwner"));
         }
         else
         {
@@ -86,8 +85,7 @@ class CommandExecutor
                 .getAddOwnerDelayed()
                 .provideDelayedInput(commandSender, data)
                 .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .handleExceptional(ex -> handleException(context, ex, "addOwner"))
-            ;
+                .handleExceptional(ex -> handleException(context, ex, "addOwner"));
         }
     }
 
@@ -95,7 +93,7 @@ class CommandExecutor
     {
         commandFactory
             .newCancel(context.getSender())
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "cancel"));
     }
 
@@ -103,7 +101,7 @@ class CommandExecutor
     {
         commandFactory
             .newConfirm(context.getSender())
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "confirm"));
     }
 
@@ -111,7 +109,7 @@ class CommandExecutor
     {
         commandFactory
             .newDebug(context.getSender())
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "debug"));
     }
 
@@ -120,7 +118,7 @@ class CommandExecutor
         final StructureRetriever structureRetriever = context.get("structureRetriever");
         commandFactory
             .newDelete(context.getSender(), structureRetriever)
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "delete"));
     }
 
@@ -129,7 +127,7 @@ class CommandExecutor
         final StructureRetriever structureRetriever = context.get("structureRetriever");
         commandFactory
             .newInfo(context.getSender(), structureRetriever)
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "info"));
     }
 
@@ -137,7 +135,7 @@ class CommandExecutor
     {
         commandFactory
             .newInspectPowerBlock(context.getSender())
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "inspectPowerBlock"));
     }
 
@@ -153,7 +151,7 @@ class CommandExecutor
             .asRetriever();
         commandFactory
             .newListStructures(context.getSender(), retriever)
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "listStructures"));
     }
 
@@ -164,7 +162,7 @@ class CommandExecutor
         final boolean sendUpdatedInfo = context.getOrDefault("sendUpdatedInfo", false);
         commandFactory
             .newLock(context.getSender(), structureRetriever, lockStatus, sendUpdatedInfo)
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "lock"));
     }
 
@@ -179,7 +177,7 @@ class CommandExecutor
             targetPlayer = commandSender.getPlayer().orElseThrow(IllegalArgumentException::new);
 
         commandFactory.newMenu(commandSender, targetPlayer)
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "menu"));
     }
 
@@ -188,7 +186,7 @@ class CommandExecutor
         final StructureRetriever structureRetriever = context.get("structureRetriever");
         commandFactory
             .newMovePowerBlock(context.getSender(), structureRetriever)
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "movePowerBlock"));
     }
 
@@ -200,7 +198,7 @@ class CommandExecutor
         final @Nullable String structureName = nullable(context, "structureName");
         commandFactory
             .newNewStructure(context.getSender(), structureType, structureName)
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "newStructure"));
     }
 
@@ -214,9 +212,8 @@ class CommandExecutor
         {
             commandFactory
                 .newRemoveOwner(commandSender, structureRetriever, targetPlayer)
-                .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .handleExceptional(ex -> handleException(context, ex, "removeOwner"))
-            ;
+                .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "removeOwner"));
         }
         else
         {
@@ -224,15 +221,14 @@ class CommandExecutor
                 .getRemoveOwnerDelayed()
                 .provideDelayedInput(commandSender, targetPlayer)
                 .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .handleExceptional(ex -> handleException(context, ex, "removeOwner"))
-            ;
+                .handleExceptional(ex -> handleException(context, ex, "removeOwner"));
         }
     }
 
     void restart(CommandContext<ICommandSender> context)
     {
         commandFactory.newRestart(context.getSender())
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "restart"));
     }
 
@@ -245,23 +241,21 @@ class CommandExecutor
         if (structureRetriever != null)
             commandFactory
                 .newSetBlocksToMove(commandSender, structureRetriever, blocksToMove)
-                .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .handleExceptional(ex -> handleException(context, ex, "setBlocksToMove"))
-                ;
+                .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "setBlocksToMove"));
         else
             commandFactory
                 .getSetBlocksToMoveDelayed()
                 .provideDelayedInput(commandSender, blocksToMove)
                 .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .handleExceptional(ex -> handleException(context, ex, "setBlocksToMove"))
-                ;
+                .handleExceptional(ex -> handleException(context, ex, "setBlocksToMove"));
     }
 
     void setName(CommandContext<ICommandSender> context)
     {
         commandFactory
             .newSetName(context.getSender(), context.get("name"))
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "setName"));
     }
 
@@ -275,16 +269,14 @@ class CommandExecutor
         if (structureRetriever != null)
             commandFactory
                 .newSetOpenStatus(commandSender, structureRetriever, isOpen, sendUpdatedInfo)
-                .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .handleExceptional(ex -> handleException(context, ex, "setOpenStatus"))
-                ;
+                .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "setOpenStatus"));
         else
             commandFactory
                 .getSetOpenStatusDelayed()
                 .provideDelayedInput(commandSender, isOpen)
                 .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .handleExceptional(ex -> handleException(context, ex, "setOpenStatus"))
-                ;
+                .handleExceptional(ex -> handleException(context, ex, "setOpenStatus"));
     }
 
     void setOpenDirection(CommandContext<ICommandSender> context)
@@ -297,23 +289,21 @@ class CommandExecutor
         if (structureRetriever != null)
             commandFactory
                 .newSetOpenDirection(commandSender, structureRetriever, direction, sendUpdatedInfo)
-                .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .handleExceptional(ex -> handleException(context, ex, "setOpenDirection"))
-                ;
+                .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .handleExceptional(ex -> handleException(context, ex, "setOpenDirection"));
         else
             commandFactory
                 .getSetOpenDirectionDelayed()
                 .provideDelayedInput(commandSender, direction)
                 .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .handleExceptional(ex -> handleException(context, ex, "setOpenDirection"))
-                ;
+                .handleExceptional(ex -> handleException(context, ex, "setOpenDirection"));
     }
 
     void specify(CommandContext<ICommandSender> context)
     {
         commandFactory
             .newSpecify(context.getSender(), context.get("data"))
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "specify"));
     }
 
@@ -321,7 +311,7 @@ class CommandExecutor
     {
         commandFactory
             .newStopStructures(context.getSender())
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "stopStructures"));
     }
 
@@ -377,7 +367,7 @@ class CommandExecutor
     {
         commandFactory
             .newVersion(context.getSender())
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "version"));
     }
 
@@ -385,7 +375,7 @@ class CommandExecutor
     {
         commandFactory
             .newUpdateCreator(context.getSender(), context.get("stepName"), context.getOrDefault("stepValue", null))
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "updateCreator"));
     }
 

@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.util;
 import com.google.common.flogger.LazyArg;
 import com.google.common.flogger.LazyArgs;
 import com.google.common.flogger.StackSize;
+import lombok.experimental.ExtensionMethod;
 import lombok.experimental.UtilityClass;
 import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Contract;
@@ -11,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +22,7 @@ import java.util.function.Function;
  */
 @Flogger
 @UtilityClass
+@ExtensionMethod(CompletableFutureExtensions.class)
 public final class FutureUtil
 {
     /**
@@ -114,16 +115,17 @@ public final class FutureUtil
     @SafeVarargs
     public static <T> CompletableFuture<List<T>> getAllCompletableFutureResults(CompletableFuture<T>... futures)
     {
-        final CompletableFuture<Void> result = CompletableFuture.allOf(futures);
-        return result.thenApply(ignored ->
-        {
-            final List<T> ret = new ArrayList<>(futures.length);
-            for (final CompletableFuture<T> future : futures)
+        return CompletableFuture
+            .allOf(futures)
+            .thenApply(ignored ->
             {
-                ret.add(future.join());
-            }
-            return ret;
-        }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
+                final List<T> ret = new ArrayList<>(futures.length);
+                for (final CompletableFuture<T> future : futures)
+                {
+                    ret.add(future.join());
+                }
+                return ret;
+            });
     }
 
     /**
@@ -161,7 +163,7 @@ public final class FutureUtil
             for (final CompletableFuture<? extends Collection<T>> future : futures)
                 ret.addAll(future.join());
             return ret;
-        }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
+        });
     }
 
     /**

@@ -200,4 +200,18 @@ public final class Util
         };
     }
 
+    /**
+     * Gets the root cause of a {@link Throwable}.
+     *
+     * @param throwable
+     *     The {@link Throwable} to get the root cause of.
+     * @return The root cause of the {@link Throwable}.
+     */
+    public static Throwable getRootCause(Throwable throwable)
+    {
+        Throwable cause = throwable;
+        while (cause.getCause() != null)
+            cause = cause.getCause();
+        return cause;
+    }
 }

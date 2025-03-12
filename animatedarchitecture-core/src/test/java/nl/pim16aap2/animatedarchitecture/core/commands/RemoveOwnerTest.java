@@ -3,160 +3,351 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
+import nl.pim16aap2.testing.AssistedFactoryMocker;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class RemoveOwnerTest
 {
-    private StructureRetriever doorRetriever;
-
-    @Mock
-    private Structure door;
-
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPlayer commandSender;
-
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private IPlayer target;
+    private final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
 
     @Mock
     private DatabaseManager databaseManager;
 
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
-    private RemoveOwner.IFactory factory;
+    @Mock
+    private Structure structure;
+
+    @Mock
+    private ICommandSender commandSender;
+
+    @Mock
+    private IPlayer target;
+
+    private StructureRetriever structureRetriever;
+
+    private AssistedFactoryMocker<RemoveOwner, RemoveOwner.IFactory> assistedFactoryMocker;
 
     @BeforeEach
-    void beforeEach()
+    void init()
+        throws NoSuchMethodException
     {
-        CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
+        structureRetriever = StructureRetrieverFactory.ofStructure(structure);
 
-        final StructureType doorType = Mockito.mock(StructureType.class);
-        Mockito.when(doorType.getLocalizationKey()).thenReturn("DoorType");
-        Mockito.when(door.getType()).thenReturn(doorType);
+        assistedFactoryMocker = new AssistedFactoryMocker<>(RemoveOwner.class, RemoveOwner.IFactory.class)
+            .setMock(ITextFactory.class, textFactory)
+            .setMock(DatabaseManager.class, databaseManager);
+    }
 
-        Mockito.when(door.isOwner(Mockito.any(UUID.class), Mockito.any())).thenReturn(true);
-        Mockito.when(door.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(true);
-        doorRetriever = StructureRetrieverFactory.ofStructure(door);
+    @AfterEach
+    void afterEach()
+    {
+        verifyNoMoreInteractions(databaseManager);
+    }
 
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
+    @Test
+    void getCommand_shouldReturnRemoveOwner()
+    {
+        assertEquals(
+            CommandDefinition.REMOVE_OWNER,
+            assistedFactoryMocker
+                .getFactory()
+                .newRemoveOwner(commandSender, structureRetriever, target)
+                .getCommand()
+        );
+    }
 
-        Mockito.when(databaseManager.removeOwner(
-                Mockito.any(Structure.class),
-                Mockito.any(IPlayer.class),
-                Mockito.any(IPlayer.class)))
+    @Test
+    void availableForNonPlayers_shouldReturnTrue()
+    {
+        assertTrue(
+            assistedFactoryMocker
+                .getFactory()
+                .newRemoveOwner(commandSender, structureRetriever, target)
+                .availableForNonPlayers()
+        );
+    }
+
+    @Test
+    void handleDatabaseActionResult_shouldMessageCommandSenderAndTargetOnSuccess()
+    {
+        UnitTestUtil.setStructureLocalization(structure);
+
+        assistedFactoryMocker
+            .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
+            .getFactory()
+            .newRemoveOwner(commandSender, structureRetriever, target)
+            .handleDatabaseActionSuccess(structure);
+
+        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher(
+            "commands.remove_owner.success")
+        );
+
+        verify(target).sendMessage(UnitTestUtil.textArgumentMatcher(
+            "commands.remove_owner.removed_player_notification")
+        );
+    }
+
+    @Test
+    void performAction_shouldPropagateExceptionFromDatabase()
+    {
+        when(commandSender.getPlayer()).thenReturn(Optional.empty());
+
+        when(databaseManager.removeOwner(structure, target, null)).thenThrow(new RuntimeException("TEST"));
+
+        final RuntimeException exception = UnitTestUtil.assertRootCause(
+            RuntimeException.class,
+            () -> assistedFactoryMocker
+                .getFactory()
+                .newRemoveOwner(commandSender, structureRetriever, target)
+                .performAction(structure)
+        );
+
+        Assertions.assertEquals("TEST", exception.getMessage());
+    }
+
+    @Test
+    void performAction_shouldUnwrapCommandSenderIfPlayer()
+    {
+        final IPlayer playerCommandSender = mock();
+        when(commandSender.getPlayer()).thenReturn(Optional.of(playerCommandSender));
+
+        when(databaseManager
+            .removeOwner(structure, target, playerCommandSender))
             .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
-        Mockito.when(factory.newRemoveOwner(
-                Mockito.any(ICommandSender.class),
-                Mockito.any(StructureRetriever.class),
-                Mockito.any(IPlayer.class)))
-            .thenAnswer(invoc -> new RemoveOwner(
-                invoc.getArgument(0, ICommandSender.class),
-                localizer,
-                ITextFactory.getSimpleTextFactory(),
-                invoc.getArgument(1, StructureRetriever.class),
-                invoc.getArgument(2, IPlayer.class),
-                databaseManager)
-            );
-    }
+        assistedFactoryMocker
+            .getFactory()
+            .newRemoveOwner(commandSender, structureRetriever, target)
+            .performAction(structure);
 
-    /**
-     * Ensure that even with the bypass permission, certain invalid actions are not allowed. (e.g. removing the original
-     * creator).
-     */
-    @Test
-    void testBypassLimitations()
-    {
-        final RemoveOwner removeOwner = factory.newRemoveOwner(commandSender, doorRetriever, target);
-
-        // The target is not an owner, so this should be false despite the bypass permission.
-        Assertions.assertFalse(removeOwner.isAllowed(door, true));
-
-        // Removing the level0 owner is not allowed even with bypass enabled!
-        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerCreator));
-        Assertions.assertFalse(removeOwner.isAllowed(door, true));
-
-        // Removing level>0 owners IS allowed with bypass even if
-        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerAdmin));
-        Assertions.assertTrue(removeOwner.isAllowed(door, true));
+        verify(databaseManager).removeOwner(structure, target, playerCommandSender);
     }
 
     @Test
-    void testSuccess()
+    void performAction_shouldCallHandleDatabaseResult()
     {
-        final RemoveOwner removeOwner = factory.newRemoveOwner(commandSender, doorRetriever, target);
+        final var databaseResult = DatabaseManager.ActionResult.CANCELLED;
 
-        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerCreator));
-        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerAdmin));
-        Assertions.assertTrue(removeOwner.isAllowed(door, false));
+        when(commandSender.getPlayer()).thenReturn(Optional.empty());
+        when(databaseManager
+            .removeOwner(structure, target, null))
+            .thenReturn(CompletableFuture.completedFuture(databaseResult));
 
-        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerUser));
-        Assertions.assertTrue(removeOwner.isAllowed(door, false));
+        final var removeOwner = spy(
+            assistedFactoryMocker
+                .getFactory()
+                .newRemoveOwner(commandSender, structureRetriever, target)
+        );
+        removeOwner.performAction(structure);
+
+        verify(databaseManager).removeOwner(structure, target, null);
+        verify(removeOwner).handleDatabaseActionResult(databaseResult, structure);
     }
 
     @Test
-    void testIsAllowed()
+    void isAllowed_shouldWorkForStructureOwnerWithAdminPermission()
     {
-        final RemoveOwner removeOwner = factory.newRemoveOwner(commandSender, doorRetriever, target);
+        final IPlayer playerCommandSender = mock();
+        final StructureOwner structureOwner = new StructureOwner(12, PermissionLevel.ADMIN, mock());
+        final StructureOwner targetOwner = new StructureOwner(12, PermissionLevel.USER, mock());
 
-        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerCreator));
-        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerCreator));
-        Assertions.assertFalse(removeOwner.isAllowed(door, false));
+        when(commandSender.isPlayer()).thenReturn(true);
+        when(commandSender.getPlayer()).thenReturn(Optional.of(playerCommandSender));
+        when(structure.getOwner(playerCommandSender)).thenReturn(Optional.of(structureOwner));
+        when(structure.getOwner(target)).thenReturn(Optional.of(targetOwner));
 
-        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerAdmin));
-        Assertions.assertFalse(removeOwner.isAllowed(door, false));
-
-        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerAdmin));
-        Assertions.assertFalse(removeOwner.isAllowed(door, false));
-
-        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerAdmin));
-        Assertions.assertFalse(removeOwner.isAllowed(door, false));
-
-        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerUser));
-        Assertions.assertTrue(removeOwner.isAllowed(door, false));
-
-        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerUser));
-        Assertions.assertTrue(removeOwner.isAllowed(door, false));
-
-        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerUser));
-        Assertions.assertFalse(removeOwner.isAllowed(door, true));
-
-        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.empty());
-        Assertions.assertFalse(removeOwner.isAllowed(door, false));
+        assertDoesNotThrow(() ->
+            assistedFactoryMocker
+                .getFactory()
+                .newRemoveOwner(commandSender, structureRetriever, target)
+                .isAllowed(structure, false)
+        );
     }
 
     @Test
-    void testDatabaseInteraction()
+    void isAllowed_shouldThrowExceptionForNonStructureOwner()
     {
-        Mockito.when(door.getOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerCreator));
-        Mockito.when(door.getOwner(target)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerAdmin));
+        final IPlayer playerCommandSender = mock();
 
-        final CompletableFuture<?> result = factory.newRemoveOwner(commandSender, doorRetriever, target).run();
-        Assertions.assertDoesNotThrow(() -> result.get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager, Mockito.times(1)).removeOwner(door, target,
-            commandSender.getPlayer().orElse(null));
+        when(commandSender.isPlayer()).thenReturn(true);
+        when(commandSender.getPlayer()).thenReturn(Optional.of(playerCommandSender));
+        when(structure.getOwner(playerCommandSender)).thenReturn(Optional.empty());
+
+        UnitTestUtil.setStructureLocalization(structure);
+
+        final InvalidCommandInputException exception = UnitTestUtil.assertRootCause(
+            InvalidCommandInputException.class,
+            () -> assistedFactoryMocker
+                .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
+                .getFactory()
+                .newRemoveOwner(commandSender, structureRetriever, target)
+                .isAllowed(structure, false)
+        );
+
+        assertTrue(exception.isUserInformed());
+        assertEquals(
+            String.format("Player %s is not an owner of structure %s", commandSender, null),
+            exception.getMessage()
+        );
+
+        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher("commands.remove_owner.error.not_an_owner"));
+    }
+
+    @Test
+    void isAllowed_shouldWorkForNonStructureOwnerWithBypass()
+    {
+        final IPlayer playerCommandSender = mock();
+        final StructureOwner targetOwner = new StructureOwner(12, PermissionLevel.USER, mock());
+
+        when(commandSender.isPlayer()).thenReturn(true);
+        when(commandSender.getPlayer()).thenReturn(Optional.of(playerCommandSender));
+        when(structure.getOwner(playerCommandSender)).thenReturn(Optional.empty());
+        when(structure.getOwner(target)).thenReturn(Optional.of(targetOwner));
+
+        assertDoesNotThrow(() ->
+            assistedFactoryMocker
+                .getFactory()
+                .newRemoveOwner(commandSender, structureRetriever, target)
+                .isAllowed(structure, true)
+        );
+    }
+
+    @Test
+    void isAllowed_shouldDefaultToCreatorNonPlayers()
+    {
+        final StructureOwner targetOwner = new StructureOwner(12, PermissionLevel.ADMIN, mock());
+
+        when(commandSender.isPlayer()).thenReturn(false);
+        when(commandSender.getPlayer()).thenReturn(Optional.empty());
+        when(structure.getOwner(target)).thenReturn(Optional.of(targetOwner));
+
+        // It would throw an exception if the permission level was anything other
+        // than CREATOR, as the target is ADMIN (so only CREATOR can remove them).
+        assertDoesNotThrow(() ->
+            assistedFactoryMocker
+                .getFactory()
+                .newRemoveOwner(commandSender, structureRetriever, target)
+                .isAllowed(structure, false)
+        );
+    }
+
+    @Test
+    void isAllowed_shouldThrowExceptionWhenCommandSenderHasNoPermissionForAttribute()
+    {
+        final var permissionLevel = PermissionLevel.USER;
+        // Sanity check
+        assertFalse(StructureAttribute.REMOVE_OWNER.canAccessWith(permissionLevel));
+
+        final IPlayer playerCommandSender = mock();
+        final StructureOwner structureOwner = new StructureOwner(12, permissionLevel, mock());
+
+        when(commandSender.isPlayer()).thenReturn(true);
+        when(commandSender.getPlayer()).thenReturn(Optional.of(playerCommandSender));
+        when(structure.getOwner(playerCommandSender)).thenReturn(Optional.of(structureOwner));
+
+        UnitTestUtil.setStructureLocalization(structure);
+
+        final NoAccessToStructureCommandException exception = UnitTestUtil.assertRootCause(
+            NoAccessToStructureCommandException.class,
+            () -> assistedFactoryMocker
+                .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
+                .getFactory()
+                .newRemoveOwner(commandSender, structureRetriever, target)
+                .isAllowed(structure, false)
+        );
+
+        assertTrue(exception.isUserInformed());
+        assertEquals(
+            String.format("Player %s does not have permission to remove an owner", commandSender),
+            exception.getMessage()
+        );
+
+        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher("commands.remove_owner.error.not_allowed"));
+    }
+
+    @Test
+    void isAllowed_shouldThrowExceptionWhenTargetIsNotAnOwner()
+    {
+        final IPlayer playerCommandSender = mock();
+        final StructureOwner structureOwner = new StructureOwner(12, PermissionLevel.ADMIN, mock());
+
+        when(commandSender.isPlayer()).thenReturn(true);
+        when(commandSender.getPlayer()).thenReturn(Optional.of(playerCommandSender));
+        when(structure.getOwner(playerCommandSender)).thenReturn(Optional.of(structureOwner));
+        when(structure.getOwner(target)).thenReturn(Optional.empty());
+
+        UnitTestUtil.setStructureLocalization(structure);
+
+        final NoAccessToStructureCommandException exception = UnitTestUtil.assertRootCause(
+            NoAccessToStructureCommandException.class,
+            () -> assistedFactoryMocker
+                .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
+                .getFactory()
+                .newRemoveOwner(commandSender, structureRetriever, target)
+                .isAllowed(structure, false)
+        );
+
+        assertTrue(exception.isUserInformed());
+        assertEquals(
+            String.format("Player %s cannot remove non-owner %s structure %s", commandSender, target, null),
+            exception.getMessage()
+        );
+
+        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher(
+            "commands.remove_owner.error.target_not_an_owner"));
+    }
+
+    @Test
+    void isAllowed_shouldThrowExceptionWhenTargetHasSamePermissionLevel()
+    {
+        final IPlayer playerCommandSender = mock();
+        final StructureOwner structureOwner = new StructureOwner(12, PermissionLevel.ADMIN, mock());
+        final StructureOwner targetOwner = new StructureOwner(12, PermissionLevel.ADMIN, mock());
+
+        when(commandSender.isPlayer()).thenReturn(true);
+        when(commandSender.getPlayer()).thenReturn(Optional.of(playerCommandSender));
+        when(structure.getOwner(playerCommandSender)).thenReturn(Optional.of(structureOwner));
+        when(structure.getOwner(target)).thenReturn(Optional.of(targetOwner));
+
+        final NoAccessToStructureCommandException exception = UnitTestUtil.assertRootCause(
+            NoAccessToStructureCommandException.class,
+            () -> assistedFactoryMocker
+                .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
+                .getFactory()
+                .newRemoveOwner(commandSender, structureRetriever, target)
+                .isAllowed(structure, false)
+        );
+
+        assertTrue(exception.isUserInformed());
+        assertEquals("Player cannot remove an owner with equal or lower permission level", exception.getMessage());
+
+        verify(commandSender).sendError(
+            textFactory,
+            "commands.remove_owner.error.cannot_remove_lower_permission"
+        );
     }
 }

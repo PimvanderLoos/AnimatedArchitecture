@@ -1,6 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -14,6 +17,8 @@ import java.util.concurrent.CompletableFuture;
  * The distance measured in blocks can be provided as delayed input.
  */
 @Singleton
+@ToString(callSuper = true)
+@ExtensionMethod(CompletableFutureExtensions.class)
 public class SetBlocksToMoveDelayed extends DelayedCommand<Integer>
 {
     @Inject
@@ -36,7 +41,11 @@ public class SetBlocksToMoveDelayed extends DelayedCommand<Integer>
         StructureRetriever structureRetriever,
         Integer distance)
     {
-        return commandFactory.get().newSetBlocksToMove(commandSender, structureRetriever, distance).run();
+        return commandFactory
+            .get()
+            .newSetBlocksToMove(commandSender, structureRetriever, distance)
+            .run()
+            .withExceptionContext(() -> "Executing Delayed Input for SetBlocksToMove");
     }
 
     @Override

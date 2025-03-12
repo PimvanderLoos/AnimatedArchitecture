@@ -78,7 +78,7 @@ class AttributeButtonFactory
     {
         commandFactory
             .newLock(player, structureRetrieverFactory.of(structure), newState)
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             // Force a draw with dynamic fields update to ensure the correct
             // state is displayed in case the command did not change the status.
             .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)))
@@ -193,7 +193,7 @@ class AttributeButtonFactory
             {
                 commandFactory
                     .newInfo(player, structureRetrieverFactory.of(structure))
-                    .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .handleExceptional(ex -> handleExceptional(ex, player, "info_button"));
                 return true;
             },
@@ -229,7 +229,7 @@ class AttributeButtonFactory
             {
                 commandFactory
                     .newMovePowerBlock(player, structureRetrieverFactory.of(structure))
-                    .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .handleExceptional(ex -> handleExceptional(ex, player, "relocate_power_block_button"));
                 GuiUtil.closeAllGuis(player);
                 return true;
@@ -245,7 +245,7 @@ class AttributeButtonFactory
     {
         commandFactory
             .newSetOpenStatus(player, structureRetrieverFactory.of(structure), isOpen)
-            .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             // Force a draw with dynamic fields update to ensure the correct
             // state is displayed in case the command did not change the status.
             .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)))
@@ -312,7 +312,7 @@ class AttributeButtonFactory
                 final var newOpenDir = structure.getCycledOpenDirection();
                 commandFactory
                     .newSetOpenDirection(player, StructureRetrieverFactory.ofStructure(structure), newOpenDir)
-                    .run(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .handleExceptional(ex -> handleExceptional(ex, player, "open_direction_button"));
 
                 setOpenDirectionLore(

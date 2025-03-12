@@ -159,7 +159,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
                 executor.getVirtualExecutor())
             .thenCompose(FutureUtil::getAllCompletableFutureResults)
             .thenApply(lst -> lst.stream().filter(Optional::isPresent).map(Optional::get).toList())
-            .exceptionally(ex -> FutureUtil.exceptionally(ex, Collections.emptyList()));
+            .withExceptionContext(() -> "Mapping UIDs to structures: " + uids);
     }
 
     /**

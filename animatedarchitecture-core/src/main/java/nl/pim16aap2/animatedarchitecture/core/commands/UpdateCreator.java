@@ -3,11 +3,13 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
@@ -30,7 +32,10 @@ import java.util.concurrent.CompletableFuture;
 public final class UpdateCreator extends BaseCommand
 {
     private final String stepName;
+
     private final @Nullable Object stepValue;
+
+    @ToString.Exclude
     private final ToolUserManager toolUserManager;
 
     @AssistedInject
@@ -67,17 +72,17 @@ public final class UpdateCreator extends BaseCommand
                 textFactory,
                 localizer.getMessage("commands.update_creator.error.no_creator_process")
             );
-            return CompletableFuture.completedFuture(null);
+            throw new CommandExecutionException(true, "Could not find a creator process for the player.");
         }
 
-        creator
+        return creator
             .update(stepName, stepValue)
-            .handleExceptional(e ->
-            {
-                getCommandSender().sendError(textFactory, localizer.getMessage("commands.base.error.generic"));
-                log.atSevere().withCause(e).log("Failed to update creator process.");
-            });
-        return CompletableFuture.completedFuture(null);
+            .withExceptionContext(() -> String.format(
+                "Updating creator process for player %s with step name %s and value %s",
+                getCommandSender(),
+                stepName,
+                stepValue)
+            );
     }
 
     @AssistedFactory

@@ -76,7 +76,8 @@ public final class HeadManager extends Restartable
         }
 
         return CompletableFuture
-            .supplyAsync(() -> Objects.requireNonNull(
+            .supplyAsync(
+                () -> Objects.requireNonNull(
                     headMap0.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName))),
                 executor.getVirtualExecutor())
             .exceptionally(ex ->

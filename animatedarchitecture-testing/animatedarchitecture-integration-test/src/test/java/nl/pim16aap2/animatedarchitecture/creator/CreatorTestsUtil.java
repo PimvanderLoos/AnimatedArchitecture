@@ -5,6 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
@@ -43,7 +44,6 @@ import nl.pim16aap2.animatedarchitecture.testimplementations.TestLocationFactory
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Answers;
 import org.mockito.ArgumentMatchers;
@@ -57,9 +57,12 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.getWorld;
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBuilder;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class CreatorTestsUtil
 {
@@ -106,6 +109,9 @@ public class CreatorTestsUtil
     @Mock
     protected CommandFactory commandFactory;
 
+    @Mock
+    protected IExecutor executor;
+
     protected ILocationFactory locationFactory = new TestLocationFactory();
 
     protected ToolUser.Context context;
@@ -129,17 +135,18 @@ public class CreatorTestsUtil
 
         playerData = new PlayerData(uuid, name, limits, true, true);
 
-        Mockito.when(player.getUUID()).thenReturn(uuid);
-        Mockito.when(player.getName()).thenReturn(name);
+        when(player.getUUID()).thenReturn(uuid);
+        when(player.getName()).thenReturn(name);
 
-        Mockito.when(player.getLimit(ArgumentMatchers.any(Limit.class)))
+        when(player
+            .getLimit(ArgumentMatchers.any(Limit.class)))
             .thenAnswer(invocation -> limits.getLimit(invocation.getArgument(0, Limit.class)));
 
-        Mockito.when(player.isOp()).thenReturn(true);
-        Mockito.when(player.hasProtectionBypassPermission()).thenReturn(true);
-        Mockito.when(player.getLocation()).thenReturn(Optional.empty());
+        when(player.isOp()).thenReturn(true);
+        when(player.hasProtectionBypassPermission()).thenReturn(true);
+        when(player.getLocation()).thenReturn(Optional.empty());
 
-        Mockito.when(player.getPlayerData()).thenReturn(playerData);
+        when(player.getPlayerData()).thenReturn(playerData);
     }
 
     private void beforeEach0()
@@ -151,14 +158,19 @@ public class CreatorTestsUtil
         limitsManager = new LimitsManager(permissionsManager, config);
         structureBuilder = newStructureBuilder().structureBuilder();
 
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
         //noinspection deprecation
-        Mockito.when(assistedStepFactory.stepName(Mockito.anyString()))
+        when(assistedStepFactory
+            .stepName(Mockito.anyString()))
             .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
 
-        Mockito.when(protectionHookManager.canBreakBlock(Mockito.any(), Mockito.any()))
+        when(protectionHookManager
+            .canBreakBlock(Mockito.any(), Mockito.any()))
             .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
-        Mockito.when(protectionHookManager.canBreakBlocksInCuboid(Mockito.any(), Mockito.any(), Mockito.any()))
+        when(protectionHookManager
+            .canBreakBlocksInCuboid(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
         context = new ToolUser.Context(
@@ -182,19 +194,19 @@ public class CreatorTestsUtil
         initPlayer();
 
         final IPlayerFactory playerFactory = Mockito.mock(IPlayerFactory.class);
-        Mockito
-            .when(playerFactory.create(playerData.getUUID()))
+        when(playerFactory
+            .create(playerData.getUUID()))
             .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
 
         // Immediately return whatever structure was being added to the database as if it was successful.
-        Mockito
-            .when(databaseManager.addStructure(ArgumentMatchers.any()))
+        when(databaseManager
+            .addStructure(ArgumentMatchers.any()))
             .thenAnswer((Answer<CompletableFuture<Optional<Structure>>>) invocation ->
                 CompletableFuture.completedFuture(Optional.of((Structure) invocation.getArguments()[0]))
             );
 
-        Mockito
-            .when(databaseManager.addStructure(
+        when(databaseManager
+            .addStructure(
                 ArgumentMatchers.any(Structure.class),
                 Mockito.any(IPlayer.class)))
             .thenAnswer((Answer<CompletableFuture<DatabaseManager.StructureInsertResult>>) invocation ->
@@ -203,14 +215,14 @@ public class CreatorTestsUtil
                     false))
             );
 
-        Mockito.when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
+        when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
 
-        Mockito.when(player.getLimit(Mockito.eq(Limit.STRUCTURE_SIZE))).thenReturn(OptionalInt.of(cuboid.getVolume()));
+        when(player.getLimit(Mockito.eq(Limit.STRUCTURE_SIZE))).thenReturn(OptionalInt.of(cuboid.getVolume()));
 
-        Mockito.when(config.maxStructureSize()).thenReturn(OptionalInt.empty());
-        Mockito.when(config.maxStructureCount()).thenReturn(OptionalInt.empty());
-        Mockito.when(config.maxPowerBlockDistance()).thenReturn(OptionalInt.empty());
-        Mockito.when(config.maxBlocksToMove()).thenReturn(OptionalInt.empty());
+        when(config.maxStructureSize()).thenReturn(OptionalInt.empty());
+        when(config.maxStructureCount()).thenReturn(OptionalInt.empty());
+        when(config.maxPowerBlockDistance()).thenReturn(OptionalInt.empty());
+        when(config.maxBlocksToMove()).thenReturn(OptionalInt.empty());
     }
 
     @BeforeEach
@@ -232,6 +244,7 @@ public class CreatorTestsUtil
     {
         final AssistedFactoryMocker<DelayedCommandInputRequest, DelayedCommandInputRequest.IFactory> assistedFactory =
             new AssistedFactoryMocker<>(DelayedCommandInputRequest.class, DelayedCommandInputRequest.IFactory.class)
+                .setMock(IExecutor.class, executor)
                 .setMock(ILocalizer.class, localizer)
                 .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory())
                 .setMock(DelayedCommandInputManager.class, delayedCommandInputManager);
@@ -244,13 +257,13 @@ public class CreatorTestsUtil
         );
 
         final var setOpenStatusDelayed = new SetOpenStatusDelayed(commandContext, assistedFactory.getFactory());
-        Mockito.when(commandFactory.getSetOpenStatusDelayed()).thenReturn(setOpenStatusDelayed);
+        when(commandFactory.getSetOpenStatusDelayed()).thenReturn(setOpenStatusDelayed);
 
         final var setOpenDirectionDelayed = new SetOpenDirectionDelayed(commandContext, assistedFactory.getFactory());
-        Mockito.when(commandFactory.getSetOpenDirectionDelayed()).thenReturn(setOpenDirectionDelayed);
+        when(commandFactory.getSetOpenDirectionDelayed()).thenReturn(setOpenDirectionDelayed);
 
         final var setBlocksToMoveDelayed = new SetBlocksToMoveDelayed(commandContext, assistedFactory.getFactory());
-        Mockito.when(commandFactory.getSetBlocksToMoveDelayed()).thenReturn(setBlocksToMoveDelayed);
+        when(commandFactory.getSetBlocksToMoveDelayed()).thenReturn(setBlocksToMoveDelayed);
     }
 
     @AfterEach
@@ -262,23 +275,17 @@ public class CreatorTestsUtil
 
     protected void setEconomyEnabled(boolean status)
     {
-        Mockito.when(economyManager.isEconomyEnabled()).thenReturn(status);
+        when(economyManager.isEconomyEnabled()).thenReturn(status);
     }
 
     protected void setEconomyPrice(double price)
     {
-        Mockito.when(economyManager.getPrice(ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
-            .thenReturn(OptionalDouble.of(price));
+        when(economyManager.getPrice(any(), anyInt())).thenReturn(OptionalDouble.of(price));
     }
 
     protected void setBuyStructure(boolean status)
     {
-        Mockito.when(economyManager.buyStructure(
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any(),
-                ArgumentMatchers.anyInt()))
-            .thenReturn(status);
+        when(economyManager.buyStructure(any(), any(), any(), anyInt())).thenReturn(status);
     }
 
     protected Structure constructStructure(StructureType type, long uid, Object... properties)
@@ -304,9 +311,9 @@ public class CreatorTestsUtil
         {
             final Object obj = input[idx];
             final @Nullable String stepName = creator.getCurrentStep().map(Step::getName).orElse(null);
-            Assertions.assertNotNull(stepName);
+            assertNotNull(stepName);
 
-            Assertions.assertTrue(
+            assertTrue(
                 creator.handleInput(obj).join(),
                 String.format("IDX: %d, Input: %s, Step: %s", idx, obj, stepName)
             );
@@ -316,8 +323,8 @@ public class CreatorTestsUtil
     public void testCreation(Creator creator, Structure actualStructure, Object... input)
     {
         applySteps(creator, input);
-        Mockito.verify(creator.getPlayer(), Mockito.never())
+        verify(creator.getPlayer(), never())
             .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.creation_cancelled"));
-        Mockito.verify(databaseManager).addStructure(actualStructure, player);
+        verify(databaseManager).addStructure(actualStructure, player);
     }
 }

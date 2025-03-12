@@ -18,9 +18,10 @@ import java.util.concurrent.CompletableFuture;
  * For example, when buying something, the process might require the user to confirm that they agree to the
  * transaction.
  */
-@ToString
+@ToString(callSuper = true)
 public class Confirm extends BaseCommand
 {
+    @ToString.Exclude
     private final ToolUserManager toolUserManager;
 
     @AssistedInject

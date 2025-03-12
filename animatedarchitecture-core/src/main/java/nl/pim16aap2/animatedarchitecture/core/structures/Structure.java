@@ -651,7 +651,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     {
         try
         {
-            var ret = databaseManager
+            final var ret = databaseManager
                 .syncStructureData(getSnapshot());
 
             if (handleException)

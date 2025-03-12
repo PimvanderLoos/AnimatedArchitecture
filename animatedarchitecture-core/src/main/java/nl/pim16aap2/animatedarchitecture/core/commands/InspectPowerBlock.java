@@ -18,10 +18,13 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command to inspect a location to check if there are any powerblocks registered there.
  */
-@ToString
+@ToString(callSuper = true)
 public class InspectPowerBlock extends BaseCommand
 {
+    @ToString.Exclude
     private final ToolUserManager toolUserManager;
+
+    @ToString.Exclude
     private final PowerBlockInspector.IFactory inspectPowerBlockFactory;
 
     @AssistedInject

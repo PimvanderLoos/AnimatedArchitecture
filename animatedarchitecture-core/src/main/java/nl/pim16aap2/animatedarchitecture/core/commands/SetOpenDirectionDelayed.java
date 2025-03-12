@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
  * The opening direction can be provided as delayed input.
  */
 @Singleton
+@ToString(callSuper = true)
 public class SetOpenDirectionDelayed extends DelayedCommand<MovementDirection>
 {
     @Inject

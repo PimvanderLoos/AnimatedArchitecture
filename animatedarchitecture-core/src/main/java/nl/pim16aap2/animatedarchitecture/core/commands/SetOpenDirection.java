@@ -13,13 +13,14 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetr
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command that changes the opening direction of structures.
  */
-@ToString
+@ToString(callSuper = true)
 public class SetOpenDirection extends StructureTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_OPEN_DIRECTION;
@@ -57,9 +58,9 @@ public class SetOpenDirection extends StructureTargetCommand
     }
 
     @Override
-    protected void handleDatabaseActionSuccess()
+    protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
     {
-        final var desc = getRetrievedStructureDescription();
+        final var desc = getRetrievedStructureDescription(retrieverResult);
         getCommandSender().sendMessage(textFactory.newText().append(
             localizer.getMessage("commands.set_open_direction.success"),
             TextType.SUCCESS,
@@ -86,7 +87,7 @@ public class SetOpenDirection extends StructureTargetCommand
         structure.setOpenDirection(movementDirection);
         return structure
             .syncData()
-            .thenAccept(this::handleDatabaseActionResult)
+            .thenAccept(result -> handleDatabaseActionResult(result, structure))
             .thenRunAsync(() -> sendUpdatedInfo(structure), executor.getVirtualExecutor());
     }
 

@@ -73,12 +73,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
     private static final List<String> DEFAULT_POWERBLOCK_TYPE = List.of("GOLD_BLOCK");
     private static final List<String> DEFAULT_BLACKLIST = Collections.emptyList();
 
-    /**
-     * The default thread pool size for redstone events if no value is specified in the config.
-     */
-    private static final int DEFAULT_REDSTONE_THREAD_POOL_SIZE =
-        Math.max(2, Runtime.getRuntime().availableProcessors());
-
     private final Set<Material> powerBlockTypes = EnumSet.noneOf(Material.class);
     private final Set<Material> materialBlacklist = EnumSet.noneOf(Material.class);
     private final Set<IProtectionHookSpigotSpecification> enabledProtectionHooks = new HashSet<>();
@@ -298,12 +292,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
             # -1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).
             # It doesn't take up too much RAM, so it's recommended to leave this value high.
             # It'll get updated automatically when needed anyway.
-            """;
-
-        final String redstoneThreadPoolSizeComment = """
-            # The size of the thread pool used for redstone events.
-            # A bigger pool means more redstone events can be processed at the same time, but increases resource usage.
-            # Set to -1 to use the default value.
             """;
 
         final String flagMovementFormulaComment = """

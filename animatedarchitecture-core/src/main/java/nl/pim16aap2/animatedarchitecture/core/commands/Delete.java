@@ -6,6 +6,7 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -13,15 +14,17 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command that is used to delete structures.
  */
-@ToString
+@ToString(callSuper = true)
 public class Delete extends StructureTargetCommand
 {
+    @ToString.Exclude
     private final DatabaseManager databaseManager;
 
     @AssistedInject
@@ -44,15 +47,24 @@ public class Delete extends StructureTargetCommand
     }
 
     @Override
-    protected boolean isAllowed(Structure structure, boolean bypassPermission)
+    protected void isAllowed(Structure structure, boolean bypassPermission)
     {
-        return hasAccessToAttribute(structure, StructureAttribute.DELETE, bypassPermission);
+        if (hasAccessToAttribute(structure, StructureAttribute.DELETE, bypassPermission))
+            return;
+
+        getCommandSender().sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.delete.error.not_allowed"),
+            TextType.ERROR,
+            arg -> arg.highlight(localizer.getStructureType(structure)))
+        );
+
+        throw new NoAccessToStructureCommandException(true);
     }
 
     @Override
-    protected void handleDatabaseActionSuccess()
+    protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
     {
-        final var desc = getRetrievedStructureDescription();
+        final var desc = getRetrievedStructureDescription(retrieverResult);
         getCommandSender().sendMessage(textFactory.newText().append(
             localizer.getMessage("commands.delete.success"),
             TextType.SUCCESS,
@@ -66,7 +78,7 @@ public class Delete extends StructureTargetCommand
     {
         return databaseManager
             .deleteStructure(structure, getCommandSender().getPlayer().orElse(null))
-            .thenAccept(this::handleDatabaseActionResult);
+            .thenAccept(result -> handleDatabaseActionResult(result, structure));
     }
 
     @AssistedFactory

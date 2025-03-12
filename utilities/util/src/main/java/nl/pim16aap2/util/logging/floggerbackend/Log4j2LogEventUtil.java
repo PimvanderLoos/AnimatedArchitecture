@@ -30,6 +30,7 @@ import com.google.common.flogger.backend.Platform;
 import com.google.common.flogger.backend.SimpleMessageFormatter;
 import com.google.common.flogger.context.ScopedLoggingContext;
 import com.google.common.flogger.context.Tags;
+import nl.pim16aap2.util.exceptions.ContextualOperationException;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -38,10 +39,12 @@ import org.apache.logging.log4j.core.impl.ContextDataFactory;
 import org.apache.logging.log4j.core.impl.Log4jLogEvent;
 import org.apache.logging.log4j.core.time.Instant;
 import org.apache.logging.log4j.core.time.MutableInstant;
-import org.apache.logging.log4j.core.util.Throwables;
 import org.apache.logging.log4j.message.SimpleMessage;
 import org.apache.logging.log4j.util.StringMap;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.CompletionException;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -145,11 +148,27 @@ public final class Log4j2LogEventUtil
                             .setMessage(new SimpleMessage(message))
                             .setThreadName(Thread.currentThread().getName())
                             .setInstant(getInstant(logData.getTimestampNanos()))
-                            .setThrown(thrown != null ? Throwables.getRootCause(thrown) : null)
+                            .setThrown(preAnalyzeThrowable(thrown))
                             .setIncludeLocation(true)
                             .setSource(locationInfo)
                             .setContextData(createContextMap(logData))
                             .build();
+    }
+
+    @Contract("null -> null")
+    private static @Nullable Throwable preAnalyzeThrowable(@Nullable Throwable throwable)
+    {
+        if (throwable == null)
+            return null;
+
+        if (throwable instanceof CompletionException &&
+            throwable.getCause() != null &&
+            throwable.getCause() instanceof ContextualOperationException nested)
+        {
+            return nested;
+        }
+
+        return throwable;
     }
 
     @SuppressWarnings({"NanosTo_Seconds", "SecondsTo_Nanos"})

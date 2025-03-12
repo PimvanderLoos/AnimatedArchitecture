@@ -7,11 +7,12 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -19,10 +20,12 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the setName command, which is used to provide a name for a {@link ToolUser}.
  */
-@ToString
+@ToString(callSuper = true)
 public class SetName extends BaseCommand
 {
     private final String name;
+
+    @ToString.Exclude
     private final ToolUserManager toolUserManager;
 
     @AssistedInject
@@ -52,19 +55,18 @@ public class SetName extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(@Nullable PermissionsStatus permissions)
     {
-        final IPlayer player = (IPlayer) getCommandSender();
-        final Optional<ToolUser> tu = toolUserManager.getToolUser(player.getUUID());
+        final IPlayer player = getCommandSender().getPlayer().orElseThrow(IllegalStateException::new);
+        final Optional<ToolUser> tu = toolUserManager.getToolUser(player);
         if (tu.isPresent() && tu.get() instanceof Creator creator)
             return creator.handleInput(name);
 
-        getCommandSender().sendMessage(
+        getCommandSender().sendError(
             textFactory,
-            TextType.ERROR,
             localizer.getMessage("commands.base.error.no_pending_process")
         );
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.failedFuture(new CommandExecutionException(true, "No pending process."));
     }
 
     @AssistedFactory

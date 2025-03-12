@@ -21,10 +21,13 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command to initiate the process to move the powerblock of a structure to a different location.
  */
-@ToString
+@ToString(callSuper = true)
 public class MovePowerBlock extends StructureTargetCommand
 {
+    @ToString.Exclude
     private final ToolUserManager toolUserManager;
+
+    @ToString.Exclude
     private final PowerBlockRelocator.IFactory powerBlockRelocatorFactory;
 
     @AssistedInject

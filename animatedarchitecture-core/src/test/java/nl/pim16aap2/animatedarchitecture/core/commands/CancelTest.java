@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -19,9 +20,12 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.UUID;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.animatedarchitecture.core.commands.CommandTestingUtil.initCommandSenderPermissions;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
@@ -40,19 +44,26 @@ class CancelTest
     @Mock
     private ToolUserManager toolUserManager;
 
+    @Mock
+    private IExecutor executor;
+
     @BeforeEach
     void init()
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         final UUID uuid = UUID.randomUUID();
 
         initCommandSenderPermissions(commandSender, true, true);
-        Mockito.when(commandSender.getUUID()).thenReturn(uuid);
+        when(commandSender.getUUID()).thenReturn(uuid);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        Mockito.when(factory.newCancel(Mockito.any(ICommandSender.class)))
+        when(factory
+            .newCancel(Mockito.any(ICommandSender.class)))
             .thenAnswer(invoc -> new Cancel(
                 invoc.getArgument(0, ICommandSender.class),
+                executor,
                 localizer,
                 ITextFactory.getSimpleTextFactory(),
                 toolUserManager,
@@ -65,7 +76,7 @@ class CancelTest
     {
         Assertions.assertDoesNotThrow(() -> factory.newCancel(commandSender).run().get(1, TimeUnit.SECONDS));
 
-        Mockito.verify(toolUserManager).cancelToolUser(commandSender);
-        Mockito.verify(doorSpecificationManager).cancelRequest(commandSender);
+        verify(toolUserManager).cancelToolUser(commandSender);
+        verify(doorSpecificationManager).cancelRequest(commandSender);
     }
 }

@@ -2,12 +2,17 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Locked;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.RequiredPropertiesMissingForCommandException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -23,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -31,16 +35,20 @@ import java.util.concurrent.TimeUnit;
  * Represents a command that relates to an existing structure.
  */
 @Flogger
+@ToString(callSuper = true)
 public abstract class StructureTargetCommand extends BaseCommand
 {
     private final boolean sendUpdatedInfo;
 
+    @ToString.Exclude
     private final @Nullable CommandFactory commandFactory;
 
     @Getter
+    @ToString.Exclude
     protected final StructureRetriever structureRetriever;
 
     @Getter
+    @ToString.Exclude
     protected final StructureAttribute structureAttribute;
 
     /**
@@ -52,7 +60,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      * Even after the result has been set, it may still be null in case no doors were found.
      */
     @Getter(onMethod_ = @Locked.Read)
-    @Setter(onMethod_ = @Locked.Write)
+    @Setter(value = AccessLevel.PRIVATE, onMethod_ = @Locked.Write)
     @GuardedBy("$lock")
     private @Nullable Structure retrieverResult;
 
@@ -95,7 +103,7 @@ public abstract class StructureTargetCommand extends BaseCommand
         return getStructure(getStructureRetriever(), getStructureAttribute().getPermissionLevel())
             .thenApply(structure ->
             {
-                setRetrieverResult(structure.orElse(null));
+                setRetrieverResult(structure);
                 return structure;
             })
             .thenAcceptAsync(
@@ -120,6 +128,67 @@ public abstract class StructureTargetCommand extends BaseCommand
     }
 
     /**
+     * Runs {@link #isAllowed(Structure, boolean)}. If it fails, it will throw a {@link CommandExecutionException}.
+     * <p>
+     * Any other exceptions will be caught and rethrown as a {@link CommandExecutionException}.
+     *
+     * @param structure
+     *     The structure to check.
+     * @param permissions
+     *     The permissions of the {@link ICommandSender}.
+     * @throws CommandExecutionException
+     *     If the {@link ICommandSender} is not allowed to perform the action or if an exception occurs.
+     */
+    private void checkIsAllowed(Structure structure, PermissionsStatus permissions)
+        throws CommandExecutionException
+    {
+        try
+        {
+            isAllowed(structure, permissions.hasAdminPermission());
+        }
+        catch (CommandExecutionException e)
+        {
+            throw new CommandExecutionException(e.isUserInformed(), e);
+        }
+        catch (Exception e)
+        {
+            getCommandSender().sendMessage(textFactory.newText().append(
+                localizer.getMessage("commands.structure_target_command.base.error.no_permission_for_action"),
+                TextType.ERROR,
+                arg -> arg.highlight(localizer.getStructureType(structure)))
+            );
+
+            throw new NoAccessToStructureCommandException(
+                true,
+                String.format(
+                    "CommandSender %s does not have access to structure %s for command %s"
+                    ,
+                    getCommandSender(),
+                    structure,
+                    this),
+                e
+            );
+        }
+    }
+
+    private void checkHasRequiredProperties(Structure structure)
+    {
+        if (!hasRequiredProperties(structure, getRequiredProperties()))
+        {
+            notifyMissingProperties(structure);
+
+            throw new RequiredPropertiesMissingForCommandException(
+                true,
+                String.format(
+                    "Structure %s does not have required properties '%s' for command %s",
+                    structure,
+                    getRequiredProperties(),
+                    this)
+            );
+        }
+    }
+
+    /**
      * Handles the result of retrieving the structure.
      *
      * @param structure
@@ -127,51 +196,23 @@ public abstract class StructureTargetCommand extends BaseCommand
      * @param permissions
      *     Whether the ICommandSender has user and/or admin permissions.
      */
-    private void processStructureResult(Optional<Structure> structure, PermissionsStatus permissions)
+    private void processStructureResult(Structure structure, PermissionsStatus permissions)
     {
-        if (structure.isEmpty())
-        {
-            log.atFine().log("Failed to find structure %s for command: %s", getStructureRetriever(), this);
+        checkIsAllowed(structure, permissions);
 
-            getCommandSender().sendError(
-                textFactory,
-                localizer.getMessage("commands.structure_target_command.base.error.structure_not_found")
-            );
-            return;
-        }
-
-        if (!isAllowed(structure.get(), permissions.hasAdminPermission()))
-        {
-            log.atFine().log(
-                "%s does not have access to structure %s for command %s", getCommandSender(), structure, this);
-
-            getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.structure_target_command.base.error.no_permission_for_action"),
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(structure.get())))
-            );
-            return;
-        }
-
-        if (!hasRequiredProperties(structure.get(), getRequiredProperties()))
-        {
-            log.atFine().log(
-                "Structure %s does not have required properties '%s' for command %s",
-                structure.get(),
-                getRequiredProperties(),
-                this
-            );
-            notifyMissingProperties(structure.get());
-            return;
-        }
+        checkHasRequiredProperties(structure);
 
         try
         {
-            performAction(structure.get()).get(5, TimeUnit.MINUTES);
+            performAction(structure).get(5, TimeUnit.MINUTES);
         }
         catch (Exception e)
         {
-            throw new RuntimeException("Failed to perform command " + this + " for structure " + structure, e);
+            throw new CommandExecutionException(
+                false,
+                "Failed to perform command " + this + " for structure " + structure,
+                e
+            );
         }
     }
 
@@ -183,7 +224,6 @@ public abstract class StructureTargetCommand extends BaseCommand
      */
     protected void notifyMissingProperties(Structure structure)
     {
-
         getCommandSender().sendMessage(textFactory.newText().append(
                 localizer.getMessage("commands.structure_target_command.base.error.missing_properties"),
                 TextType.ERROR,
@@ -195,16 +235,21 @@ public abstract class StructureTargetCommand extends BaseCommand
 
     /**
      * Checks if execution of this command is allowed for the given {@link Structure}.
+     * <p>
+     * If it is not allowed, an exception will be thrown.
      *
      * @param structure
      *     The {@link Structure} that is the target for this command.
      * @param bypassPermission
      *     Whether the {@link ICommandSender} has bypass access.
-     * @return True if execution of this command is allowed.
+     * @throws CommandExecutionException
+     *     If the {@link ICommandSender} is not allowed to perform the action on the {@link Structure}.
      */
-    protected boolean isAllowed(Structure structure, boolean bypassPermission)
+    protected void isAllowed(Structure structure, boolean bypassPermission)
+        throws CommandExecutionException
     {
-        return hasAccessToAttribute(structure, structureAttribute, bypassPermission);
+        if (!hasAccessToAttribute(structure, structureAttribute, bypassPermission))
+            throw new NoAccessToStructureCommandException(false);
     }
 
     /**
@@ -235,9 +280,9 @@ public abstract class StructureTargetCommand extends BaseCommand
     /**
      * @return The structure description of the {@link #retrieverResult}.
      */
-    protected final StructureDescription getRetrievedStructureDescription()
+    protected final StructureDescription getRetrievedStructureDescription(@Nullable Structure retrieverResult)
     {
-        return StructureDescription.of(localizer, getRetrieverResult());
+        return StructureDescription.of(localizer, retrieverResult);
     }
 
     /**
@@ -255,51 +300,50 @@ public abstract class StructureTargetCommand extends BaseCommand
     }
 
     /**
-     * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult)} when the database action was
-     * cancelled.
+     * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult, Structure)} when the database action
+     * was cancelled.
      */
-    protected void handleDatabaseActionCancelled()
+    protected void handleDatabaseActionCancelled(@Nullable Structure retrieverResult)
     {
-        getCommandSender().sendMessage(
-            textFactory,
-            TextType.ERROR,
-            localizer.getMessage("commands.base.error.action_cancelled")
-        );
+        getCommandSender().sendError(textFactory, localizer.getMessage("commands.base.error.action_cancelled"));
     }
 
     /**
-     * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult)} when the database action was
-     * successful.
+     * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult, Structure)} when the database action
+     * was successful.
      */
-    protected void handleDatabaseActionSuccess()
+    protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
     {
     }
 
     /**
-     * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult)} when the database action failed.
+     * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult, Structure)} when the database action
+     * failed.
      */
-    protected void handleDatabaseActionFail()
+    protected void handleDatabaseActionFail(@Nullable Structure retrieverResult)
     {
-        getCommandSender().sendMessage(textFactory, TextType.ERROR, localizer.getMessage("constants.error.generic"));
+        getCommandSender().sendError(textFactory, localizer.getMessage("constants.error.generic"));
     }
 
     /**
      * Handles the results of a database action by informing the user of any non-success states.
      * <p>
-     * To customize the handling, you can override {@link #handleDatabaseActionFail()},
-     * {@link #handleDatabaseActionCancelled()}, or {@link #handleDatabaseActionSuccess()}.
+     * To customize the handling, you can override {@link #handleDatabaseActionFail(Structure)},
+     * {@link #handleDatabaseActionCancelled(Structure)}, or {@link #handleDatabaseActionSuccess(Structure)}.
      *
      * @param result
      *     The result obtained from the database.
+     * @param structure
+     *     The structure that was the target of the command.
      */
-    protected final void handleDatabaseActionResult(DatabaseManager.ActionResult result)
+    protected final void handleDatabaseActionResult(DatabaseManager.ActionResult result, Structure structure)
     {
         log.atFine().log("Handling database action result: %s for command: %s", result.name(), this);
         switch (result)
         {
-            case CANCELLED -> handleDatabaseActionCancelled();
-            case SUCCESS -> handleDatabaseActionSuccess();
-            case FAIL -> handleDatabaseActionFail();
+            case CANCELLED -> handleDatabaseActionCancelled(structure);
+            case SUCCESS -> handleDatabaseActionSuccess(structure);
+            case FAIL -> handleDatabaseActionFail(structure);
         }
     }
 

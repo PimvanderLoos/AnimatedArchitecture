@@ -6,6 +6,10 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Represents a command sender. This may be a player or any kind of non-player entity that can issue commands (e.g. the
+ * server, a command block, etc.).
+ */
 public interface ICommandSender extends IMessageable
 {
     /**

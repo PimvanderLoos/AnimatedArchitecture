@@ -1,8 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
@@ -33,32 +35,38 @@ import java.util.function.Supplier;
  * this way we can remember that information and not require the user to input duplicate data.
  */
 @Flogger
+@ToString
 @ExtensionMethod(CompletableFutureExtensions.class)
 public abstract class DelayedCommand<T>
 {
     /**
      * Manager responsible for keeping track of active delayed command input requests.
      */
+    @ToString.Exclude
     protected final DelayedCommandInputManager delayedCommandInputManager;
 
     /**
      * Localizer to generate localized messages.
      */
+    @ToString.Exclude
     protected final ILocalizer localizer;
 
     /**
      * Factory for creating text components.
      */
+    @ToString.Exclude
     protected final ITextFactory textFactory;
 
     /**
      * Provider for the command factory to create new commands.
      */
+    @ToString.Exclude
     protected final Provider<CommandFactory> commandFactory;
 
     /**
      * Factory for creating delayed command input requests.
      */
+    @ToString.Exclude
     protected final DelayedCommandInputRequest.IFactory<T> inputRequestFactory;
 
     /**
@@ -195,15 +203,17 @@ public abstract class DelayedCommand<T>
             {
                 return delayedInputExecutor(commandSender, structureRetriever, delayedInput);
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                log.atSevere().withCause(e).log(
-                    "Failed to execute delayed command '%s' for command sender '%s' with input '%s'",
-                    this,
-                    commandSender,
-                    delayedInput
+                throw new CommandExecutionException(
+                    false,
+                    String.format(
+                        "Failed to execute delayed command '%s' for command sender '%s' with input '%s'",
+                        this,
+                        commandSender,
+                        delayedInput),
+                    exception
                 );
-                return CompletableFuture.completedFuture(null);
             }
         };
     }

@@ -1,7 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
@@ -19,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
  * <p>
  * The target player and the permission level of the new owner's ownership can be provided as delayed input.
  */
+@ToString(callSuper = true)
 public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput>
 {
     @Inject
@@ -60,26 +59,19 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
      * Represents the data that can be provided as delayed input for this command. See
      * {@link #runDelayed(ICommandSender, StructureRetriever)} and
      * {@link #delayedInputExecutor(ICommandSender, StructureRetriever, DelayedInput)}.
+     *
+     * @param targetPlayer
+     *     The target player to add to this structure as co-owner.
+     *     <p>
+     *     If this player is already an owner of the target door, their permission will be overridden provided that the
+     *     command sender is allowed to add/remove co-owners at both the old and the new target permission level.
+     * @param targetPermissionLevel
+     *     The permission level of the new owner's ownership. Defaults to {@link AddOwner#DEFAULT_PERMISSION_LEVEL}.
      */
-    @ToString
-    @EqualsAndHashCode
-    @Getter
-    public static final class DelayedInput
+    public record DelayedInput(
+        IPlayer targetPlayer,
+        PermissionLevel targetPermissionLevel)
     {
-        private final IPlayer targetPlayer;
-        private final PermissionLevel targetPermissionLevel;
-
-        /**
-         * @param targetPlayer
-         *     The target player to add to this structure as co-owner.
-         *     <p>
-         *     If this player is already an owner of the target door, their permission will be overridden provided that
-         *     the command sender is allowed to add/remove co-owners at both the old and the new target permission
-         *     level.
-         * @param targetPermissionLevel
-         *     The permission level of the new owner's ownership. Defaults to
-         *     {@link AddOwner#DEFAULT_PERMISSION_LEVEL}.
-         */
         public DelayedInput(IPlayer targetPlayer, @Nullable PermissionLevel targetPermissionLevel)
         {
             this.targetPlayer = targetPlayer;

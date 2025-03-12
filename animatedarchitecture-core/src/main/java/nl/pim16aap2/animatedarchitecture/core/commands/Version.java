@@ -15,9 +15,10 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command that shows the {@link ICommandSender} the current version of the plugin that is running.
  */
-@ToString
+@ToString(callSuper = true)
 public class Version extends BaseCommand
 {
+    @ToString.Exclude
     private final IAnimatedArchitecturePlatformProvider platformProvider;
 
     @AssistedInject

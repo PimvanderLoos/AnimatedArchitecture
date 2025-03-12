@@ -40,7 +40,7 @@ import java.util.function.Supplier;
  * @param <T>
  *     The type of data that is to be retrieved from the player.
  */
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
 @Flogger
 @ExtensionMethod(CompletableFutureExtensions.class)
@@ -181,16 +181,20 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      *
      * @param input
      *     The input object to provide.
-     * @return When the input is of the correct type, {@link #commandOutput} is returned, otherwise a completed future
-     * with null value.
+     * @return When the input is of the correct type, {@link #commandOutput} is returned, otherwise an exception is
+     * thrown (not as a future).
+     *
+     * @throws IllegalArgumentException
+     *     If the input object is not of the correct type.
      */
     public CompletableFuture<?> provide(Object input)
     {
         if (!inputClass.isInstance(input))
-        {
-            log.atFine().log("Trying to supply object of type %s for request: %s", input.getClass().getName(), this);
-            return CompletableFuture.completedFuture(null);
-        }
+            throw new IllegalArgumentException(String.format(
+                "Trying to supply object of type %s for request: %s",
+                input.getClass().getName(),
+                this
+            ));
 
         //noinspection unchecked
         super.set((T) input);

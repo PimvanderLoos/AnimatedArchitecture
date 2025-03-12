@@ -1,13 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
-import nl.pim16aap2.testing.logging.LogAssertionsUtil;
-import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,19 +13,19 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 @Timeout(1)
-@WithLogCapture
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class DelayedCommandInputRequestTest
@@ -38,6 +36,9 @@ class DelayedCommandInputRequestTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private ICommandSender commandSender;
 
+    @Mock
+    private IExecutor executor;
+
     private ILocalizer localizer;
 
     private DelayedCommandInputManager delayedCommandInputManager;
@@ -45,9 +46,10 @@ class DelayedCommandInputRequestTest
     @BeforeEach
     void init()
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
         localizer = UnitTestUtil.initLocalizer();
-        delayedCommandInputManager = new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
-        Mockito.when(commandDefinition.getName()).thenReturn("MockedCommand");
+        delayedCommandInputManager = new DelayedCommandInputManager(mock(DebuggableRegistry.class));
+        when(commandDefinition.getName()).thenReturn("MockedCommand");
     }
 
     @Test
@@ -59,7 +61,9 @@ class DelayedCommandInputRequestTest
             commandSender,
             commandDefinition,
             input -> verifyInput(delayedInput, input),
-            () -> "", DelayedInput.class,
+            () -> "",
+            DelayedInput.class,
+            executor,
             localizer,
             ITextFactory.getSimpleTextFactory(),
             delayedCommandInputManager
@@ -68,8 +72,8 @@ class DelayedCommandInputRequestTest
         final CompletableFuture<?> first = inputRequest.getCommandOutput();
         final CompletableFuture<?> second = inputRequest.provide(delayedInput);
 
-        Assertions.assertDoesNotThrow(() -> second.get(1, TimeUnit.SECONDS));
-        Assertions.assertEquals(first, second);
+        assertDoesNotThrow(() -> second.get(1, TimeUnit.SECONDS));
+        assertEquals(first, second);
     }
 
     @Test
@@ -83,20 +87,20 @@ class DelayedCommandInputRequestTest
             input -> verifyInput(delayedInput, input),
             () -> "",
             DelayedInput.class,
+            executor,
             localizer,
             ITextFactory.getSimpleTextFactory(),
             delayedCommandInputManager
         );
 
         final CompletableFuture<?> first = inputRequest.getCommandOutput();
-        final CompletableFuture<?> second = inputRequest.provide("Invalid!");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> inputRequest.provide("Invalid!"));
 
-        Assertions.assertDoesNotThrow(() -> second.get(1, TimeUnit.SECONDS));
-        Assertions.assertNotEquals(first, second);
+        assertFalse(first.isDone());
     }
 
     @Test
-    void testException(LogCaptor logCaptor)
+    void testException()
     {
         // Ensure that exceptions are properly propagated.
         final DelayedCommandInputRequest<?> inputRequest = new DelayedCommandInputRequest<>(
@@ -109,6 +113,7 @@ class DelayedCommandInputRequestTest
             },
             () -> "",
             DelayedInput.class,
+            executor,
             localizer,
             ITextFactory.getSimpleTextFactory(),
             delayedCommandInputManager
@@ -117,33 +122,17 @@ class DelayedCommandInputRequestTest
         final UUID uuid = UUID.randomUUID();
         final String providedInput = UUID.randomUUID().toString();
 
-        final ExecutionException exception = Assertions.assertThrows(
-            ExecutionException.class,
+        final var exception = UnitTestUtil.assertRootCause(
+            IllegalArgumentException.class,
             () -> inputRequest.provide(new DelayedInput(uuid, providedInput)).get(1, TimeUnit.SECONDS)
         );
 
-        final Throwable nestedException = exception.getCause();
-        Assertions.assertInstanceOf(RuntimeException.class, nestedException);
-        Assertions.assertTrue(
-            nestedException
-                .getMessage()
-                .startsWith("Delayed input request DelayedCommandInputRequest(commandSender=")
-        );
-
-        LogAssertionsUtil.assertThrowableLogged(
-            logCaptor,
-            -1,
-            null,
-            CompletionException.class,
-            null,
-            IllegalArgumentException.class,
-            String.format("DelayedInput[uuid=%s, string=%s]", uuid, providedInput)
-        );
+        assertEquals(String.format("DelayedInput[uuid=%s, string=%s]", uuid, providedInput), exception.getMessage());
     }
 
     private CompletableFuture<Boolean> verifyInput(DelayedInput actualInput, DelayedInput delayedInput)
     {
-        Assertions.assertEquals(actualInput, delayedInput);
+        assertEquals(actualInput, delayedInput);
         return CompletableFuture.completedFuture(true);
     }
 

@@ -14,9 +14,10 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command used to stop all active structures.
  */
-@ToString
+@ToString(callSuper = true)
 public class StopStructures extends BaseCommand
 {
+    @ToString.Exclude
     private final StructureActivityManager structureActivityManager;
 
     @AssistedInject

@@ -1,8 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.util.exceptions.ContextualOperationException;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -57,35 +60,51 @@ public final class CompletableFutureExtensions
 
         future.whenComplete((result, throwable) ->
         {
-            if (throwable != null)
-            {
-                String contextString;
-                try
-                {
-                    contextString = context.get();
-                }
-                catch (Throwable nestedThrowable)
-                {
-                    log.atSevere().withCause(nestedThrowable).log(
-                        "Failed to get context for exception: %s",
-                        throwable.getMessage() // Log the outer message for context.
-                    );
-                    contextString = "Failed to get context: " + nestedThrowable.getMessage();
-                }
-
-                log.atFinest().withCause(throwable).log(
-                    "Exception occurred in CompletableFuture with context: %s",
-                    contextString
-                );
-                ret.completeExceptionally(new RuntimeException(contextString, throwable));
-            }
-            else
+            if (throwable == null)
             {
                 ret.complete(result);
+                return;
             }
+
+            final String contextString = getContextString(throwable, context);
+            final var newException = newContextualOperationException(throwable, contextString);
+            ret.completeExceptionally(newException);
         });
 
         return ret;
+    }
+
+    private static String getContextString(Throwable throwable, Supplier<String> contextSupplier)
+    {
+        try
+        {
+            return contextSupplier.get();
+        }
+        catch (Throwable nestedThrowable)
+        {
+            log.atSevere().withCause(nestedThrowable).log(
+                "Failed to get context for exception: %s",
+                throwable.getMessage() // Log the outer message for context.
+            );
+            return "Failed to get context: " + nestedThrowable.getMessage();
+        }
+    }
+
+    private static ContextualOperationException newContextualOperationException(Throwable cause, String contextString)
+    {
+        final Throwable unwrappedCause = unwrapCompletionException(cause);
+        return new ContextualOperationException(contextString, unwrappedCause);
+    }
+
+    private static Throwable unwrapCompletionException(Throwable throwable)
+    {
+        if ((throwable instanceof CompletionException || throwable instanceof ExecutionException) &&
+            throwable.getCause() != null &&
+            throwable.getCause() instanceof ContextualOperationException)
+        {
+            return throwable.getCause();
+        }
+        return throwable;
     }
 
     /**
@@ -114,7 +133,6 @@ public final class CompletableFutureExtensions
         {
             if (throwable == null)
                 return;
-
             handler.accept(throwable);
         });
     }

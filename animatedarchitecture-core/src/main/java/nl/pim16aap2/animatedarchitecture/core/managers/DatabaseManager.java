@@ -251,7 +251,6 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The structure that will be deleted.
      * @return The future result of the operation.
      */
-    @SuppressWarnings("unused")
     public CompletableFuture<ActionResult> deleteStructure(Structure structure)
     {
         return deleteStructure(structure, null);
@@ -487,7 +486,6 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The name of the player(s).
      * @return All the players with the given name.
      */
-    @SuppressWarnings("unused")
     public CompletableFuture<List<PlayerData>> getPlayerData(String playerName)
     {
         return CompletableFuture
@@ -521,7 +519,12 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      */
     public CompletableFuture<Optional<Structure>> getStructure(IPlayer player, long structureUID)
     {
-        return getStructure(player.getUUID(), structureUID);
+        return getStructure(player.getUUID(), structureUID)
+            .withExceptionContext(() -> String.format(
+                "Retrieving structure with UID %d for player: %s",
+                structureUID,
+                player
+            ));
     }
 
     /**
@@ -552,7 +555,6 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The {@link UUID} of the player.
      * @return The number of {@link Structure}s this player owns.
      */
-    @SuppressWarnings("unused")
     public CompletableFuture<Integer> countStructuresOwnedByPlayer(UUID playerUUID)
     {
         return CompletableFuture
@@ -572,7 +574,6 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The name of the structure.
      * @return The number of {@link Structure}s with a specific name owned by a player.
      */
-    @SuppressWarnings("unused")
     public CompletableFuture<Integer> countStructuresOwnedByPlayer(UUID playerUUID, String structureName)
     {
         return CompletableFuture
@@ -591,7 +592,6 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The name of the {@link Structure}.
      * @return The number of {@link Structure}s with a specific name.
      */
-    @SuppressWarnings("unused")
     public CompletableFuture<Integer> countStructuresByName(String structureName)
     {
         return CompletableFuture

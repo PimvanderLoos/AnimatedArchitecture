@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
  * Represents a command to list a number of structures matching a single {@link StructureRetrieverFactory}. This is
  * basically only useful for String-based look-ups (as there aren't duplicate matches otherwise), but I don't judge.
  */
-@ToString
+@ToString(callSuper = true)
 public class ListStructures extends BaseCommand
 {
     private final StructureRetriever structureRetriever;

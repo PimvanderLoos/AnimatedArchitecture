@@ -16,10 +16,13 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the cancel command, which cancels any processes waiting for user input (e.g. structure creation).
  */
-@ToString
+@ToString(callSuper = true)
 public class Cancel extends BaseCommand
 {
+    @ToString.Exclude
     private final ToolUserManager toolUserManager;
+
+    @ToString.Exclude
     private final StructureSpecificationManager doorSpecificationManager;
 
     @AssistedInject

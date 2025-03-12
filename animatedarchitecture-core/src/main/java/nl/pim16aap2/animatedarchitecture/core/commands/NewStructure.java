@@ -13,7 +13,6 @@ import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Provider;
@@ -22,13 +21,20 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command that is used to create new structures.
  */
-@ToString
+@ToString(callSuper = true)
 public class NewStructure extends BaseCommand
 {
     private final StructureType structureType;
+
     private final @Nullable String structureName;
+
+    @ToString.Exclude
     private final IPermissionsManager permissionsManager;
+
+    @ToString.Exclude
     private final ToolUserManager toolUserManager;
+
+    @ToString.Exclude
     private final Provider<ToolUser.Context> creatorContextProvider;
 
     @AssistedInject
@@ -94,8 +100,7 @@ public class NewStructure extends BaseCommand
     protected CompletableFuture<PermissionsStatus> hasPermission()
     {
         return super.hasPermission()
-            .thenApply(this::hasPermission)
-            .exceptionally(e -> FutureUtil.exceptionally(e, new PermissionsStatus(false, false)));
+            .thenApply(this::hasPermission);
     }
 
     @AssistedFactory

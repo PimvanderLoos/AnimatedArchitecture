@@ -2,10 +2,15 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.NoStructuresForCommandException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.NonPlayerExecutingPlayerCommandException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.PlayerExecutingNonPlayerCommandException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -13,10 +18,15 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+import java.util.logging.Level;
 
 /**
  * Represents the base AnimatedArchitecture command.
@@ -25,6 +35,7 @@ import java.util.concurrent.TimeUnit;
  */
 @ToString
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 public abstract class BaseCommand
 {
     /**
@@ -36,11 +47,16 @@ public abstract class BaseCommand
     @Getter
     private final ICommandSender commandSender;
 
+    @ToString.Exclude
     protected final ILocalizer localizer;
+
+    @ToString.Exclude
     protected final ITextFactory textFactory;
+
+    @ToString.Exclude
     protected final IExecutor executor;
 
-    public BaseCommand(
+    protected BaseCommand(
         ICommandSender commandSender,
         IExecutor executor,
         ILocalizer localizer,
@@ -61,36 +77,33 @@ public abstract class BaseCommand
 
     /**
      * Checks if the input is valid before starting any potentially expensive tasks.
-     *
-     * @return True if the input is valid.
      */
-    protected boolean validInput()
+    protected void validateInput()
     {
-        return true;
     }
 
     /**
      * Checks if the {@link #commandSender} has access to a given {@link StructureAttribute} for a given structure.
      *
-     * @param door
+     * @param structure
      *     The structure to check.
-     * @param doorAttribute
+     * @param structureAttribute
      *     The {@link StructureAttribute} to check.
      * @param hasBypassPermission
      *     Whether the {@link #commandSender} has bypass permission or not.
      * @return True if the command sender has access to the provided attribute for the given structure.
      */
     protected boolean hasAccessToAttribute(
-        Structure door,
-        StructureAttribute doorAttribute,
+        Structure structure,
+        StructureAttribute structureAttribute,
         boolean hasBypassPermission)
     {
         if (hasBypassPermission || !commandSender.isPlayer())
             return true;
 
         return commandSender.getPlayer()
-            .flatMap(door::getOwner)
-            .map(doorOwner -> doorAttribute.canAccessWith(doorOwner.permission()))
+            .flatMap(structure::getOwner)
+            .map(doorOwner -> structureAttribute.canAccessWith(doorOwner.permission()))
             .orElse(false);
     }
 
@@ -115,17 +128,31 @@ public abstract class BaseCommand
     }
 
     /**
-     * Executes the command with a timeout.
+     * Handles an exception that occurred while running {@link #runWithRawResult()}.
      *
-     * @param timeout
-     *     The timeout.
-     * @param timeUnit
-     *     The time unit of the timeout.
-     * @return The result of the execution.
+     * @param throwable
+     *     The exception that occurred.
+     * @param <T>
+     *     The type of the return value.
+     * @return null
      */
-    public final CompletableFuture<?> run(int timeout, TimeUnit timeUnit)
+    @VisibleForTesting
+    final @Nullable <T> T handleRunException(Throwable throwable)
     {
-        return run().orTimeout(timeout, timeUnit);
+        final boolean shouldInformUser = shouldInformUser(throwable);
+
+        // If the user has not been informed about the issue, it's a severe issue.
+        final Level level;
+        if (shouldInformUser)
+            level = Level.SEVERE;
+        else
+            level = Level.FINE;
+
+        log.at(level).withCause(throwable).log("Failed to execute command: %s", this);
+        if (shouldInformUser && commandSender.isPlayer())
+            sendGenericErrorMessage();
+
+        return null;
     }
 
     /**
@@ -135,12 +162,81 @@ public abstract class BaseCommand
      */
     public final CompletableFuture<?> run()
     {
-        log();
-        if (!validInput())
+        return runWithRawResult().exceptionally(this::handleRunException);
+    }
+
+    /**
+     * Checks if the user should be informed about the exception.
+     *
+     * @param throwable
+     *     The exception to check.
+     * @return True if the user should be informed about the exception.
+     */
+    static boolean shouldInformUser(Throwable throwable)
+    {
+        final Throwable rootCause = Util.getRootCause(throwable);
+        if (rootCause instanceof CommandExecutionException commandExecutionException)
         {
-            log.atFine().log("Invalid input for command: %s", this);
-            return CompletableFuture.completedFuture(null);
+            return !commandExecutionException.isUserInformed();
         }
+
+        return true;
+    }
+
+    /**
+     * Executes the command with a timeout.
+     * <p>
+     * This method does not handle exceptions. This is useful if you want to handle exceptions yourself.
+     *
+     * @param timeout
+     *     The timeout.
+     * @param timeUnit
+     *     The time unit of the timeout.
+     * @return The result of the execution.
+     */
+    public final CompletableFuture<?> runWithRawResult(int timeout, TimeUnit timeUnit)
+    {
+        return runWithRawResult().orTimeout(timeout, timeUnit);
+    }
+
+    /**
+     * Executes the command.
+     * <p>
+     * This method is the same as {@link #run()}, but it does not handle exceptions. This is useful if you want to
+     * handle exceptions yourself.
+     *
+     * @return The result of the execution.
+     */
+    @SuppressWarnings("FutureReturnValueIgnored") // It's safe to ignore the result of the last whenComplete here.
+    public final CompletableFuture<?> runWithRawResult()
+    {
+        final CompletableFuture<?> ret = new CompletableFuture<>();
+
+        CompletableFuture
+            .completedFuture(null)
+            .thenComposeAsync(__ -> this.runWithRawResult0(), executor.getVirtualExecutor())
+            .whenComplete((val, throwable) ->
+            {
+                if (throwable == null)
+                {
+                    ret.complete(null);
+                    return;
+                }
+
+                log.atFiner().withCause(throwable).log("Failed to execute command: %s", this);
+                ret.completeExceptionally(new RuntimeException(throwable));
+            });
+
+        return ret;
+    }
+
+    private CompletableFuture<?> runWithRawResult0()
+    {
+        log();
+
+        validateInput();
+
+        final Supplier<String> exceptionContext = () -> String.format("Execute command: %s", this);
 
         final boolean isPlayer = commandSender instanceof IPlayer;
         if (isPlayer && !availableForPlayers())
@@ -151,30 +247,32 @@ public abstract class BaseCommand
                 TextType.ERROR,
                 localizer.getMessage("commands.base.error.no_permission_for_command")
             );
-            return CompletableFuture.completedFuture(null);
+            return CompletableFuture
+                .failedFuture(new PlayerExecutingNonPlayerCommandException(true))
+                .withExceptionContext(exceptionContext);
         }
         if (!isPlayer && !availableForNonPlayers())
         {
             log.atFine().log("Command not allowed for non-players: %s", this);
-            commandSender.sendMessage(
+            commandSender.sendError(
                 textFactory,
-                TextType.ERROR,
                 localizer.getMessage("commands.base.error.only_available_for_players")
             );
-            return CompletableFuture.completedFuture(null);
+            return CompletableFuture
+                .failedFuture(new NonPlayerExecutingPlayerCommandException(true))
+                .withExceptionContext(exceptionContext);
         }
 
-        return startExecution().exceptionally(throwable ->
-        {
-            log.atSevere().withCause(throwable).log("Failed to execute command: %s", this);
-            if (commandSender.isPlayer())
-                commandSender.sendMessage(
-                    textFactory,
-                    TextType.ERROR,
-                    localizer.getMessage("commands.base.error.generic")
-                );
-            return null;
-        });
+        return startExecution()
+            .withExceptionContext(exceptionContext);
+    }
+
+    protected final void sendGenericErrorMessage()
+    {
+        commandSender.sendError(
+            textFactory,
+            localizer.getMessage("commands.base.error.generic")
+        );
     }
 
     /**
@@ -187,21 +285,24 @@ public abstract class BaseCommand
         return hasPermission().thenAcceptAsync(this::handlePermissionResult, executor.getVirtualExecutor());
     }
 
-    private void handlePermissionResult(PermissionsStatus permissionResult)
+    @VisibleForTesting
+    final void handlePermissionResult(PermissionsStatus permissionResult)
     {
         if (!permissionResult.hasAnyPermission())
         {
             log.atFine().log("Permission for command: %s: %s", this, permissionResult);
-            commandSender.sendMessage(
+            commandSender.sendError(
                 textFactory,
-                TextType.ERROR,
                 localizer.getMessage("commands.base.error.no_permission_for_command")
             );
-            return;
+            throw new CommandExecutionException(
+                true,
+                String.format("CommandSender %s does not have permission to run command: %s", commandSender, this)
+            );
         }
         try
         {
-            executeCommand(permissionResult).get(30, TimeUnit.MINUTES);
+            executeCommand(permissionResult).get(30, java.util.concurrent.TimeUnit.MINUTES);
         }
         catch (Exception e)
         {
@@ -210,7 +311,8 @@ public abstract class BaseCommand
     }
 
     /**
-     * Executes the command. This method is only called if {@link #validInput()} and {@link #hasPermission()} are true.
+     * Executes the command. This method is only called if {@link #validateInput()} and {@link #hasPermission()} are
+     * true.
      * <p>
      * Note that this method is called asynchronously.
      *
@@ -240,7 +342,7 @@ public abstract class BaseCommand
      *     The minimum {@link PermissionLevel} required to retrieve the structure.
      * @return The {@link Structure} if one could be retrieved.
      */
-    protected CompletableFuture<Optional<Structure>> getStructure(
+    protected CompletableFuture<Structure> getStructure(
         StructureRetriever doorRetriever,
         PermissionLevel permissionLevel)
     {
@@ -248,19 +350,24 @@ public abstract class BaseCommand
             .getPlayer()
             .map(player -> doorRetriever.getStructureInteractive(player, permissionLevel))
             .orElseGet(doorRetriever::getStructure)
-            .thenApplyAsync(structure ->
+            .withExceptionContext(() -> String.format(
+                "Get structure from retriever '%s' with permission level '%s' for command: %s",
+                doorRetriever,
+                permissionLevel,
+                this
+            ))
+            .thenApply(structure ->
             {
                 log.atFine().log("Retrieved structure %s for command: %s", structure, this);
                 if (structure.isPresent())
-                    return structure;
+                    return structure.get();
 
-                commandSender.sendMessage(
+                commandSender.sendError(
                     textFactory,
-                    TextType.ERROR,
                     localizer.getMessage("commands.base.error.cannot_find_target_structure")
                 );
-                return Optional.empty();
-            }, executor.getVirtualExecutor());
+                throw new NoStructuresForCommandException(true);
+            });
     }
 
     /**

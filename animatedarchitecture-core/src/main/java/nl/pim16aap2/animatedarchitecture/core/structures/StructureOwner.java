@@ -30,4 +30,16 @@ public record StructureOwner(long structureUID, PermissionLevel permission, Play
             .map(player -> player.getUUID().equals(playerData.uuid()))
             .orElse(false);
     }
+
+    /**
+     * Checks if a player is the same as the player represented by this {@link StructureOwner}.
+     *
+     * @param player
+     *     The {@link IPlayer} to check against.
+     * @return {@code true} if the player is the same as the one represented by this {@link StructureOwner}.
+     */
+    public boolean matches(IPlayer player)
+    {
+        return player.getUUID().equals(playerData.uuid());
+    }
 }

@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command that is used to change the number of blocks a block will try to move.
  */
-@ToString
+@ToString(callSuper = true)
 public class SetBlocksToMove extends StructureTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_BLOCKS_TO_MOVE;
@@ -50,9 +50,9 @@ public class SetBlocksToMove extends StructureTargetCommand
     }
 
     @Override
-    protected void handleDatabaseActionSuccess()
+    protected void handleDatabaseActionSuccess(@org.jetbrains.annotations.Nullable Structure retrieverResult)
     {
-        final var desc = getRetrievedStructureDescription();
+        final var desc = getRetrievedStructureDescription(retrieverResult);
 
         getCommandSender().sendMessage(textFactory.newText().append(
             localizer.getMessage("commands.set_blocks_to_move.success"),
@@ -81,7 +81,7 @@ public class SetBlocksToMove extends StructureTargetCommand
         if (oldStatus == null || oldStatus != blocksToMove)
             return structure
                 .syncData()
-                .thenAccept(this::handleDatabaseActionResult);
+                .thenAccept(result -> handleDatabaseActionResult(result, structure));
 
         getCommandSender().sendMessage(textFactory.newText().append(
             localizer.getMessage("commands.set_blocks_to_move.error.status_not_changed"),

@@ -17,10 +17,13 @@ import java.util.logging.Level;
  * Represents the debug command. This command is used to retrieve debug information, the specifics of which are left to
  * the currently registered platform. See {@link DebugReporter}.
  */
-@ToString
+@ToString(callSuper = true)
 public class Debug extends BaseCommand
 {
+    @ToString.Exclude
     private final IMessagingInterface messagingInterface;
+
+    @ToString.Exclude
     private final DebugReporter debugReporter;
 
     @AssistedInject

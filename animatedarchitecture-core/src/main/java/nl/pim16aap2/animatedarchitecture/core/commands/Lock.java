@@ -15,18 +15,23 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the command that is used to change whether a structure is locked.
  */
-@ToString
+@ToString(callSuper = true)
 @Flogger
 public class Lock extends StructureTargetCommand
 {
     private final boolean isLocked;
+
+    @ToString.Exclude
     private final IAnimatedArchitectureEventCaller animatedArchitectureEventCaller;
+
+    @ToString.Exclude
     private final IAnimatedArchitectureEventFactory animatedArchitectureEventFactory;
 
     @AssistedInject
@@ -59,10 +64,10 @@ public class Lock extends StructureTargetCommand
     }
 
     @Override
-    protected void handleDatabaseActionSuccess()
+    protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
     {
         final String msg = isLocked ? "commands.lock.success.locked" : "commands.lock.success.unlocked";
-        final var desc = getRetrievedStructureDescription();
+        final var desc = getRetrievedStructureDescription(retrieverResult);
         getCommandSender().sendMessage(textFactory.newText().append(
             localizer.getMessage(msg),
             TextType.SUCCESS,
@@ -90,14 +95,14 @@ public class Lock extends StructureTargetCommand
 
         if (event.isCancelled())
         {
-            log.atFinest().log("Event %s was cancelled!", event);
+            log.atFine().log("Event %s was cancelled!", event);
             return CompletableFuture.completedFuture(null);
         }
 
         structure.setLocked(isLocked);
         return structure
             .syncData()
-            .thenAccept(this::handleDatabaseActionResult)
+            .thenAccept(result -> handleDatabaseActionResult(result, structure))
             .thenRunAsync(() -> sendUpdatedInfo(structure), executor.getVirtualExecutor());
     }
 
