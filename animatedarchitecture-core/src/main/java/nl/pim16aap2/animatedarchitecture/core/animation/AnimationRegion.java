@@ -100,9 +100,9 @@ public final class AnimationRegion
         double yMin = Double.MAX_VALUE;
         double zMin = Double.MAX_VALUE;
 
-        double xMax = Double.MIN_VALUE;
-        double yMax = Double.MIN_VALUE;
-        double zMax = Double.MIN_VALUE;
+        double xMax = -Double.MAX_VALUE;
+        double yMax = -Double.MAX_VALUE;
+        double zMax = -Double.MAX_VALUE;
 
         for (final IAnimatedBlock animatedBlock : blocks)
         {
@@ -113,17 +113,17 @@ public final class AnimationRegion
 
             if (x < xMin)
                 xMin = pos.x();
-            else if (x > xMax)
+            if (x > xMax)
                 xMax = pos.x();
 
             if (y < yMin)
                 yMin = pos.y();
-            else if (y > yMax)
+            if (y > yMax)
                 yMax = pos.y();
 
             if (z < zMin)
                 zMin = pos.z();
-            else if (z > zMax)
+            if (z > zMax)
                 zMax = pos.z();
         }
 
