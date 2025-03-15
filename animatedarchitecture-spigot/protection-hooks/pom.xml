@@ -10,7 +10,7 @@
     <parent>
         <groupId>nl.pim16aap2.animatedarchitecture</groupId>
         <artifactId>animatedarchitecture-spigot</artifactId>
-        <version>0.7.1</version>
+        <version>0.7.2</version>
     </parent>
 
     <properties>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>spigot-util</artifactId>
-            <version>0.7.1</version>
+            <version>0.7.2</version>
         </dependency>
     </dependencies>
 </project>
