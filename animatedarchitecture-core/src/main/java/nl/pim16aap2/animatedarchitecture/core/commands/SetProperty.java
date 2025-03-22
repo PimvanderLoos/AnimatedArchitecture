@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @ToString
 @Flogger
 @ExtensionMethod(CompletableFutureExtensions.class)
-public class SetPropertyCommand extends StructureTargetCommand
+public class SetProperty extends StructureTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_PROPERTY;
 
@@ -50,7 +50,7 @@ public class SetPropertyCommand extends StructureTargetCommand
     private final DatabaseManager databaseManager;
 
     @AssistedInject
-    SetPropertyCommand(
+    SetProperty(
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
         @Assisted Property<?> property,
@@ -176,13 +176,13 @@ public class SetPropertyCommand extends StructureTargetCommand
     }
 
     /**
-     * Factory for creating {@link SetPropertyCommand} instances.
+     * Factory for creating {@link SetProperty} instances.
      */
     @AssistedFactory
     interface IFactory
     {
         /**
-         * Creates a new {@link SetPropertyCommand} instance.
+         * Creates a new {@link SetProperty} instance.
          *
          * @param commandSender
          *     The {@link ICommandSender} that executed the command.
@@ -194,9 +194,9 @@ public class SetPropertyCommand extends StructureTargetCommand
          *     The new value to set the property to. This should match the type expected by the property.
          *     <p>
          *     See {@link Property#getType()} for the expected type. This may be null.
-         * @return The created {@link SetPropertyCommand} instance.
+         * @return The created {@link SetProperty} instance.
          */
-        SetPropertyCommand newSetPropertyCommand(
+        SetProperty newSetProperty(
             ICommandSender commandSender,
             StructureRetriever structureRetriever,
             Property<?> property,
