@@ -36,7 +36,9 @@ public class PowerBlockRelocator extends ToolUser
 
     @AssistedInject
     public PowerBlockRelocator(
-        ToolUser.Context context, @Assisted IPlayer player, @Assisted Structure structure)
+        ToolUser.Context context,
+        @Assisted IPlayer player,
+        @Assisted Structure structure)
     {
         super(context, player);
         this.structure = structure;

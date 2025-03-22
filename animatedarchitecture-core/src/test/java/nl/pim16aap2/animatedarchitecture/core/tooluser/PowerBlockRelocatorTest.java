@@ -11,7 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import org.junit.jupiter.api.Assertions;
+import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -24,6 +24,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.concurrent.CompletableFuture;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -46,101 +49,103 @@ class PowerBlockRelocatorTest
     @Mock
     private ILocation location;
 
-    @Mock
-    private PowerBlockRelocator.IFactory factory;
+    private AssistedFactoryMocker<PowerBlockRelocator, PowerBlockRelocator.IFactory> assistedFactory;
 
     @BeforeEach
     void init()
+        throws NoSuchMethodException
     {
-        Mockito.when(structure.getWorld()).thenReturn(world);
-        Mockito.when(structure.getPowerBlock()).thenReturn(currentPowerBlockLoc);
-        Mockito.when(structure.syncData())
+        when(structure.getWorld()).thenReturn(world);
+        when(structure.getPowerBlock()).thenReturn(currentPowerBlockLoc);
+        when(structure.syncData())
             .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
-        final StructureType structureTypeType = Mockito.mock(StructureType.class);
-        Mockito.when(structure.getType()).thenReturn(structureTypeType);
-        Mockito.when(structureTypeType.getLocalizationKey()).thenReturn("StructureType");
+        final StructureType structureTypeType = mock(StructureType.class);
+        when(structure.getType()).thenReturn(structureTypeType);
+        when(structureTypeType.getLocalizationKey()).thenReturn("StructureType");
 
-        hookManager = Mockito.mock(IProtectionHookManager.class);
-        Mockito.when(hookManager.canBreakBlock(Mockito.any(), Mockito.any()))
+        hookManager = mock(IProtectionHookManager.class);
+        when(hookManager
+            .canBreakBlock(Mockito.any(), Mockito.any()))
             .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
-        Mockito.when(hookManager.canBreakBlocksInCuboid(Mockito.any(), Mockito.any(), Mockito.any()))
+        when(hookManager
+            .canBreakBlocksInCuboid(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        final ToolUser.Context context = Mockito.mock(ToolUser.Context.class, Answers.RETURNS_MOCKS);
-        Mockito.when(context.getProtectionHookManager()).thenReturn(hookManager);
-        Mockito.when(context.getLocalizer()).thenReturn(localizer);
-        Mockito.when(context.getTextFactory()).thenReturn(ITextFactory.getSimpleTextFactory());
+        final ToolUser.Context context = mock(ToolUser.Context.class, Answers.RETURNS_MOCKS);
+        when(context.getProtectionHookManager()).thenReturn(hookManager);
+        when(context.getLocalizer()).thenReturn(localizer);
+        when(context.getTextFactory()).thenReturn(ITextFactory.getSimpleTextFactory());
 
-        final Step.Factory.IFactory assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
+        final Step.Factory.IFactory assistedStepFactory = mock(Step.Factory.IFactory.class);
+
         //noinspection deprecation
-        Mockito.when(assistedStepFactory.stepName(Mockito.anyString()))
+        when(assistedStepFactory
+            .stepName(Mockito.anyString()))
             .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
-        Mockito.when(context.getStepFactory()).thenReturn(assistedStepFactory);
 
-        Mockito.when(factory.create(Mockito.any(IPlayer.class), Mockito.any(Structure.class)))
-            .thenAnswer(invoc -> new PowerBlockRelocator(
-                context,
-                invoc.getArgument(0, IPlayer.class),
-                invoc.getArgument(1, Structure.class)
-            ));
+        when(context.getStepFactory()).thenReturn(assistedStepFactory);
+
+        assistedFactory = new AssistedFactoryMocker<>(PowerBlockRelocator.class, PowerBlockRelocator.IFactory.class)
+            .setMock(ToolUser.Context.class, context);
     }
 
     @Test
     void testMoveToLocWorld()
     {
-        final PowerBlockRelocator relocator = factory.create(player, structure);
+        final PowerBlockRelocator relocator = assistedFactory.getFactory().create(player, structure);
 
-        Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IWorld.class));
+        when(location.getWorld()).thenReturn(mock(IWorld.class));
 
-        Assertions.assertFalse(relocator.moveToLoc(location).join());
+        assertFalse(relocator.moveToLoc(location).join());
 
         Mockito.verify(player).sendMessage(
             UnitTestUtil.textArgumentMatcher("tool_user.powerblock_relocator.error.world_mismatch"));
 
-        Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IWorld.class));
+        when(location.getWorld()).thenReturn(mock(IWorld.class));
     }
 
     @Test
     void testMoveToLocDuplicated()
     {
-        final PowerBlockRelocator relocator = factory.create(player, structure);
+        final PowerBlockRelocator relocator = assistedFactory.getFactory().create(player, structure);
 
-        Mockito.when(location.getWorld()).thenReturn(world);
+        when(location.getWorld()).thenReturn(world);
 
-        Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
-        Assertions.assertTrue(relocator.moveToLoc(location).join());
+        when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
+        assertTrue(relocator.moveToLoc(location).join());
 
-        Mockito.when(location.getPosition()).thenReturn(currentPowerBlockLoc);
-        Assertions.assertTrue(relocator.moveToLoc(location).join());
+        when(location.getPosition()).thenReturn(currentPowerBlockLoc);
+        assertTrue(relocator.moveToLoc(location).join());
     }
 
     @Test
     void testMoveToLocNoAccess()
     {
-        final PowerBlockRelocator relocator = factory.create(player, structure);
+        final PowerBlockRelocator relocator = assistedFactory.getFactory().create(player, structure);
 
         final String compat = "TestCompat";
-        Mockito.when(hookManager.canBreakBlock(Mockito.any(), Mockito.any()))
+        when(hookManager
+            .canBreakBlock(Mockito.any(), Mockito.any()))
             .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.denied(compat)));
 
-        Mockito.when(location.getWorld()).thenReturn(world);
-        Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
+        when(location.getWorld()).thenReturn(world);
+        when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
 
-        Assertions.assertFalse(relocator.moveToLoc(location).join());
+        assertFalse(relocator.moveToLoc(location).join());
     }
 
     @Test
     void testExecution()
     {
-        final PowerBlockRelocator relocator = factory.create(player, structure);
+        final PowerBlockRelocator relocator = assistedFactory.getFactory().create(player, structure);
 
-        Mockito.when(location.getWorld()).thenReturn(world);
-        Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
+        when(location.getWorld()).thenReturn(world);
+        when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
 
-        Assertions.assertTrue(relocator.handleInput(location).join());
+        assertTrue(relocator.handleInput(location).join());
 
         Mockito.verify(structure).syncData();
     }
@@ -148,12 +153,12 @@ class PowerBlockRelocatorTest
     @Test
     void testExecutionUnchanged()
     {
-        final PowerBlockRelocator relocator = factory.create(player, structure);
+        final PowerBlockRelocator relocator = assistedFactory.getFactory().create(player, structure);
 
-        Mockito.when(location.getWorld()).thenReturn(world);
-        Mockito.when(location.getPosition()).thenReturn(currentPowerBlockLoc);
+        when(location.getWorld()).thenReturn(world);
+        when(location.getPosition()).thenReturn(currentPowerBlockLoc);
 
-        Assertions.assertTrue(relocator.handleInput(location).join());
+        assertTrue(relocator.handleInput(location).join());
 
         Mockito.verify(structure, Mockito.never()).syncData();
     }

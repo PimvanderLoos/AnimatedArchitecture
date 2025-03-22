@@ -81,7 +81,7 @@ class AddOwnerTest
     void getExistingPermissionLevel_shouldReturnExistingPermissionLevel()
     {
         final PermissionLevel permissionLevel = PermissionLevel.USER;
-        final StructureOwner structureOwner = new StructureOwner(structure.getUid(), permissionLevel, mock());
+        final StructureOwner structureOwner = new StructureOwner(12345L, permissionLevel, mock());
         final AddOwner addOwner = addOwnerWithDefaults(PermissionLevel.ADMIN);
 
         when(structure.getOwner(target)).thenReturn(Optional.of(structureOwner));
