@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.exceptions;
 
+import com.google.errorprone.annotations.FormatMethod;
+import com.google.errorprone.annotations.FormatString;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 
 /**
@@ -42,7 +44,8 @@ public class InvalidNameSpacedKeyException extends RuntimeException
      *     The arguments to format the message with.
      * @return The formatted exception.
      */
-    public static InvalidNameSpacedKeyException format(String message, Object... args)
+    @FormatMethod
+    public static InvalidNameSpacedKeyException format(@FormatString String message, Object... args)
     {
         return new InvalidNameSpacedKeyException(String.format(message, args));
     }

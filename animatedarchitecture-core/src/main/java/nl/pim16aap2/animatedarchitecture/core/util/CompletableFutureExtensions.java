@@ -1,7 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
+import com.google.errorprone.annotations.FormatMethod;
+import com.google.errorprone.annotations.FormatString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.util.exceptions.ContextualOperationException;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -74,9 +77,35 @@ public final class CompletableFutureExtensions
             final var newException = newContextualOperationException(throwable, contextString);
             ret.completeExceptionally(newException);
         });
-
         return ret;
     }
+
+    /**
+     * Shortcut for {@link #withExceptionContext(CompletableFuture, Supplier)} that formats the context using the
+     * provided format string and arguments.
+     * <p>
+     * Beware of the same caveats as mentioned in {@link #withExceptionContext(CompletableFuture, Supplier)}.
+     *
+     * @param future
+     *     The original future.
+     * @param contextFormat
+     *     The format string for the context.
+     * @param args
+     *     The arguments for the format string.
+     * @param <T>
+     *     The type of the future.
+     * @return A future that completes with the result of the original future or exceptionally with a new exception that
+     * includes the provided context.
+     */
+    @FormatMethod
+    public static <T> CompletableFuture<T> withExceptionContext(
+        CompletableFuture<T> future,
+        @FormatString String contextFormat,
+        @Nullable Object @Nullable ... args)
+    {
+        return withExceptionContext(future, () -> String.format(contextFormat, args));
+    }
+
 
     private static String getContextString(Throwable throwable, Supplier<String> contextSupplier)
     {

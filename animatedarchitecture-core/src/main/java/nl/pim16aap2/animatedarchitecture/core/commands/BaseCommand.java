@@ -350,12 +350,12 @@ public abstract class BaseCommand
             .getPlayer()
             .map(player -> doorRetriever.getStructureInteractive(player, permissionLevel))
             .orElseGet(doorRetriever::getStructure)
-            .withExceptionContext(() -> String.format(
+            .withExceptionContext(
                 "Get structure from retriever '%s' with permission level '%s' for command: %s",
                 doorRetriever,
                 permissionLevel,
                 this
-            ))
+            )
             .thenApply(structure ->
             {
                 log.atFine().log("Retrieved structure %s for command: %s", structure, this);

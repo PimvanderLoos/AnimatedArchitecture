@@ -417,12 +417,12 @@ public abstract class Creator extends ToolUser
                 insertStep(stepName);
                 return prepareCurrentStep();
             })
-            .withExceptionContext(() -> String.format(
+            .withExceptionContext(
                 "Handle updated step '%s' with value '%s' in Creator '%s'",
                 stepName,
                 stepValue,
                 this
-            ));
+            );
     }
 
     /**
@@ -634,7 +634,7 @@ public abstract class Creator extends ToolUser
                 return true;
             })
             .orTimeout(10, TimeUnit.SECONDS)
-            .withExceptionContext(() -> String.format("Provide first position '%s' for Creator '%s'", loc, this));
+            .withExceptionContext("Provide first position '%s' for Creator '%s'", loc, this);
     }
 
     /**
@@ -703,7 +703,7 @@ public abstract class Creator extends ToolUser
                 return true;
             })
             .orTimeout(10, TimeUnit.SECONDS)
-            .withExceptionContext(() -> String.format("Provide second position '%s' for Creator '%s'", loc, this));
+            .withExceptionContext("Provide second position '%s' for Creator '%s'", loc, this);
     }
 
     /**
@@ -972,7 +972,7 @@ public abstract class Creator extends ToolUser
                 return true;
             })
             .orTimeout(10, TimeUnit.SECONDS)
-            .withExceptionContext(() -> String.format("Provide power block position '%s' for Creator '%s'", loc, this));
+            .withExceptionContext("Provide power block position '%s' for Creator '%s'", loc, this);
     }
 
     /**

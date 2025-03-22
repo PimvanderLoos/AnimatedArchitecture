@@ -452,12 +452,12 @@ public final class StructureFinder
             return FutureUtil
                 .getAllCompletableFutureResults(retrieved)
                 .thenApply(lst -> lst.stream().flatMap(Optional::stream).toList());
-        }).withExceptionContext(() -> String.format(
+        }).withExceptionContext(
             "Getting structures for lastInput = '%s' (fullMatch = %s) for StructureFinder: %s",
             lastInput0,
             fullMatch,
             this
-        ));
+        );
     }
 
     private static List<MinimalStructureDescription> filterIfNeeded(
@@ -823,10 +823,7 @@ public final class StructureFinder
                     this
                 ));
 
-        return result.withExceptionContext(() -> String.format(
-            "Waiting for cache to become available for StructureFinder: %s",
-            this
-        ));
+        return result.withExceptionContext("Waiting for cache to become available for StructureFinder: %s", this);
     }
 
     @Locked.Read("lock")

@@ -101,7 +101,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
         return super
             .getInputResult()
             .thenApply(this::parseInput)
-            .withExceptionContext(() -> String.format("Get specified structure from request %s", this));
+            .withExceptionContext("Get specified structure from request %s", this);
     }
 
     @Override
@@ -182,11 +182,11 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
                 structureSpecificationManager
             )
                 .get()
-                .withExceptionContext(() -> String.format(
+                .withExceptionContext(
                     "Get structure specification from player %s for options %s",
                     player.getName(),
                     options
-                ));
+                );
         }
 
         /**

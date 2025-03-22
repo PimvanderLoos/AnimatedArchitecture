@@ -1,5 +1,7 @@
 package nl.pim16aap2.testing.logging;
 
+import com.google.errorprone.annotations.FormatMethod;
+import com.google.errorprone.annotations.FormatString;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
@@ -874,7 +876,8 @@ public final class LogAssertionsUtil
              *     The arguments to set.
              * @return This builder.
              */
-            public LogAssertionBuilder message(String message, @Nullable Object... arguments)
+            @FormatMethod
+            public LogAssertionBuilder message(@FormatString String message, Object @Nullable ... arguments)
             {
                 this.formattedMessage(String.format(message, arguments));
                 return this;

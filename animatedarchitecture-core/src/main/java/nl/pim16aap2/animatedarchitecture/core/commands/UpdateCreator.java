@@ -77,11 +77,11 @@ public final class UpdateCreator extends BaseCommand
 
         return creator
             .update(stepName, stepValue)
-            .withExceptionContext(() -> String.format(
+            .withExceptionContext(
                 "Updating creator process for player %s with step name %s and value %s",
                 getCommandSender(),
                 stepName,
-                stepValue)
+                stepValue
             );
     }
 

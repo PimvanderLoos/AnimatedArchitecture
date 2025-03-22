@@ -176,12 +176,12 @@ public abstract class DelayedCommand<T>
                 () -> inputRequestMessage(commandSender, structureRetriever),
                 delayedInputClz)
             .getCommandOutput()
-            .withExceptionContext(() -> String.format(
+            .withExceptionContext(
                 "Create delayed command for command '%s' with command sender '%s' for StructureRetriever %s",
                 getCommandDefinition(),
                 commandSender,
                 structureRetriever
-            ));
+            );
     }
 
     /**
@@ -280,12 +280,12 @@ public abstract class DelayedCommand<T>
             .getInputRequest(commandSender)
             .<CompletableFuture<?>>map(request -> request.provide(data))
             .orElseGet(() -> handleMissingInputRequest(commandSender, data))
-            .withExceptionContext(() -> String.format(
+            .withExceptionContext(
                 "Provide delayed command data for command '%s' with command sender '%s' and data '%s'",
                 getCommandDefinition(),
                 commandSender,
                 data
-            ));
+            );
     }
 
     /**

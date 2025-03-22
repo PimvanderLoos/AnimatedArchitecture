@@ -171,7 +171,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         return getInputResult()
             .thenCompose(input -> input.map(executorFunction).orElse(CompletableFuture.completedFuture(null)))
-            .withExceptionContext(() -> String.format("Delayed input request %s", this));
+            .withExceptionContext("Delayed input request %s", this);
     }
 
     private CompletableFuture<?> handleIllegalInput(Object input)
