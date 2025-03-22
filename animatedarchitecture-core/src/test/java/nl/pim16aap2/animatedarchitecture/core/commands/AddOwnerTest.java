@@ -316,10 +316,6 @@ class AddOwnerTest
         assertDoesNotThrow(() -> addOwner.isAllowed(structure, false));
     }
 
-//    @Test
-//    void isAllowed
-
-
     @Test
     void performAction_shouldCallDatabaseManagerAndHandleResult()
         throws ExecutionException, InterruptedException, TimeoutException
