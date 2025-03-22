@@ -192,7 +192,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
     private void registerTeam(Color color, Scoreboard scoreboard)
     {
         final ChatColor chatColor = SpigotUtil.toBukkitColor(color);
-        final String name = "AnimatedArchitecture" + color.ordinal();
+        final String name = "AnimatedArchitecture" + color.name();
         // Try to get an existing team, in case something had gone wrong unregistering them last time.
         @Nullable Team team = scoreboard.getTeam(name);
         if (team == null)

@@ -131,7 +131,7 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
                 loc.setY(area.getMaxBuildHeight() - 1);
 
                 final Plot newPlot = area.getPlot(psLocation);
-                if (newPlot == null && (!canBreakRoads))
+                if (newPlot == null && !canBreakRoads)
                     return CompletableFuture.completedFuture(false);
                 else if (!canBreakBlock(player, area, newPlot, loc))
                     return CompletableFuture.completedFuture(false);

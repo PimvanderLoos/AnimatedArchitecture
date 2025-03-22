@@ -13,7 +13,7 @@ import java.util.function.Supplier;
  *
  * @deprecated This class does not have any tests and is likely to be removed in the future!
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class PositionIterator implements Iterable<Vector3Di>
 {
     private final Vector3Di posA;
@@ -142,11 +142,11 @@ public class PositionIterator implements Iterable<Vector3Di>
         }
 
         /**
-         * Gets the increment supplier for a specified {@link #PositionIterator ::Axis}.
+         * Gets the increment supplier for a specified {@link PositionIterator.Axis}.
          *
          * @param axis
          *     The {@link #PositionIterator ::Axis}.
-         * @return The supplier that increments an {@link #PositionIterator ::Axis}.
+         * @return The supplier that increments an {@link PositionIterator.Axis}.
          */
         private Supplier<Boolean> getIncrementor(Axis axis)
         {

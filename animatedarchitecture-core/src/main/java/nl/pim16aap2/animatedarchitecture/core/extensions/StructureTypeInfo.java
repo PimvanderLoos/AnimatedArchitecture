@@ -171,7 +171,7 @@ final class StructureTypeInfo implements IKeyed
         if (dependencies == null || dependencies.isEmpty() || "null".equals(dependencies))
             return Collections.emptyList();
 
-        final String[] split = dependencies.toLowerCase(Locale.ENGLISH).split(" ");
+        final String[] split = dependencies.toLowerCase(Locale.ENGLISH).split(" ", -1);
         final List<Dependency> ret = new ArrayList<>(split.length);
 
         for (int idx = 0; idx < split.length; ++idx)

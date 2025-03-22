@@ -203,7 +203,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                 loc.setY(area.getMaxBuildHeight() - 1);
 
                 final Plot newPlot = area.getPlot(psLocation);
-                if (newPlot == null && (!canBreakRoads))
+                if (newPlot == null && !canBreakRoads)
                 {
                     log.atFiner().log(
                         "Player %s is not allowed to break block at %s: Not in a plot area and cannot break roads!",
