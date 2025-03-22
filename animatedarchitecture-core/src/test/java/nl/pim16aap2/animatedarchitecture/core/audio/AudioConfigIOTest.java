@@ -112,7 +112,7 @@ class AudioConfigIOTest
 
         new AudioConfigIO(baseDir).writeConfig(map, SET_DEFAULT);
 
-        final String contents = new String(Files.readAllBytes(file));
+        final String contents = Files.readString(file);
         Assertions.assertEquals(JSON, contents);
     }
 
