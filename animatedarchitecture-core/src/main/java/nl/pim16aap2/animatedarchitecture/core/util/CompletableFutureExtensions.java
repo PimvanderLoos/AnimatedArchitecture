@@ -41,6 +41,10 @@ public final class CompletableFutureExtensions
      * <p>
      * In short, this method throws a new exception with the provided context if the original future completes
      * exceptionally.
+     * <p>
+     * One important thing to note is that supplier is only called <b>when the future completes</b>. So supplier that
+     * depends on some state might append different context than expected. This is even true for 'simple' suppliers such
+     * as Object::toString may depend on the state of the object.
      *
      * @param future
      *     The original future.

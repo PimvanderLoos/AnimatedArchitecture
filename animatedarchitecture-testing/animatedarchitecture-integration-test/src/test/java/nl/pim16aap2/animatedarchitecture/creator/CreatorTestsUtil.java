@@ -45,6 +45,7 @@ import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Answers;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
@@ -64,6 +65,7 @@ import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBu
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@Timeout(1)
 public class CreatorTestsUtil
 {
     protected final Vector3Di min = new Vector3Di(10, 15, 20);

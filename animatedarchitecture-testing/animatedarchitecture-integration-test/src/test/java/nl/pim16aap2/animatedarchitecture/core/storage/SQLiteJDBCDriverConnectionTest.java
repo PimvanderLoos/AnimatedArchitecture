@@ -185,6 +185,7 @@ public class SQLiteJDBCDriverConnectionTest
      * (for debugging purposes).
      */
     @AfterAll
+    @SuppressWarnings("CatchAndPrintStackTrace")
     public static void cleanup()
     {
         final Path finishedDB = DB_FILE.resolveSibling(DB_FILE.getFileName() + ".FINISHED");
@@ -194,6 +195,7 @@ public class SQLiteJDBCDriverConnectionTest
         }
         catch (Exception exception)
         {
+            //noinspection CallToPrintStackTrace
             exception.printStackTrace();
         }
         try

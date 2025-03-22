@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -54,7 +55,7 @@ class LocalizationTestingUtilities
         final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(zipFile));
         for (String name : names)
         {
-            final byte[] data = "".getBytes();
+            final byte[] data = "".getBytes(StandardCharsets.UTF_8);
             outputStream.putNextEntry(new ZipEntry(name));
             outputStream.write(data, 0, data.length);
             outputStream.closeEntry();
@@ -95,7 +96,7 @@ class LocalizationTestingUtilities
         final StringBuilder sb = new StringBuilder();
         for (String line : lines)
             sb.append(line).append('\n');
-        writeEntry(outputStream, fileName, sb.toString().getBytes());
+        writeEntry(outputStream, fileName, sb.toString().getBytes(StandardCharsets.UTF_8));
     }
 
 

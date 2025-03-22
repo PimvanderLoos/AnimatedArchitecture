@@ -610,9 +610,12 @@ public class UnitTestUtil
     {
         RuntimeException rte = Assertions.assertThrows(RuntimeException.class, executable);
         if (deepSearch)
-            while (rte.getCause().getClass() == RuntimeException.class)
+            while (rte.getCause() != null && rte.getCause().getClass() == RuntimeException.class)
                 rte = (RuntimeException) rte.getCause();
-        assertEquals(expectedType, rte.getCause().getClass(), expectedType.toString());
+
+        final var rootCause = rte.getCause();
+        assertNotNull(rootCause);
+        assertEquals(expectedType, rootCause.getClass(), expectedType.toString());
     }
 
     /**

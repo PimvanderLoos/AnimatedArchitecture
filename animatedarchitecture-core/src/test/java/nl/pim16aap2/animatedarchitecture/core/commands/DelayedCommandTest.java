@@ -25,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -71,7 +72,6 @@ class DelayedCommandTest
     @Mock
     private IExecutor executor;
 
-
     @BeforeEach
     void init()
     {
@@ -85,16 +85,17 @@ class DelayedCommandTest
     {
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
 
-        delayedCommand.runDelayed(commandSender, structureRetriever);
+        final var result = delayedCommand.runDelayed(commandSender, structureRetriever);
         verify(commandSender, times(1)).sendMessage(textArgumentMatcher(DelayedCommandImpl.INPUT_REQUEST_MSG));
         verify(inputRequestFactory, times(1)).create(anyLong(), any(), any(), any(), any(), any());
         verify(delayedFunction, never()).apply(any(), any(), any());
 
         final Object input = new Object();
         delayedCommand.provideDelayedInput(commandSender, input).join();
+        assertTrue(result.isDone());
         verify(delayedFunction, times(1)).apply(commandSender, structureRetriever, input);
 
-        delayedCommand.provideDelayedInput(commandSender, new Object());
+        delayedCommand.provideDelayedInput(commandSender, new Object()).join();
         verify(commandSender, times(1)).sendMessage(textArgumentMatcher("commands.base.error.not_waiting"));
     }
 
@@ -103,23 +104,28 @@ class DelayedCommandTest
     {
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
 
-        delayedCommand.provideDelayedInput(commandSender, new Object());
+        delayedCommand.provideDelayedInput(commandSender, new Object()).join();
         verify(commandSender, times(1)).sendMessage(textArgumentMatcher("commands.base.error.not_waiting"));
     }
 
     @Test
     void exception()
+        throws InterruptedException
     {
         when(delayedFunction.apply(any(), any(), any())).thenThrow(RuntimeException.class);
 
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
-        delayedCommand.runDelayed(commandSender, structureRetriever);
+        var result = delayedCommand.runDelayed(commandSender, structureRetriever);
 
-        Throwable cause = assertThrows(
+        final var provideException = assertThrows(
             Throwable.class,
             () -> delayedCommand.provideDelayedInput(commandSender, new Object()).get(1, TimeUnit.SECONDS)
         );
 
+        final var resultException = assertThrows(CompletionException.class, result::join);
+        assertEquals(provideException.getCause().getCause(), resultException.getCause().getCause());
+
+        Throwable cause = resultException.getCause();
         while (!(cause instanceof CommandExecutionException) && cause.getCause() != null)
             cause = cause.getCause();
 

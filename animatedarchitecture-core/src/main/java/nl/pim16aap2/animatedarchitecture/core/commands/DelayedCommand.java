@@ -279,7 +279,13 @@ public abstract class DelayedCommand<T>
         return delayedCommandInputManager
             .getInputRequest(commandSender)
             .<CompletableFuture<?>>map(request -> request.provide(data))
-            .orElseGet(() -> handleMissingInputRequest(commandSender, data));
+            .orElseGet(() -> handleMissingInputRequest(commandSender, data))
+            .withExceptionContext(() -> String.format(
+                "Provide delayed command data for command '%s' with command sender '%s' and data '%s'",
+                getCommandDefinition(),
+                commandSender,
+                data
+            ));
     }
 
     /**

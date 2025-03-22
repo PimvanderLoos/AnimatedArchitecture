@@ -4,6 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import org.junit.jupiter.api.Assertions;
@@ -94,7 +95,7 @@ class DelayedCommandInputRequestTest
         );
 
         final CompletableFuture<?> first = inputRequest.getCommandOutput();
-        Assertions.assertThrows(IllegalArgumentException.class, () -> inputRequest.provide("Invalid!"));
+        Assertions.assertThrows(InvalidCommandInputException.class, () -> inputRequest.provide("Invalid!"));
 
         assertFalse(first.isDone());
     }
