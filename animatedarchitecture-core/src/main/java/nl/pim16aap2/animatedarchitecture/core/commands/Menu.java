@@ -4,9 +4,11 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IGuiFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,21 +17,24 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the menu command, which is used to open the menu for a user.
  */
-@ToString
+@ToString(callSuper = true)
 public class Menu extends BaseCommand
 {
+    @ToString.Exclude
     private final IGuiFactory guiFactory;
+
     private final @Nullable IPlayer source;
 
     @AssistedInject
     Menu(
         @Assisted ICommandSender commandSender,
+        @Assisted @Nullable IPlayer source,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
-        IGuiFactory guiFactory,
-        @Assisted @Nullable IPlayer source)
+        IGuiFactory guiFactory)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.guiFactory = guiFactory;
         this.source = source;
     }
@@ -53,7 +58,10 @@ public class Menu extends BaseCommand
         if (!permissions.hasAdminPermission() && source != null && !getCommandSender().equals(source))
         {
             getCommandSender().sendError(textFactory, localizer.getMessage("commands.menu.no_permission_for_others"));
-            return CompletableFuture.completedFuture(null);
+            throw new NoAccessToStructureCommandException(
+                true,
+                "Player " + getCommandSender() + " tried to open the menu of " + source + " without permission."
+            );
         }
 
         getCommandSender().getPlayer().ifPresent(player -> guiFactory.newGUI(player, source));

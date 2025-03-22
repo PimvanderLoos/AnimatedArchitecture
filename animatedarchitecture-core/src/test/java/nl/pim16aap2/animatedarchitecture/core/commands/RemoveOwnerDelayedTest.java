@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -8,14 +9,12 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManage
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -23,9 +22,13 @@ import org.mockito.quality.Strictness;
 
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.AdditionalAnswers.delegatesTo;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
@@ -34,53 +37,61 @@ import static org.mockito.AdditionalAnswers.delegatesTo;
 class RemoveOwnerDelayedTest
 {
     @Spy
-    DelayedCommandInputManager delayedCommandInputManager =
-        new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
+    private DelayedCommandInputManager delayedCommandInputManager =
+        new DelayedCommandInputManager(mock(DebuggableRegistry.class));
 
-    ILocalizer localizer = UnitTestUtil.initLocalizer();
+    private final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
     @Mock
-    DelayedCommandInputRequest.IFactory<IPlayer> inputRequestFactory;
+    private IExecutor executor;
+
+    @Mock
+    private DelayedCommandInputRequest.IFactory<IPlayer> inputRequestFactory;
 
     @InjectMocks
-    DelayedCommand.Context context;
+    private DelayedCommand.Context context;
 
     @Mock
-    CommandFactory commandFactory;
+    private CommandFactory commandFactory;
 
     @SuppressWarnings("unchecked")
-    Provider<CommandFactory> commandFactoryProvider =
-        Mockito.mock(Provider.class, delegatesTo((Provider<CommandFactory>) () -> commandFactory));
+    private final Provider<CommandFactory> commandFactoryProvider =
+        mock(Provider.class, delegatesTo((Provider<CommandFactory>) () -> commandFactory));
 
     @Mock
-    ICommandSender commandSender;
+    private ICommandSender commandSender;
 
-    StructureRetriever structureRetriever;
+    private StructureRetriever structureRetriever;
 
     @Mock
-    Structure structure;
+    private Structure structure;
 
     @InjectMocks
-    StructureRetrieverFactory structureRetrieverFactory;
+    private StructureRetrieverFactory structureRetrieverFactory;
 
     @Mock
-    RemoveOwner removeOwner;
+    private RemoveOwner removeOwner;
 
     @Mock
-    IPlayer targetPlayer;
+    private IPlayer targetPlayer;
 
 
     @BeforeEach
     void init()
     {
-        DelayedCommandTest.initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
+        DelayedCommandTest.initInputRequestFactory(
+            inputRequestFactory,
+            executor,
+            localizer,
+            delayedCommandInputManager
+        );
 
         structureRetriever = structureRetrieverFactory.of(structure);
 
-        Mockito.when(removeOwner.run()).thenReturn(CompletableFuture.completedFuture(null));
-
-        Mockito.when(commandFactory.newRemoveOwner(Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(removeOwner);
+        when(removeOwner.run()).thenReturn(CompletableFuture.completedFuture(null));
+        when(commandFactory.newRemoveOwner(any(), any(), any())).thenReturn(removeOwner);
     }
 
     @Test
@@ -91,10 +102,9 @@ class RemoveOwnerDelayedTest
         final CompletableFuture<?> result0 = removeOwnerDelayed.runDelayed(commandSender, structureRetriever);
         final CompletableFuture<?> result1 = removeOwnerDelayed.provideDelayedInput(commandSender, targetPlayer);
 
-        Assertions.assertDoesNotThrow(() -> result0.get(1, TimeUnit.SECONDS));
-        Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
+        assertDoesNotThrow(() -> result0.get(1, TimeUnit.SECONDS));
+        assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
-        Mockito.verify(commandFactory, Mockito.times(1))
-            .newRemoveOwner(commandSender, structureRetriever, targetPlayer);
+        verify(commandFactory, times(1)).newRemoveOwner(commandSender, structureRetriever, targetPlayer);
     }
 }

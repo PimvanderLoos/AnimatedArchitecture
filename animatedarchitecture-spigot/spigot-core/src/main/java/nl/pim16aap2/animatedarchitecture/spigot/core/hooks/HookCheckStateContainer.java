@@ -4,9 +4,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager.HookCheckResult;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.HookPreCheckResult;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
@@ -28,6 +30,7 @@ import java.util.function.Function;
  */
 @Accessors(fluent = true, chain = true)
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 final class HookCheckStateContainer
 {
     private final List<HookCheckState> hookCheckStates;
@@ -169,7 +172,8 @@ final class HookCheckStateContainer
         }
 
         return CompletableFuture.allOf(
-            hookCheckStates.stream()
+            hookCheckStates
+                .stream()
                 .map(hookCheckState -> hookCheckState
                     .preCheckAsync(executor, player, world)
                     .exceptionally(e ->
@@ -203,7 +207,9 @@ final class HookCheckStateContainer
         if (executor.isMainThread())
         {
             runPreChecksSync(executor, player, world);
-            results = CompletableFuture.runAsync(() -> runPreChecksAsync(executor, player, world));
+            results = CompletableFuture
+                .completedFuture(null)
+                .thenComposeAsync(ignored -> runPreChecksAsync(executor, player, world), executor.getVirtualExecutor());
         }
         else
         {
@@ -305,11 +311,11 @@ final class HookCheckStateContainer
             .thenCompose(container ->
                 executor.composeOnMainThread(() ->
                     runMainChecks(executor, function)))
-            .exceptionally(e ->
-            {
-                log.atSevere().withCause(e).log("An exception occurred while running all checks.");
-                return HookCheckResult.denied("Unknown Error");
-            })
+            .withExceptionContext(() -> String.format(
+                "Running all checks for player %s in world '%s'",
+                player,
+                world.getName()
+            ))
             .thenApply(result ->
             {
                 if (result.isDenied())
@@ -358,13 +364,6 @@ final class HookCheckStateContainer
         }
     }
 
-    /**
-     * Returns a string representation of the object.
-     * <p>
-     * This method uses no synchronization, so the result may not reflect the current state of the object.
-     *
-     * @return
-     */
     @Override
     public String toString()
     {
@@ -417,15 +416,10 @@ final class HookCheckStateContainer
                     }
                     return HookCheckResult.allowed();
                 })
-                .exceptionally(e ->
-                {
-                    log.atSevere().withCause(e).log(
-                        "An exception occurred while running check for hook '%s'.",
-                        hookName()
-                    );
-                    this.result = HookPreCheckResult.DENY;
-                    return HookCheckResult.denied(hookErrorName());
-                });
+                .withExceptionContext(() -> String.format(
+                    "Running check check for hook '%s'",
+                    hookName()
+                ));
         }
 
         /**

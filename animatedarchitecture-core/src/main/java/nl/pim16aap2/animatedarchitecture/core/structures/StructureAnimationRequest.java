@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
@@ -21,7 +22,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -38,6 +39,7 @@ import java.util.concurrent.CompletableFuture;
 @Getter
 @ToString
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 public class StructureAnimationRequest
 {
     @Getter
@@ -59,10 +61,19 @@ public class StructureAnimationRequest
     @Getter
     private final AnimationType animationType;
 
+    @ToString.Exclude
     private final ILocalizer localizer;
+
+    @ToString.Exclude
     private final ITextFactory textFactory;
+
+    @ToString.Exclude
     private final StructureActivityManager structureActivityManager;
+
+    @ToString.Exclude
     private final IPlayerFactory playerFactory;
+
+    @ToString.Exclude
     private final IExecutor executor;
 
     @AssistedInject
@@ -109,7 +120,7 @@ public class StructureAnimationRequest
         return structureRetriever
             .getStructure()
             .thenCompose(this::execute)
-            .exceptionally(throwable -> FutureUtil.exceptionally(throwable, StructureToggleResult.ERROR));
+            .withExceptionContext(() -> "Execute structure animation request: " + this);
     }
 
     private CompletableFuture<StructureToggleResult> execute(Optional<Structure> structureOpt)

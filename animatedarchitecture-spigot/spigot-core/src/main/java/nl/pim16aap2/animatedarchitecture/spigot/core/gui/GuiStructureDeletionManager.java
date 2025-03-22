@@ -18,8 +18,8 @@ import java.util.List;
 /**
  * Represents a manager for door deletions specifically for the GUI classes.
  * <p>
- * The listeners registered with the StructureRegistry have slightly different requirements than the general listeners
- * of the StructureRegistry's events.
+ * The listeners registered with the main {@link StructureDeletionManager} have slightly different requirements than the
+ * general listeners of the {@link StructureDeletionManager}'s events.
  * <p>
  * For one, this class will call listeners in reverse order, as new GUI pages are opened over top of the older ones and
  * need to be processed in LIFO ordering.

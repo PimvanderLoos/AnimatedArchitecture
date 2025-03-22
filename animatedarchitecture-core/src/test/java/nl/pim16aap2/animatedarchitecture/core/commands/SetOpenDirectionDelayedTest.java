@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
@@ -8,82 +9,81 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.AdditionalAnswers.delegatesTo;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @Timeout(1)
-@SuppressWarnings("unused")
+@ExtendWith(MockitoExtension.class)
 class SetOpenDirectionDelayedTest
 {
     @Spy
-    DelayedCommandInputManager delayedCommandInputManager =
-        new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
+    private DelayedCommandInputManager delayedCommandInputManager =
+        new DelayedCommandInputManager(mock(DebuggableRegistry.class));
 
-    ILocalizer localizer = UnitTestUtil.initLocalizer();
+    private final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
     @Mock
-    DelayedCommandInputRequest.IFactory<MovementDirection> inputRequestFactory;
+    private IExecutor executor;
+
+    @Mock
+    private DelayedCommandInputRequest.IFactory<MovementDirection> inputRequestFactory;
 
     @InjectMocks
-    DelayedCommand.Context context;
+    private DelayedCommand.Context context;
 
     @Mock
-    CommandFactory commandFactory;
+    private CommandFactory commandFactory;
 
-    @SuppressWarnings("unchecked")
-    Provider<CommandFactory> commandFactoryProvider =
-        Mockito.mock(Provider.class, delegatesTo((Provider<CommandFactory>) () -> commandFactory));
-
-    @Mock
-    ICommandSender commandSender;
-
-    StructureRetriever structureRetriever;
+    @SuppressWarnings({"unchecked", "unused"})
+    private final Provider<CommandFactory> commandFactoryProvider =
+        mock(Provider.class, delegatesTo((Provider<CommandFactory>) () -> commandFactory));
 
     @Mock
-    Structure structure;
+    private ICommandSender commandSender;
+
+    private StructureRetriever structureRetriever;
+
+    @Mock
+    private Structure structure;
 
     @InjectMocks
-    StructureRetrieverFactory structureRetrieverFactory;
+    private StructureRetrieverFactory structureRetrieverFactory;
 
     @Mock
-    SetOpenDirection setOpenDirection;
-
-    AutoCloseable openMocks;
+    private SetOpenDirection setOpenDirection;
 
     @BeforeEach
     void init()
     {
-        openMocks = MockitoAnnotations.openMocks(this);
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
 
-        DelayedCommandTest.initInputRequestFactory(inputRequestFactory, localizer, delayedCommandInputManager);
+        DelayedCommandTest.initInputRequestFactory(
+            inputRequestFactory,
+            executor,
+            localizer,
+            delayedCommandInputManager
+        );
 
         structureRetriever = structureRetrieverFactory.of(structure);
 
-        Mockito.when(setOpenDirection.run()).thenReturn(CompletableFuture.completedFuture(null));
-
-        Mockito.when(commandFactory.newSetOpenDirection(Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(setOpenDirection);
-    }
-
-    @AfterEach
-    void cleanup()
-        throws Exception
-    {
-        openMocks.close();
+        when(setOpenDirection.run()).thenReturn(CompletableFuture.completedFuture(null));
+        when(commandFactory.newSetOpenDirection(any(), any(), any())).thenReturn(setOpenDirection);
     }
 
     @Test
@@ -96,10 +96,10 @@ class SetOpenDirectionDelayedTest
         final CompletableFuture<?> result1 =
             setOpenDirectionDelayed.provideDelayedInput(commandSender, MovementDirection.UP);
 
-        Assertions.assertDoesNotThrow(() -> result0.get(1, TimeUnit.SECONDS));
-        Assertions.assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
+        assertDoesNotThrow(() -> result0.get(1, TimeUnit.SECONDS));
+        assertDoesNotThrow(() -> result1.get(1, TimeUnit.SECONDS));
 
-        Mockito.verify(commandFactory, Mockito.times(1))
+        verify(commandFactory, times(1))
             .newSetOpenDirection(commandSender, structureRetriever, MovementDirection.UP);
     }
 }

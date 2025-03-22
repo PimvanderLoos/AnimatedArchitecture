@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import lombok.Getter;
-import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
 /**
  * Represents a permission level where a lower level indicates a higher access level.
  */
-@ToString
 public enum PermissionLevel
 {
     CREATOR(0, "constants.permission_level.creator"),

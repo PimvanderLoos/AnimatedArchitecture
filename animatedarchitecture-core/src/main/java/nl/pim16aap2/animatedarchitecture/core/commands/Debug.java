@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessagingInterface;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebugReporter;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -16,21 +17,25 @@ import java.util.logging.Level;
  * Represents the debug command. This command is used to retrieve debug information, the specifics of which are left to
  * the currently registered platform. See {@link DebugReporter}.
  */
-@ToString
+@ToString(callSuper = true)
 public class Debug extends BaseCommand
 {
+    @ToString.Exclude
     private final IMessagingInterface messagingInterface;
+
+    @ToString.Exclude
     private final DebugReporter debugReporter;
 
     @AssistedInject
     Debug(
         @Assisted ICommandSender commandSender,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         IMessagingInterface messagingInterface,
         DebugReporter debugReporter)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.messagingInterface = messagingInterface;
         this.debugReporter = debugReporter;
     }
@@ -44,7 +49,7 @@ public class Debug extends BaseCommand
     @Override
     protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        return CompletableFuture.runAsync(this::postDebugMessage);
+        return CompletableFuture.runAsync(this::postDebugMessage, executor.getVirtualExecutor());
     }
 
     private void postDebugMessage()

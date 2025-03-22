@@ -3,6 +3,8 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.StaticGuiElement;
+import lombok.experimental.ExtensionMethod;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -16,7 +18,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextComponent;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
@@ -25,13 +28,21 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Factory for creating buttons for the different attributes of a structure.
  */
+@Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 class AttributeButtonFactory
 {
+    /**
+     * The default timeout in seconds for commands.
+     */
+    private static final int DEFAULT_TIMEOUT_SECONDS = 10;
+
     private final ILocalizer localizer;
     private final ITextFactory textFactory;
     private final CommandFactory commandFactory;
@@ -66,11 +77,13 @@ class AttributeButtonFactory
         PlayerSpigot player)
     {
         commandFactory
-            .newLock(player, structureRetrieverFactory.of(structure), newState).run()
+            .newLock(player, structureRetrieverFactory.of(structure), newState)
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             // Force a draw with dynamic fields update to ensure the correct
             // state is displayed in case the command did not change the status.
             .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)))
-            .exceptionally(FutureUtil::exceptionally);
+            .orTimeout(1, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleExceptional(ex, player, "lock_button"));
     }
 
     private GuiElement lockButton(Structure structure, PlayerSpigot player, char slotChar)
@@ -114,7 +127,8 @@ class AttributeButtonFactory
                     .responsible(player)
                     .build()
                     .execute()
-                    .exceptionally(FutureUtil::exceptionally);
+                    .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .handleExceptional(ex -> handleExceptional(ex, player, "toggle_button"));
                 return true;
             },
             localizer.getMessage(
@@ -139,13 +153,35 @@ class AttributeButtonFactory
                     .animationType(AnimationType.PREVIEW)
                     .build()
                     .execute()
-                    .exceptionally(FutureUtil::exceptionally);
+                    .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .handleExceptional(ex -> handleExceptional(ex, player, "preview_button"));
                 return true;
             },
             localizer.getMessage(
                 "gui.info_page.attribute.preview",
                 localizer.getMessage(structure.getType().getLocalizationKey()))
         );
+    }
+
+    /**
+     * Handles exceptional completion of a future.
+     *
+     * @param ex
+     *     The exception that occurred.
+     * @param player
+     *     The player for which the exception occurred.
+     * @param context
+     *     The context in which the exception occurred. This is used for logging.
+     *     <p>
+     *     E.g. the action that was being performed when the exception occurred ("toggle", "lock", etc.).
+     */
+    private void handleExceptional(Throwable ex, PlayerSpigot player, String context)
+    {
+        player.sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.base.error.generic"),
+            TextType.ERROR
+        ));
+        log.atSevere().withCause(ex).log("Failed to handle action '%s' for player '%s'", context, player);
     }
 
     private GuiElement infoButton(Structure structure, PlayerSpigot player, char slotChar)
@@ -157,8 +193,8 @@ class AttributeButtonFactory
             {
                 commandFactory
                     .newInfo(player, structureRetrieverFactory.of(structure))
-                    .run()
-                    .exceptionally(FutureUtil::exceptionally);
+                    .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .handleExceptional(ex -> handleExceptional(ex, player, "info_button"));
                 return true;
             },
             localizer.getMessage(
@@ -193,8 +229,8 @@ class AttributeButtonFactory
             {
                 commandFactory
                     .newMovePowerBlock(player, structureRetrieverFactory.of(structure))
-                    .run()
-                    .exceptionally(FutureUtil::exceptionally);
+                    .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .handleExceptional(ex -> handleExceptional(ex, player, "relocate_power_block_button"));
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
@@ -209,11 +245,12 @@ class AttributeButtonFactory
     {
         commandFactory
             .newSetOpenStatus(player, structureRetrieverFactory.of(structure), isOpen)
-            .run()
+            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             // Force a draw with dynamic fields update to ensure the correct
             // state is displayed in case the command did not change the status.
             .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)))
-            .exceptionally(FutureUtil::exceptionally);
+            .orTimeout(1, TimeUnit.SECONDS)
+            .handleExceptional(ex -> handleExceptional(ex, player, "is_open_button"));
     }
 
     private @Nullable GuiElement openStatusButton(Structure structure, PlayerSpigot player, char slotChar)
@@ -275,8 +312,8 @@ class AttributeButtonFactory
                 final var newOpenDir = structure.getCycledOpenDirection();
                 commandFactory
                     .newSetOpenDirection(player, StructureRetrieverFactory.ofStructure(structure), newOpenDir)
-                    .run()
-                    .exceptionally(FutureUtil::exceptionally);
+                    .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .handleExceptional(ex -> handleExceptional(ex, player, "open_direction_button"));
 
                 setOpenDirectionLore(
                     Util.requireNonNull(staticGuiElementRef.get(), "static GUI element reference"),
@@ -305,7 +342,7 @@ class AttributeButtonFactory
                 commandFactory
                     .getSetBlocksToMoveDelayed()
                     .runDelayed(player, structureRetrieverFactory.of(structure))
-                    .exceptionally(FutureUtil::exceptionally);
+                    .handleExceptional(ex -> handleExceptional(ex, player, "blocks_to_move_button"));
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
@@ -325,7 +362,7 @@ class AttributeButtonFactory
                 commandFactory
                     .getAddOwnerDelayed()
                     .runDelayed(player, structureRetrieverFactory.of(structure))
-                    .exceptionally(FutureUtil::exceptionally);
+                    .handleExceptional(ex -> handleExceptional(ex, player, "add_owner_button"));
                 GuiUtil.closeAllGuis(player);
                 return true;
             },
@@ -345,7 +382,7 @@ class AttributeButtonFactory
                 commandFactory
                     .getRemoveOwnerDelayed()
                     .runDelayed(player, structureRetrieverFactory.of(structure))
-                    .exceptionally(FutureUtil::exceptionally);
+                    .handleExceptional(ex -> handleExceptional(ex, player, "remove_owner_button"));
                 GuiUtil.closeAllGuis(player);
                 return true;
             },

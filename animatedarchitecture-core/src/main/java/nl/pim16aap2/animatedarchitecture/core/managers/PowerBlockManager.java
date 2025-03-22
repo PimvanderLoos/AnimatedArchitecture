@@ -5,15 +5,18 @@ import it.unimi.dsi.fastutil.longs.LongImmutableList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
@@ -25,6 +28,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,31 +38,24 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Singleton
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 public final class PowerBlockManager extends Restartable implements StructureDeletionManager.IDeletionListener
 {
     private final Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
+    private final IExecutor executor;
     private final IConfig config;
     private final DatabaseManager databaseManager;
 
-    /**
-     * Initializes the {@link PowerBlockManager}. If it has already been initialized, it'll return that instance
-     * instead.
-     *
-     * @param restartableHolder
-     *     The {@link RestartableHolder} that manages this object.
-     * @param config
-     *     The configuration of this plugin.
-     * @param databaseManager
-     *     The database manager to use for power block retrieval.
-     */
     @Inject
     PowerBlockManager(
         RestartableHolder restartableHolder,
+        IExecutor executor,
         IConfig config,
         DatabaseManager databaseManager,
         StructureDeletionManager structureDeletionManager)
     {
         super(restartableHolder);
+        this.executor = executor;
 
         this.config = config;
         this.databaseManager = databaseManager;
@@ -157,10 +154,12 @@ public final class PowerBlockManager extends Restartable implements StructureDel
     private CompletableFuture<List<Structure>> mapUidsToStructures(CompletableFuture<LongList> uids)
     {
         return uids
-            .thenApplyAsync(lst -> lst.longStream().mapToObj(databaseManager::getStructure).toList())
+            .thenApplyAsync(
+                lst -> lst.longStream().mapToObj(databaseManager::getStructure).toList(),
+                executor.getVirtualExecutor())
             .thenCompose(FutureUtil::getAllCompletableFutureResults)
             .thenApply(lst -> lst.stream().filter(Optional::isPresent).map(Optional::get).toList())
-            .exceptionally(ex -> FutureUtil.exceptionally(ex, Collections.emptyList()));
+            .withExceptionContext(() -> "Mapping UIDs to structures: " + uids);
     }
 
     /**
@@ -183,41 +182,14 @@ public final class PowerBlockManager extends Restartable implements StructureDel
     }
 
     /**
-     * Updates the position of the power block of a {@link Structure} in the database.
-     *
-     * @param structure
-     *     The {@link Structure}.
-     * @param oldPos
-     *     The old position.
-     * @param newPos
-     *     The new position.
-     */
-    @SuppressWarnings("unused")
-    public void updatePowerBlockLoc(Structure structure, Vector3Di oldPos, Vector3Di newPos)
-    {
-        structure.setPowerBlock(newPos);
-        structure.syncData().exceptionally(FutureUtil::exceptionally);
-        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(structure.getWorld().worldName());
-        if (powerBlockWorld == null)
-        {
-            log.atWarning().log("Failed to load power blocks for world: '%s'.", structure.getWorld().worldName());
-            return;
-        }
-
-        // Invalidate both the old and the new positions.
-        powerBlockWorld.invalidatePosition(oldPos);
-        powerBlockWorld.invalidatePosition(newPos);
-    }
-
-    /**
-     * Invalidates the cache for when a structure is either added to a world or removed from it.
+     * Invalidates the cache for a chunk that contains a position.
      *
      * @param worldName
      *     The name of the world of the structure.
      * @param pos
      *     The position of the structure's power block.
      */
-    public void onStructureAddOrRemove(String worldName, Vector3Di pos)
+    public void invalidateChunkAt(String worldName, Vector3Di pos)
     {
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -258,7 +230,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
     @Override
     public void onStructureDeletion(IStructureConst structure)
     {
-        onStructureAddOrRemove(structure.getWorld().worldName(), structure.getPowerBlock());
+        invalidateChunkAt(structure.getWorld().worldName(), structure.getPowerBlock());
     }
 
     /**
@@ -308,14 +280,23 @@ public final class PowerBlockManager extends Restartable implements StructureDel
 
             final long chunkId = LocationUtil.getChunkId(loc);
 
-            return powerBlockChunks.computeIfAbsent(
-                chunkId,
-                chunkId0 -> databaseManager.getPowerBlockData(chunkId).thenApply(PowerBlockChunk::new)
-            );
+            return Objects.requireNonNull(powerBlockChunks.computeIfAbsent(chunkId, this::findPowerBlockChunk));
+        }
+
+        private CompletableFuture<PowerBlockManager.PowerBlockChunk> findPowerBlockChunk(long chunkId)
+        {
+            return databaseManager
+                .getPowerBlockData(chunkId)
+                .thenApply(PowerBlockChunk::new)
+                .exceptionally(ex ->
+                {
+                    log.atSevere().withCause(ex).log("Failed to find power block chunk with id: %d", chunkId);
+                    return null;
+                });
         }
 
         /**
-         * Gets all powerblocks in a chunk.
+         * Gets all power blocks in a chunk.
          *
          * @param loc
          *     The location in a chunk.
@@ -325,6 +306,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         {
             if (!isAnimatedArchitectureWorld())
                 return CompletableFuture.completedFuture(LongLists.emptyList());
+
             return getPowerBlockChunk(loc).thenApply(PowerBlockChunk::getPowerBlocks);
         }
 
@@ -364,7 +346,11 @@ public final class PowerBlockManager extends Restartable implements StructureDel
             databaseManager
                 .isAnimatedArchitectureWorld(worldName)
                 .thenAccept(result -> isAnimatedArchitectureWorld = result)
-                .exceptionally(FutureUtil::exceptionally);
+                .handleExceptional(ex ->
+                    log.atSevere().withCause(ex).log(
+                        "Failed to check if world '%s' is an AnimatedArchitecture world.",
+                        worldName)
+                );
         }
 
         void clear()

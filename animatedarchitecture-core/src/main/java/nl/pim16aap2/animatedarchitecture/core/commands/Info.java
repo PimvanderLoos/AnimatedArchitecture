@@ -7,6 +7,7 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -33,21 +34,23 @@ import java.util.function.Function;
 /**
  * Represents the information command that provides the issuer with more information about the structure.
  */
-@ToString
+@ToString(callSuper = true)
 @Flogger
 public class Info extends StructureTargetCommand
 {
+    @ToString.Exclude
     private final HighlightedBlockSpawner glowingBlockSpawner;
 
     @AssistedInject
     Info(
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         HighlightedBlockSpawner glowingBlockSpawner)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.INFO);
+        super(commandSender, executor, localizer, textFactory, structureRetriever, StructureAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;
     }
 
@@ -61,14 +64,9 @@ public class Info extends StructureTargetCommand
     protected CompletableFuture<?> performAction(Structure structure)
     {
         final StructureSnapshot snapshot = structure.getSnapshot();
-        try
-        {
-            sendInfoMessage(snapshot);
-        }
-        catch (Exception e)
-        {
-            log.atSevere().withCause(e).log("Failed to send info message to command sender: %s", getCommandSender());
-        }
+        sendInfoMessage(snapshot);
+
+        // A failure to highlight blocks is not critical, so we catch the exception and log it.
         try
         {
             highlightBlocks(snapshot);
@@ -328,7 +326,7 @@ public class Info extends StructureTargetCommand
      *     The command sender to check against.
      * @return {@code true} if the command sender has creator access to the structure.
      */
-    private static boolean hasCreatorAccess(StructureSnapshot structure, ICommandSender commandSender)
+    static boolean hasCreatorAccess(StructureSnapshot structure, ICommandSender commandSender)
     {
         return commandSender
             .getPlayer()

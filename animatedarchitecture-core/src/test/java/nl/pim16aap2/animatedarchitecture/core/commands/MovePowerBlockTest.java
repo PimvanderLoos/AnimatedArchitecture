@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -25,7 +26,11 @@ import org.mockito.quality.Strictness;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
@@ -49,33 +54,36 @@ class MovePowerBlockTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private MovePowerBlock.IFactory factory;
 
+    @Mock
+    private IExecutor executor;
+
     @BeforeEach
     void init()
     {
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         final UUID uuid = UUID.randomUUID();
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
         doorRetriever = StructureRetrieverFactory.ofStructure(door);
-        Mockito.when(door.isOwner(uuid, StructureAttribute.RELOCATE_POWERBLOCK.getPermissionLevel())).thenReturn(true);
-        Mockito.when(door.isOwner(Mockito.any(IPlayer.class), Mockito.any())).thenReturn(true);
-        Mockito.when(commandSender.getUUID()).thenReturn(uuid);
-        Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
+        when(door.isOwner(uuid, StructureAttribute.RELOCATE_POWERBLOCK.getPermissionLevel())).thenReturn(true);
+        when(door.isOwner(any(IPlayer.class), any())).thenReturn(true);
+        when(commandSender.getUUID()).thenReturn(uuid);
+        when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        final PowerBlockRelocator.IFactory powerBlockRelocatorFactory =
-            Mockito.mock(PowerBlockRelocator.IFactory.class);
-        Mockito.when(powerBlockRelocatorFactory.create(Mockito.any(), Mockito.any()))
-            .thenReturn(Mockito.mock(PowerBlockRelocator.class));
+        final PowerBlockRelocator.IFactory powerBlockRelocatorFactory = mock(PowerBlockRelocator.IFactory.class);
+        when(powerBlockRelocatorFactory.create(Mockito.any(), any())).thenReturn(mock(PowerBlockRelocator.class));
 
-        Mockito.when(factory.newMovePowerBlock(
-                Mockito.any(ICommandSender.class),
-                Mockito.any(StructureRetriever.class)))
+        when(factory
+            .newMovePowerBlock(any(ICommandSender.class), any(StructureRetriever.class)))
             .thenAnswer(invoc -> new MovePowerBlock(
                 invoc.getArgument(0, ICommandSender.class),
+                invoc.getArgument(1, StructureRetriever.class),
+                executor,
                 localizer,
                 ITextFactory.getSimpleTextFactory(),
-                invoc.getArgument(1, StructureRetriever.class),
                 toolUserManager,
                 powerBlockRelocatorFactory)
             );
@@ -84,10 +92,10 @@ class MovePowerBlockTest
     @Test
     void testServer()
     {
-        final IServer server = Mockito.mock(IServer.class, Answers.CALLS_REAL_METHODS);
+        final IServer server = mock(IServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertDoesNotThrow(
             () -> factory.newMovePowerBlock(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(toolUserManager, Mockito.never()).startToolUser(Mockito.any(), Mockito.anyInt());
+        verify(toolUserManager, never()).startToolUser(Mockito.any(), anyInt());
     }
 
     @Test
@@ -95,6 +103,6 @@ class MovePowerBlockTest
     {
         Assertions.assertDoesNotThrow(
             () -> factory.newMovePowerBlock(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(toolUserManager).startToolUser(Mockito.any(), Mockito.anyInt());
+        verify(toolUserManager).startToolUser(Mockito.any(), anyInt());
     }
 }

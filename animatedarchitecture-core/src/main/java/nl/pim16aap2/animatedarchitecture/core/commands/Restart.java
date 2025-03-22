@@ -7,6 +7,7 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
@@ -16,20 +17,22 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command that is used to restart AnimatedArchitecture.
  */
-@ToString
+@ToString(callSuper = true)
 @Flogger
 public class Restart extends BaseCommand
 {
+    @ToString.Exclude
     private final IAnimatedArchitecturePlatformProvider platformProvider;
 
     @AssistedInject
     Restart(
         @Assisted ICommandSender commandSender,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         IAnimatedArchitecturePlatformProvider platformProvider)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.platformProvider = platformProvider;
     }
 

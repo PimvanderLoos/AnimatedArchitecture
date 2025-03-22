@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.drawbridge;
 
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationUtil;
-import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
@@ -20,8 +20,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
- * Represents a {@link Animator} for {@link Drawbridge}s.
+ * Represents an {@link IAnimationComponent} for {@link Drawbridge} structure types.
  */
+@ToString
 public class DrawbridgeAnimationComponent implements IAnimationComponent
 {
     private final Vector3Dd rotationCenter;

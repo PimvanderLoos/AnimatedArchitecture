@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Locked;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
@@ -24,6 +25,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
@@ -31,6 +33,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyScope;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
@@ -54,7 +57,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -64,11 +66,12 @@ import java.util.function.Supplier;
  * the structure system.
  * <p>
  * Changes made to this class will not automatically be updated in the database. To update the state in the database,
- * you can use either the {@link #syncData()} method or the {@link #syncDataAsync()} method.
+ * you can use the {@link #syncData()} method.
  */
 @EqualsAndHashCode
 @Flogger
 @ThreadSafe
+@ExtensionMethod(CompletableFutureExtensions.class)
 public final class Structure implements IStructureConst, IPropertyHolder
 {
     private static final double DEFAULT_ANIMATION_SPEED = 1.5D;
@@ -135,6 +138,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
     private final IRedstoneManager redstoneManager;
 
     @EqualsAndHashCode.Exclude
+    private final PowerBlockManager powerBlockManager;
+
+    @EqualsAndHashCode.Exclude
     private final StructureActivityManager structureActivityManager;
 
     @EqualsAndHashCode.Exclude
@@ -184,6 +190,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         StructureAnimationRequestBuilder structureToggleRequestBuilder,
         IPlayerFactory playerFactory,
         IRedstoneManager redstoneManager,
+        PowerBlockManager powerBlockManager,
         StructureActivityManager structureActivityManager,
         IChunkLoader chunkLoader,
         IConfig config)
@@ -201,6 +208,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         this.propertyContainer = propertyContainer;
         this.executor = executor;
         this.redstoneManager = redstoneManager;
+        this.powerBlockManager = powerBlockManager;
         this.structureActivityManager = structureActivityManager;
         this.chunkLoader = chunkLoader;
 
@@ -615,7 +623,13 @@ public final class Structure implements IStructureConst, IPropertyHolder
             .responsible(playerFactory.create(getPrimeOwner().playerData()))
             .build()
             .execute()
-            .exceptionally(FutureUtil::exceptionally);
+            .orTimeout(30, TimeUnit.SECONDS)
+            .handleExceptional(ex ->
+                log.atSevere().withCause(ex).log(
+                    "Toggle structure %s with redstone status %s",
+                    getBasicInfo(),
+                    status
+                ));
     }
 
     @Locked.Read("lock")
@@ -631,39 +645,57 @@ public final class Structure implements IStructureConst, IPropertyHolder
         return lazyStructureSnapshot.get();
     }
 
-    /**
-     * Synchronizes this structure and its serialized type-specific data of an {@link Structure} with the database.
-     * <p>
-     * Unlike {@link #syncData()}, this method will not block the current thread to wait for 1) a read lock to be
-     * obtained, 2) the snapshot to be created, and 3) the data to be serialized.
-     */
-    public CompletableFuture<DatabaseManager.ActionResult> syncDataAsync()
-    {
-        return CompletableFuture
-            .supplyAsync(this::syncData)
-            .thenCompose(Function.identity())
-            .exceptionally(ex -> FutureUtil.exceptionally(ex, DatabaseManager.ActionResult.FAIL));
-    }
 
-    /**
-     * Synchronizes this structure and its serialized type-specific data of an {@link Structure} with the database.
-     *
-     * @return The result of the synchronization.
-     */
     @Locked.Read("lock")
-    public CompletableFuture<DatabaseManager.ActionResult> syncData()
+    private CompletableFuture<DatabaseManager.ActionResult> syncData0(boolean handleException)
     {
         try
         {
-            return databaseManager
-                .syncStructureData(getSnapshot())
-                .exceptionally(ex -> FutureUtil.exceptionally(ex, DatabaseManager.ActionResult.FAIL));
+            final var ret = databaseManager
+                .syncStructureData(getSnapshot());
+
+            if (handleException)
+            {
+                return ret.exceptionally(ex ->
+                {
+                    log.atSevere().withCause(ex).log("Failed to sync data for structure: %s", getBasicInfo());
+                    return DatabaseManager.ActionResult.FAIL;
+                });
+            }
+
+            return ret.withExceptionContext(() -> String.format("Syncing data for structure: %s", getBasicInfo()));
         }
         catch (Exception e)
         {
             log.atSevere().withCause(e).log("Failed to sync data for structure: %s", getBasicInfo());
         }
         return CompletableFuture.completedFuture(DatabaseManager.ActionResult.FAIL);
+    }
+
+    /**
+     * Synchronizes this structure with the database.
+     *
+     * @param handleException
+     *     Whether to handle exceptions or not. When set to {@code true}, exceptions that occur during the
+     *     synchronization process will be caught and logged and the result will be
+     *     {@link DatabaseManager.ActionResult#FAIL}.
+     *     <p>
+     *     When set to {@code false}, exceptions will not be handled and will be propagated to the caller.
+     * @return The result of the synchronization.
+     */
+    public CompletableFuture<DatabaseManager.ActionResult> syncData(boolean handleException)
+    {
+        return syncData0(handleException);
+    }
+
+    /**
+     * Synchronizes this structure with the database.
+     *
+     * @return The result of the synchronization.
+     */
+    public CompletableFuture<DatabaseManager.ActionResult> syncData()
+    {
+        return syncData0(true);
     }
 
     /**
@@ -680,6 +712,16 @@ public final class Structure implements IStructureConst, IPropertyHolder
         if (lock.getReadHoldCount() > 0)
             throw new IllegalStateException(
                 "Caught potential deadlock! Trying to obtain write lock while under read lock!");
+    }
+
+    /**
+     * Checks if the current thread holds a write lock.
+     *
+     * @return {@code true} if the current thread holds a write lock.
+     */
+    public boolean hasWriteLock()
+    {
+        return lock.isWriteLockedByCurrentThread();
     }
 
     /**
@@ -760,6 +802,22 @@ public final class Structure implements IStructureConst, IPropertyHolder
         return withWriteLock0(true, supplier);
     }
 
+    /**
+     * Executes a supplier under a write lock.
+     *
+     * @param resetAnimationData
+     *     Whether to reset the cached animation data after the supplier has been executed.
+     *     <p>
+     *     This is useful when the supplier modifies the structure in a way that affects the animation data.
+     * @param supplier
+     *     The supplier to execute under the write lock.
+     * @param <T>
+     *     The return type of the supplier.
+     * @return The value returned by the supplier.
+     *
+     * @throws IllegalStateException
+     *     When the current thread may is not allowed to obtain a write lock.
+     */
     public <T> T withWriteLock(boolean resetAnimationData, Supplier<T> supplier)
     {
         assertWriteLockable();
@@ -899,15 +957,16 @@ public final class Structure implements IStructureConst, IPropertyHolder
     /**
      * Updates the position of the powerblock.
      *
-     * @param pos
+     * @param newPos
      *     The new position.
      */
-    public void setPowerBlock(Vector3Di pos)
+    public void setPowerBlock(Vector3Di newPos)
     {
         withWriteLock(false, () ->
         {
             invalidateSnapshot();
-            powerBlock = pos;
+            powerBlock = newPos;
+            powerBlockManager.invalidateChunkAt(world.worldName(), powerBlock);
             verifyRedstoneState();
         });
     }

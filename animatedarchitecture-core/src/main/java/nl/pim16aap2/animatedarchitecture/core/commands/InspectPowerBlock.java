@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -17,21 +18,25 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command to inspect a location to check if there are any powerblocks registered there.
  */
-@ToString
+@ToString(callSuper = true)
 public class InspectPowerBlock extends BaseCommand
 {
+    @ToString.Exclude
     private final ToolUserManager toolUserManager;
+
+    @ToString.Exclude
     private final PowerBlockInspector.IFactory inspectPowerBlockFactory;
 
     @AssistedInject
     InspectPowerBlock(
         @Assisted ICommandSender commandSender,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         ToolUserManager toolUserManager,
         PowerBlockInspector.IFactory inspectPowerBlockFactory)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.toolUserManager = toolUserManager;
         this.inspectPowerBlockFactory = inspectPowerBlockFactory;
     }
@@ -67,8 +72,8 @@ public class InspectPowerBlock extends BaseCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for inspecting the powerblocks.
          *     <p>
-         *     They can only discover {@link Structure}s attached to specific locations if they both have access
-         *     to the specific location and access to the specific structure(s).
+         *     They can only discover {@link Structure}s attached to specific locations if they both have access to the
+         *     specific location and access to the specific structure(s).
          * @return See {@link BaseCommand#run()}.
          */
         InspectPowerBlock newInspectPowerBlock(ICommandSender commandSender);

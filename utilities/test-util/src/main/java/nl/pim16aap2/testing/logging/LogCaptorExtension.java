@@ -48,6 +48,9 @@ public class LogCaptorExtension
     public void beforeAll(ExtensionContext context)
     {
         final LogCaptor logCaptor = LogCaptor.forRoot();
+        // Use INFO as the default log level to avoid
+        // capturing a bunch of debug logs that have nothing to do with us.
+        logCaptor.setLogLevelToInfo();
         context.getStore(NAMESPACE).put(LOG_CAPTOR, logCaptor);
     }
 
@@ -56,7 +59,8 @@ public class LogCaptorExtension
     {
         final LogCaptor logCaptor = context.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class);
         logCaptor.disableConsoleOutput();
-        logCaptor.setLogLevelToTrace();
+        logCaptor.setLogLevelToDebug();
+        logCaptor.clearLogs();
     }
 
     @Override

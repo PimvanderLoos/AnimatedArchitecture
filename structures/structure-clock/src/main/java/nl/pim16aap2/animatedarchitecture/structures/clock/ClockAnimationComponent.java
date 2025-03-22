@@ -1,7 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.clock;
 
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
-import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
+import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
@@ -20,8 +21,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * Represents a {@link Animator} for {@link Clock}s.
+ * Represents an {@link IAnimationComponent} for {@link Clock} structure types.
  */
+@ToString(callSuper = true)
 public final class ClockAnimationComponent extends DrawbridgeAnimationComponent
 {
     /**

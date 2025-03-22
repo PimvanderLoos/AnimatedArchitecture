@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -23,9 +24,11 @@ import org.mockito.quality.Strictness;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.animatedarchitecture.core.commands.CommandTestingUtil.initCommandSenderPermissions;
+import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +44,9 @@ class ConfirmTest
     @Mock
     private ToolUserManager toolUserManager;
 
+    @Mock
+    private IExecutor executor;
+
     private Confirm.IFactory factory;
 
     private UUID uuid;
@@ -51,15 +57,18 @@ class ConfirmTest
     {
         uuid = UUID.randomUUID();
 
+        when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
+
         initCommandSenderPermissions(commandSender, true, true);
-        Mockito.when(commandSender.getUUID()).thenReturn(uuid);
-        Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
-        Mockito.when(toolUser.handleInput(true)).thenReturn(CompletableFuture.completedFuture(null));
+        when(commandSender.getUUID()).thenReturn(uuid);
+        when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
+        when(toolUser.handleInput(true)).thenReturn(CompletableFuture.completedFuture(null));
 
         factory = new AssistedFactoryMocker<>(Confirm.class, Confirm.IFactory.class, Mockito.CALLS_REAL_METHODS)
             .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
-            .setMock(ToolUserManager.class, toolUserManager)
             .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory())
+            .setMock(ToolUserManager.class, toolUserManager)
+            .setMock(IExecutor.class, executor)
             .getFactory();
     }
 
@@ -83,7 +92,7 @@ class ConfirmTest
         Mockito.verify(toolUser).handleInput(true);
         Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any(Text.class));
 
-        Mockito.when(toolUserManager.getToolUser(Mockito.any(UUID.class))).thenReturn(Optional.empty());
+        when(toolUserManager.getToolUser(Mockito.any(UUID.class))).thenReturn(Optional.empty());
         Assertions.assertDoesNotThrow(() -> factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.times(2)).getToolUser(uuid);
         Mockito.verify(toolUser).handleInput(true);

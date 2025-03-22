@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
@@ -14,19 +15,21 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command that shows the {@link ICommandSender} the current version of the plugin that is running.
  */
-@ToString
+@ToString(callSuper = true)
 public class Version extends BaseCommand
 {
+    @ToString.Exclude
     private final IAnimatedArchitecturePlatformProvider platformProvider;
 
     @AssistedInject
     Version(
         @Assisted ICommandSender commandSender,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         IAnimatedArchitecturePlatformProvider platformProvider)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.platformProvider = platformProvider;
     }
 

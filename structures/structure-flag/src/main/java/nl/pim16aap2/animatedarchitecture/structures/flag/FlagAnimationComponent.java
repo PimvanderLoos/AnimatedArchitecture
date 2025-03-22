@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.flag;
 
+import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
-import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
@@ -18,10 +18,11 @@ import nl.pim16aap2.jcalculator.JCalculator;
 import java.util.function.BiFunction;
 
 /**
- * Represents a {@link Animator} for {@link Flag}s.
+ * Represents an {@link IAnimationComponent} for {@link Flag} structure types.
  */
 @SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "PMD"})
 @Flogger
+@ToString
 public final class FlagAnimationComponent implements IAnimationComponent
 {
     private final IConfig config;

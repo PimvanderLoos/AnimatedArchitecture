@@ -4,25 +4,29 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
 
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Represents an update checker that checks for new releases on GitHub.
  */
 @Flogger
 @Singleton
+@ExtensionMethod(CompletableFutureExtensions.class)
 public final class UpdateChecker implements IDebuggable
 {
     private static final @Nullable URL UPDATE_URL =
@@ -47,17 +51,20 @@ public final class UpdateChecker implements IDebuggable
     public UpdateChecker(Semver currentVersion)
     {
         this.currentVersion = currentVersion;
+
         checkForUpdates();
     }
 
     /**
      * Runs a new update check.
-     *
-     * @return The resulting update information.
      */
-    public CompletableFuture<@Nullable UpdateInformation> checkForUpdates()
+    public void checkForUpdates()
     {
-        return CompletableFuture.supplyAsync(this::checkForUpdates0).exceptionally(FutureUtil::exceptionally);
+        //noinspection DataFlowIssue
+        CompletableFuture
+            .supplyAsync(this::checkForUpdates0, Executors.newVirtualThreadPerTaskExecutor())
+            .orTimeout(10, TimeUnit.MINUTES)
+            .logExceptions();
     }
 
     /**
@@ -219,9 +226,9 @@ public final class UpdateChecker implements IDebuggable
     {
         try
         {
-            return new URL(path);
+            return new URI(path).toURL();
         }
-        catch (MalformedURLException e)
+        catch (Exception e)
         {
             log.atSevere().withCause(e).log("Failed to get URL from path '%s'", path);
             return null;

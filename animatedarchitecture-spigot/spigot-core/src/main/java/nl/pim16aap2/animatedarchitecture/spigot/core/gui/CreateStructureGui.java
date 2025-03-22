@@ -10,6 +10,8 @@ import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
@@ -17,7 +19,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
 import org.bukkit.Material;
@@ -28,7 +30,9 @@ import java.util.List;
 /**
  * Gui page for creating new structures.
  */
+@Flogger
 @ToString(onlyExplicitlyIncluded = true)
+@ExtensionMethod(CompletableFutureExtensions.class)
 class CreateStructureGui implements IGuiPage
 {
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
@@ -37,6 +41,7 @@ class CreateStructureGui implements IGuiPage
     private final StructureTypeManager structureTypeManager;
     private final InventoryGui inventoryGui;
     private final IPermissionsManager permissionsManager;
+    private final ITextFactory textFactory;
     private final ILocalizer localizer;
 
     private final CommandFactory commandFactory;
@@ -50,6 +55,7 @@ class CreateStructureGui implements IGuiPage
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         StructureTypeManager structureTypeManager,
         IPermissionsManager permissionsManager,
+        ITextFactory textFactory,
         ILocalizer localizer,
         CommandFactory commandFactory,
         @Assisted PlayerSpigot inventoryHolder)
@@ -57,6 +63,7 @@ class CreateStructureGui implements IGuiPage
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.structureTypeManager = structureTypeManager;
         this.permissionsManager = permissionsManager;
+        this.textFactory = textFactory;
         this.localizer = localizer;
         this.commandFactory = commandFactory;
         this.inventoryHolder = inventoryHolder;
@@ -118,7 +125,11 @@ class CreateStructureGui implements IGuiPage
                     commandFactory
                         .newNewStructure(inventoryHolder, type)
                         .run()
-                        .exceptionally(FutureUtil::exceptionally);
+                        .handleExceptional(ex ->
+                        {
+                            inventoryHolder.sendError(textFactory, localizer.getMessage("constants.error.generic"));
+                            log.atSevere().withCause(ex).log("Failed to delete structure.");
+                        });
                     GuiUtil.closeAllGuis(inventoryHolder);
                     return true;
                 },

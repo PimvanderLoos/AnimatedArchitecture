@@ -143,7 +143,17 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
             {
                 return new ArrayList<>(search.getStructureIdentifiers().get(1, TimeUnit.SECONDS));
             }
-            catch (InterruptedException | ExecutionException | TimeoutException e)
+            catch (InterruptedException e)
+            {
+                log.atSevere().withCause(e).log(
+                    "Thread was interrupted getting suggestions for structure argument with input '%s' for user: '%s'",
+                    input,
+                    commandContext.getSender()
+                );
+                Thread.currentThread().interrupt();
+                return Collections.emptyList();
+            }
+            catch (ExecutionException | TimeoutException e)
             {
                 log.atSevere().withCause(e).log(
                     "Failed to get suggestions for structure argument with input '%s' for user: '%s'",

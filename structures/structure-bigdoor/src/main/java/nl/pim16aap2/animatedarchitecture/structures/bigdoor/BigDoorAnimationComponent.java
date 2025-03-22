@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.structures.bigdoor;
 
+import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationUtil;
@@ -20,9 +21,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
- * Represents a {@link IAnimationComponent} for {@link BigDoor}s.
+ * Represents an {@link IAnimationComponent} for {@link BigDoor} structure types.
  */
 @Flogger
+@ToString
 public class BigDoorAnimationComponent implements IAnimationComponent
 {
     private final MovementDirection movementDirection;

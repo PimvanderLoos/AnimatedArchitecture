@@ -3,8 +3,10 @@ package nl.pim16aap2.animatedarchitecture.core.util.delayedinput;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -14,7 +16,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 
 import javax.inject.Inject;
@@ -30,15 +32,19 @@ import java.util.concurrent.CompletableFuture;
 @Flogger
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+@ExtensionMethod(CompletableFutureExtensions.class)
 public final class DelayedStructureSpecificationInputRequest extends DelayedInputRequest<String>
 {
     private final IPlayer player;
+
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private final ILocalizer localizer;
+
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private final ITextFactory textFactory;
+
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private final StructureSpecificationManager structureSpecificationManager;
@@ -48,11 +54,13 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
     private DelayedStructureSpecificationInputRequest(
         Duration timeout,
         List<Structure> options,
-        IPlayer player, ILocalizer localizer,
+        IPlayer player,
+        IExecutor executor,
+        ILocalizer localizer,
         ITextFactory textFactory,
         StructureSpecificationManager structureSpecificationManager)
     {
-        super(timeout);
+        super(timeout, executor);
         this.options = options;
         this.player = player;
         this.localizer = localizer;
@@ -90,7 +98,10 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
      */
     public CompletableFuture<Optional<Structure>> get()
     {
-        return super.getInputResult().thenApply(this::parseInput);
+        return super
+            .getInputResult()
+            .thenApply(this::parseInput)
+            .withExceptionContext(() -> String.format("Get specified structure from request %s", this));
     }
 
     @Override
@@ -127,6 +138,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
     @AllArgsConstructor(onConstructor = @__(@Inject))
     public static final class Factory
     {
+        private final IExecutor executor;
         private final IConfig config;
         private final ILocalizer localizer;
         private final ITextFactory textFactory;
@@ -164,10 +176,17 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
                 timeout,
                 options,
                 player,
+                executor,
                 localizer,
                 textFactory,
                 structureSpecificationManager
-            ).get().exceptionally(FutureUtil::exceptionallyOptional);
+            )
+                .get()
+                .withExceptionContext(() -> String.format(
+                    "Get structure specification from player %s for options %s",
+                    player.getName(),
+                    options
+                ));
         }
 
         /**

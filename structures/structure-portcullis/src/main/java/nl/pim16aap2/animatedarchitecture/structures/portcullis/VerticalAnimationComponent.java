@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationUtil;
-import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
@@ -10,8 +10,9 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 
 /**
- * Represents a {@link Animator} for {@link Portcullis}'s.
+ * Represents an {@link IAnimationComponent} for {@link Portcullis} structure types.
  */
+@ToString
 public final class VerticalAnimationComponent implements IAnimationComponent
 {
     private final int blocksToMove;

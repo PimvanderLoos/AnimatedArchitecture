@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.retriever;
 
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
@@ -24,16 +25,19 @@ import java.util.Collection;
 @Singleton
 final class StructureFinderCache implements IRestartable
 {
+    private final IExecutor executor;
     private final Provider<StructureRetrieverFactory> structureRetrieverFactoryProvider;
     private final DatabaseManager databaseManager;
     private volatile TimedCache<ICommandSender, StructureFinder> cache = TimedCache.emptyCache();
 
     @Inject
     StructureFinderCache(
+        IExecutor executor,
         Provider<StructureRetrieverFactory> structureRetrieverFactoryProvider,
         RestartableHolder restartableHolder,
         DatabaseManager databaseManager)
     {
+        this.executor = executor;
         this.structureRetrieverFactoryProvider = structureRetrieverFactoryProvider;
         this.databaseManager = databaseManager;
         restartableHolder.registerRestartable(this);
@@ -82,6 +86,7 @@ final class StructureFinderCache implements IRestartable
     {
         return new StructureFinder(
             structureRetrieverFactoryProvider.get(),
+            executor,
             databaseManager,
             commandSender,
             input,

@@ -348,7 +348,7 @@ public class AssistedFactoryMocker<T, U>
     /**
      * Creates mocked instances of the constructor parameter types that aren't provided by the creator method.
      * <p>
-     * See {@link Util#newMock(Class, MockSettings)}.
+     * See {@link TestUtil#newMock(Class, MockSettings)}.
      * <p>
      * The mocked instances are created using {@link #mockSettings}.
      *
@@ -361,7 +361,7 @@ public class AssistedFactoryMocker<T, U>
         {
             if (!parameter.isInjected())
                 continue;
-            parameter.setValue(Util.newMock(parameter.getType(), mockSettings));
+            parameter.setValue(TestUtil.newMock(parameter.getType(), mockSettings));
             ret.put(parameter.getNamedTypeHash(), parameter);
         }
         return ret;

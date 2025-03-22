@@ -1,8 +1,13 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
 
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
+import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
+import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -11,6 +16,9 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
@@ -18,16 +26,30 @@ import java.util.function.Supplier;
  */
 @Singleton
 @Flogger
-public final class ExecutorSpigot implements IExecutor
+@ExtensionMethod(CompletableFutureExtensions.class)
+public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggable
 {
     private final JavaPlugin plugin;
     private final long mainThreadId;
 
+    private volatile ExecutorService executor = newVirtualExecutorService();
+
     @Inject
-    public ExecutorSpigot(JavaPlugin plugin, @Named("mainThreadId") long mainThreadId)
+    public ExecutorSpigot(
+        JavaPlugin plugin,
+        @Named("mainThreadId") long mainThreadId,
+        RestartableHolder restartableHolder)
     {
         this.plugin = plugin;
         this.mainThreadId = mainThreadId;
+
+        restartableHolder.registerRestartable(this);
+    }
+
+    @Override
+    public ExecutorService getVirtualExecutor()
+    {
+        return executor;
     }
 
     @Override
@@ -35,7 +57,7 @@ public final class ExecutorSpigot implements IExecutor
     {
         final CompletableFuture<T> result = new CompletableFuture<>();
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> result.complete(supplier.get()));
-        return result.exceptionally(FutureUtil::exceptionally);
+        return result;
     }
 
     @Override
@@ -190,5 +212,50 @@ public final class ExecutorSpigot implements IExecutor
                 throw new RuntimeException(e);
             }
         };
+    }
+
+    @Override
+    public void initialize()
+    {
+        // It is already initialized and running before the first call to this method.
+        if (!executor.isShutdown())
+            return;
+        executor = newVirtualExecutorService();
+    }
+
+    @Override
+    public void shutDown()
+    {
+        final var executor0 = executor;
+        executor0.shutdown();
+        try
+        {
+            if (!executor0.awaitTermination(30, TimeUnit.SECONDS))
+                log.atSevere().log("Timed out waiting to terminate General ExecutorService!");
+        }
+        catch (InterruptedException exception)
+        {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(
+                "Thread got interrupted waiting for General ExecutorService to terminate!",
+                exception
+            );
+        }
+    }
+
+    /**
+     * Instantiates a new virtual executor service.
+     *
+     * @return the executor service
+     */
+    private static ExecutorService newVirtualExecutorService()
+    {
+        return Executors.newVirtualThreadPerTaskExecutor();
+    }
+
+    @Override
+    public String getDebugInformation()
+    {
+        return "General " + StringUtil.toString(executor);
     }
 }

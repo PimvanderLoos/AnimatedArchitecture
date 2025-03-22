@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import com.google.common.flogger.StackSize;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimatedBlockContainerFactory;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
@@ -33,6 +34,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -46,6 +48,7 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
@@ -53,6 +56,7 @@ import java.util.logging.Level;
  * Represents a utility singleton that is used to open {@link Structure}s.
  */
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 final class StructureToggleHelper
 {
     private final ILocalizer localizer;
@@ -619,15 +623,25 @@ final class StructureToggleHelper
                         final int yAxis0 = yAxis;
                         final int zAxis0 = zAxis;
 
-                        executor.runOnMainThread(() -> highlightedBlockSpawner
-                            .builder()
-                            .forPlayer(player)
-                            .withColor(Color.RED)
-                            .forDuration(Duration.ofSeconds(4))
-                            .atPosition(xAxis0 + 0.5, yAxis0, zAxis0 + 0.5)
-                            .inWorld(world)
-                            .spawn()
-                        );
+                        executor
+                            .runOnMainThread(() -> highlightedBlockSpawner
+                                .builder()
+                                .forPlayer(player)
+                                .withColor(Color.RED)
+                                .forDuration(Duration.ofSeconds(4))
+                                .atPosition(xAxis0 + 0.5, yAxis0, zAxis0 + 0.5)
+                                .inWorld(world)
+                                .spawn())
+                            .orTimeout(1, TimeUnit.SECONDS)
+                            .handleExceptional(ex ->
+                                log.atWarning().withCause(ex).atMostEvery(5, TimeUnit.SECONDS).log(
+                                    "Failed to spawn highlighted block for player %s at %d, %d, %d in world %s",
+                                    player,
+                                    xAxis0,
+                                    yAxis0,
+                                    zAxis0,
+                                    world
+                                ));
                         isEmpty = false;
                     }
                 }

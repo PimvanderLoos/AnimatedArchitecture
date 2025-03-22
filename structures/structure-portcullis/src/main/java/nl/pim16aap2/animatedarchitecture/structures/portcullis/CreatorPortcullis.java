@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
 
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -11,20 +12,20 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorInteger;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalInt;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Implementation of the {@link Creator} class for the {@link Portcullis} structure.
  */
 @ToString(callSuper = true)
 @Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 public class CreatorPortcullis extends Creator
 {
     private static final StructureType STRUCTURE_TYPE = StructureTypePortcullis.get();
@@ -59,7 +60,8 @@ public class CreatorPortcullis extends Creator
             .updatable(true)
             .stepExecutor(new StepExecutorInteger(this::provideBlocksToMove))
             .stepPreparation(this::prepareSetBlocksToMove)
-            .waitForUserInput(true).construct();
+            .waitForUserInput(true)
+            .construct();
 
         return Arrays.asList(
             factoryProvideName.construct(),
@@ -91,8 +93,8 @@ public class CreatorPortcullis extends Creator
     {
         commandFactory
             .getSetBlocksToMoveDelayed()
-            .runDelayed(getPlayer(), this, blocks -> CompletableFuture.completedFuture(handleInput(blocks)), null)
-            .exceptionally(FutureUtil::exceptionally);
+            .runDelayed(getPlayer(), this, this::handleInput, null)
+            .handleExceptional(ex -> handleExceptional(ex, "portcullis_prepare_blocks_to_move"));
     }
 
     protected synchronized boolean provideBlocksToMove(int blocksToMove)

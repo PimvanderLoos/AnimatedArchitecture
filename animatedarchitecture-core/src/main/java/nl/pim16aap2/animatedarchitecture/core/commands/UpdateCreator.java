@@ -3,11 +3,17 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
+import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -21,10 +27,15 @@ import java.util.concurrent.CompletableFuture;
  * <p>
  * See {@link Creator#update(String, Object)}.
  */
+@Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 public final class UpdateCreator extends BaseCommand
 {
     private final String stepName;
+
     private final @Nullable Object stepValue;
+
+    @ToString.Exclude
     private final ToolUserManager toolUserManager;
 
     @AssistedInject
@@ -32,11 +43,12 @@ public final class UpdateCreator extends BaseCommand
         @Assisted ICommandSender commandSender,
         @Assisted String stepName,
         @Assisted @Nullable Object stepValue,
+        IExecutor executor,
         ToolUserManager toolUserManager,
         ILocalizer localizer,
         ITextFactory textFactory)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.stepName = stepName;
         this.stepValue = stepValue;
         this.toolUserManager = toolUserManager;
@@ -60,11 +72,17 @@ public final class UpdateCreator extends BaseCommand
                 textFactory,
                 localizer.getMessage("commands.update_creator.error.no_creator_process")
             );
-            return CompletableFuture.completedFuture(null);
+            throw new CommandExecutionException(true, "Could not find a creator process for the player.");
         }
 
-        creator.update(stepName, stepValue);
-        return CompletableFuture.completedFuture(null);
+        return creator
+            .update(stepName, stepValue)
+            .withExceptionContext(() -> String.format(
+                "Updating creator process for player %s with step name %s and value %s",
+                getCommandSender(),
+                stepName,
+                stepValue)
+            );
     }
 
     @AssistedFactory

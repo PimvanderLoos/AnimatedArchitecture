@@ -1,10 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.managers;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -36,6 +37,7 @@ public final class HeadManager extends Restartable
      */
     private @Nullable TimedCache<UUID, Optional<ItemStack>> headMap;
 
+    private final IExecutor executor;
     private final ConfigSpigot config;
 
     /**
@@ -47,9 +49,10 @@ public final class HeadManager extends Restartable
      *     The AnimatedArchitecture configuration.
      */
     @Inject
-    public HeadManager(RestartableHolder holder, ConfigSpigot config)
+    public HeadManager(RestartableHolder holder, IExecutor executor, ConfigSpigot config)
     {
         super(holder);
+        this.executor = executor;
         this.config = config;
     }
 
@@ -63,7 +66,6 @@ public final class HeadManager extends Restartable
      *     The display name to give assign to the {@link ItemStack}.
      * @return The ItemStack of a head with the texture of the player's head if possible.
      */
-    @SuppressWarnings("unused")
     public CompletableFuture<Optional<ItemStack>> getPlayerHead(UUID playerUUID, String displayName)
     {
         final var headMap0 = headMap;
@@ -74,8 +76,19 @@ public final class HeadManager extends Restartable
         }
 
         return CompletableFuture
-            .supplyAsync(() -> headMap0.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName)))
-            .exceptionally(FutureUtil::exceptionallyOptional);
+            .supplyAsync(
+                () -> Objects.requireNonNull(
+                    headMap0.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName))),
+                executor.getVirtualExecutor())
+            .exceptionally(ex ->
+            {
+                log.atSevere().withCause(ex).log(
+                    "Failed to get player head for player with UUID: %s and display name: %s",
+                    playerUUID,
+                    displayName
+                );
+                return Optional.empty();
+            });
     }
 
     private Optional<ItemStack> createItemStack(UUID playerUUID, String displayName)

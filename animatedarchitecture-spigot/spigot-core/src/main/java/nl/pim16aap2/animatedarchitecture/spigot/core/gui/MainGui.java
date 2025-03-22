@@ -11,13 +11,16 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.ExtensionMethod;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
@@ -30,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +43,8 @@ import java.util.stream.Collectors;
  */
 @ToString(onlyExplicitlyIncluded = true)
 @NotThreadSafe
+@Flogger
+@ExtensionMethod(CompletableFutureExtensions.class)
 class MainGui implements IGuiPage.IGuiStructureDeletionListener
 {
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
@@ -148,7 +154,15 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                     final InfoGui infoGui = infoGuiFactory.newInfoGUI(structure.structure(), inventoryHolder);
                     infoGui.getInventoryGui().setCloseAction(close ->
                     {
-                        infoGui.getStructure().syncDataAsync();
+                        infoGui
+                            .getStructure()
+                            .syncData()
+                            .orTimeout(10, TimeUnit.SECONDS)
+                            .handleExceptional(e ->
+                            {
+                                inventoryHolder.sendError(textFactory, localizer.getMessage("constants.error.generic"));
+                                log.atSevere().withCause(e).log("Failed to sync structure data.");
+                            });
                         this.selectedStructure = null;
                         return true;
                     });

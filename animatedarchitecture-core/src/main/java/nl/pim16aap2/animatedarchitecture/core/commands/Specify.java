@@ -4,12 +4,13 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,21 +23,24 @@ import java.util.concurrent.CompletableFuture;
  * The specify command takes a String as input, which is then used to specify the structure. See
  * {@link StructureSpecificationManager#handleInput(IPlayer, String)}.
  */
-@ToString
+@ToString(callSuper = true)
 public class Specify extends BaseCommand
 {
     private final String input;
+
+    @ToString.Exclude
     private final StructureSpecificationManager structureSpecificationManager;
 
     @AssistedInject
     Specify(
         @Assisted ICommandSender commandSender,
         @Assisted String input,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         StructureSpecificationManager structureSpecificationManager)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.input = input;
         this.structureSpecificationManager = structureSpecificationManager;
     }
@@ -54,12 +58,11 @@ public class Specify extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
+    protected CompletableFuture<?> executeCommand(@Nullable PermissionsStatus permissions)
     {
         if (!structureSpecificationManager.handleInput((IPlayer) getCommandSender(), input))
-            getCommandSender().sendMessage(
+            getCommandSender().sendError(
                 textFactory,
-                TextType.ERROR,
                 localizer.getMessage("commands.base.error.no_pending_process")
             );
         return CompletableFuture.completedFuture(null);

@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -20,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command that changes the opening status of structures.
  */
-@ToString
+@ToString(callSuper = true)
 public class SetOpenStatus extends StructureTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_OPEN_STATUS;
@@ -35,12 +36,14 @@ public class SetOpenStatus extends StructureTargetCommand
         @Assisted StructureRetriever structureRetriever,
         @Assisted("isOpen") boolean isOpen,
         @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         CommandFactory commandFactory)
     {
         super(
             commandSender,
+            executor,
             localizer,
             textFactory,
             structureRetriever,
@@ -58,9 +61,9 @@ public class SetOpenStatus extends StructureTargetCommand
     }
 
     @Override
-    protected void handleDatabaseActionSuccess()
+    protected void handleDatabaseActionSuccess(@org.jetbrains.annotations.Nullable Structure retrieverResult)
     {
-        final var desc = getRetrievedStructureDescription();
+        final var desc = getRetrievedStructureDescription(retrieverResult);
         getCommandSender().sendMessage(textFactory.newText().append(
             localizer.getMessage("commands.set_open_status.success"),
             TextType.SUCCESS,
@@ -89,8 +92,8 @@ public class SetOpenStatus extends StructureTargetCommand
             // The open status has changed, so we need to update the database and inform the user.
             return structure
                 .syncData()
-                .thenAccept(this::handleDatabaseActionResult)
-                .thenRunAsync(() -> sendUpdatedInfo(structure));
+                .thenAccept(result -> handleDatabaseActionResult(result, structure))
+                .thenRunAsync(() -> sendUpdatedInfo(structure), executor.getVirtualExecutor());
         }
 
         // The open status has not changed, so we inform the user.

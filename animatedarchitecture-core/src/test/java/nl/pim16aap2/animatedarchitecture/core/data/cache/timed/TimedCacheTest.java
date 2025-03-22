@@ -34,6 +34,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 class TimedCacheTest
@@ -310,11 +311,13 @@ class TimedCacheTest
         Assertions.assertEquals("newVal", timedCache.computeIfAbsent("key", (k) -> "newVal"));
         optionalEquals(timedCache.get("key"), "newVal");
 
-        // No null allowed!
-        //noinspection ConstantConditions
-        Assertions.assertThrows(NullPointerException.class, () -> timedCache.computeIfAbsent("key_npe", (k) -> null));
-        //noinspection ConstantConditions
         Assertions.assertThrows(NullPointerException.class, () -> timedCache.computeIfAbsent(null, (k) -> "value"));
+
+        //noinspection DataFlowIssue
+        Assertions.assertThrows(
+            NullPointerException.class,
+            () -> timedCache.computeIfAbsent(UUID.randomUUID().toString(), null)
+        );
     }
 
     @Test

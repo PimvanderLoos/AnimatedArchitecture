@@ -1,7 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.revolvingdoor;
 
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
-import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
+import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -12,8 +13,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
- * Represents a {@link Animator} for {@link RevolvingDoor}s.
+ * Represents an {@link IAnimationComponent} for {@link RevolvingDoor} structure types.
  */
+@ToString(callSuper = true)
 public class RevolvingDoorAnimationComponent extends BigDoorAnimationComponent
 {
     public RevolvingDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection)

@@ -3,26 +3,23 @@ package nl.pim16aap2.animatedarchitecture.core.util;
 import com.google.common.flogger.LazyArg;
 import com.google.common.flogger.LazyArgs;
 import com.google.common.flogger.StackSize;
+import lombok.experimental.ExtensionMethod;
 import lombok.experimental.UtilityClass;
 import lombok.extern.flogger.Flogger;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 /**
  * Utility class for futures.
  */
 @Flogger
 @UtilityClass
+@ExtensionMethod(CompletableFutureExtensions.class)
 public final class FutureUtil
 {
     /**
@@ -115,16 +112,17 @@ public final class FutureUtil
     @SafeVarargs
     public static <T> CompletableFuture<List<T>> getAllCompletableFutureResults(CompletableFuture<T>... futures)
     {
-        final CompletableFuture<Void> result = CompletableFuture.allOf(futures);
-        return result.thenApply(ignored ->
-        {
-            final List<T> ret = new ArrayList<>(futures.length);
-            for (final CompletableFuture<T> future : futures)
+        return CompletableFuture
+            .allOf(futures)
+            .thenApply(ignored ->
             {
-                ret.add(future.join());
-            }
-            return ret;
-        }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
+                final List<T> ret = new ArrayList<>(futures.length);
+                for (final CompletableFuture<T> future : futures)
+                {
+                    ret.add(future.join());
+                }
+                return ret;
+            });
     }
 
     /**
@@ -162,90 +160,6 @@ public final class FutureUtil
             for (final CompletableFuture<? extends Collection<T>> future : futures)
                 ret.addAll(future.join());
             return ret;
-        }).exceptionally(throwable -> exceptionally(throwable, Collections.emptyList()));
-    }
-
-    /**
-     * Logs a throwable and returns a fallback value.
-     * <p>
-     * Mostly useful for {@link CompletableFuture#exceptionally(Function)}.
-     *
-     * @param throwable
-     *     The throwable to send to the logger.
-     * @param fallback
-     *     The fallback value to return.
-     * @param <T>
-     *     The type of the fallback value.
-     * @return The fallback value.
-     */
-    @Contract("_, !null -> !null")
-    public @Nullable <T> T exceptionally(Throwable throwable, @Nullable T fallback)
-    {
-        log.atSevere().withCause(throwable).log("Exception occurred in CompletableFuture");
-        return fallback;
-    }
-
-    /**
-     * See {@link #exceptionally(Throwable, Object)} with a null fallback value.
-     *
-     * @return Always null
-     */
-    public @Nullable <T> T exceptionally(Throwable throwable)
-    {
-        return exceptionally(throwable, null);
-    }
-
-    /**
-     * See {@link #exceptionally(Throwable, Object)} with a fallback value of {@link Optional#empty()}.
-     *
-     * @return Always {@link Optional#empty()}.
-     */
-    public <T> Optional<T> exceptionallyOptional(Throwable throwable)
-    {
-        return exceptionally(throwable, Optional.empty());
-    }
-
-    /**
-     * See {@link #exceptionally(Throwable, Object)} with a fallback value of {@link Collections#emptyList()}.
-     *
-     * @return Always {@link Collections#emptyList()}.
-     */
-    public <T> List<T> exceptionallyList(Throwable throwable)
-    {
-        return exceptionally(throwable, Collections.emptyList());
-    }
-
-    /**
-     * Handles exceptional completion of a {@link CompletableFuture}. This ensures that the target is finished
-     * exceptionally as well, to propagate the exception.
-     *
-     * @param throwable
-     *     The {@link Throwable} to log.
-     * @param fallback
-     *     The fallback value to return.
-     * @param target
-     *     The {@link CompletableFuture} to complete.
-     * @return The fallback value.
-     */
-    public <T, U> T exceptionallyCompletion(Throwable throwable, T fallback, CompletableFuture<U> target)
-    {
-        target.completeExceptionally(throwable);
-        return fallback;
-    }
-
-    /**
-     * Handles exceptional completion of a {@link CompletableFuture}. This ensures that the target is finished
-     * exceptionally as well, to propagate the exception.
-     *
-     * @param throwable
-     *     The {@link Throwable} to log.
-     * @param target
-     *     The {@link CompletableFuture} to complete.
-     * @return Always null;
-     */
-    public <T> Void exceptionallyCompletion(Throwable throwable, CompletableFuture<T> target)
-    {
-        target.completeExceptionally(throwable);
-        return null;
+        });
     }
 }

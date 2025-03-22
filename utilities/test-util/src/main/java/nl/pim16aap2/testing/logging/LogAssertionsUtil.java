@@ -6,6 +6,7 @@ import lombok.Generated;
 import lombok.ToString;
 import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
+import nl.pim16aap2.testing.TestUtil;
 import nl.pim16aap2.util.logging.floggerbackend.CustomLevel;
 import nl.pim16aap2.util.logging.floggerbackend.Log4j2LogEventUtil;
 import org.jetbrains.annotations.Contract;
@@ -13,8 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.opentest4j.AssertionFailedError;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -336,24 +335,6 @@ public final class LogAssertionsUtil
     public static void assertLogged(LogCaptor logCaptor, String message, MessageComparisonMethod comparisonMethod)
     {
         assertLogged(logCaptor, -1, message, comparisonMethod);
-    }
-
-    /**
-     * Converts a throwable to a string.
-     *
-     * @param throwable
-     *     The throwable to convert.
-     * @return The string representation of the throwable.
-     */
-    private static String throwableToString(@Nullable Throwable throwable)
-    {
-        if (throwable == null)
-            return "null";
-
-        final var stringWriter = new StringWriter();
-        final var printWriter = new PrintWriter(stringWriter);
-        throwable.printStackTrace(printWriter);
-        return stringWriter.toString();
     }
 
     /**
@@ -700,7 +681,7 @@ public final class LogAssertionsUtil
                     throwable == null ? "null" : throwable.getClass(),
                     throwable == null ? "null" : throwable.getMessage(),
                     Arrays.toString(throwableSpecs),
-                    throwableToString(base))
+                    TestUtil.throwableToString(base))
                 );
             }
             throwable = throwable.getCause();

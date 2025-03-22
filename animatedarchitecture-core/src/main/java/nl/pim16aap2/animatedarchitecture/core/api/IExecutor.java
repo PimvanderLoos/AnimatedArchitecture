@@ -1,9 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
-
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -12,6 +11,18 @@ import java.util.function.Supplier;
  */
 public interface IExecutor
 {
+    /**
+     * A virtual executor that creates a new virtual thread for each task.
+     * <p>
+     * This should be used for all tasks that spend a lot of time waiting (e.g. I/O operations).
+     * <p>
+     * This executor will be shut down and replaced when the plugin restarts. This means that all tasks that are still
+     * running when the plugin restarts will be cancelled. If this is not desired, a custom executor should be created.
+     *
+     * @return The virtual executor.
+     */
+    ExecutorService getVirtualExecutor();
+
     /**
      * Schedules a task to be run on the main thread.
      *
@@ -34,7 +45,7 @@ public interface IExecutor
         if (isMainThread())
             return CompletableFuture.completedFuture(supplier.get());
         else
-            return scheduleOnMainThread(supplier).exceptionally(FutureUtil::exceptionally);
+            return scheduleOnMainThread(supplier);
     }
 
     /**
@@ -49,6 +60,7 @@ public interface IExecutor
      *     The type of the result.
      * @return The result of the action.
      */
+    @SuppressWarnings("FutureReturnValueIgnored") // We don't ignore the future, we flatten it immediately.
     default <T> CompletableFuture<T> composeOnMainThread(Supplier<CompletableFuture<T>> supplier)
     {
         if (isMainThread())

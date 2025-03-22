@@ -1,12 +1,16 @@
 package nl.pim16aap2.animatedarchitecture.core;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
+import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -20,6 +24,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -29,6 +34,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
+import nl.pim16aap2.testing.TestUtil;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -53,6 +59,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 public class UnitTestUtil
 {
     @SuppressWarnings("unused")
@@ -65,14 +74,15 @@ public class UnitTestUtil
     public static StructureID newStructureID(long id)
     {
         final StructureID structureID = Mockito.mock();
-        Mockito.when(structureID.getId()).thenReturn(id);
+        when(structureID.getId()).thenReturn(id);
         return structureID;
     }
 
     public static ILocalizer initLocalizer()
     {
-        final ILocalizer localizer = Mockito.mock(ILocalizer.class, Mockito.CALLS_REAL_METHODS);
-        Mockito.when(localizer.getMessage(Mockito.anyString(), ArgumentMatchers.any(Object[].class)))
+        final ILocalizer localizer = mock(ILocalizer.class, Mockito.CALLS_REAL_METHODS);
+        when(localizer
+            .getMessage(anyString(), ArgumentMatchers.any(Object[].class)))
             .thenAnswer(invocation ->
             {
                 String ret = invocation.getArgument(0, String.class);
@@ -84,10 +94,23 @@ public class UnitTestUtil
         return localizer;
     }
 
+    /**
+     * Sets the localization key of a structure type to "StructureType".
+     *
+     * @param structure
+     *     The structure to set the localization key in.
+     */
+    public static void setStructureLocalization(Structure structure)
+    {
+        final StructureType type = mock();
+        when(type.getLocalizationKey()).thenReturn("StructureType");
+        when(structure.getType()).thenReturn(type);
+    }
+
     public static IWorld getWorld()
     {
-        final IWorld world = Mockito.mock(IWorld.class);
-        Mockito.when(world.worldName()).thenReturn(UUID.randomUUID().toString());
+        final IWorld world = Mockito.mock();
+        when(world.worldName()).thenReturn(UUID.randomUUID().toString());
         return world;
     }
 
@@ -121,22 +144,21 @@ public class UnitTestUtil
 
     public static ILocation getLocation(double x, double y, double z, IWorld world)
     {
-        final ILocation loc = Mockito.mock(ILocation.class);
+        final ILocation loc = mock();
 
-        Mockito.when(loc.getWorld()).thenReturn(world);
+        when(loc.getWorld()).thenReturn(world);
 
-        Mockito.when(loc.getX()).thenReturn(x);
-        Mockito.when(loc.getY()).thenReturn(y);
-        Mockito.when(loc.getZ()).thenReturn(z);
+        when(loc.getX()).thenReturn(x);
+        when(loc.getY()).thenReturn(y);
+        when(loc.getZ()).thenReturn(z);
 
-        Mockito.when(loc.getBlockX()).thenReturn(MathUtil.floor(x));
-        Mockito.when(loc.getBlockY()).thenReturn(MathUtil.floor(y));
-        Mockito.when(loc.getBlockZ()).thenReturn(MathUtil.floor(z));
+        when(loc.getBlockX()).thenReturn(MathUtil.floor(x));
+        when(loc.getBlockY()).thenReturn(MathUtil.floor(y));
+        when(loc.getBlockZ()).thenReturn(MathUtil.floor(z));
 
-        Mockito.when(loc.getPosition())
-            .thenReturn(new Vector3Di(MathUtil.floor(x), MathUtil.floor(y), MathUtil.floor(z)));
+        when(loc.getPosition()).thenReturn(new Vector3Di(MathUtil.floor(x), MathUtil.floor(y), MathUtil.floor(z)));
 
-        Mockito.when(loc.getChunk()).thenReturn(new Vector2Di(MathUtil.floor(x) << 4, MathUtil.floor(z) << 4));
+        when(loc.getChunk()).thenReturn(new Vector2Di(MathUtil.floor(x) << 4, MathUtil.floor(z) << 4));
 
         return loc;
     }
@@ -150,9 +172,9 @@ public class UnitTestUtil
      */
     public static StructureOwner createStructureOwner(long structureUid)
     {
-        final PlayerData playerData = Mockito.mock(PlayerData.class);
-        Mockito.when(playerData.getUUID()).thenReturn(UUID.randomUUID());
-        Mockito.when(playerData.getName()).thenReturn(StringUtil.randomString(6));
+        final PlayerData playerData = mock();
+        when(playerData.getUUID()).thenReturn(UUID.randomUUID());
+        when(playerData.getName()).thenReturn(StringUtil.randomString(6));
         return new StructureOwner(structureUid, PermissionLevel.CREATOR, playerData);
     }
 
@@ -269,10 +291,10 @@ public class UnitTestUtil
      */
     public static StructureSnapshot createStructureSnapshotForStructure(Structure structure)
     {
-        if (!Mockito.mockingDetails(structure).isMock())
+        if (!mockingDetails(structure).isMock())
             return structure.getSnapshot();
 
-        final var ret = Mockito.mock(StructureSnapshot.class, Mockito.CALLS_REAL_METHODS);
+        final var ret = mock(StructureSnapshot.class, Mockito.CALLS_REAL_METHODS);
         final var random = ThreadLocalRandom.current();
 
         final long uid = safeSupplierSimple(random.nextLong(), structure::getUid);
@@ -285,47 +307,53 @@ public class UnitTestUtil
         final StructureOwner primeOwner = safeSupplier(
             () ->
             {
-                final var playerData = Mockito.mock(PlayerData.class);
-                Mockito.when(playerData.getUUID()).thenReturn(UUID.randomUUID());
-                Mockito.when(playerData.getName()).thenReturn(StringUtil.randomString(6));
+                final var playerData = mock(PlayerData.class);
+                when(playerData.getUUID()).thenReturn(UUID.randomUUID());
+                when(playerData.getName()).thenReturn(StringUtil.randomString(6));
                 return new StructureOwner(uid, PermissionLevel.CREATOR, playerData);
             },
             structure::getPrimeOwner
         );
 
-        Mockito.when(ret.getUid()).thenReturn(uid);
+        when(ret.getUid()).thenReturn(uid);
 
-        Mockito.when(ret.getWorld()).thenReturn(safeSupplier(UnitTestUtil::getWorld, structure::getWorld));
+        when(ret.getWorld()).thenReturn(safeSupplier(UnitTestUtil::getWorld, structure::getWorld));
 
-        Mockito.when(ret.getCuboid()).thenReturn(safeSupplier(() -> new Cuboid(min, max), structure::getCuboid));
+        when(ret.getCuboid()).thenReturn(safeSupplier(() -> new Cuboid(min, max), structure::getCuboid));
 
-        Mockito.doReturn(safeSupplier(() -> ret.getCuboid().asFlatRectangle(), structure::getAnimationRange))
+        doReturn(safeSupplier(() -> ret.getCuboid().asFlatRectangle(), structure::getAnimationRange))
             .when(ret).getAnimationRange();
 
-        Mockito.when(ret.getPowerBlock()).thenReturn(safeSupplier(
-            () -> new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()),
-            structure::getPowerBlock)
-        );
+        when(ret
+            .getPowerBlock())
+            .thenReturn(safeSupplier(
+                () -> new Vector3Di(random.nextInt(), random.nextInt(), random.nextInt()),
+                structure::getPowerBlock)
+            );
 
-        Mockito.when(ret.getName()).thenReturn(safeSupplierSimple("TestStructureSnapshot", structure::getName));
+        when(ret.getName()).thenReturn(safeSupplierSimple("TestStructureSnapshot", structure::getName));
 
-        Mockito.when(ret.getType())
+        when(ret.getType())
             .thenReturn(safeSupplier(() -> Mockito.mock(StructureType.class), structure::getType));
 
-        Mockito.when(ret.getPropertyContainerSnapshot()).thenReturn(safeSupplier(
-            () -> PropertyContainer.forType(Objects.requireNonNull(structure.getType())),
-            structure::getPropertyContainerSnapshot));
+        when(ret
+            .getPropertyContainerSnapshot())
+            .thenReturn(safeSupplier(
+                () -> PropertyContainer.forType(Objects.requireNonNull(structure.getType())),
+                structure::getPropertyContainerSnapshot)
+            );
 
         Mockito
             .when(ret.getOpenDirection())
             .thenReturn(safeSupplierSimple(MovementDirection.NONE, structure::getOpenDirection));
 
-        Mockito.when(ret.isLocked()).thenReturn(safeSupplierSimple(false, structure::isLocked));
+        when(ret.isLocked()).thenReturn(safeSupplierSimple(false, structure::isLocked));
 
-        Mockito.when(ret.getPrimeOwner()).thenReturn(primeOwner);
+        when(ret.getPrimeOwner()).thenReturn(primeOwner);
 
         // We only need to mock the 'getOwnersMap' method, as all other owner-related methods call it.
-        Mockito.when(ret.getOwnersMap())
+        when(ret
+            .getOwnersMap())
             .thenReturn(safeSupplier(
                 () -> Map.of(primeOwner.playerData().getUUID(), primeOwner),
                 () -> structure
@@ -347,11 +375,11 @@ public class UnitTestUtil
     public static IPlayerFactory createPlayerFactory()
     {
         final IPlayerFactory playerFactory = Mockito.mock(IPlayerFactory.class);
-        Mockito.
-            when(playerFactory.create(Mockito.any(UUID.class)))
+        when(playerFactory.
+            create(any(UUID.class)))
             .thenAnswer(invocation -> createPlayer(invocation.getArgument(0, UUID.class)));
-        Mockito
-            .when(playerFactory.create(Mockito.any(PlayerData.class)))
+        when(playerFactory
+            .create(any(PlayerData.class)))
             .thenAnswer(invocation -> createPlayer(invocation.getArgument(0, PlayerData.class)));
         return playerFactory;
     }
@@ -425,21 +453,17 @@ public class UnitTestUtil
                     Integer.MAX_VALUE
                 ));
 
-        final IPlayer player = Mockito.mock();
-        Mockito.when(player.getUUID()).thenReturn(uuid1);
-        Mockito.when(player.getName()).thenReturn(name1);
-        Mockito
-            .when(player.getLimit(Mockito.any()))
-            .thenAnswer(invocation -> limits1.getLimit(invocation.getArgument(0)));
-        Mockito.when(player.isOp()).thenReturn(isOp);
-        Mockito.when(player.hasProtectionBypassPermission()).thenReturn(hasProtectionBypassPermission);
-        Mockito
-            .when(player.hasPermission(Mockito.any(String.class)))
-            .thenReturn(CompletableFuture.completedFuture(true));
-        Mockito
-            .when(player.hasPermission(Mockito.any(CommandDefinition.class)))
+        final IPlayer player = mock();
+        when(player.getUUID()).thenReturn(uuid1);
+        when(player.getName()).thenReturn(name1);
+        when(player.getLimit(any())).thenAnswer(invocation -> limits1.getLimit(invocation.getArgument(0)));
+        when(player.isOp()).thenReturn(isOp);
+        when(player.hasProtectionBypassPermission()).thenReturn(hasProtectionBypassPermission);
+        when(player.hasPermission(anyString())).thenReturn(CompletableFuture.completedFuture(true));
+        when(player
+            .hasPermission(any(CommandDefinition.class)))
             .thenReturn(CompletableFuture.completedFuture(new PermissionsStatus(true, true)));
-        Mockito.when(player.getLocation()).thenReturn(Optional.ofNullable(location));
+        when(player.getLocation()).thenReturn(Optional.ofNullable(location));
         return player;
     }
 
@@ -513,11 +537,11 @@ public class UnitTestUtil
     {
         if (obj == null)
         {
-            Assertions.assertTrue(opt.isEmpty());
+            assertTrue(opt.isEmpty());
             return null;
         }
-        Assertions.assertTrue(opt.isPresent());
-        Assertions.assertEquals(obj, opt.get());
+        assertTrue(opt.isPresent());
+        assertEquals(obj, opt.get());
         return opt.get();
     }
 
@@ -541,12 +565,12 @@ public class UnitTestUtil
     {
         if (obj == null)
         {
-            Assertions.assertTrue(opt.isEmpty());
+            assertTrue(opt.isEmpty());
             return null;
         }
-        Assertions.assertTrue(opt.isPresent());
+        assertTrue(opt.isPresent());
 
-        Assertions.assertEquals(obj, mapper.apply(opt.get()));
+        assertEquals(obj, mapper.apply(opt.get()));
         return opt.get();
     }
 
@@ -588,7 +612,61 @@ public class UnitTestUtil
         if (deepSearch)
             while (rte.getCause().getClass() == RuntimeException.class)
                 rte = (RuntimeException) rte.getCause();
-        Assertions.assertEquals(expectedType, rte.getCause().getClass(), expectedType.toString());
+        assertEquals(expectedType, rte.getCause().getClass(), expectedType.toString());
+    }
+
+    /**
+     * Asserts that an executable throws an exception whose root cause is of a specific type.
+     * <p>
+     * This method simply calls {@link Assertions#assertThrows(Class, Executable)} and then digs through the exception
+     * until it finds the root cause. It then asserts that the root cause is an instance of the expected type.
+     *
+     * @param expectedType
+     *     The expected type of the root cause.
+     * @param executable
+     *     The executable to execute.
+     * @param <T>
+     *     The type of the expected root cause.
+     * @return The root cause of the exception if it matches the expected type.
+     */
+    public static <T extends Throwable> T assertRootCause(Class<T> expectedType, Executable executable)
+    {
+        Throwable cause = Assertions.assertThrows(Throwable.class, executable);
+        while (cause.getCause() != null)
+            cause = cause.getCause();
+        if (!expectedType.isAssignableFrom(cause.getClass()))
+            fail(getThrowableMisMatchMessage(expectedType, cause));
+
+        return expectedType.cast(cause);
+    }
+
+    /**
+     * Returns a message that indicates a mismatch between the expected and actual types of a throwable. This message
+     * will contain the expected type and the actual value as well as the stack trace of the actual value.
+     *
+     * @param expectedType
+     *     The type that the actual value should be.
+     * @param actualValue
+     *     The actual value.
+     * @param <T>
+     *     The type of the expected value.
+     * @return The failure message.
+     */
+    private static <T extends Throwable> String getThrowableMisMatchMessage(
+        Class<T> expectedType,
+        Throwable actualValue)
+    {
+        return String.format("""
+                Unexpected type of exception thrown:
+                Expected:    %s
+                Actual:      %s
+                Stack trace:
+                %s
+                """,
+            expectedType.getName(),
+            actualValue.getClass().getName(),
+            TestUtil.throwableToString(actualValue)
+        );
     }
 
     /**
@@ -663,7 +741,63 @@ public class UnitTestUtil
      */
     public static Text textArgumentMatcher(String string)
     {
-        return Mockito.argThat(new TextArgumentMatcher(string));
+        return argThat(new TextArgumentMatcher(string));
+    }
+
+    /**
+     * Creates a new argument matcher that matches a String argument against an input string.
+     *
+     * @param input
+     *     The input string.
+     * @param matchType
+     *     The type of match to perform.
+     * @return null.
+     */
+    public static String stringMatcher(String input, MatchType matchType)
+    {
+        return argThat(new StringArgumentMatcher(input, matchType));
+    }
+
+    /**
+     * Verifies that no messages were sent to a messageable.
+     * <p>
+     * This method uses Mockito's {@link Mockito#verify(Object)} and {@link Mockito#never()} to verify that no messages
+     * were sent to the messageable.
+     * <p>
+     * It checks for the following methods:
+     * <ul>
+     *     <li>{@link IMessageable#sendMessage(Text)}</li>
+     *     <li>{@link IMessageable#sendMessage(ITextFactory, TextType, String)}</li>
+     *     <li>{@link IMessageable#sendError(ITextFactory, String)}</li>
+     *     <li>{@link IMessageable#sendSuccess(ITextFactory, String)}</li>
+     *     <li>{@link IMessageable#sendInfo(ITextFactory, String)} </li>
+     * </ul>
+     *
+     * @param messageable
+     *     The messageable to verify.
+     */
+    public static void verifyNoMessagesSent(IMessageable messageable)
+    {
+        verify(messageable, never()).sendMessage(any(Text.class));
+        verify(messageable, never()).sendMessage(any(ITextFactory.class), any(TextType.class), anyString());
+        verify(messageable, never()).sendError(any(ITextFactory.class), anyString());
+        verify(messageable, never()).sendSuccess(any(ITextFactory.class), anyString());
+        verify(messageable, never()).sendInfo(any(ITextFactory.class), anyString());
+    }
+
+    /**
+     * Asserts that two strings are equal using a specific {@link MatchType}.
+     *
+     * @param expected
+     *     The expected string.
+     * @param actual
+     *     The actual string.
+     * @param matchType
+     *     The type of match to perform.
+     */
+    public static void assertStringEquals(String expected, String actual, MatchType matchType)
+    {
+        matchType.assertMatches(expected, actual);
     }
 
     /**
@@ -679,7 +813,155 @@ public class UnitTestUtil
         AssistedFactoryMocker<?, ?> assistedFactoryMocker)
     {}
 
+    /**
+     * The different ways to match a string against another string.
+     */
+    public enum MatchType
+    {
+        /**
+         * The strings must be exactly the same.
+         */
+        EXACT
+            {
+                @Override
+                boolean matches(String base, String argument)
+                {
+                    return base.equals(argument);
+                }
+
+                @Override
+                void assertMatches(String expected, String actual)
+                {
+                    if (!matches(actual, expected))
+                        fail(String.format("""
+                                Expected String did not match actual String:
+                                Expected string: "%s"
+                                Actual string:   "%s"
+                                """,
+                            expected,
+                            actual)
+                        );
+                }
+            },
+
+        /**
+         * The base string must contain the argument string.
+         */
+        CONTAINS
+            {
+                @Override
+                boolean matches(String base, String argument)
+                {
+                    return base.contains(argument);
+                }
+
+                @Override
+                void assertMatches(String expected, String actual)
+                {
+                    if (!matches(actual, expected))
+                        fail(String.format("""
+                                Expected String did not match actual String:
+                                Expected string to contain: "%s"
+                                Actual string:               "%s"
+                                """,
+                            expected,
+                            actual)
+                        );
+                }
+            },
+
+        /**
+         * The base string must start with the argument string.
+         */
+        STARTS_WITH
+            {
+                @Override
+                boolean matches(String base, String argument)
+                {
+                    return base.startsWith(argument);
+                }
+
+                @Override
+                void assertMatches(String expected, String actual)
+                {
+                    if (!matches(actual, expected))
+                        fail(String.format("""
+                                Expected String did not match actual String:
+                                Expected string to start with: "%s"
+                                Actual string:                 "%s"
+                                """,
+                            expected,
+                            actual)
+                        );
+                }
+            },
+
+        /**
+         * The base string must end with the argument string.
+         */
+        ENDS_WITH
+            {
+                @Override
+                boolean matches(String base, String argument)
+                {
+                    return base.endsWith(argument);
+                }
+
+                @Override
+                void assertMatches(String expected, String actual)
+                {
+                    if (!matches(actual, expected))
+                        fail(String.format("""
+                                Expected String did not match actual String:
+                                Expected string to end with: "%s"
+                                Actual string:               "%s"
+                                """,
+                            expected,
+                            actual)
+                        );
+                }
+            };
+
+        /**
+         * Checks if the base string matches the argument string.
+         *
+         * @param base
+         *     The base string.
+         * @param argument
+         *     The argument string.
+         * @return Whether the base string matches the argument string.
+         */
+        abstract boolean matches(String base, String argument);
+
+        /**
+         * Asserts that the expected string matches the actual string.
+         *
+         * @param expected
+         *     The expected string.
+         * @param actual
+         *     The actual string.
+         */
+        abstract void assertMatches(String expected, String actual);
+    }
+
     @AllArgsConstructor
+    @ToString
+    @EqualsAndHashCode
+    public static final class StringArgumentMatcher implements ArgumentMatcher<String>
+    {
+        private final String base;
+        private final MatchType matchType;
+
+        @Override
+        public boolean matches(String argument)
+        {
+            return matchType.matches(base, argument);
+        }
+    }
+
+    @AllArgsConstructor
+    @ToString
+    @EqualsAndHashCode
     public static final class TextArgumentMatcher implements ArgumentMatcher<Text>
     {
         private final String base;

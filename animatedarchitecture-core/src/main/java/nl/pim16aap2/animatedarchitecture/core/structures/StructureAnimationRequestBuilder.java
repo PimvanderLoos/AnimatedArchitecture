@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
@@ -85,12 +86,20 @@ public class StructureAnimationRequestBuilder
     }
 
     @RequiredArgsConstructor
-    public static final class Builder
+    @ToString
+    private static final class Builder
         implements IBuilderStructure, IBuilderStructureActionCause, IBuilderStructureActionType, IBuilder
     {
+        @ToString.Exclude
         private final StructureAnimationRequest.IFactory structureToggleRequestFactory;
+
+        @ToString.Exclude
         private final IMessageable messageableServer;
+
+        @ToString.Exclude
         private final IPlayerFactory playerFactory;
+
+        @ToString.Exclude
         private final IConfig config;
 
         private StructureRetriever structureRetriever;

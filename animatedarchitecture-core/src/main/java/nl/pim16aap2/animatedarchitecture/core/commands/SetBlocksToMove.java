@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -20,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command that is used to change the number of blocks a block will try to move.
  */
-@ToString
+@ToString(callSuper = true)
 public class SetBlocksToMove extends StructureTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_BLOCKS_TO_MOVE;
@@ -32,12 +33,13 @@ public class SetBlocksToMove extends StructureTargetCommand
     @AssistedInject
     SetBlocksToMove(
         @Assisted ICommandSender commandSender,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         @Assisted StructureRetriever structureRetriever,
-        @Assisted int blocksToMove)
+        @Assisted int blocksToMove,
+        IExecutor executor,
+        ILocalizer localizer,
+        ITextFactory textFactory)
     {
-        super(commandSender, localizer, textFactory, structureRetriever, StructureAttribute.BLOCKS_TO_MOVE);
+        super(commandSender, executor, localizer, textFactory, structureRetriever, StructureAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;
     }
 
@@ -48,9 +50,9 @@ public class SetBlocksToMove extends StructureTargetCommand
     }
 
     @Override
-    protected void handleDatabaseActionSuccess()
+    protected void handleDatabaseActionSuccess(@org.jetbrains.annotations.Nullable Structure retrieverResult)
     {
-        final var desc = getRetrievedStructureDescription();
+        final var desc = getRetrievedStructureDescription(retrieverResult);
 
         getCommandSender().sendMessage(textFactory.newText().append(
             localizer.getMessage("commands.set_blocks_to_move.success"),
@@ -79,7 +81,7 @@ public class SetBlocksToMove extends StructureTargetCommand
         if (oldStatus == null || oldStatus != blocksToMove)
             return structure
                 .syncData()
-                .thenAccept(this::handleDatabaseActionResult);
+                .thenAccept(result -> handleDatabaseActionResult(result, structure));
 
         getCommandSender().sendMessage(textFactory.newText().append(
             localizer.getMessage("commands.set_blocks_to_move.error.status_not_changed"),

@@ -3,10 +3,15 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
@@ -23,16 +28,16 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command that adds co-owners to a given structure.
  */
-@ToString
+@ToString(callSuper = true)
 @Flogger
-public class AddOwner extends StructureTargetCommand
+public final class AddOwner extends StructureTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.ADD_OWNER;
 
     /**
      * The default value to use for {@link #targetPermissionLevel} when none is specified.
      */
-    protected static final PermissionLevel DEFAULT_PERMISSION_LEVEL = PermissionLevel.USER;
+    static final PermissionLevel DEFAULT_PERMISSION_LEVEL = PermissionLevel.USER;
 
     /**
      * The target player that will be added to the {@link #structureRetriever} as co-owner.
@@ -45,30 +50,33 @@ public class AddOwner extends StructureTargetCommand
     /**
      * The permission level of the new owner's ownership.
      */
+    @Getter(AccessLevel.PACKAGE)
     private final PermissionLevel targetPermissionLevel;
 
+    @ToString.Exclude
     private final DatabaseManager databaseManager;
 
     @AssistedInject
     AddOwner(
         @Assisted ICommandSender commandSender,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         @Assisted StructureRetriever doorRetriever,
         @Assisted IPlayer targetPlayer,
         @Assisted @Nullable PermissionLevel targetPermissionLevel,
+        IExecutor executor,
+        ILocalizer localizer,
+        ITextFactory textFactory,
         DatabaseManager databaseManager)
     {
-        super(commandSender, localizer, textFactory, doorRetriever, StructureAttribute.ADD_OWNER);
+        super(commandSender, executor, localizer, textFactory, doorRetriever, StructureAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel == null ? DEFAULT_PERMISSION_LEVEL : targetPermissionLevel;
         this.databaseManager = databaseManager;
     }
 
     @Override
-    protected void handleDatabaseActionSuccess()
+    protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
     {
-        final var description = getRetrievedStructureDescription();
+        final var description = getRetrievedStructureDescription(retrieverResult);
         final String localizedRank = localizer.getMessage(targetPermissionLevel.getTranslationKey());
 
         getCommandSender().sendMessage(textFactory.newText().append(
@@ -95,11 +103,11 @@ public class AddOwner extends StructureTargetCommand
     }
 
     @Override
-    protected boolean validInput()
+    protected void validateInput()
     {
         if (targetPermissionLevel != PermissionLevel.CREATOR &&
             targetPermissionLevel != PermissionLevel.NO_PERMISSION)
-            return true;
+            return;
 
         getCommandSender().sendMessage(textFactory.newText().append(
             localizer.getMessage("commands.add_owner.error.invalid_target_permission"),
@@ -107,7 +115,12 @@ public class AddOwner extends StructureTargetCommand
             arg -> arg.highlight(targetPermissionLevel))
         );
 
-        return false;
+        throw new InvalidCommandInputException(
+            true,
+            String.format(
+                "The target permission level '%s' is invalid for the AddOwner command.",
+                targetPermissionLevel
+            ));
     }
 
     @Override
@@ -115,16 +128,21 @@ public class AddOwner extends StructureTargetCommand
     {
         return databaseManager
             .addOwner(structure, targetPlayer, targetPermissionLevel, getCommandSender().getPlayer().orElse(null))
-            .thenAccept(this::handleDatabaseActionResult);
+            .thenAccept(result -> handleDatabaseActionResult(result, structure));
     }
 
-    @Override
-    protected boolean isAllowed(Structure structure, boolean hasBypassPermission)
+    PermissionLevel getExistingPermissionLevel(Structure structure)
     {
-        final PermissionLevel existingPermission = structure
+        return structure
             .getOwner(targetPlayer)
             .map(StructureOwner::permission)
             .orElse(PermissionLevel.NO_PERMISSION);
+    }
+
+    @Override
+    protected void isAllowed(Structure structure, boolean hasBypassPermission)
+    {
+        final PermissionLevel existingPermission = getExistingPermissionLevel(structure);
 
         if (!getCommandSender().isPlayer() || hasBypassPermission)
         {
@@ -134,9 +152,9 @@ public class AddOwner extends StructureTargetCommand
                     textFactory,
                     localizer.getMessage("commands.add_owner.error.targeting_prime_owner")
                 );
-                return false;
+                throw new NoAccessToStructureCommandException(true, "Cannot target the prime owner of a structure.");
             }
-            return true;
+            return;
         }
 
         final var doorOwner = getCommandSender().getPlayer().flatMap(structure::getOwner);
@@ -147,7 +165,7 @@ public class AddOwner extends StructureTargetCommand
                 TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(structure)))
             );
-            return false;
+            throw new NoAccessToStructureCommandException(true, "The command sender is not an owner of the structure.");
         }
 
         final PermissionLevel executorPermission = doorOwner.get().permission();
@@ -158,7 +176,7 @@ public class AddOwner extends StructureTargetCommand
                 TextType.ERROR,
                 arg -> arg.highlight(localizer.getStructureType(structure)))
             );
-            return false;
+            throw new NoAccessToStructureCommandException(true, "The command sender is not allowed to add owners.");
         }
 
         if (targetPermissionLevel.isLowerThanOrEquals(executorPermission))
@@ -167,10 +185,13 @@ public class AddOwner extends StructureTargetCommand
                 textFactory,
                 localizer.getMessage("commands.add_owner.error.cannot_assign_below_self")
             );
-            return false;
+            throw new NoAccessToStructureCommandException(
+                true,
+                "Cannot assign a permission level below the command sender."
+            );
         }
 
-        if (existingPermission.isLowerThanOrEquals(executorPermission) || existingPermission == targetPermissionLevel)
+        if (existingPermission.isLowerThanOrEquals(targetPermissionLevel))
         {
             getCommandSender().sendMessage(textFactory.newText().append(
                 localizer.getMessage("commands.add_owner.error.target_already_owner"),
@@ -178,9 +199,11 @@ public class AddOwner extends StructureTargetCommand
                 arg -> arg.highlight(targetPlayer.asString()),
                 arg -> arg.highlight(localizer.getStructureType(structure)))
             );
-            return false;
+            throw new NoAccessToStructureCommandException(
+                true,
+                "The target player is already an owner of the structure."
+            );
         }
-        return true;
     }
 
     @AssistedFactory

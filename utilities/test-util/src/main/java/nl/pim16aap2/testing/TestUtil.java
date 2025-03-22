@@ -6,17 +6,37 @@ import org.mockito.Mockito;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.stubbing.Answer;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@SuppressWarnings("unused")
-public final class Util
+@SuppressWarnings({"unused", "PMD.TestClassWithoutTestCases"})
+public final class TestUtil
 {
-    private Util()
+    private TestUtil()
     {
         // Utility class
+    }
+
+    /**
+     * Converts a throwable to a string.
+     *
+     * @param throwable
+     *     The throwable to convert.
+     * @return The string representation of the throwable.
+     */
+    public static String throwableToString(@Nullable Throwable throwable)
+    {
+        if (throwable == null)
+            return "null";
+
+        final var stringWriter = new StringWriter();
+        final var printWriter = new PrintWriter(stringWriter);
+        throwable.printStackTrace(printWriter);
+        return stringWriter.toString();
     }
 
     public static @Nullable Object newMock(Class<?> type)

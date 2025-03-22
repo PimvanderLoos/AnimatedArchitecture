@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -15,21 +16,25 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the cancel command, which cancels any processes waiting for user input (e.g. structure creation).
  */
-@ToString
+@ToString(callSuper = true)
 public class Cancel extends BaseCommand
 {
+    @ToString.Exclude
     private final ToolUserManager toolUserManager;
+
+    @ToString.Exclude
     private final StructureSpecificationManager doorSpecificationManager;
 
     @AssistedInject
     Cancel(
         @Assisted ICommandSender commandSender,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         ToolUserManager toolUserManager,
         StructureSpecificationManager doorSpecificationManager)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.toolUserManager = toolUserManager;
         this.doorSpecificationManager = doorSpecificationManager;
     }

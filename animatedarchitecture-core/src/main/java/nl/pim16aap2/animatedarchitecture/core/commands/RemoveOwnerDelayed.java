@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
  * The target player can be provided as delayed input.
  */
 @Singleton
+@ToString(callSuper = true)
 public class RemoveOwnerDelayed extends DelayedCommand<IPlayer>
 {
     @Inject

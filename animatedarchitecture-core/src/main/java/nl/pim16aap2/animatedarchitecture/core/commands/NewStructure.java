@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
@@ -12,7 +13,6 @@ import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
-import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Provider;
@@ -21,13 +21,20 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the command that is used to create new structures.
  */
-@ToString
+@ToString(callSuper = true)
 public class NewStructure extends BaseCommand
 {
     private final StructureType structureType;
+
     private final @Nullable String structureName;
+
+    @ToString.Exclude
     private final IPermissionsManager permissionsManager;
+
+    @ToString.Exclude
     private final ToolUserManager toolUserManager;
+
+    @ToString.Exclude
     private final Provider<ToolUser.Context> creatorContextProvider;
 
     @AssistedInject
@@ -35,13 +42,14 @@ public class NewStructure extends BaseCommand
         @Assisted ICommandSender commandSender,
         @Assisted StructureType structureType,
         @Assisted @Nullable String structureName,
+        IExecutor executor,
         ILocalizer localizer,
         ITextFactory textFactory,
         IPermissionsManager permissionsManager,
         ToolUserManager toolUserManager,
         Provider<ToolUser.Context> creatorContextProvider)
     {
-        super(commandSender, localizer, textFactory);
+        super(commandSender, executor, localizer, textFactory);
         this.structureType = structureType;
         this.structureName = structureName;
         this.permissionsManager = permissionsManager;
@@ -92,8 +100,7 @@ public class NewStructure extends BaseCommand
     protected CompletableFuture<PermissionsStatus> hasPermission()
     {
         return super.hasPermission()
-            .thenApply(this::hasPermission)
-            .exceptionally(e -> FutureUtil.exceptionally(e, new PermissionsStatus(false, false)));
+            .thenApply(this::hasPermission);
     }
 
     @AssistedFactory
