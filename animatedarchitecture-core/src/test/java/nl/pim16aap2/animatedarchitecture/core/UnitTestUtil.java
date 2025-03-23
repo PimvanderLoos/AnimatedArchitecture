@@ -479,6 +479,7 @@ public class UnitTestUtil
      *     The type of the value.
      * @return The value from the supplier, or the fallback value if the supplier fails.
      */
+    @SuppressWarnings("EmptyCatch")
     private static <T> T safeSupplierSimple(T fallback, CheckedSupplier<T, ?> supplier)
     {
         try
@@ -507,6 +508,7 @@ public class UnitTestUtil
      *     The type of the value.
      * @return The value from the supplier, or the fallback value if the supplier fails.
      */
+    @SuppressWarnings("EmptyCatch")
     private static <T> T safeSupplier(Supplier<T> fallbackSupplier, CheckedSupplier<T, ?> supplier)
     {
         try
@@ -610,9 +612,12 @@ public class UnitTestUtil
     {
         RuntimeException rte = Assertions.assertThrows(RuntimeException.class, executable);
         if (deepSearch)
-            while (rte.getCause().getClass() == RuntimeException.class)
+            while (rte.getCause() != null && rte.getCause().getClass() == RuntimeException.class)
                 rte = (RuntimeException) rte.getCause();
-        assertEquals(expectedType, rte.getCause().getClass(), expectedType.toString());
+
+        final var rootCause = rte.getCause();
+        assertNotNull(rootCause);
+        assertEquals(expectedType, rootCause.getClass(), expectedType.toString());
     }
 
     /**

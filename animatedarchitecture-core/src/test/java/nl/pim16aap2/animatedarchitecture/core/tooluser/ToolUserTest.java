@@ -134,6 +134,7 @@ public class ToolUserTest
     }
 
     @Test
+    @SuppressWarnings("FutureReturnValueIgnored")
     void testAsyncInputs()
         throws InstantiationException, InterruptedException
     {
@@ -178,7 +179,7 @@ public class ToolUserTest
         }
         catch (InterruptedException e)
         {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

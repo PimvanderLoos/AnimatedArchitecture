@@ -136,9 +136,6 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
     /**
      * Tries to remove the original blocks of the animated blocks.
      *
-     * @return True if the original blocks could be spawned. If something went wrong and the process had to be aborted,
-     * false is returned instead.
-     *
      * @throws RuntimeException
      *     If the blocks could not be removed or spawned for some reason.
      */

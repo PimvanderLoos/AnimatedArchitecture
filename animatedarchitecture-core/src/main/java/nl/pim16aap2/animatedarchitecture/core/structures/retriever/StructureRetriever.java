@@ -337,7 +337,7 @@ public sealed abstract class StructureRetriever
         {
             return databaseManager
                 .getStructures(name)
-                .withExceptionContext(() -> String.format("Get structures by name '%s'", name));
+                .withExceptionContext("Get structures by name '%s'", name);
         }
 
         @Override
@@ -345,12 +345,12 @@ public sealed abstract class StructureRetriever
         {
             return databaseManager
                 .getStructures(player, name, permissionLevel)
-                .withExceptionContext(() -> String.format(
+                .withExceptionContext(
                     "Get structures by name '%s' for player %s with permission level %s",
                     name,
                     player,
                     permissionLevel
-                ));
+                );
         }
 
         @Override
@@ -359,14 +359,13 @@ public sealed abstract class StructureRetriever
             PermissionLevel permissionLevel)
         {
             return getStructures(player, permissionLevel)
-                .thenCompose(structures ->
-                    getStructureInteractive(structures, player, specificationFactory))
-                .withExceptionContext(() -> String.format(
+                .thenCompose(structures -> getStructureInteractive(structures, player, specificationFactory))
+                .withExceptionContext(
                     "Interactively get structure by name '%s' for player %s with permission level %s",
                     name,
                     player,
                     permissionLevel
-                ));
+                );
         }
     }
 
@@ -389,7 +388,7 @@ public sealed abstract class StructureRetriever
         {
             return databaseManager
                 .getStructure(uid)
-                .withExceptionContext(() -> String.format("Get structure by UID %d", uid));
+                .withExceptionContext("Get structure by UID %d", uid);
         }
 
         @Override
@@ -400,12 +399,12 @@ public sealed abstract class StructureRetriever
             return databaseManager
                 .getStructure(player, uid)
                 .thenApply(retrieved -> StructureRetriever.filter(retrieved, player, permissionLevel))
-                .withExceptionContext(() -> String.format(
+                .withExceptionContext(
                     "Get structure by UID %d for player %s with permission level %s",
                     uid,
                     player,
                     permissionLevel
-                ));
+                );
         }
     }
 
@@ -489,12 +488,12 @@ public sealed abstract class StructureRetriever
             return getStructures(player, permissionLevel)
                 .thenCompose(structures ->
                     getStructureInteractive(structures, player, specificationFactory))
-                .withExceptionContext(() -> String.format(
+                .withExceptionContext(
                     "Interactively get structure for player %s with permission level %s from structures: %s",
                     player,
                     permissionLevel,
                     StringUtil.formatCollection(structures, Structure::getBasicInfo)
-                ));
+                );
         }
     }
 
@@ -516,10 +515,10 @@ public sealed abstract class StructureRetriever
             CompletableFuture<List<Structure>> structures)
         {
             this.specificationFactory = specificationFactory;
-            this.structures = structures.withExceptionContext(() -> String.format(
+            this.structures = structures.withExceptionContext(
                 "Get structures from future structures %s",
                 structures
-            ));
+            );
         }
 
         @Override
@@ -541,12 +540,12 @@ public sealed abstract class StructureRetriever
         {
             return structures
                 .thenApply(retrieved -> StructureRetriever.filter(retrieved, player, permissionLevel))
-                .withExceptionContext(() -> String.format(
+                .withExceptionContext(
                     "Get structures for player %s with permission level %s from future structures %s",
                     player,
                     permissionLevel,
                     structures
-                ));
+                );
         }
 
         @Override
@@ -572,12 +571,12 @@ public sealed abstract class StructureRetriever
             return getStructures(player, permissionLevel)
                 .thenCompose(structures ->
                     getStructureInteractive(structures, player, specificationFactory))
-                .withExceptionContext(() -> String.format(
+                .withExceptionContext(
                     "Interactively get structure for player %s with permission level %s from future structures %s",
                     player,
                     permissionLevel,
                     structures
-                ));
+                );
         }
     }
 
@@ -594,8 +593,7 @@ public sealed abstract class StructureRetriever
         @Override
         public CompletableFuture<Optional<Structure>> getStructure()
         {
-            return futureStructure
-                .withExceptionContext(() -> String.format("Get structure from future structure %s", futureStructure));
+            return futureStructure.withExceptionContext("Get structure from future structure %s", futureStructure);
         }
 
         @Override
@@ -605,12 +603,12 @@ public sealed abstract class StructureRetriever
         {
             return futureStructure
                 .thenApply(retrieved -> StructureRetriever.filter(retrieved, player, permissionLevel))
-                .withExceptionContext(() -> String.format(
+                .withExceptionContext(
                     "Get structure for player %s with permission level %s from future structure %s",
                     player,
                     permissionLevel,
                     futureStructure
-                ));
+                );
         }
     }
 }

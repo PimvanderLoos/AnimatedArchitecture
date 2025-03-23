@@ -139,10 +139,14 @@ class RemoveOwnerTest
             .removeOwner(structure, target, playerCommandSender))
             .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
+        UnitTestUtil.setStructureLocalization(structure);
+
         assistedFactoryMocker
+            .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
             .getFactory()
             .newRemoveOwner(commandSender, structureRetriever, target)
-            .performAction(structure);
+            .performAction(structure)
+            .join();
 
         verify(databaseManager).removeOwner(structure, target, playerCommandSender);
     }
@@ -162,7 +166,7 @@ class RemoveOwnerTest
                 .getFactory()
                 .newRemoveOwner(commandSender, structureRetriever, target)
         );
-        removeOwner.performAction(structure);
+        removeOwner.performAction(structure).join();
 
         verify(databaseManager).removeOwner(structure, target, null);
         verify(removeOwner).handleDatabaseActionResult(databaseResult, structure);

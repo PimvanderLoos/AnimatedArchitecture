@@ -96,7 +96,8 @@ class SpecifyTest
             .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
             .getFactory()
             .newSpecify(player, name)
-            .executeCommand(null);
+            .executeCommand(null)
+            .join();
 
         verify(player).sendError(any(), eq("commands.base.error.no_pending_process"));
     }
@@ -108,7 +109,11 @@ class SpecifyTest
         final String name = "my-new-flag-name";
         when(structureSpecificationManager.handleInput(player, name)).thenReturn(true);
 
-        assistedFactoryMocker.getFactory().newSpecify(player, name).executeCommand(null);
+        assistedFactoryMocker
+            .getFactory()
+            .newSpecify(player, name)
+            .executeCommand(null)
+            .join();
 
         verify(player, never()).sendError(any(), anyString());
     }

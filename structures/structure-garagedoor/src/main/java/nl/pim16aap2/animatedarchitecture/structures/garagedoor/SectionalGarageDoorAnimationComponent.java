@@ -8,7 +8,6 @@ import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
@@ -24,15 +23,12 @@ import java.util.function.BiFunction;
 public final class SectionalGarageDoorAnimationComponent extends CounterWeightGarageDoorAnimationComponent
 {
     private final double resultHeight;
-    private final Vector3Di rotationPoint;
     private final BiFunction<IAnimatedBlock, Double, RotatedPosition> getVector;
     private final double step;
 
     public SectionalGarageDoorAnimationComponent(AnimationRequestData data, MovementDirection movementDirection)
     {
         super(data, movementDirection);
-
-        this.rotationPoint = data.getStructureSnapshot().getRequiredPropertyValue(Property.ROTATION_POINT);
 
         resultHeight = oldCuboid.getMax().y() + 1.0;
 

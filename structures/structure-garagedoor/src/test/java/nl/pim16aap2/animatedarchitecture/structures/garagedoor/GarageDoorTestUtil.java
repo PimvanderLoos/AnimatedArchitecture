@@ -235,6 +235,7 @@ class GarageDoorTestUtil
                 startCuboid);
         }
 
+        @Override
         public String toString()
         {
             return String.format(

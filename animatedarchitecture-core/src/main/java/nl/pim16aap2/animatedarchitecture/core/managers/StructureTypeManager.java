@@ -90,7 +90,7 @@ public final class StructureTypeManager implements IDebuggable
      * enabled.
      */
     @GuardedBy("$lock")
-    private final Map<StructureType, Boolean> registeredStructureTypes0 = new IdentityHashMap<>();
+    private final IdentityHashMap<StructureType, Boolean> registeredStructureTypes0 = new IdentityHashMap<>();
 
     /**
      * Gets all {@link StructureType}s that are currently registered.

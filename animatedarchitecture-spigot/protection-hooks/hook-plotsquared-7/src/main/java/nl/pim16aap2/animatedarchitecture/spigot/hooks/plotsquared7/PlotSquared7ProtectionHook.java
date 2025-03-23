@@ -1,6 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.spigot.hooks.plotsquared7;
 
-import com.plotsquared.bukkit.BukkitPlatform;
 import com.plotsquared.bukkit.util.BukkitUtil;
 import com.plotsquared.core.configuration.Settings;
 import com.plotsquared.core.permissions.Permission;
@@ -20,7 +19,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.ProtectionHookContext
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -31,7 +29,6 @@ import java.util.concurrent.CompletableFuture;
 @Flogger
 public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
 {
-    private final JavaPlugin plotSquaredPlugin;
     @Getter
     private final ProtectionHookContext context;
 
@@ -39,7 +36,6 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
     public PlotSquared7ProtectionHook(ProtectionHookContext context)
     {
         this.context = context;
-        plotSquaredPlugin = JavaPlugin.getPlugin(BukkitPlatform.class);
     }
 
     @Override
@@ -155,7 +151,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                     "Player %s is not allowed to break block in plot '%s' at location '%s': " +
                         "block type '%s' is not allowed!",
                     lazyFormatPlayerName(player),
-                    plot.toString(),
+                    plot,
                     loc,
                     blockType
                 );
@@ -168,7 +164,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                 log.atFiner().log(
                     "Player %s is not allowed to break block in plot '%s' at location '%s': plot is marked as done!",
                     lazyFormatPlayerName(player),
-                    plot.toString(),
+                    plot,
                     loc
                 );
             return result;
@@ -203,7 +199,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                 loc.setY(area.getMaxBuildHeight() - 1);
 
                 final Plot newPlot = area.getPlot(psLocation);
-                if (newPlot == null && (!canBreakRoads))
+                if (newPlot == null && !canBreakRoads)
                 {
                     log.atFiner().log(
                         "Player %s is not allowed to break block at %s: Not in a plot area and cannot break roads!",

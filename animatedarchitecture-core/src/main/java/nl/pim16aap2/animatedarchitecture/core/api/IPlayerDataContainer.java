@@ -7,7 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Represents a container for player data.
@@ -100,9 +100,9 @@ interface IPlayerDataContainer
         private static final List<PermissionFlag> VALUES = List.of(PermissionFlag.values());
 
         private final int val;
-        private final Function<IPlayerDataContainer, Boolean> fun;
+        private final Predicate<IPlayerDataContainer> fun;
 
-        PermissionFlag(int val, Function<IPlayerDataContainer, Boolean> fun)
+        PermissionFlag(int val, Predicate<IPlayerDataContainer> fun)
         {
             this.val = val;
             this.fun = fun;
@@ -110,7 +110,7 @@ interface IPlayerDataContainer
 
         static long setFlag(IPlayerDataContainer playerDataContainer, long currentValue, PermissionFlag flag)
         {
-            final boolean result = flag.fun.apply(playerDataContainer);
+            final boolean result = flag.fun.test(playerDataContainer);
             return result ? IBitFlag.setFlag(flag.val, currentValue) : IBitFlag.unsetFlag(flag.val, currentValue);
         }
 

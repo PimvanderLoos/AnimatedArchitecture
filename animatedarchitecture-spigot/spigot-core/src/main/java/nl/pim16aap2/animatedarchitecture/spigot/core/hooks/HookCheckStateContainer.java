@@ -311,11 +311,7 @@ final class HookCheckStateContainer
             .thenCompose(container ->
                 executor.composeOnMainThread(() ->
                     runMainChecks(executor, function)))
-            .withExceptionContext(() -> String.format(
-                "Running all checks for player %s in world '%s'",
-                player,
-                world.getName()
-            ))
+            .withExceptionContext("Running all checks for player %s in world '%s'", player, world.getName())
             .thenApply(result ->
             {
                 if (result.isDenied())
@@ -416,10 +412,7 @@ final class HookCheckStateContainer
                     }
                     return HookCheckResult.allowed();
                 })
-                .withExceptionContext(() -> String.format(
-                    "Running check check for hook '%s'",
-                    hookName()
-                ));
+                .withExceptionContext("Running check check for hook '%s'", hookName());
         }
 
         /**

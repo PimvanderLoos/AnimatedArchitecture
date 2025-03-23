@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,7 +50,7 @@ class LocalizerIntegrationTest
         LocalizationTestingUtilities.writeEntry(
             zipOutputStream,
             BASE_NAME + ".properties",
-            baseFileContents.getBytes()
+            baseFileContents.getBytes(StandardCharsets.UTF_8)
         );
 
         String dutchFileContents = """
@@ -60,7 +61,7 @@ class LocalizerIntegrationTest
         LocalizationTestingUtilities.writeEntry(
             zipOutputStream,
             BASE_NAME + "_nl_NL.properties",
-            dutchFileContents.getBytes()
+            dutchFileContents.getBytes(StandardCharsets.UTF_8)
         );
 
         zipOutputStream.close();

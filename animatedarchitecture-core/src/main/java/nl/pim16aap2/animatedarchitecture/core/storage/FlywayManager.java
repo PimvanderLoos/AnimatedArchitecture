@@ -10,7 +10,6 @@ import org.flywaydb.core.api.MigrationInfo;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -31,7 +30,6 @@ public final class FlywayManager implements IDebuggable
 
     @Inject
     FlywayManager(
-        @Named("pluginBaseDirectory") Path baseDirectory,
         @Named("pluginClassLoader") ClassLoader classLoader,
         IDataSourceInfo dataSourceInfo,
         DebuggableRegistry debuggableRegistry

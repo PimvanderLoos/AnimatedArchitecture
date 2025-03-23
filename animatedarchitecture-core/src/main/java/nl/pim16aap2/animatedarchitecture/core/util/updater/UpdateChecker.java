@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -204,7 +205,7 @@ public final class UpdateChecker implements IDebuggable
         if (UPDATE_URL == null)
             return null;
 
-        try (var reader = new InputStreamReader(UPDATE_URL.openStream()))
+        try (var reader = new InputStreamReader(UPDATE_URL.openStream(), StandardCharsets.UTF_8))
         {
             return JsonParser.parseReader(reader);
         }

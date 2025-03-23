@@ -417,6 +417,13 @@ public final class StructureActivityManager extends Restartable
         @Getter
         private final long stamp = STAMP_COUNTER.incrementAndGet();
 
+        private final Structure targetStructure;
+
+        protected RegisteredAnimatorEntry(Structure targetStructure)
+        {
+            this.targetStructure = targetStructure;
+        }
+
         /**
          * Creates a new {@link RegisteredAnimatorEntry} instance.
          *
@@ -486,12 +493,18 @@ public final class StructureActivityManager extends Restartable
         /**
          * @return The key of the entry.
          */
-        public abstract long getKey();
+        protected long getKey()
+        {
+            return getTargetStructure().getUid();
+        }
 
         /**
          * @return The structure being animated.
          */
-        abstract Structure getTargetStructure();
+        protected Structure getTargetStructure()
+        {
+            return targetStructure;
+        }
 
         /**
          * @return True if this entry describes an animation that requires write access.
@@ -514,17 +527,12 @@ public final class StructureActivityManager extends Restartable
 
         static final class ReadOnlyAnimatorEntry extends RegisteredAnimatorEntry
         {
-            @Getter
-            private final Structure targetStructure;
-            @Getter
-            private final long key;
             private final Set<Animator> animators = Collections.newSetFromMap(new IdentityHashMap<>());
             private boolean isAborted = false;
 
             ReadOnlyAnimatorEntry(Structure targetStructure)
             {
-                this.targetStructure = targetStructure;
-                this.key = targetStructure.getUid();
+                super(targetStructure);
             }
 
             @Override
@@ -584,7 +592,7 @@ public final class StructureActivityManager extends Restartable
                 if (!(o instanceof ReadOnlyAnimatorEntry other))
                     return false;
                 return this.isAborted != other.isAborted ||
-                    this.key != other.key ||
+                    this.getKey() != other.getKey() ||
                     !this.animators.equals(other.animators);
             }
 
@@ -594,7 +602,7 @@ public final class StructureActivityManager extends Restartable
                 final int prime = 31;
                 int hashCode = 1;
                 hashCode = hashCode * prime + Boolean.hashCode(this.isAborted);
-                hashCode = hashCode * prime + Long.hashCode(this.key);
+                hashCode = hashCode * prime + Long.hashCode(this.getKey());
                 hashCode = hashCode * prime + this.animators.hashCode();
 
                 return hashCode;
@@ -605,7 +613,7 @@ public final class StructureActivityManager extends Restartable
             {
                 return "ReadOnlyAnimatorEntry("
                     + "stamp=" + this.getStamp()
-                    + ", Structure=" + this.key
+                    + ", Structure=" + this.getKey()
                     + ", isAborted=" + this.isAborted
                     + ", animators=" + this.animators.size()
                     + ")";
@@ -614,18 +622,12 @@ public final class StructureActivityManager extends Restartable
 
         static final class ReadWriteAnimatorEntry extends RegisteredAnimatorEntry
         {
-            @Getter
-            private final Structure targetStructure;
-            @Getter
-            private final long key;
-
             private boolean isAborted = false;
             private @Nullable Animator animator;
 
             ReadWriteAnimatorEntry(Structure targetStructure)
             {
-                this.targetStructure = targetStructure;
-                this.key = targetStructure.getUid();
+                super(targetStructure);
             }
 
             @Override
@@ -699,7 +701,7 @@ public final class StructureActivityManager extends Restartable
                 if (!(o instanceof ReadWriteAnimatorEntry other))
                     return false;
                 return this.isAborted != other.isAborted ||
-                    this.key != other.key ||
+                    this.getKey() != other.getKey() ||
                     this.getStamp() != other.getStamp() ||
                     !Objects.equals(this.animator, other.animator);
             }
@@ -710,7 +712,7 @@ public final class StructureActivityManager extends Restartable
                 final int prime = 31;
                 int hashCode = 1;
                 hashCode = hashCode * prime + Boolean.hashCode(this.isAborted);
-                hashCode = hashCode * prime + Long.hashCode(this.key);
+                hashCode = hashCode * prime + Long.hashCode(this.getKey());
                 hashCode = hashCode * prime + Long.hashCode(this.getStamp());
                 hashCode = hashCode * prime + Objects.hashCode(this.animator);
 
@@ -722,7 +724,7 @@ public final class StructureActivityManager extends Restartable
             {
                 return "ReadWriteAnimatorEntry("
                     + "stamp=" + this.getStamp()
-                    + ", Structure=" + this.key
+                    + ", Structure=" + this.getKey()
                     + ", isAborted=" + this.isAborted
                     + ")";
             }

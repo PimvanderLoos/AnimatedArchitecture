@@ -143,7 +143,6 @@ public class SQLiteJDBCDriverConnectionTest
         throws Exception
     {
         flywayManager = new FlywayManager(
-            DB_FILE.getParent(),
             getClass().getClassLoader(),
             DATA_SOURCE_INFO,
             debuggableRegistry
@@ -185,6 +184,7 @@ public class SQLiteJDBCDriverConnectionTest
      * (for debugging purposes).
      */
     @AfterAll
+    @SuppressWarnings("CatchAndPrintStackTrace")
     public static void cleanup()
     {
         final Path finishedDB = DB_FILE.resolveSibling(DB_FILE.getFileName() + ".FINISHED");
@@ -194,6 +194,7 @@ public class SQLiteJDBCDriverConnectionTest
         }
         catch (Exception exception)
         {
+            //noinspection CallToPrintStackTrace
             exception.printStackTrace();
         }
         try

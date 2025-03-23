@@ -663,7 +663,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
                 });
             }
 
-            return ret.withExceptionContext(() -> String.format("Syncing data for structure: %s", getBasicInfo()));
+            return ret.withExceptionContext("Syncing data for structure: %s", getBasicInfo());
         }
         catch (Exception e)
         {

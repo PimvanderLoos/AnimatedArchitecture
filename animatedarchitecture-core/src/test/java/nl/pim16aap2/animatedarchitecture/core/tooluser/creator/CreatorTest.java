@@ -1024,7 +1024,7 @@ public class CreatorTest
         }
 
         @Override
-        protected void init()
+        protected synchronized void init()
         {
             Objects.requireNonNull(steps, "Steps must be defined!");
             super.init();

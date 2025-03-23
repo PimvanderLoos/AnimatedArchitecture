@@ -28,6 +28,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -37,6 +38,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
+@Timeout(1)
 class TimedCacheTest
 {
     /**

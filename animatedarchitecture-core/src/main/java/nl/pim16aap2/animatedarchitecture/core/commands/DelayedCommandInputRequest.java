@@ -11,6 +11,7 @@ import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -170,7 +171,19 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         return getInputResult()
             .thenCompose(input -> input.map(executorFunction).orElse(CompletableFuture.completedFuture(null)))
-            .withExceptionContext(() -> String.format("Delayed input request %s", this));
+            .withExceptionContext("Delayed input request %s", this);
+    }
+
+    private CompletableFuture<?> handleIllegalInput(Object input)
+    {
+        commandSender.sendMessage(textFactory.newText().append(
+            localizer.getMessage("commands.base.error.unexpected_input_type"),
+            TextType.ERROR,
+            arg -> arg.highlight(input.getClass().getName())
+        ));
+
+        throw new InvalidCommandInputException(true,
+            "Unexpected input type: " + input.getClass().getName() + " for request: " + this);
     }
 
     /**
@@ -190,11 +203,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     public CompletableFuture<?> provide(Object input)
     {
         if (!inputClass.isInstance(input))
-            throw new IllegalArgumentException(String.format(
-                "Trying to supply object of type %s for request: %s",
-                input.getClass().getName(),
-                this
-            ));
+            return handleIllegalInput(input);
 
         //noinspection unchecked
         super.set((T) input);

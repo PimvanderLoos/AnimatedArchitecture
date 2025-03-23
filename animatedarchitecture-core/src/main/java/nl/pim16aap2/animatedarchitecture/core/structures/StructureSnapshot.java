@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.experimental.Delegate;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
@@ -29,6 +30,7 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @ThreadSafe
+@ToString
 public final class StructureSnapshot implements IStructureConst
 {
     private final long uid;

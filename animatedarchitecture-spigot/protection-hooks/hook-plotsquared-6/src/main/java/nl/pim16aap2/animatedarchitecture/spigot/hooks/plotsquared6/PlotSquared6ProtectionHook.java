@@ -1,6 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.spigot.hooks.plotsquared6;
 
-import com.plotsquared.bukkit.BukkitPlatform;
 import com.plotsquared.bukkit.util.BukkitUtil;
 import com.plotsquared.core.configuration.Settings;
 import com.plotsquared.core.permissions.Permission;
@@ -20,7 +19,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.ProtectionHookContext
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -34,7 +32,6 @@ import java.util.concurrent.CompletableFuture;
 @Flogger
 public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
 {
-    private final JavaPlugin plotSquaredPlugin;
     @Getter
     private final ProtectionHookContext context;
 
@@ -42,7 +39,6 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
     public PlotSquared6ProtectionHook(ProtectionHookContext context)
     {
         this.context = context;
-        plotSquaredPlugin = JavaPlugin.getPlugin(BukkitPlatform.class);
         log.atSevere().log(
             "PlotSquared 6 support is deprecated and will be removed in a future version. " +
                 "Please upgrade to PlotSquared 7."
@@ -131,7 +127,7 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
                 loc.setY(area.getMaxBuildHeight() - 1);
 
                 final Plot newPlot = area.getPlot(psLocation);
-                if (newPlot == null && (!canBreakRoads))
+                if (newPlot == null && !canBreakRoads)
                     return CompletableFuture.completedFuture(false);
                 else if (!canBreakBlock(player, area, newPlot, loc))
                     return CompletableFuture.completedFuture(false);
