@@ -143,7 +143,6 @@ public class SQLiteJDBCDriverConnectionTest
         throws Exception
     {
         flywayManager = new FlywayManager(
-            DB_FILE.getParent(),
             getClass().getClassLoader(),
             DATA_SOURCE_INFO,
             debuggableRegistry

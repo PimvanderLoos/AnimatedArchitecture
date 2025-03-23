@@ -166,7 +166,7 @@ public final class SpigotUtil
     {
         if (permissionNode.startsWith(permissionBase))
         {
-            final String[] parts = permissionNode.split(permissionBase);
+            final String[] parts = permissionNode.split(permissionBase, -1);
             if (parts.length != 2)
                 return OptionalInt.empty();
 

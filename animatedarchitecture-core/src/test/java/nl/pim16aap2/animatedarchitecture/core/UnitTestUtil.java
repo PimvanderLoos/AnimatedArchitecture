@@ -479,6 +479,7 @@ public class UnitTestUtil
      *     The type of the value.
      * @return The value from the supplier, or the fallback value if the supplier fails.
      */
+    @SuppressWarnings("EmptyCatch")
     private static <T> T safeSupplierSimple(T fallback, CheckedSupplier<T, ?> supplier)
     {
         try
@@ -507,6 +508,7 @@ public class UnitTestUtil
      *     The type of the value.
      * @return The value from the supplier, or the fallback value if the supplier fails.
      */
+    @SuppressWarnings("EmptyCatch")
     private static <T> T safeSupplier(Supplier<T> fallbackSupplier, CheckedSupplier<T, ?> supplier)
     {
         try

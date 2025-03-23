@@ -669,7 +669,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         // Make sure the ResultSet isn't empty.
         if (!structureRS.isBeforeFirst())
-            return Collections.emptyList();
+            return List.of();
 
         final List<Structure> structures = new ArrayList<>();
 

@@ -145,7 +145,7 @@ public class PositionIterator implements Iterable<Vector3Di>
          * Gets the increment supplier for a specified {@link PositionIterator.Axis}.
          *
          * @param axis
-         *     The {@link #PositionIterator ::Axis}.
+         *     The {@link PositionIterator.Axis}.
          * @return The supplier that increments an {@link PositionIterator.Axis}.
          */
         private Supplier<Boolean> getIncrementor(Axis axis)
@@ -210,11 +210,11 @@ public class PositionIterator implements Iterable<Vector3Di>
         }
 
         /**
-         * Gets the reset runnable for a specified {@link #PositionIterator ::Axis}.
+         * Gets the reset runnable for a specified {@link PositionIterator.Axis}.
          *
          * @param axis
-         *     The {@link #PositionIterator ::Axis}.
-         * @return The runnable that increments an {@link #PositionIterator ::Axis}.
+         *     The {@link PositionIterator.Axis}.
+         * @return The runnable that increments an {@link PositionIterator.Axis}.
          */
         private Runnable getResetMethod(Axis axis)
         {

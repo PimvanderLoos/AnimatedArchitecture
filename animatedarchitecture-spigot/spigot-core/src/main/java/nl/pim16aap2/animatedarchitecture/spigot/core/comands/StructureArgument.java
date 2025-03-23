@@ -141,7 +141,7 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
 
             try
             {
-                return new ArrayList<>(search.getStructureIdentifiers().get(1, TimeUnit.SECONDS));
+                return List.copyOf(search.getStructureIdentifiers().get(1, TimeUnit.SECONDS));
             }
             catch (InterruptedException e)
             {

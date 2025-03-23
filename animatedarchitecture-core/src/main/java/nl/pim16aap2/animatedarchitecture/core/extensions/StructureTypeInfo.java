@@ -214,7 +214,7 @@ final class StructureTypeInfo implements IKeyed
         if (!versionMatcher.find())
             throw new IllegalArgumentException("Failed to find the version in: '" + fullKey + "'");
 
-        final String[] versionSplit = versionMatcher.group().split(";");
+        final String[] versionSplit = versionMatcher.group().split(";", -1);
         if (versionSplit.length != 2)
             throw new IllegalArgumentException("Failed to split the version in: '" + fullKey + "'");
 

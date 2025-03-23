@@ -26,7 +26,7 @@ import java.util.Objects;
 @Singleton
 public final class LoginMessageListener extends AbstractListener
 {
-    private final AnimatedArchitecturePlugin plugin;
+    private final AnimatedArchitecturePlugin spigotPlugin;
     private final ITextFactory textFactory;
     private final @Nullable UpdateChecker updateChecker;
 
@@ -39,7 +39,7 @@ public final class LoginMessageListener extends AbstractListener
     {
         super(restartableHolder, javaPlugin);
 
-        this.plugin = javaPlugin;
+        this.spigotPlugin = javaPlugin;
         this.textFactory = textFactory;
         this.updateChecker = updateChecker;
 
@@ -78,7 +78,7 @@ public final class LoginMessageListener extends AbstractListener
 
     private void addErrorMessage(Text text)
     {
-        final @Nullable String msg = plugin.getInitErrorMessage();
+        final @Nullable String msg = spigotPlugin.getInitErrorMessage();
         if (msg == null)
             return;
         text.append("\nERROR: ", TextType.ERROR)

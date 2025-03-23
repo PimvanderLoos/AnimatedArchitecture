@@ -347,7 +347,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
     Set<Node<T>> verifyAcyclic()
     {
         if (nodes.isEmpty())
-            return Collections.emptySet();
+            return Set.of();
 
         if (leaves.isEmpty())
             throw new IllegalStateException("Graph has no leaves and must therefore be cyclic!");
