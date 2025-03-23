@@ -1,4 +1,4 @@
-package nl.pim16aap2.testing.logging;
+package nl.pim16aap2.testing.assertions;
 
 import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static nl.pim16aap2.testing.logging.LogAssertionsUtil.MessageComparisonMethod;
+import static nl.pim16aap2.testing.assertions.LogAssertionsUtil.MessageComparisonMethod;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)

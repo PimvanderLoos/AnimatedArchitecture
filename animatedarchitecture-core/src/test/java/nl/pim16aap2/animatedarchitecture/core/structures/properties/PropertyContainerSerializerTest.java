@@ -6,7 +6,7 @@ import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import nl.pim16aap2.testing.logging.LogAssertionsUtil;
+import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -194,25 +194,23 @@ public class PropertyContainerSerializerTest
 
         final String logMessage = "Property '%s' was not supplied for structure type '%s', using default value '%s'.";
 
-        LogAssertionsUtil
-            .logAssertionBuilder(logCaptor)
+        AssertionBuilder
+            .assertLogged(logCaptor)
             .message(
                 logMessage,
                 PropertyContainer.mapKey(Property.REDSTONE_MODE),
                 structureType,
-                Property.REDSTONE_MODE.getDefaultValue()
-            )
+                Property.REDSTONE_MODE.getDefaultValue())
             .level(Level.FINER)
             .assertLogged();
 
-        LogAssertionsUtil
-            .logAssertionBuilder(logCaptor)
+        AssertionBuilder
+            .assertLogged(logCaptor)
             .message(
                 logMessage,
                 PropertyContainer.mapKey(Property.ROTATION_POINT),
                 structureType,
-                Property.ROTATION_POINT.getDefaultValue()
-            )
+                Property.ROTATION_POINT.getDefaultValue())
             .level(Level.FINER)
             .assertLogged();
     }

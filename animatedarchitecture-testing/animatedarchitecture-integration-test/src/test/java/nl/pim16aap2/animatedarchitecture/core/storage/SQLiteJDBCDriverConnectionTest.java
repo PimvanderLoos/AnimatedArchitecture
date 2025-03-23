@@ -32,7 +32,7 @@ import nl.pim16aap2.animatedarchitecture.structures.drawbridge.StructureTypeDraw
 import nl.pim16aap2.animatedarchitecture.structures.portcullis.StructureTypePortcullis;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorld;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorldFactory;
-import nl.pim16aap2.testing.logging.LogAssertionsUtil;
+import nl.pim16aap2.testing.assertions.LogAssertionsUtil;
 import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -56,7 +56,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBuilder;
-import static nl.pim16aap2.testing.logging.LogAssertionsUtil.MessageComparisonMethod;
+import static nl.pim16aap2.testing.assertions.LogAssertionsUtil.MessageComparisonMethod;
 
 @WithLogCapture
 @ExtendWith(MockitoExtension.class)
@@ -638,7 +638,6 @@ public class SQLiteJDBCDriverConnectionTest
      * Runs tests of the methods that modify structures in the database.
      */
     public void modifyStructures()
-        throws Exception
     {
         // Test (un)locking (i.e. syncing base data).
         {

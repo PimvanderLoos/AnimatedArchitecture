@@ -1,5 +1,6 @@
-package nl.pim16aap2.testing.logging;
+package nl.pim16aap2.testing.assertions;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import lombok.ToString;
 import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
 import nl.pim16aap2.testing.TestUtil;
+import nl.pim16aap2.testing.logging.WithLogCapture;
 import nl.pim16aap2.util.logging.floggerbackend.CustomLevel;
 import nl.pim16aap2.util.logging.floggerbackend.Log4j2LogEventUtil;
 import org.jetbrains.annotations.Contract;
@@ -132,7 +134,7 @@ public final class LogAssertionsUtil
      *     The log captor to use.
      * @return A new instance of a {@link LogAssertion.LogAssertionBuilder}.
      */
-    public static LogAssertion.LogAssertionBuilder logAssertionBuilder(LogCaptor logCaptor)
+    static LogAssertion.LogAssertionBuilder logAssertionBuilder(LogCaptor logCaptor)
     {
         return LogAssertion.builder().logCaptor(logCaptor);
     }
@@ -877,7 +879,8 @@ public final class LogAssertionsUtil
              * @return This builder.
              */
             @FormatMethod
-            public LogAssertionBuilder message(@FormatString String message, Object @Nullable ... arguments)
+            @CheckReturnValue
+            public LogAssertionBuilder message(@FormatString String message, @Nullable Object @Nullable ... arguments)
             {
                 this.formattedMessage(String.format(message, arguments));
                 return this;
@@ -917,6 +920,7 @@ public final class LogAssertionsUtil
              *     The log level to set.
              * @return This builder.
              */
+            @CheckReturnValue
             public LogAssertionBuilder level(Level level)
             {
                 this.level$value = withoutCustomLevels(Log4j2LogEventUtil.toLog4jLevel(level)).name();
