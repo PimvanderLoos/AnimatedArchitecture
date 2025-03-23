@@ -93,6 +93,6 @@ class NamespacedKeyTest
     public void testToString()
     {
         NamespacedKey key = new NamespacedKey("owner", "name");
-        assertEquals("NamespacedKey(fullKey=owner:name)", key.toString());
+        assertEquals("NamespacedKey(owner:name)", key.toString());
     }
 }

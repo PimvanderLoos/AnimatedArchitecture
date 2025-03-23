@@ -55,7 +55,6 @@ class AddOwnerTest
         throws NoSuchMethodException
     {
         assistedFactoryMocker = new AssistedFactoryMocker<>(AddOwner.class, AddOwner.IFactory.class)
-            .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory())
             .setMock(DatabaseManager.class, databaseManager);
 
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
