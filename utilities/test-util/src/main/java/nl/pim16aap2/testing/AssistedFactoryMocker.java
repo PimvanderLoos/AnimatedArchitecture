@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Represents a class that can be used to create mocked objects for an {@link AssistedFactory}.
@@ -214,7 +215,20 @@ public class AssistedFactoryMocker<T, U>
         }
         catch (Exception e)
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException(String.format("""
+                    Failed to create new instance of target class: '%s'
+                    Used factory method: '%s'
+                    Target constructor:  '%s'
+                    Arguments:            %s
+                    """,
+                targetCtor.getDeclaringClass(),
+                factoryMethod.toGenericString(),
+                targetCtor.toGenericString(),
+                Stream
+                    .of(ctorParams)
+                    .map(val -> String.format("{type=%s, value=\"%s\"}", (val == null ? null : val.getClass()), val))
+                    .collect(Collectors.joining(", ", "{", "}"))
+            ), e);
         }
     }
 

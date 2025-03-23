@@ -16,7 +16,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.testing.logging.LogAssertionsUtil;
+import nl.pim16aap2.testing.assertions.AssertionBuilder;
+import nl.pim16aap2.testing.assertions.AssertionsUtil;
 import nl.pim16aap2.testing.logging.WithLogCapture;
 import nl.pim16aap2.util.exceptions.ContextualOperationException;
 import org.junit.jupiter.api.Test;
@@ -85,8 +86,8 @@ class BaseCommandTest
 
         command.handleRunException(exception);
 
-        LogAssertionsUtil
-            .logAssertionBuilder(logCaptor)
+        AssertionBuilder
+            .assertLogged(logCaptor)
             .level(Level.SEVERE)
             .message("Failed to execute command: %s", command)
             .assertLogged();
@@ -102,8 +103,8 @@ class BaseCommandTest
 
         command.handleRunException(exception);
 
-        LogAssertionsUtil
-            .logAssertionBuilder(logCaptor)
+        AssertionBuilder
+            .assertLogged(logCaptor)
             .level(Level.FINE)
             .message("Failed to execute command: %s", command)
             .assertLogged();
@@ -327,10 +328,10 @@ class BaseCommandTest
 
         assertNotNull(cause);
 
-        UnitTestUtil.assertStringEquals(
+        AssertionsUtil.assertStringEquals(
             "Get structure from retriever 'StructureRetriever.StructureObjectRetriever(",
             cause.getMessage(),
-            UnitTestUtil.MatchType.STARTS_WITH
+            AssertionsUtil.StringMatchType.STARTS_WITH
         );
     }
 

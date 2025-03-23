@@ -35,6 +35,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.testing.TestUtil;
+import nl.pim16aap2.testing.assertions.AssertionsUtil;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -758,9 +759,9 @@ public class UnitTestUtil
      *     The type of match to perform.
      * @return null.
      */
-    public static String stringMatcher(String input, MatchType matchType)
+    public static String stringMatcher(String input, AssertionsUtil.StringMatchType matchType)
     {
-        return argThat(new StringArgumentMatcher(input, matchType));
+        return argThat(new AssertionsUtil.StringArgumentMatcher(input, matchType));
     }
 
     /**
@@ -791,21 +792,6 @@ public class UnitTestUtil
     }
 
     /**
-     * Asserts that two strings are equal using a specific {@link MatchType}.
-     *
-     * @param expected
-     *     The expected string.
-     * @param actual
-     *     The actual string.
-     * @param matchType
-     *     The type of match to perform.
-     */
-    public static void assertStringEquals(String expected, String actual, MatchType matchType)
-    {
-        matchType.assertMatches(expected, actual);
-    }
-
-    /**
      * The result of creating a new {@link StructureBuilder}.
      *
      * @param structureBuilder
@@ -817,152 +803,6 @@ public class UnitTestUtil
         StructureBuilder structureBuilder,
         AssistedFactoryMocker<?, ?> assistedFactoryMocker)
     {}
-
-    /**
-     * The different ways to match a string against another string.
-     */
-    public enum MatchType
-    {
-        /**
-         * The strings must be exactly the same.
-         */
-        EXACT
-            {
-                @Override
-                boolean matches(String base, String argument)
-                {
-                    return base.equals(argument);
-                }
-
-                @Override
-                void assertMatches(String expected, String actual)
-                {
-                    if (!matches(actual, expected))
-                        fail(String.format("""
-                                Expected String did not match actual String:
-                                Expected string: "%s"
-                                Actual string:   "%s"
-                                """,
-                            expected,
-                            actual)
-                        );
-                }
-            },
-
-        /**
-         * The base string must contain the argument string.
-         */
-        CONTAINS
-            {
-                @Override
-                boolean matches(String base, String argument)
-                {
-                    return base.contains(argument);
-                }
-
-                @Override
-                void assertMatches(String expected, String actual)
-                {
-                    if (!matches(actual, expected))
-                        fail(String.format("""
-                                Expected String did not match actual String:
-                                Expected string to contain: "%s"
-                                Actual string:               "%s"
-                                """,
-                            expected,
-                            actual)
-                        );
-                }
-            },
-
-        /**
-         * The base string must start with the argument string.
-         */
-        STARTS_WITH
-            {
-                @Override
-                boolean matches(String base, String argument)
-                {
-                    return base.startsWith(argument);
-                }
-
-                @Override
-                void assertMatches(String expected, String actual)
-                {
-                    if (!matches(actual, expected))
-                        fail(String.format("""
-                                Expected String did not match actual String:
-                                Expected string to start with: "%s"
-                                Actual string:                 "%s"
-                                """,
-                            expected,
-                            actual)
-                        );
-                }
-            },
-
-        /**
-         * The base string must end with the argument string.
-         */
-        ENDS_WITH
-            {
-                @Override
-                boolean matches(String base, String argument)
-                {
-                    return base.endsWith(argument);
-                }
-
-                @Override
-                void assertMatches(String expected, String actual)
-                {
-                    if (!matches(actual, expected))
-                        fail(String.format("""
-                                Expected String did not match actual String:
-                                Expected string to end with: "%s"
-                                Actual string:               "%s"
-                                """,
-                            expected,
-                            actual)
-                        );
-                }
-            };
-
-        /**
-         * Checks if the base string matches the argument string.
-         *
-         * @param base
-         *     The base string.
-         * @param argument
-         *     The argument string.
-         * @return Whether the base string matches the argument string.
-         */
-        abstract boolean matches(String base, String argument);
-
-        /**
-         * Asserts that the expected string matches the actual string.
-         *
-         * @param expected
-         *     The expected string.
-         * @param actual
-         *     The actual string.
-         */
-        abstract void assertMatches(String expected, String actual);
-    }
-
-    @AllArgsConstructor
-    @ToString
-    @EqualsAndHashCode
-    public static final class StringArgumentMatcher implements ArgumentMatcher<String>
-    {
-        private final String base;
-        private final MatchType matchType;
-
-        @Override
-        public boolean matches(String argument)
-        {
-            return matchType.matches(base, argument);
-        }
-    }
 
     @AllArgsConstructor
     @ToString

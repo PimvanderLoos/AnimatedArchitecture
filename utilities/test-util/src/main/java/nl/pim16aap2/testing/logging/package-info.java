@@ -15,6 +15,9 @@
  *     }
  * }
  * } </pre>
+ * <p>
+ * You can use {@link nl.pim16aap2.testing.assertions.AssertionBuilder#assertLogged(nl.altindag.log.LogCaptor)} to build
+ * assertions on the logs.
  */
 @NonNullByDefault
 package nl.pim16aap2.testing.logging;
