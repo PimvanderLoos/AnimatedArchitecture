@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.RedstoneMode;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -278,6 +279,7 @@ public final class Property<T> implements IKeyed
      * @throws ClassCastException
      *     If the value cannot be cast to the type of the property.
      */
+    @Contract("null -> null; !null -> !null")
     public @Nullable T cast(@Nullable Object value)
     {
         try

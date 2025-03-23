@@ -8,6 +8,8 @@ import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CannotAddPropertyException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.PropertyCannotBeEditedByUserException;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -79,12 +81,14 @@ public class SetProperty extends StructureTargetCommand
         {
             getCommandSender().sendMessage(textFactory.newText().append(
                 localizer.getMessage("commands.set_property.error.invalid_value_type"),
-                TextType.ERROR));
+                TextType.ERROR
+            ));
+
             throw new InvalidCommandInputException(
                 true,
                 String.format("Value '%s' cannot be assigned to property '%s'.",
                     newValue,
-                    property.getNamespacedKey().getKey()
+                    property.getNamespacedKey()
                 ));
         }
 
@@ -105,7 +109,7 @@ public class SetProperty extends StructureTargetCommand
     }
 
     @VisibleForTesting
-    boolean performAction0(Structure structure)
+    void performAction0(Structure structure)
     {
         if (!structure.hasProperty(property) && !property.canBeAdded())
         {
@@ -115,50 +119,43 @@ public class SetProperty extends StructureTargetCommand
                 arg -> arg.highlight(property.getNamespacedKey().getKey()),
                 arg -> arg.highlight(localizer.getStructureType(structure))
             ));
-            return false;
+            throw new CannotAddPropertyException(true, property.getNamespacedKey().toString());
         }
 
         try
         {
             setProperty(structure, property, newValue);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            log.atWarning().withCause(e).log(
-                "Failed to set value '%s' for property '%s' for structure '%s'.",
-                newValue,
-                property.getNamespacedKey().getKey(),
-                structure.getBasicInfo()
-            );
-
             getCommandSender().sendMessage(textFactory.newText().append(
                 localizer.getMessage("commands.base.error.generic"),
                 TextType.ERROR
             ));
-            return false;
+
+            throw new CommandExecutionException(
+                true,
+                String.format(
+                    "Failed to set value '%s' for property '%s' for structure '%s'.",
+                    newValue,
+                    property.getNamespacedKey().getKey(),
+                    structure.getBasicInfo()
+                ),
+                exception
+            );
         }
-        return true;
-    }
-
-    CompletableFuture<?> handleActionResult(Structure structure, boolean success)
-    {
-        if (!success)
-            return CompletableFuture.completedFuture(null);
-
-        return databaseManager
-            .syncStructureData(structure.getSnapshot())
-            .thenAccept(result -> handleDatabaseActionResult(result, structure));
     }
 
     @Override
     protected CompletableFuture<?> performAction(Structure structure)
     {
         return CompletableFuture
-            .supplyAsync(() -> this.performAction0(structure), executor.getVirtualExecutor())
-            .thenCompose(success -> this.handleActionResult(structure, success))
+            .runAsync(() -> this.performAction0(structure), executor.getVirtualExecutor())
+            .thenCompose(__ -> databaseManager.syncStructureData(structure.getSnapshot()))
+            .thenAccept(result -> handleDatabaseActionResult(result, structure))
             .orTimeout(10, TimeUnit.SECONDS)
             .withExceptionContext(() -> String.format(
-                "Failed to set value '%s' for property '%s' for structure '%s'.",
+                "Set value '%s' for property '%s' for structure '%s'.",
                 newValue,
                 property.getNamespacedKey().getKey(),
                 structure.getBasicInfo()
