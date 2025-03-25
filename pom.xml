@@ -23,7 +23,7 @@
         <dependency.checkstyle.version>10.21.4</dependency.checkstyle.version>
         <dependency.dagger.version>2.55</dependency.dagger.version>
         <dependency.eclipse-annotations.version>2.3.100</dependency.eclipse-annotations.version>
-        <dependency.errorprone.version>2.36.0</dependency.errorprone.version>
+        <dependency.errorprone.version>2.37.0</dependency.errorprone.version>
         <dependency.failsafe.version>3.2.5</dependency.failsafe.version>
         <dependency.fastjson.version>2.0.56</dependency.fastjson.version>
         <dependency.fastutil.version>8.5.15</dependency.fastutil.version>
