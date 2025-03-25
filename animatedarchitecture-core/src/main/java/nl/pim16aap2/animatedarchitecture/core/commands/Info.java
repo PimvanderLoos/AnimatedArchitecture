@@ -9,6 +9,7 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
@@ -28,6 +29,7 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Represents the information command that provides the issuer with more information about the structure.
@@ -267,10 +269,21 @@ public class Info extends StructureTargetCommand
      */
     private void decorateProperties(StructureSnapshot structure, Text text)
     {
+        final boolean isAdmin =
+            getCommandSender()
+                .getPlayer()
+                .flatMap(structure::getOwner)
+                .map(owner -> owner.permission().isLowerThanOrEquals(PermissionLevel.ADMIN))
+                .orElse(false);
+
+        final Predicate<Property<?>> accessChecker = isAdmin ?
+            property -> property.adminHasAccessLevel(PropertyAccessLevel.READ) :
+            property -> property.userHasAccessLevel(PropertyAccessLevel.READ);
+
         structure
             .getPropertyContainerSnapshot()
             .stream()
-            .filter(entry -> entry.property().getPropertyAccessLevel() != PropertyAccessLevel.HIDDEN)
+            .filter(entry -> accessChecker.test(entry.property()))
             .forEach(entry -> decorateProperty(text, entry));
     }
 

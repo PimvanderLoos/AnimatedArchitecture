@@ -4,9 +4,11 @@ import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CannotAddPropertyException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CannotEditPropertyException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CannotRemovePropertyException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
-import nl.pim16aap2.animatedarchitecture.core.exceptions.PropertyCannotBeEditedByUserException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.PropertyIsHiddenException;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
@@ -72,11 +74,11 @@ class SetPropertyTest
     @Test
     void setProperty_shouldSucceedForValidInput()
     {
-        // Setup
+        // setup
         final Property<String> property = mock();
         final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
 
-        // Execute & Verify
+        // execute & verify
         assertDoesNotThrow(() -> setProperty.setProperty(structure, property, "newValue"));
         verify(commandSender).getPersonalizedLocalizer();
     }
@@ -85,7 +87,7 @@ class SetPropertyTest
     @SuppressWarnings("DirectInvocationOnMock")
     void setProperty_shouldThrowExceptionWhenTryingToRemoveNonRemovableProperty()
     {
-        // Setup
+        // setup
         final Property<String> property = mock();
         final NamespacedKey namespacedKey = new NamespacedKey("test", "property");
         final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
@@ -96,7 +98,7 @@ class SetPropertyTest
         when(property.getNamespacedKey()).thenReturn(namespacedKey);
         when(structure.canRemoveProperty(property)).thenReturn(false);
 
-        // Execute & Verify
+        // execute & verify
         verify(commandSender).getPersonalizedLocalizer();
         assertThatExceptionOfType(InvalidCommandInputException.class)
             .isThrownBy(() -> setProperty.setProperty(structure, property, null))
@@ -104,21 +106,21 @@ class SetPropertyTest
             .extracting(InvalidCommandInputException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
             .isTrue();
         assertThatMessageable(commandSender)
-            .sentErrorMessage("commands.set_property.error.cannot_remove_property")
+            .sentErrorMessage("commands.set_property.error.property_is_unremovable")
             .withArgs(namespacedKey.getKey(), "StructureType");
     }
 
     @Test
     void validateInput_shouldSucceedForValidInputForUserEditableProperty()
     {
-        // Setup
+        // setup
         final Property<String> property = mock();
         when(property.getType()).thenReturn(String.class);
-        when(property.getPropertyAccessLevel()).thenReturn(PropertyAccessLevel.USER_EDITABLE);
+        when(property.getAdminAccessLevel()).thenReturn(PropertyAccessLevel.EDIT.getFlag());
 
         final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
 
-        // Execute & Verify
+        // execute & verify
         assertDoesNotThrow(setProperty::validateInput);
         verify(commandSender).getPersonalizedLocalizer();
     }
@@ -126,13 +128,15 @@ class SetPropertyTest
     @Test
     void validateInput_shouldAcceptNullValue()
     {
-        // Setup
+        // setup
         final Property<String> property = mock();
-        when(property.getPropertyAccessLevel()).thenReturn(PropertyAccessLevel.USER_EDITABLE);
+        when(property.adminHasAccessLevel(PropertyAccessLevel.REMOVE))
+            .thenReturn(true);
+        when(property.getAdminAccessLevel()).thenReturn(PropertyAccessLevel.REMOVE.getFlag());
 
         final SetProperty setProperty = setPropertyWithDefaults(property, null);
 
-        // Execute & Verify
+        // execute & verify
         assertDoesNotThrow(setProperty::validateInput);
         verify(commandSender).getPersonalizedLocalizer();
     }
@@ -140,13 +144,14 @@ class SetPropertyTest
     @Test
     void validateInput_shouldThrowExceptionForInvalidValueType()
     {
-        // Setup
+        // setup
         final Property<String> property = mock();
         when(property.getType()).thenReturn(String.class);
+        when(property.getAdminAccessLevel()).thenReturn(PropertyAccessLevel.EDIT.getFlag());
 
         final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, 12);
 
-        // Execute & Verify
+        // execute & verify
         assertThatExceptionOfType(InvalidCommandInputException.class)
             .isThrownBy(setProperty::validateInput)
             .withMessage("Value '%d' cannot be assigned to property 'null'.", 12)
@@ -157,51 +162,146 @@ class SetPropertyTest
         verify(commandSender).getPersonalizedLocalizer();
     }
 
-    @ParameterizedTest
-    @EnumSource(value = PropertyAccessLevel.class, names = {"USER_EDITABLE"}, mode = EnumSource.Mode.EXCLUDE)
-    void validateInput_shouldThrowExceptionForNonEditableProperty(PropertyAccessLevel propertyAccessLevel)
+    @Test
+    void validateInput_shouldThrowExceptionWhenEvenAdminsCannotEditProperty()
     {
-        // Setup
+        // setup
         final Property<String> property = mockPropertyWithNamespacedKey();
 
-        when(property.getType()).thenReturn(String.class);
-        when(property.getPropertyAccessLevel()).thenReturn(propertyAccessLevel);
+        when(property.getAdminAccessLevel()).thenReturn(PropertyAccessLevel.READ.getFlag());
 
         final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, "newValue");
 
-        // Execute & Verify
-        assertThatExceptionOfType(PropertyCannotBeEditedByUserException.class)
+        // execute & verify
+        assertThatExceptionOfType(CannotEditPropertyException.class)
             .isThrownBy(setProperty::validateInput)
             .withMessage(property.getNamespacedKey().toString())
             .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
             .isTrue();
 
         assertThatMessageable(commandSender)
-            .sentErrorMessage("commands.set_property.error.property_not_editable")
+            .sentErrorMessage("commands.set_property.error.property_is_read_only")
             .withArgs(property.getNamespacedKey().getKey());
         verify(commandSender).getPersonalizedLocalizer();
     }
 
     @Test
-    void performAction0_shouldThrowExceptionWhenPropertyCannotBeAdded()
+    void validateInput_shouldThrowExceptionWhenEvenAdminsCannotRemoveProperty()
     {
-        // Setup
+        // setup
+        final Property<String> property = mockPropertyWithNamespacedKey();
+
+        when(property.getAdminAccessLevel()).thenReturn(PropertyAccessLevel.EDIT.getFlag());
+
+        final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, null);
+
+        // execute & verify
+        assertThatExceptionOfType(CannotRemovePropertyException.class)
+            .isThrownBy(setProperty::validateInput)
+            .withMessage(property.getNamespacedKey().toString())
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
+
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.set_property.error.property_is_unremovable")
+            .withArgs(property.getNamespacedKey().getKey());
+        verify(commandSender).getPersonalizedLocalizer();
+    }
+
+    @Test
+    void validateInput_shouldThrowExceptionWhenPropertyIsHidden()
+    {
+        // setup
+        final Property<String> property = mockPropertyWithNamespacedKey();
+
+        when(property.getAdminAccessLevel()).thenReturn(PropertyAccessLevel.NONE.getFlag());
+
+        final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, null);
+
+        // execute & verify
+        assertThatExceptionOfType(PropertyIsHiddenException.class)
+            .isThrownBy(setProperty::validateInput)
+            .withMessage(property.getNamespacedKey().toString())
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
+
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.set_property.error.property_is_hidden")
+            .withArgs(property.getNamespacedKey().getKey());
+        verify(commandSender).getPersonalizedLocalizer();
+    }
+
+
+    @ParameterizedTest
+    @EnumSource(value = PropertyAccessLevel.class, names = {"ADD"}, mode = EnumSource.Mode.EXCLUDE)
+    void performAction0_shouldThrowExceptionWhenPropertyCannotBeAdded(PropertyAccessLevel propertyAccessLevel)
+    {
+        // setup
         final Property<?> property = mockPropertyWithNamespacedKey();
 
         when(structure.hasProperty(property)).thenReturn(false);
-        when(property.canBeAddedByUser()).thenReturn(false);
+        when(property.getAccessLevel(any())).thenReturn(propertyAccessLevel.getFlag());
         UnitTestUtil.setStructureLocalization(structure);
 
         final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, "newValue");
 
-        // Execute & Verify
+        // execute & verify
         assertThatExceptionOfType(CannotAddPropertyException.class)
             .isThrownBy(() -> setProperty.performAction0(structure))
             .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
             .isTrue();
 
         assertThatMessageable(commandSender)
-            .sentErrorMessage("commands.set_property.error.property_cannot_be_added")
+            .sentErrorMessage("commands.set_property.error.not_allowed_to_add_property")
+            .withArgs(property.getNamespacedKey().getKey(), "StructureType");
+        verify(commandSender).getPersonalizedLocalizer();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = PropertyAccessLevel.class, names = {"REMOVE"}, mode = EnumSource.Mode.EXCLUDE)
+    void performAction0_shouldThrowExceptionWhenPropertyCannotBeRemoved(PropertyAccessLevel propertyAccessLevel)
+    {
+        // setup
+        final Property<?> property = mockPropertyWithNamespacedKey();
+
+        when(property.getAccessLevel(any())).thenReturn(propertyAccessLevel.getFlag());
+        UnitTestUtil.setStructureLocalization(structure);
+
+        final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, null);
+
+        // execute & verify
+        assertThatExceptionOfType(CannotRemovePropertyException.class)
+            .isThrownBy(() -> setProperty.performAction0(structure))
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
+
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.set_property.error.not_allowed_to_remove_property")
+            .withArgs(property.getNamespacedKey().getKey(), "StructureType");
+        verify(commandSender).getPersonalizedLocalizer();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = PropertyAccessLevel.class, names = {"EDIT"}, mode = EnumSource.Mode.EXCLUDE)
+    void performAction0_shouldThrowExceptionWhenPropertyCannotBeEdited(PropertyAccessLevel propertyAccessLevel)
+    {
+        // setup
+        final Property<?> property = mockPropertyWithNamespacedKey();
+
+        when(structure.hasProperty(property)).thenReturn(true);
+        when(property.getAccessLevel(any())).thenReturn(propertyAccessLevel.getFlag());
+        UnitTestUtil.setStructureLocalization(structure);
+
+        final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, "newValue");
+
+        // execute & verify
+        assertThatExceptionOfType(CannotEditPropertyException.class)
+            .isThrownBy(() -> setProperty.performAction0(structure))
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
+
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.set_property.error.not_allowed_to_edit_property")
             .withArgs(property.getNamespacedKey().getKey(), "StructureType");
         verify(commandSender).getPersonalizedLocalizer();
     }
@@ -209,18 +309,18 @@ class SetPropertyTest
     @Test
     void performAction0_shouldSucceedWhenPropertyCanBeAdded()
     {
-        // Setup
+        // setup
         final Property<String> property = mock();
         final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
 
         when(structure.hasProperty(property)).thenReturn(false);
-        when(property.canBeAddedByUser()).thenReturn(true);
+        when(property.getAccessLevel(any())).thenReturn(PropertyAccessLevel.ADD.getFlag());
         when(property.cast("newValue")).thenAnswer(invocation -> invocation.getArguments()[0]);
 
-        // Execute
+        // execute
         assertDoesNotThrow(() -> setProperty.performAction0(structure));
 
-        // Verify
+        // verify
         verify(structure).setPropertyValue(property, "newValue");
         verify(commandSender).getPersonalizedLocalizer();
     }
@@ -228,17 +328,18 @@ class SetPropertyTest
     @Test
     void performAction0_shouldSucceedWhenPropertyExists()
     {
-        // Setup
+        // setup
         final Property<String> property = mock();
         final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
 
         when(structure.hasProperty(property)).thenReturn(true);
+        when(property.getAccessLevel(any())).thenReturn(PropertyAccessLevel.EDIT.getFlag());
         when(property.cast("newValue")).thenAnswer(invocation -> invocation.getArguments()[0]);
 
-        // Execute
+        // execute
         assertDoesNotThrow(() -> setProperty.performAction0(structure));
 
-        // Verify
+        // verify
         verify(structure).setPropertyValue(property, "newValue");
         verify(commandSender).getPersonalizedLocalizer();
     }
@@ -246,16 +347,17 @@ class SetPropertyTest
     @Test
     void performAction0_shouldThrowNewExceptionWhenExceptionOccurs()
     {
-        // Setup
+        // setup
         final String newValue = "newValue";
         final Property<String> property = mockPropertyWithNamespacedKey();
         final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, newValue);
 
         when(structure.hasProperty(property)).thenReturn(true);
+        when(property.getAccessLevel(any())).thenReturn(PropertyAccessLevel.EDIT.getFlag());
         when(property.cast("newValue")).thenAnswer(invocation -> invocation.getArguments()[0]);
         doThrow(new RuntimeException("Test exception")).when(structure).setPropertyValue(property, newValue);
 
-        // Execute & Verify
+        // execute & verify
         assertThatExceptionOfType(CommandExecutionException.class)
             .isThrownBy(() -> setProperty.performAction0(structure))
             .withMessageStartingWith("Failed to set value 'newValue' for property 'property' for structure ")
@@ -270,7 +372,7 @@ class SetPropertyTest
     @Test
     void performAction_shouldSyncStructureDataWhenSuccessIsTrue()
     {
-        // Setup
+        // setup
         final Property<?> property = mockPropertyWithNamespacedKey();
         final IExecutor executor = mock();
         final StructureSnapshot snapshot = mock(StructureSnapshot.class);
@@ -284,10 +386,10 @@ class SetPropertyTest
 
         doNothing().when(setProperty).performAction0(structure);
 
-        // Execute
+        // execute
         setProperty.performAction(structure).join();
 
-        // Verify
+        // verify
         verify(databaseManager).syncStructureData(snapshot);
         assertThatMessageable(commandSender)
             .sentSuccessMessage("commands.set_property.success")
@@ -298,7 +400,7 @@ class SetPropertyTest
     @Test
     void performAction_shouldAppendExceptionContext()
     {
-        // Setup
+        // setup
         final Property<Integer> property = mockPropertyWithNamespacedKey();
         final IExecutor executor = mock();
 
@@ -312,7 +414,7 @@ class SetPropertyTest
 
         doThrow(new CommandExecutionException(true, "TEST EXCEPTION")).when(setProperty).performAction0(structure);
 
-        // Execute & Verify
+        // execute & verify
         final var thrown = AssertionBuilder
             .assertHasExceptionContext(setProperty.performAction(structure))
             .withMessage("Set value '12' for property 'property' for structure 'null'.")
@@ -330,12 +432,12 @@ class SetPropertyTest
     @Test
     void handleDatabaseActionSuccess_shouldSendSuccessMessage()
     {
-        // Setup
+        // setup
         final Property<?> property = mockPropertyWithNamespacedKey();
 
         final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, "newValue");
 
-        // Execute
+        // execute
         setProperty.handleDatabaseActionSuccess(structure);
 
         assertThatMessageable(commandSender)
@@ -347,11 +449,11 @@ class SetPropertyTest
     @Test
     void getCommand_shouldReturnCorrectCommandDefinition()
     {
-        // Setup
+        // setup
         final Property<?> property = mock();
         final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
 
-        // Execute & Verify
+        // execute & verify
         assertEquals(CommandDefinition.SET_PROPERTY, setProperty.getCommand());
         verify(commandSender).getPersonalizedLocalizer();
     }

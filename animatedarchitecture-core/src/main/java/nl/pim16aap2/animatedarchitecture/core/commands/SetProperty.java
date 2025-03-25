@@ -8,9 +8,11 @@ import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CannotAddPropertyException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CannotEditPropertyException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CannotRemovePropertyException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
-import nl.pim16aap2.animatedarchitecture.core.exceptions.PropertyCannotBeEditedByUserException;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.PropertyIsHiddenException;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
@@ -72,6 +74,33 @@ public class SetProperty extends StructureTargetCommand
     @Override
     protected void validateInput()
     {
+        if (property.getAdminAccessLevel() == PropertyAccessLevel.NONE.getFlag())
+        {
+            getCommandSender().sendError(
+                "commands.set_property.error.property_is_hidden",
+                arg -> arg.highlight(property.getNamespacedKey().getKey())
+            );
+            throw new PropertyIsHiddenException(true, property.getNamespacedKey().toString());
+        }
+
+        if (property.getAdminAccessLevel() == PropertyAccessLevel.READ.getFlag())
+        {
+            getCommandSender().sendError(
+                "commands.set_property.error.property_is_read_only",
+                arg -> arg.highlight(property.getNamespacedKey().getKey())
+            );
+            throw new CannotEditPropertyException(true, property.getNamespacedKey().toString());
+        }
+
+        if (newValue == null && !property.adminHasAccessLevel(PropertyAccessLevel.REMOVE))
+        {
+            getCommandSender().sendError(
+                "commands.set_property.error.property_is_unremovable",
+                arg -> arg.highlight(property.getNamespacedKey().getKey())
+            );
+            throw new CannotRemovePropertyException(true, property.getNamespacedKey().toString());
+        }
+
         if (newValue != null && !property.getType().isAssignableFrom(newValue.getClass()))
         {
             getCommandSender().sendError("commands.set_property.error.invalid_value_type");
@@ -83,15 +112,6 @@ public class SetProperty extends StructureTargetCommand
                     property.getNamespacedKey()
                 ));
         }
-
-        if (property.getPropertyAccessLevel() != PropertyAccessLevel.USER_EDITABLE)
-        {
-            getCommandSender().sendError(
-                "commands.set_property.error.property_not_editable",
-                arg -> arg.highlight(property.getNamespacedKey().getKey())
-            );
-            throw new PropertyCannotBeEditedByUserException(true, property.getNamespacedKey().toString());
-        }
     }
 
     @VisibleForTesting
@@ -100,7 +120,7 @@ public class SetProperty extends StructureTargetCommand
         if (object == null && !structure.canRemoveProperty(property))
         {
             getCommandSender().sendError(
-                "commands.set_property.error.cannot_remove_property",
+                "commands.set_property.error.property_is_unremovable",
                 arg -> arg.highlight(property.getNamespacedKey().getKey()),
                 arg -> arg.localizedHighlight(structure)
             );
@@ -115,18 +135,56 @@ public class SetProperty extends StructureTargetCommand
         structure.setPropertyValue(property, property.cast(object));
     }
 
-    @VisibleForTesting
-    void performAction0(Structure structure)
+    private void verifyPropertyCanBeRemoved(int permissionLevel, Structure structure)
     {
-        if (!structure.hasProperty(property) && !property.canBeAddedByUser())
+        if (!PropertyAccessLevel.hasFlag(permissionLevel, PropertyAccessLevel.REMOVE))
         {
             getCommandSender().sendError(
-                "commands.set_property.error.property_cannot_be_added",
+                "commands.set_property.error.not_allowed_to_remove_property",
+                arg -> arg.highlight(property.getNamespacedKey().getKey()),
+                arg -> arg.localizedHighlight(structure)
+            );
+            throw new CannotRemovePropertyException(true, property.getNamespacedKey().toString());
+        }
+    }
+
+    private void verifyPropertyCanBeAdded(int permissionLevel, Structure structure)
+    {
+        if (!PropertyAccessLevel.hasFlag(permissionLevel, PropertyAccessLevel.ADD))
+        {
+            getCommandSender().sendError(
+                "commands.set_property.error.not_allowed_to_add_property",
                 arg -> arg.highlight(property.getNamespacedKey().getKey()),
                 arg -> arg.localizedHighlight(structure)
             );
             throw new CannotAddPropertyException(true, property.getNamespacedKey().toString());
         }
+    }
+
+    private void verifyPropertyCanBeEdited(int permissionLevel, Structure structure)
+    {
+        if (!PropertyAccessLevel.hasFlag(permissionLevel, PropertyAccessLevel.EDIT))
+        {
+            getCommandSender().sendError(
+                "commands.set_property.error.not_allowed_to_edit_property",
+                arg -> arg.highlight(property.getNamespacedKey().getKey()),
+                arg -> arg.localizedHighlight(structure)
+            );
+            throw new CannotEditPropertyException(true, property.getNamespacedKey().toString());
+        }
+    }
+
+    @VisibleForTesting
+    void performAction0(Structure structure)
+    {
+        final int permissionLevel = property.getAccessLevel(structure.getPermissionLevel(getCommandSender()));
+
+        if (newValue == null)
+            verifyPropertyCanBeRemoved(permissionLevel, structure);
+        else if (!structure.hasProperty(property))
+            verifyPropertyCanBeAdded(permissionLevel, structure);
+        else
+            verifyPropertyCanBeEdited(permissionLevel, structure);
 
         try
         {

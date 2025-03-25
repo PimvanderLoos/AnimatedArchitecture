@@ -66,7 +66,7 @@ class IPropertyHolderConstTest
         // Setup
         final var property = Property.builder("test", "single_property", String.class)
             .withDefaultValue("default")
-            .isEditable()
+            .withUserAccessLevels(PropertyAccessLevel.EDIT)
             .build();
         doReturn(true).when(propertyHolder).hasProperty(property);
 
