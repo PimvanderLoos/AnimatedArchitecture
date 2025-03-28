@@ -78,6 +78,7 @@ class LocalizerIntegrationTest
     void testGetMessage()
     {
         final Localizer localizer = new Localizer(directory, BASE_NAME, false);
+        localizer.allowClientLocales(true);
         Assertions.assertEquals("waarde0", localizer.getMessage("key0", LOCALE_DUTCH));
         final String input = "A_B_C_D_E";
         Assertions.assertEquals(input, localizer.getMessage("key1", LOCALE_DUTCH, input));

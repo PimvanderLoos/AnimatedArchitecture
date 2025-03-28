@@ -1,9 +1,12 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Locale;
 
 /**
  * Represents objects that can receive messages.
@@ -11,17 +14,64 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 public interface IMessageable
 {
     /**
-     * Instance of {@link BlackHoleMessageable} that can be used in case messages should not be sent anywhere.
-     */
-    IMessageable NULL = new BlackHoleMessageable();
-
-    /**
      * Sends a message to this object.
      *
      * @param text
      *     The message to send. This may or may not contain formatting.
      */
     void sendMessage(Text text);
+
+    /**
+     * Gets the localizer of this messageable.
+     *
+     * @return The localizer of this messageable.
+     */
+    ILocalizer getLocalizer();
+
+    /**
+     * Gets the text factory of this messageable.
+     *
+     * @return The text factory of this messageable.
+     */
+    ITextFactory getTextFactory();
+
+    /**
+     * Gets the locale of this sender.
+     * <p>
+     * Defaults to null.
+     *
+     * @return The locale of this sender or null if no locale is set.
+     */
+    default @Nullable Locale getLocale()
+    {
+        return null;
+    }
+
+    /**
+     * Creates a new {@link Text} using the text factory of this messageable.
+     *
+     * @return A new {@link Text} object.
+     */
+    default Text createText()
+    {
+        return getTextFactory().newText();
+    }
+
+    /**
+     * Localizes a message for this messageable.
+     * <p>
+     * This method will use the locale of this messageable.
+     *
+     * @param key
+     *     The key of the message.
+     * @param args
+     *     The arguments of the message, if any.
+     * @return The localized message associated with the provided key.
+     */
+    default String localized(String key, Object... args)
+    {
+        return getLocalizer().getMessage(key, getLocale(), args);
+    }
 
     /**
      * Sends a message to this object.
@@ -75,22 +125,5 @@ public interface IMessageable
     default void sendInfo(ITextFactory textFactory, String message)
     {
         sendMessage(textFactory, TextType.INFO, message);
-    }
-
-    /**
-     * Implementation of {@link IMessageable} that does not send messages anywhere.
-     */
-    @Flogger
-    final class BlackHoleMessageable implements IMessageable
-    {
-        private BlackHoleMessageable()
-        {
-        }
-
-        @Override
-        public void sendMessage(Text text)
-        {
-            log.atFinest().log("Sent to black hole: %s", text);
-        }
     }
 }

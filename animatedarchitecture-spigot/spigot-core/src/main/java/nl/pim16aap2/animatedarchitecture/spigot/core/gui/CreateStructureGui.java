@@ -21,7 +21,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
-import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -48,7 +48,7 @@ class CreateStructureGui implements IGuiPage
 
     @Getter
     @ToString.Include
-    private final PlayerSpigot inventoryHolder;
+    private final WrappedPlayer inventoryHolder;
 
     @AssistedInject
     CreateStructureGui(
@@ -58,7 +58,7 @@ class CreateStructureGui implements IGuiPage
         ITextFactory textFactory,
         ILocalizer localizer,
         CommandFactory commandFactory,
-        @Assisted PlayerSpigot inventoryHolder)
+        @Assisted WrappedPlayer inventoryHolder)
     {
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.structureTypeManager = structureTypeManager;
@@ -159,6 +159,6 @@ class CreateStructureGui implements IGuiPage
     @AssistedFactory
     interface IFactory
     {
-        CreateStructureGui newCreateStructureGui(PlayerSpigot playerSpigot);
+        CreateStructureGui newCreateStructureGui(WrappedPlayer playerSpigot);
     }
 }

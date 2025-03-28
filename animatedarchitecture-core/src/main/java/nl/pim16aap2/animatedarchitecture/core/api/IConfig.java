@@ -47,7 +47,19 @@ public interface IConfig extends IRestartable
      */
     int coolDown();
 
+    /**
+     * The default locale to use.
+     *
+     * @return The default locale to use.
+     */
     Locale locale();
+
+    /**
+     * Whether to allow the client locale to be used.
+     *
+     * @return True to try to use a player's locale.
+     */
+    boolean allowClientLocale();
 
     /**
      * Gets the global maximum number of blocks that can be in a structure.

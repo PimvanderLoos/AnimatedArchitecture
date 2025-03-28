@@ -16,6 +16,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.hooks.bundle.AbstractProtectionHookSpecification;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IPermissionsManagerSpigot;
@@ -255,7 +256,7 @@ public final class ProtectionHookManagerSpigot
      */
     private Optional<Player> getPlayer(IPlayer player, Location location)
     {
-        final OfflinePlayer offlinePlayer = SpigotAdapter.getOfflineBukkitPlayer(player);
+        final OfflinePlayer offlinePlayer = PlayerFactorySpigot.unwrapOfflinePlayer(player);
         final @Nullable Player onlinePlayer = offlinePlayer.getPlayer();
         if (onlinePlayer != null)
             return Optional.of(onlinePlayer);

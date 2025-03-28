@@ -24,8 +24,8 @@ import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
-import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
-import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +60,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
     @Getter
     @ToString.Include
-    private final PlayerSpigot inventoryHolder;
+    private final WrappedPlayer inventoryHolder;
 
     private InventoryGui inventoryGui;
 
@@ -81,6 +81,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         GuiStructureDeletionManager deletionManager,
         IExecutor executor,
         ConfigSpigot config,
+        PlayerFactorySpigot playerFactory,
         @Assisted IPlayer inventoryHolder,
         @Assisted List<NamedStructure> structures)
     {
@@ -92,7 +93,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         this.localizer = localizer;
         this.infoGuiFactory = infoGuiFactory;
         this.config = config;
-        this.inventoryHolder = Util.requireNonNull(SpigotAdapter.getPlayerSpigot(inventoryHolder), "InventoryHolder");
+        this.inventoryHolder = Util.requireNonNull(playerFactory.wrapPlayer(inventoryHolder), "InventoryHolder");
         this.structures = getStructuresMap(structures);
 
         this.inventoryGui = createGUI();

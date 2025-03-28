@@ -216,8 +216,7 @@ public class StructureAnimationRequest
          *     The cause of the movement.
          * @param messageReceiver
          *     The receiver for all messages related to the toggle. When no player is available, this should usually be
-         *     the server (See {@link IAnimatedArchitecturePlatform#getServer()}) or
-         *     {@link IMessageable.BlackHoleMessageable}.
+         *     the server (See {@link IAnimatedArchitecturePlatform#getServer()}).
          * @param time
          *     The duration of the animation in seconds. May be null to use the default time.
          * @param skipAnimation

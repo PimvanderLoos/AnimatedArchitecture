@@ -1,10 +1,13 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
 
+import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
@@ -24,20 +27,25 @@ import java.util.concurrent.CompletableFuture;
  * Represents an implementation of {@link IPlayer} for the Spigot platform.
  */
 @Flogger
-public final class PlayerSpigot implements IPlayer
+public final class WrappedPlayer implements IPlayer
 {
     private final Player spigotPlayer;
+
+    @Getter
+    private final ILocalizer localizer;
+
+    @Getter
+    private final ITextFactory textFactory;
+
+    @Getter
     private final @Nullable Locale locale;
 
-    public PlayerSpigot(Player spigotPlayer)
+    public WrappedPlayer(Player spigotPlayer, ILocalizer localizer, ITextFactory textFactory)
     {
         this.spigotPlayer = spigotPlayer;
         this.locale = parseLocale(spigotPlayer.getLocale());
-    }
-
-    public @Nullable Locale getLocale()
-    {
-        return locale;
+        this.localizer = localizer;
+        this.textFactory = textFactory;
     }
 
     @Override
@@ -139,7 +147,7 @@ public final class PlayerSpigot implements IPlayer
             return false;
         if (getClass() != o.getClass())
             return false;
-        return getUUID().equals(((PlayerSpigot) o).getUUID());
+        return getUUID().equals(((WrappedPlayer) o).getUUID());
     }
 
     @Override

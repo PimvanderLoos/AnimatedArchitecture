@@ -100,6 +100,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
     private boolean enableRedstone;
     private boolean loadChunksForToggle;
     private Locale locale = Locale.ROOT;
+    private boolean allowClientLocale;
     private int headCacheTimeout;
     private boolean skipAnimationsByDefault;
     private boolean consoleLogging;
@@ -258,6 +259,11 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
             # After changing this, either restart the plugin or restart the server to apply the changes.
             #
             # Any strings that are not translated for the chosen locale will default to the root locale (English).
+            """;
+
+        final String allowClientLocaleComment = """
+            # When enabled, the plugin will try to use the locale of the client if it is supported.
+            # If the client's locale is not supported, the plugin will default to the locale set in 'locale'.
             """;
 
         final String commandAliasesComment = """
@@ -420,6 +426,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
         if ("root".equalsIgnoreCase(localeStr))
             localeStr = "";
         locale = Objects.requireNonNullElse(LocalizationUtil.parseLocale(localeStr), Locale.ROOT);
+        allowClientLocale = addNewConfigEntry(config, "allowClientLocale", true, allowClientLocaleComment);
 
         resourcePackEnabled = addNewConfigEntry(config, "resourcePackEnabled", false, resourcePackComment);
 
@@ -762,6 +769,12 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
     public Locale locale()
     {
         return locale;
+    }
+
+    @Override
+    public boolean allowClientLocale()
+    {
+        return allowClientLocale;
     }
 
     @Override

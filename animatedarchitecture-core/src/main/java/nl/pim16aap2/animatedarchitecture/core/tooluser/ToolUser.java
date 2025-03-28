@@ -218,8 +218,7 @@ public abstract class ToolUser
      */
     protected final synchronized void giveTool(String nameKey, String loreKey, @Nullable Text text)
     {
-        animatedArchitectureToolUtil.giveToPlayer(
-            getPlayer(), localizer.getMessage(nameKey), localizer.getMessage(loreKey));
+        animatedArchitectureToolUtil.giveToPlayer(getPlayer(), nameKey, loreKey);
         playerHasTool = true;
 
         if (text != null)

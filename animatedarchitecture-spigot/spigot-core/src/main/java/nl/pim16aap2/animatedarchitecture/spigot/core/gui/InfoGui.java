@@ -20,7 +20,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
-import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -56,7 +56,7 @@ class InfoGui implements IGuiPage
 
     @Getter
     @ToString.Include
-    private final PlayerSpigot inventoryHolder;
+    private final WrappedPlayer inventoryHolder;
 
     // Currently not used, but it's needed later on when we can update the elements
     // When the field in the structure changes.
@@ -66,7 +66,7 @@ class InfoGui implements IGuiPage
     @AssistedInject
     InfoGui(
         @Assisted Structure structure,
-        @Assisted PlayerSpigot inventoryHolder,
+        @Assisted WrappedPlayer inventoryHolder,
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         ILocalizer localizer,
         IPermissionsManager permissionsManager,
@@ -161,7 +161,7 @@ class InfoGui implements IGuiPage
 
     static List<StructureAttribute> analyzeAttributes(
         StructureOwner structureOwner,
-        PlayerSpigot player,
+        WrappedPlayer player,
         IPermissionsManager permissionsManager)
     {
         final PermissionLevel perm = structureOwner.permission();
@@ -174,7 +174,7 @@ class InfoGui implements IGuiPage
     }
 
     private static boolean hasAccessToAttribute(
-        PlayerSpigot player,
+        WrappedPlayer player,
         StructureAttribute attribute,
         PermissionLevel permissionLevel,
         IPermissionsManager permissionsManager)
@@ -192,6 +192,6 @@ class InfoGui implements IGuiPage
     @AssistedFactory
     interface IFactory
     {
-        InfoGui newInfoGUI(Structure structure, PlayerSpigot playerSpigot);
+        InfoGui newInfoGUI(Structure structure, WrappedPlayer playerSpigot);
     }
 }

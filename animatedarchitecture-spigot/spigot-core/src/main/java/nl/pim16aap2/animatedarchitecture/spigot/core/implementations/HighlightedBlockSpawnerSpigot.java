@@ -107,7 +107,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
 
         final @Nullable Long time = duration == null ? null : Math.max(50, duration.toMillis());
 
-        final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
+        final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log(

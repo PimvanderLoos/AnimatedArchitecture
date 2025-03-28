@@ -34,7 +34,7 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
-import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,6 +62,7 @@ public final class CommandManager
     private volatile @Nullable PaperCommandManager<ICommandSender> manager;
     private boolean asyncCompletions = false;
     private final BukkitAudiences bukkitAudiences;
+    private final PlayerFactorySpigot playerFactory;
     private final StructureTypeParser structureTypeParser;
     private final DirectionParser directionParser;
     private final IsOpenParser isOpenParser;
@@ -77,6 +78,7 @@ public final class CommandManager
         IPermissionsManager permissionsManager,
         StructureTypeManager structureTypeManager,
         StructureRetrieverFactory structureRetrieverFactory,
+        PlayerFactorySpigot playerFactory,
         StructureTypeParser structureTypeParser,
         DirectionParser directionParser,
         IsOpenParser isOpenParser,
@@ -90,6 +92,7 @@ public final class CommandManager
         this.permissionsManager = permissionsManager;
         this.structureTypeManager = structureTypeManager;
         this.structureRetrieverFactory = structureRetrieverFactory;
+        this.playerFactory = playerFactory;
         this.structureTypeParser = structureTypeParser;
         this.directionParser = directionParser;
         this.bukkitAudiences = BukkitAudiences.create(plugin);
@@ -147,7 +150,7 @@ public final class CommandManager
                 .append(text("] ", NamedTextColor.DARK_GRAY))
                 .append(component)
                 .build())
-            .apply(manager, sender -> this.bukkitAudiences.sender(SpigotAdapter.unwrapCommandSender(sender)));
+            .apply(manager, sender -> this.bukkitAudiences.sender(PlayerFactorySpigot.unwrapCommandSender(sender)));
 
         initCommands(manager);
     }
@@ -199,7 +202,7 @@ public final class CommandManager
     {
         final MinecraftHelp<ICommandSender> minecraftHelp = new MinecraftHelp<>(
             "/animatedarchitecture help",
-            sender -> this.bukkitAudiences.sender(SpigotAdapter.unwrapCommandSender(sender)),
+            sender -> this.bukkitAudiences.sender(PlayerFactorySpigot.unwrapCommandSender(sender)),
             manager
         );
 
@@ -631,8 +634,8 @@ public final class CommandManager
         return new PaperCommandManager<>(
             plugin,
             CommandExecutionCoordinator.simpleCoordinator(),
-            SpigotAdapter::wrapCommandSender,
-            SpigotAdapter::unwrapCommandSender
+            playerFactory::wrapCommandSender,
+            PlayerFactorySpigot::unwrapCommandSender
         );
     }
 }

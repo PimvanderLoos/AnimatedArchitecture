@@ -12,12 +12,12 @@ public interface IAnimatedArchitectureToolUtil
      *
      * @param player
      *     The player to give the tool to.
-     * @param name
-     *     The name of the tool.
-     * @param lore
-     *     The lore of the tool.
+     * @param nameKey
+     *     The localization key for name of the tool.
+     * @param loreKey
+     *     The localization key for lore of the tool.
      */
-    void giveToPlayer(IPlayer player, String name, String lore);
+    void giveToPlayer(IPlayer player, String nameKey, String loreKey);
 
     /**
      * Removes any AnimatedArchitecture tools from a player's inventory.

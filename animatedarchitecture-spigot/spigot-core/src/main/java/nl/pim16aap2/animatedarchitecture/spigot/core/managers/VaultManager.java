@@ -22,7 +22,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
-import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IPermissionsManagerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IFakePlayer;
 import nl.pim16aap2.jcalculator.JCalculator;
@@ -88,7 +88,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         if (!isEconomyEnabled())
             return true;
 
-        final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
+        final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
@@ -439,7 +439,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
 
     private @Nullable Player getBukkitPlayer(IPlayer player)
     {
-        final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
+        final @Nullable Player bukkitPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (bukkitPlayer == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log(

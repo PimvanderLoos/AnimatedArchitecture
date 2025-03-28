@@ -16,7 +16,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
-import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -39,7 +39,7 @@ class DeleteGui implements IGuiPage
 
     @Getter
     @ToString.Include
-    private final PlayerSpigot inventoryHolder;
+    private final WrappedPlayer inventoryHolder;
 
     @AssistedInject
     DeleteGui(
@@ -49,7 +49,7 @@ class DeleteGui implements IGuiPage
         CommandFactory commandFactory,
         StructureRetrieverFactory structureRetrieverFactory,
         @Assisted Structure structure,
-        @Assisted PlayerSpigot inventoryHolder)
+        @Assisted WrappedPlayer inventoryHolder)
     {
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.textFactory = textFactory;
@@ -140,6 +140,6 @@ class DeleteGui implements IGuiPage
     @AssistedFactory
     interface IFactory
     {
-        DeleteGui newDeleteGui(Structure structure, PlayerSpigot playerSpigot);
+        DeleteGui newDeleteGui(Structure structure, WrappedPlayer playerSpigot);
     }
 }

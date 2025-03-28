@@ -20,7 +20,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetr
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +42,7 @@ class CommandExecutor
     private static final int DEFAULT_TIMEOUT_SECONDS = 10;
 
     private final CommandFactory commandFactory;
+    private final PlayerFactorySpigot playerFactory;
     private final StructureRetrieverFactory structureRetrieverFactory;
     private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
     private final ITextFactory textFactory;
@@ -50,12 +51,14 @@ class CommandExecutor
     @Inject
     CommandExecutor(
         CommandFactory commandFactory,
+        PlayerFactorySpigot playerFactory,
         StructureRetrieverFactory structureRetrieverFactory,
         StructureAnimationRequestBuilder structureAnimationRequestBuilder,
         ITextFactory textFactory,
         ILocalizer localizer)
     {
         this.commandFactory = commandFactory;
+        this.playerFactory = playerFactory;
         this.structureRetrieverFactory = structureRetrieverFactory;
         this.structureAnimationRequestBuilder = structureAnimationRequestBuilder;
         this.textFactory = textFactory;
@@ -66,7 +69,7 @@ class CommandExecutor
     @SuppressWarnings("NullAway")
     void addOwner(CommandContext<ICommandSender> context)
     {
-        final IPlayer newOwner = SpigotAdapter.wrapPlayer(context.get("newOwner"));
+        final IPlayer newOwner = playerFactory.wrapPlayer((Player) context.get("newOwner"));
         final @Nullable PermissionLevel permissionLevel = nullable(context, "permissionLevel");
         final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
@@ -172,7 +175,7 @@ class CommandExecutor
         final ICommandSender commandSender = context.getSender();
         final IPlayer targetPlayer;
         if (player != null)
-            targetPlayer = SpigotAdapter.wrapPlayer(player);
+            targetPlayer = playerFactory.wrapPlayer(player);
         else
             targetPlayer = commandSender.getPlayer().orElseThrow(IllegalArgumentException::new);
 
@@ -204,7 +207,7 @@ class CommandExecutor
 
     void removeOwner(CommandContext<ICommandSender> context)
     {
-        final IPlayer targetPlayer = SpigotAdapter.wrapPlayer(context.get("targetPlayer"));
+        final IPlayer targetPlayer = playerFactory.wrapPlayer((Player) context.get("targetPlayer"));
         final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
 
         final ICommandSender commandSender = context.getSender();
