@@ -14,6 +14,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.text.TextRendererSpigot;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
@@ -26,10 +27,17 @@ import java.util.concurrent.CompletableFuture;
 public final class PlayerSpigot implements IPlayer
 {
     private final Player spigotPlayer;
+    private final @Nullable Locale locale;
 
     public PlayerSpigot(Player spigotPlayer)
     {
         this.spigotPlayer = spigotPlayer;
+        this.locale = parseLocale(spigotPlayer.getLocale());
+    }
+
+    public @Nullable Locale getLocale()
+    {
+        return locale;
     }
 
     @Override
@@ -138,5 +146,16 @@ public final class PlayerSpigot implements IPlayer
     public int hashCode()
     {
         return getUUID().hashCode();
+    }
+
+    static @Nullable Locale parseLocale(@Nullable String localeString)
+    {
+        if (localeString == null)
+            return null;
+
+        final String languageTag = localeString.replace("_", "-").toLowerCase(Locale.ROOT);
+        final Locale locale = Locale.forLanguageTag(languageTag);
+
+        return locale.getLanguage().isEmpty() ? null : locale;
     }
 }
