@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
 import com.google.common.io.BaseEncoding;
+import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -82,7 +83,7 @@ public class LoginResourcePackListener extends AbstractListener
                 ANIMATED_ARCHITECTURE_RESOURCE_PACK_ID,
                 resourcePackDetails.getUrl(),
                 resourcePackDetails.getHash(),
-                localizer.getMessage(""),
+                localizer.getMessage("core.resource_pack.message"),
                 false
             );
         }
@@ -202,12 +203,17 @@ public class LoginResourcePackListener extends AbstractListener
 
         ;
 
-        private static final List<ResourcePackDetails> VALUES = List.of(values());
-        private static final ResourcePackDetails LATEST = VALUES.getLast();
+        public static final List<ResourcePackDetails> VALUES = List.of(values());
+        public static final ResourcePackDetails LATEST = VALUES.getLast();
 
         private final String url;
+
         private final byte[] hash;
+
+        @Getter
         private final Semver minVersion;
+
+        @Getter
         private final Semver maxVersion;
 
         /**
@@ -220,25 +226,13 @@ public class LoginResourcePackListener extends AbstractListener
          * @param maxVersion
          *     The maximum version for which the resource pack is suitable (inclusive).
          */
-        ResourcePackDetails(String url, byte[] hash, Semver minVersion, Semver maxVersion)
+        ResourcePackDetails(String url, String hash, Semver minVersion, Semver maxVersion)
         {
             this.url = url;
-            this.hash = hash;
-
-            if (this.url.endsWith("dl=0"))
-                throw new IllegalArgumentException("dl=0 is not supported.");
+            this.hash = decodeHash(hash);
 
             this.minVersion = minVersion;
             this.maxVersion = maxVersion;
-
-            if (this.hash.length != 0 && this.hash.length != 20)
-                throw new IllegalArgumentException(
-                    "The hash must be empty or 20 bytes long! Got: " + this.hash.length + " bytes.");
-        }
-
-        ResourcePackDetails(String url, String hash, Semver minVersion, Semver maxVersion)
-        {
-            this(url, decodeHash(hash), minVersion, maxVersion);
         }
 
         /**
@@ -248,11 +242,8 @@ public class LoginResourcePackListener extends AbstractListener
          *     The hash to decode.
          * @return The decoded hash.
          */
-        private static byte[] decodeHash(String hash)
+        static byte[] decodeHash(String hash)
         {
-            if (hash.isEmpty())
-                return new byte[0];
-
             if (hash.length() != 40)
                 throw new IllegalArgumentException(
                     "The hash must be 40 characters long! Got: " + hash.length() + " characters.");
@@ -271,11 +262,20 @@ public class LoginResourcePackListener extends AbstractListener
          */
         public static ResourcePackDetails getForVersion(Semver version)
         {
-            if (version.isGreaterThan(LATEST.minVersion))
+            // e.g. 1.20.0-pre1 -> 1.20.0; We don't support non-release versions.
+            final Semver testVersion = version.withClearedPreReleaseAndBuild();
+
+            if (testVersion.isGreaterThan(LATEST.minVersion))
                 return LATEST;
 
+            final var lowestVersion = VALUES.getFirst().minVersion;
+            if (testVersion.isLowerThan(lowestVersion))
+                throw new IllegalArgumentException(
+                    "Version '" + testVersion + "' is lower than the lowest supported version '" + lowestVersion + "'");
+
             for (final var entry : VALUES)
-                if (version.isGreaterThanOrEqualTo(entry.minVersion) && version.isLowerThanOrEqualTo(entry.maxVersion))
+                if (testVersion.isGreaterThanOrEqualTo(entry.minVersion) &&
+                    testVersion.isLowerThanOrEqualTo(entry.maxVersion))
                     return entry;
 
             return LATEST;
