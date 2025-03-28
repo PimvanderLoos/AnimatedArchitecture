@@ -8,7 +8,7 @@
         <!-- Ignored the following lines if they are too long: -->
         <!-- 1) Lines in JavaDocs that contain an @link -->
         <!-- 2) Lines in JavaDocs or comments that contain a URL (http:// or https://) -->
-        <property name="ignorePattern" value="(^[ ]*\* .*\{@link .*$)|(^[ ]*(\*|\/\/) .*http(s)?:\/\/.*$)"/>
+        <property name="ignorePattern" value="(^[ ]*\* .*\{@link .*$)|(^[ ]*(\*|\/\/|#) .*http(s)?:\/\/.*$)"/>
     </module>
 
     <module name="FileTabCharacter"/>

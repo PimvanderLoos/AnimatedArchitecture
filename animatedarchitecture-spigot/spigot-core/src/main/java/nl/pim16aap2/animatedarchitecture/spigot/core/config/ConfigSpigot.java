@@ -250,6 +250,14 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
 
         final String localeComment = """
             # Determines which locale to use. Defaults to root.
+            #
+            # A list of supported locales can be found here:
+            # https://github.com/PimvanderLoos/AnimatedArchitecture/tree/master/animatedarchitecture-core/src/main/resources
+            # For example, to use the Dutch locale, you would set this to 'nl_NL'.
+            #
+            # After changing this, either restart the plugin or restart the server to apply the changes.
+            #
+            # Any strings that are not translated for the chosen locale will default to the root locale (English).
             """;
 
         final String commandAliasesComment = """
