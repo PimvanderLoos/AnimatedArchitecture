@@ -91,8 +91,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
     private OptionalInt maxStructureSize = OptionalInt.empty();
     private OptionalInt maxPowerBlockDistance = OptionalInt.empty();
     private boolean resourcePackEnabled = false;
-    private final String resourcePack =
-        "https://www.dropbox.com/s/8vpwzjkd9jnp1xu/AnimatedArchitectureResourcePack-Format12.zip?dl=1";
     private OptionalInt maxStructureCount = OptionalInt.empty();
     private OptionalInt maxBlocksToMove = OptionalInt.empty();
     private double maxBlockSpeed;
@@ -261,8 +259,10 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
 
         final String resourcePackComment = """
             # This plugin uses a support resource pack for things such as sound.
-            # Enabling this may cause issues if you server or another plugin also uses a resource pack!
-            # When this is the case, it's recommended to disable this option and merge the pack with the other one.
+            #
+            # On 1.20, enabling this will cause conflicts with other resource packs and you will have to merge them
+            # manually and disable this option.
+            # On 1.21 and later, you can enable this without any issues.
             """;
 
         final String maxBlockSpeedComment = """
@@ -783,11 +783,6 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
     public boolean isResourcePackEnabled()
     {
         return resourcePackEnabled;
-    }
-
-    public String resourcePack()
-    {
-        return resourcePack;
     }
 
     @Override
