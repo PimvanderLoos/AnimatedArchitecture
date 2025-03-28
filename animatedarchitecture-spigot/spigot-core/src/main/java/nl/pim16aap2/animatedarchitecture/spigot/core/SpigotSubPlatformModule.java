@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
 
+import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
@@ -28,10 +29,26 @@ public abstract class SpigotSubPlatformModule
     @Provides
     @Singleton
     static ISpigotSubPlatform getSubPlatform(
+        @Named("serverVersion") Semver serverVersion,
         Provider<SubPlatform_V1_20> subPlatform_v1_20,
         Provider<SubPlatform_V1_21> subPlatform_v1_21)
     {
+        return switch (serverVersion.getMinor())
+        {
+            case 20 -> subPlatform_v1_20.get();
+            case 21 -> subPlatform_v1_21.get();
 
+            // The default case should always point to platform for the latest supported version as this version
+            // will offer the closest match to the latest version.
+            default -> subPlatform_v1_21.get();
+        };
+    }
+
+    @Provides
+    @Singleton
+    @Named("serverVersion")
+    static Semver provideServerVersion()
+    {
         @Nullable Semver serverVersion = Semver.coerce(Bukkit.getServer().getBukkitVersion());
         if (serverVersion == null)
             throw new IllegalStateException(
@@ -44,16 +61,7 @@ public abstract class SpigotSubPlatformModule
             throw new IllegalStateException(
                 "This plugin requires at least version " + MINIMUM_SUPPORTED_VERSION +
                     "! Version " + serverVersion + " is not supported.");
-
-        return switch (serverVersion.getMinor())
-        {
-            case 20 -> subPlatform_v1_20.get();
-            case 21 -> subPlatform_v1_21.get();
-
-            // The default case should always point to platform for the latest supported version as this version
-            // will offer the closest match to the latest version.
-            default -> subPlatform_v1_21.get();
-        };
+        return serverVersion;
     }
 
     @Provides
