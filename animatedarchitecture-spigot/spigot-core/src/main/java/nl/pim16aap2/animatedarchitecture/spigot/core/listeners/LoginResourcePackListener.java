@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -96,12 +97,6 @@ public class LoginResourcePackListener extends AbstractListener
     private void setResourcePack(Player player, ResourcePackDetails resourcePackDetails)
     {
         player.setResourcePack(resourcePackDetails.getUrl(), resourcePackDetails.getHash());
-    }
-
-    @Override
-    public void initialize()
-    {
-        super.initialize();
     }
 
     private static @Nullable MethodHandle getAddResourcePackMethodHandle()
@@ -302,7 +297,7 @@ public class LoginResourcePackListener extends AbstractListener
          */
         byte[] getHash()
         {
-            return hash;
+            return Arrays.copyOf(hash, hash.length);
         }
     }
 }
