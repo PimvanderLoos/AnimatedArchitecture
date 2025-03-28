@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
+import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.SpigotServer;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -30,6 +32,14 @@ import java.util.concurrent.CompletableFuture;
 @Flogger
 public class PlayerFactorySpigot implements IPlayerFactory
 {
+    private final TimedCache<UUID, WrappedPlayer> playerCache = TimedCache
+        .<UUID, WrappedPlayer>builder()
+        .softReference(true)
+        .timeOut(Duration.ofMinutes(5))
+        .cleanup(Duration.ofMinutes(5))
+        .refresh(true)
+        .build();
+
     private final SpigotServer spigotServer;
     private final DatabaseManager databaseManager;
     private final ILocalizer localizer;
@@ -129,7 +139,14 @@ public class PlayerFactorySpigot implements IPlayerFactory
      */
     public WrappedPlayer wrapPlayer(Player player)
     {
-        return new WrappedPlayer(player, localizer, textFactory);
+        // 'computeIfAbsent' is marked as nullable, but that can only happen when
+        // the mapping function returns null, which it doesn't.
+
+        //noinspection DataFlowIssue
+        return playerCache.computeIfAbsent(
+            player.getUniqueId(),
+            uuid -> new WrappedPlayer(player, localizer, textFactory)
+        );
     }
 
     /**
