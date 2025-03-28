@@ -126,7 +126,7 @@ class SetNameTest
         assertTrue(exception.isUserInformed());
         assertEquals("No pending process.", exception.getMessage());
 
-        verify(commandSender).sendError(textFactory, "commands.base.error.no_pending_process");
+        verify(commandSender).sendError("commands.base.error.no_pending_process");
         verify(toolUserManager).getToolUser(commandSender);
 
         verifyNoMoreInteractions(commandSender);
@@ -157,7 +157,7 @@ class SetNameTest
         assertTrue(exception.isUserInformed());
         assertEquals("No pending process.", exception.getMessage());
 
-        verify(commandSender).sendError(textFactory, "commands.base.error.no_pending_process");
+        verify(commandSender).sendError("commands.base.error.no_pending_process");
         verify(toolUserManager).getToolUser(commandSender);
 
         verifyNoMoreInteractions(commandSender);

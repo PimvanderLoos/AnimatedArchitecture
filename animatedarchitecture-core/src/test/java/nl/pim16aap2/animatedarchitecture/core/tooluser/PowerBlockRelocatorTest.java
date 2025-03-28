@@ -5,8 +5,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -72,19 +70,17 @@ class PowerBlockRelocatorTest
             .canBreakBlocksInCuboid(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(CompletableFuture.completedFuture(IProtectionHookManager.HookCheckResult.allowed()));
 
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
-
         final ToolUser.Context context = mock(ToolUser.Context.class, Answers.RETURNS_MOCKS);
         when(context.getProtectionHookManager()).thenReturn(hookManager);
-        when(context.getLocalizer()).thenReturn(localizer);
-        when(context.getTextFactory()).thenReturn(ITextFactory.getSimpleTextFactory());
 
         final Step.Factory.IFactory assistedStepFactory = mock(Step.Factory.IFactory.class);
 
-        //noinspection deprecation
         when(assistedStepFactory
-            .stepName(Mockito.anyString()))
-            .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
+            .stepName(any(), anyString()))
+            .thenAnswer(invocation -> new Step.Factory(
+                invocation.getArgument(0),
+                invocation.getArgument(1, String.class))
+            );
 
         when(context.getStepFactory()).thenReturn(assistedStepFactory);
 

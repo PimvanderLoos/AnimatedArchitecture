@@ -5,14 +5,11 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -37,15 +34,11 @@ public class SetOpenStatus extends StructureTargetCommand
         @Assisted("isOpen") boolean isOpen,
         @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         CommandFactory commandFactory)
     {
         super(
             commandSender,
             executor,
-            localizer,
-            textFactory,
             structureRetriever,
             StructureAttribute.OPEN_STATUS,
             sendUpdatedInfo,
@@ -61,25 +54,23 @@ public class SetOpenStatus extends StructureTargetCommand
     }
 
     @Override
-    protected void handleDatabaseActionSuccess(@org.jetbrains.annotations.Nullable Structure retrieverResult)
+    protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
     {
         final var desc = getRetrievedStructureDescription(retrieverResult);
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.set_open_status.success"),
-            TextType.SUCCESS,
+        getCommandSender().sendSuccess(
+            "commands.set_open_status.success",
             arg -> arg.highlight(desc.localizedTypeName()),
-            arg -> arg.highlight(desc.id()))
+            arg -> arg.highlight(desc.id())
         );
     }
 
     @Override
     protected void notifyMissingProperties(Structure structure)
     {
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.set_open_status.error.missing_property"),
-            TextType.ERROR,
-            arg -> arg.highlight(localizer.getStructureType(structure)),
-            arg -> arg.highlight(structure.getNameAndUid()))
+        getCommandSender().sendError(
+            "commands.set_open_status.error.missing_property",
+            arg -> arg.localizedHighlight(structure),
+            arg -> arg.highlight(structure.getNameAndUid())
         );
     }
 
@@ -97,17 +88,16 @@ public class SetOpenStatus extends StructureTargetCommand
         }
 
         // The open status has not changed, so we inform the user.
-        final String localizedIsOpen =
+        final String isOpenKey =
             isOpen ?
-                localizer.getMessage("constants.open_status.open") :
-                localizer.getMessage("constants.open_status.closed");
+                "constants.open_status.open" :
+                "constants.open_status.closed";
 
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.set_open_status.error.status_not_changed"),
-            TextType.ERROR,
-            arg -> arg.highlight(localizer.getStructureType(structure)),
+        getCommandSender().sendError(
+            "commands.set_open_status.error.status_not_changed",
+            arg -> arg.localizedHighlight(structure),
             arg -> arg.highlight(structure.getNameAndUid()),
-            arg -> arg.highlight(localizedIsOpen))
+            arg -> arg.localizedHighlight(isOpenKey)
         );
 
         return CompletableFuture.completedFuture(null);

@@ -1,11 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
@@ -43,8 +41,6 @@ class DelayedCommandTest
     private DelayedCommandInputManager delayedCommandInputManager =
         new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
 
-    private final ILocalizer localizer = UnitTestUtil.initLocalizer();
-
     @Mock
     private DelayedCommandInputRequest.IFactory<Object> inputRequestFactory;
 
@@ -76,7 +72,7 @@ class DelayedCommandTest
     void init()
     {
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
-        initInputRequestFactory(inputRequestFactory, executor, localizer, delayedCommandInputManager);
+        initInputRequestFactory(inputRequestFactory, executor, delayedCommandInputManager);
         structureRetriever = structureRetrieverFactory.of(structure);
     }
 
@@ -110,7 +106,6 @@ class DelayedCommandTest
 
     @Test
     void exception()
-        throws InterruptedException
     {
         when(delayedFunction.apply(any(), any(), any())).thenThrow(RuntimeException.class);
 
@@ -140,7 +135,6 @@ class DelayedCommandTest
     public static <T> void initInputRequestFactory(
         DelayedCommandInputRequest.IFactory<T> inputRequestFactory,
         IExecutor executor,
-        ILocalizer localizer,
         DelayedCommandInputManager delayedCommandInputManager)
     {
         when(inputRequestFactory
@@ -153,8 +147,6 @@ class DelayedCommandTest
                 invocation.getArgument(4),
                 invocation.getArgument(5),
                 executor,
-                localizer,
-                ITextFactory.getSimpleTextFactory(),
                 delayedCommandInputManager)
             );
     }

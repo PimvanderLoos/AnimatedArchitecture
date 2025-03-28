@@ -1,10 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -26,8 +23,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.textArgumentMatcher;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(1)
@@ -59,16 +56,12 @@ class ListStructuresTest
         for (int idx = 0; idx < size; ++idx)
             structures.add(Mockito.mock(Structure.class));
 
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
-
         when(factory
             .newListStructures(any(ICommandSender.class), any(StructureRetriever.class)))
             .thenAnswer(invoc -> new ListStructures(
                 invoc.getArgument(0, ICommandSender.class),
                 invoc.getArgument(1, StructureRetriever.class),
-                executor,
-                localizer,
-                ITextFactory.getSimpleTextFactory())
+                executor)
             );
     }
 

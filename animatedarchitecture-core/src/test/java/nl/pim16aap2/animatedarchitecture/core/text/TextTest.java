@@ -1,9 +1,12 @@
 package nl.pim16aap2.animatedarchitecture.core.text;
 
 import lombok.ToString;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.mockito.Mockito.*;
 
 class TextTest
 {
@@ -15,11 +18,12 @@ class TextTest
             .build();
 
     final TextComponentFactory textComponentFactory = new TextComponentFactory(colorScheme);
+    final PersonalizedLocalizer localizer = new PersonalizedLocalizer(mock(), null);
 
     @Test
     void subsection()
     {
-        final Text text = new Text(textComponentFactory).append("123456789", TextType.HIGHLIGHT);
+        final Text text = new Text(textComponentFactory, localizer).append("123456789", TextType.HIGHLIGHT);
 
         Assertions.assertEquals("123", text.subsection(0, 3).toString());
         Assertions.assertEquals("456", text.subsection(3, 6).toString());
@@ -34,7 +38,7 @@ class TextTest
     @Test
     void styledSubsection()
     {
-        final Text text = new Text(textComponentFactory)
+        final Text text = new Text(textComponentFactory, localizer)
             .append("123", TextType.ERROR)
             .append("456", TextType.INFO)
             .append("789", TextType.HIGHLIGHT);
@@ -47,8 +51,8 @@ class TextTest
     @Test
     void toStringTest()
     {
-        final Text textA = new Text(textComponentFactory);
-        final Text textB = new Text(textComponentFactory);
+        final Text textA = new Text(textComponentFactory, localizer);
+        final Text textB = new Text(textComponentFactory, localizer);
 
         textA.append("abc", TextType.ERROR);
         textB.append("def", TextType.INFO);
@@ -58,8 +62,8 @@ class TextTest
     @Test
     void append()
     {
-        final Text textA = new Text(textComponentFactory).append("abcdef");
-        final Text textB = new Text(textComponentFactory).append("ghifjk", TextType.INFO);
+        final Text textA = new Text(textComponentFactory, localizer).append("abcdef");
+        final Text textB = new Text(textComponentFactory, localizer).append("ghifjk", TextType.INFO);
 
         final Text result = new Text(textA).append(textB);
 
@@ -71,8 +75,8 @@ class TextTest
     @Test
     void prepend()
     {
-        final Text textA = new Text(textComponentFactory).append("abc", TextType.ERROR);
-        final Text textB = new Text(textComponentFactory).append("def", TextType.INFO);
+        final Text textA = new Text(textComponentFactory, localizer).append("abc", TextType.ERROR);
+        final Text textB = new Text(textComponentFactory, localizer).append("def", TextType.INFO);
 
         final Text result = new Text(textA).prepend(textB);
 
@@ -85,8 +89,8 @@ class TextTest
     @Test
     void addStyled()
     {
-        final Text textA = new Text(textComponentFactory);
-        final Text textB = new Text(textComponentFactory);
+        final Text textA = new Text(textComponentFactory, localizer);
+        final Text textB = new Text(textComponentFactory, localizer);
 
         textA.append("abc", TextType.ERROR);
         textB.append("def", TextType.INFO);
@@ -102,14 +106,14 @@ class TextTest
     @Test
     void testEquals()
     {
-        final Text textA = new Text(textComponentFactory);
-        final Text textB = new Text(textComponentFactory);
+        final Text textA = new Text(textComponentFactory, localizer);
+        final Text textB = new Text(textComponentFactory, localizer);
 
         textA.append("A", TextType.INFO);
         textB.append("B", TextType.ERROR);
 
         textA.append("B", TextType.ERROR);
-        textB.prepend(new Text(textComponentFactory).append("A", TextType.INFO));
+        textB.prepend(new Text(textComponentFactory, localizer).append("A", TextType.INFO));
         Assertions.assertEquals(textA, textB);
 
         final Text textC = new Text(textA).append("C", TextType.HIGHLIGHT);
@@ -126,21 +130,21 @@ class TextTest
     {
         Assertions.assertEquals(
             "<a href=\"my_url\">CLICK HERE</a>",
-            new Text(textComponentFactory)
+            new Text(textComponentFactory, localizer)
                 .appendClickableText("CLICK HERE", null, "my_url", null)
                 .render(new Renderer())
         );
 
         Assertions.assertEquals(
             "<a href=\"my_url\"><info>CLICK HERE</info></a>",
-            new Text(textComponentFactory)
+            new Text(textComponentFactory, localizer)
                 .appendClickableText("CLICK HERE", TextType.INFO, "my_url", null)
                 .render(new Renderer())
         );
 
         Assertions.assertEquals(
             "<a href=\"my_url\" title=\"click for help\"><info>CLICK HERE</info></a>",
-            new Text(textComponentFactory)
+            new Text(textComponentFactory, localizer)
                 .appendClickableText("CLICK HERE", TextType.INFO, "my_url", "click for help")
                 .render(new Renderer())
         );
@@ -149,7 +153,7 @@ class TextTest
     @Test
     void testArguments()
     {
-        final Text text = new Text(textComponentFactory);
+        final Text text = new Text(textComponentFactory, localizer);
         text.append(
             "Click {1}, {2}, or {0} to do {3}!", TextType.INFO,
             new TextArgument("HERE0", text.newClickableTextComponent(TextType.INFO, "url0", null)),
@@ -175,14 +179,14 @@ class TextTest
     @Test
     void testHashCode()
     {
-        final Text textA = new Text(textComponentFactory);
-        final Text textB = new Text(textComponentFactory);
+        final Text textA = new Text(textComponentFactory, localizer);
+        final Text textB = new Text(textComponentFactory, localizer);
 
         textA.append("A", TextType.INFO);
         textB.append("B", TextType.ERROR);
 
         textA.append("B", TextType.ERROR);
-        textB.prepend(new Text(textComponentFactory).append("A", TextType.INFO));
+        textB.prepend(new Text(textComponentFactory, localizer).append("A", TextType.INFO));
         Assertions.assertEquals(textA.hashCode(), textB.hashCode());
 
         final Text textC = new Text(textA).append("C", TextType.HIGHLIGHT);

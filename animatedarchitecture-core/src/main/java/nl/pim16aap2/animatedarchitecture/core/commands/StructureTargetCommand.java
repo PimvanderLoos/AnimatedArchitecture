@@ -9,18 +9,16 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.RequiredPropertiesMissingForCommandException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -64,18 +62,16 @@ public abstract class StructureTargetCommand extends BaseCommand
     @GuardedBy("$lock")
     private @Nullable Structure retrieverResult;
 
-    @Contract("_, _, _, _, _, _, true, null -> fail")
+    @Contract("_, _, _, _, true, null -> fail")
     protected StructureTargetCommand(
         ICommandSender commandSender,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         StructureRetriever structureRetriever,
         StructureAttribute structureAttribute,
         boolean sendUpdatedInfo,
         @Nullable CommandFactory commandFactory)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
 
         if (sendUpdatedInfo && commandFactory == null)
             throw new IllegalArgumentException("Command factory cannot be null if sendUpdatedInfo is true.");
@@ -89,12 +85,10 @@ public abstract class StructureTargetCommand extends BaseCommand
     protected StructureTargetCommand(
         ICommandSender commandSender,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         StructureRetriever structureRetriever,
         StructureAttribute structureAttribute)
     {
-        this(commandSender, executor, localizer, textFactory, structureRetriever, structureAttribute, false, null);
+        this(commandSender, executor, structureRetriever, structureAttribute, false, null);
     }
 
     @Override
@@ -150,23 +144,21 @@ public abstract class StructureTargetCommand extends BaseCommand
         {
             throw new CommandExecutionException(e.isUserInformed(), e);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.structure_target_command.base.error.no_permission_for_action"),
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(structure)))
+            getCommandSender().sendError(
+                "commands.structure_target_command.base.error.no_permission_for_action",
+                arg -> arg.localizedHighlight(structure)
             );
 
             throw new NoAccessToStructureCommandException(
                 true,
                 String.format(
-                    "CommandSender %s does not have access to structure %s for command %s"
-                    ,
+                    "CommandSender %s does not have access to structure %s for command %s",
                     getCommandSender(),
                     structure,
                     this),
-                e
+                exception
             );
         }
     }
@@ -224,12 +216,10 @@ public abstract class StructureTargetCommand extends BaseCommand
      */
     protected void notifyMissingProperties(Structure structure)
     {
-        getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.structure_target_command.base.error.missing_properties"),
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(structure)),
-                arg -> arg.highlight(getRequiredProperties())
-            )
+        getCommandSender().sendError(
+            "commands.structure_target_command.base.error.missing_properties",
+            arg -> arg.localizedHighlight(structure),
+            arg -> arg.highlight(getRequiredProperties())
         );
     }
 
@@ -282,7 +272,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      */
     protected final StructureDescription getRetrievedStructureDescription(@Nullable Structure retrieverResult)
     {
-        return StructureDescription.of(localizer, retrieverResult);
+        return StructureDescription.of(getCommandSender().getPersonalizedLocalizer(), retrieverResult);
     }
 
     /**
@@ -305,7 +295,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      */
     protected void handleDatabaseActionCancelled(@Nullable Structure retrieverResult)
     {
-        getCommandSender().sendError(textFactory, localizer.getMessage("commands.base.error.action_cancelled"));
+        getCommandSender().sendError("commands.base.error.action_cancelled");
     }
 
     /**
@@ -322,7 +312,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      */
     protected void handleDatabaseActionFail(@Nullable Structure retrieverResult)
     {
-        getCommandSender().sendError(textFactory, localizer.getMessage("constants.error.generic"));
+        getCommandSender().sendError("constants.error.generic");
     }
 
     /**
@@ -359,11 +349,13 @@ public abstract class StructureTargetCommand extends BaseCommand
     {
         private static final StructureDescription EMPTY_DESCRIPTION = new StructureDescription("Structure", "null");
 
-        private static StructureDescription of(ILocalizer localizer, @Nullable Structure structure)
+        private static StructureDescription of(PersonalizedLocalizer localizer, @Nullable Structure structure)
         {
             if (structure != null)
                 return new StructureDescription(
-                    localizer.getStructureType(structure), structure.getName() + " (" + structure.getUid() + ")");
+                    localizer.getMessage(structure.getType().getLocalizationKey()),
+                    structure.getName() + " (" + structure.getUid() + ")"
+                );
 
             log.atSevere().withStackTrace(StackSize.FULL).log("Structure not available after database action!");
             return EMPTY_DESCRIPTION;

@@ -1,11 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
@@ -26,10 +23,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
@@ -64,7 +61,6 @@ class NewStructureTest
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
         when(permissionsManager.hasPermissionToCreateStructure(any(), any())).thenReturn(true);
         when(permissionsManager.hasPermission(any(), any())).thenReturn(true);
         when(commandSender
@@ -78,8 +74,6 @@ class NewStructureTest
                 invoc.getArgument(1, StructureType.class),
                 invoc.getArgument(2, String.class),
                 executor,
-                localizer,
-                ITextFactory.getSimpleTextFactory(),
                 permissionsManager,
                 toolUserManager,
                 creatorContextProvider)

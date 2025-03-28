@@ -84,7 +84,6 @@ class RemoveOwnerDelayedTest
         DelayedCommandTest.initInputRequestFactory(
             inputRequestFactory,
             executor,
-            localizer,
             delayedCommandInputManager
         );
 

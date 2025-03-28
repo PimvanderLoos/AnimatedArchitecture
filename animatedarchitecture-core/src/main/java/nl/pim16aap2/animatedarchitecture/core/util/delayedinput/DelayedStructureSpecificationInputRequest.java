@@ -9,8 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
@@ -39,15 +38,9 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private final ILocalizer localizer;
-
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private final ITextFactory textFactory;
-
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private final StructureSpecificationManager structureSpecificationManager;
+
+    private final PersonalizedLocalizer localizer;
 
     private final List<Structure> options;
 
@@ -56,15 +49,12 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
         List<Structure> options,
         IPlayer player,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         StructureSpecificationManager structureSpecificationManager)
     {
         super(timeout, executor);
         this.options = options;
         this.player = player;
-        this.localizer = localizer;
-        this.textFactory = textFactory;
+        this.localizer = player.getPersonalizedLocalizer();
         this.structureSpecificationManager = structureSpecificationManager;
         init();
     }
@@ -73,7 +63,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
     {
         structureSpecificationManager.placeRequest(player, this);
 
-        final Text text = textFactory.newText();
+        final Text text = player.newText();
         text.append(localizer.getMessage("input_request.specify_structure.header"), TextType.INFO);
 
         getStructureInfoList(text);
@@ -140,8 +130,6 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
     {
         private final IExecutor executor;
         private final IConfig config;
-        private final ILocalizer localizer;
-        private final ITextFactory textFactory;
         private final StructureSpecificationManager structureSpecificationManager;
 
         /**
@@ -177,8 +165,6 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
                 options,
                 player,
                 executor,
-                localizer,
-                textFactory,
                 structureSpecificationManager
             )
                 .get()

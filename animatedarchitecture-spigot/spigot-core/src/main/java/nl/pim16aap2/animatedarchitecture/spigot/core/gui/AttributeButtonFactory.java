@@ -7,18 +7,15 @@ import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextComponent;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
@@ -43,8 +40,6 @@ class AttributeButtonFactory
      */
     private static final int DEFAULT_TIMEOUT_SECONDS = 10;
 
-    private final ILocalizer localizer;
-    private final ITextFactory textFactory;
     private final CommandFactory commandFactory;
     private final IExecutor executor;
     private final StructureRetrieverFactory structureRetrieverFactory;
@@ -53,16 +48,12 @@ class AttributeButtonFactory
 
     @Inject
     AttributeButtonFactory(
-        ILocalizer localizer,
-        ITextFactory textFactory,
         CommandFactory commandFactory,
         IExecutor executor,
         StructureRetrieverFactory structureRetrieverFactory,
         StructureAnimationRequestBuilder structureAnimationRequestBuilder,
         DeleteGui.IFactory deleteGuiFactory)
     {
-        this.localizer = localizer;
-        this.textFactory = textFactory;
         this.commandFactory = commandFactory;
         this.executor = executor;
         this.structureRetrieverFactory = structureRetrieverFactory;
@@ -88,6 +79,7 @@ class AttributeButtonFactory
 
     private GuiElement lockButton(Structure structure, WrappedPlayer player, char slotChar)
     {
+        final var localizer = player.getPersonalizedLocalizer();
         final GuiStateElement element = new GuiStateElement(
             slotChar,
             () -> structure.isLocked() ? "isLocked" : "isUnlocked",
@@ -114,6 +106,7 @@ class AttributeButtonFactory
 
     private GuiElement toggleButton(Structure structure, WrappedPlayer player, char slotChar)
     {
+        final var localizer = player.getPersonalizedLocalizer();
         return new StaticGuiElement(
             slotChar,
             new ItemStack(Material.LEVER),
@@ -139,6 +132,7 @@ class AttributeButtonFactory
 
     private GuiElement previewButton(Structure structure, WrappedPlayer player, char slotChar)
     {
+        final var localizer = player.getPersonalizedLocalizer();
         return new StaticGuiElement(
             slotChar,
             new ItemStack(Material.ENDER_EYE),
@@ -177,15 +171,13 @@ class AttributeButtonFactory
      */
     private void handleExceptional(Throwable ex, WrappedPlayer player, String context)
     {
-        player.sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.base.error.generic"),
-            TextType.ERROR
-        ));
+        player.sendError("commands.base.error.generic");
         log.atSevere().withCause(ex).log("Failed to handle action '%s' for player '%s'", context, player);
     }
 
     private GuiElement infoButton(Structure structure, WrappedPlayer player, char slotChar)
     {
+        final var localizer = player.getPersonalizedLocalizer();
         return new StaticGuiElement(
             slotChar,
             new ItemStack(Material.BOOKSHELF),
@@ -206,6 +198,7 @@ class AttributeButtonFactory
     private GuiElement deleteButton(
         Structure structure, WrappedPlayer player, char slotChar)
     {
+        final var localizer = player.getPersonalizedLocalizer();
         return new StaticGuiElement(
             slotChar,
             new ItemStack(Material.BARRIER),
@@ -222,6 +215,7 @@ class AttributeButtonFactory
 
     private GuiElement relocatePowerBlockButton(Structure structure, WrappedPlayer player, char slotChar)
     {
+        final var localizer = player.getPersonalizedLocalizer();
         return new StaticGuiElement(
             slotChar,
             new ItemStack(Material.LEATHER_BOOTS),
@@ -259,6 +253,7 @@ class AttributeButtonFactory
         if (isOpen == null)
             return null;
 
+        final var localizer = player.getPersonalizedLocalizer();
         final GuiStateElement element = new GuiStateElement(
             slotChar,
             () -> isOpen ? "isOpen" : "isClosed",
@@ -284,13 +279,14 @@ class AttributeButtonFactory
     }
 
     private void setOpenDirectionLore(
-        StaticGuiElement staticGuiElement, Structure structure, MovementDirection direction)
+        WrappedPlayer player, StaticGuiElement staticGuiElement, Structure structure, MovementDirection direction)
     {
+        final var localizer = player.getPersonalizedLocalizer();
         staticGuiElement.setText(
             localizer.getMessage(
                 "gui.info_page.attribute.open_direction",
                 localizer.getMessage(structure.getType().getLocalizationKey())),
-            textFactory
+            player
                 .newText()
                 .append(
                     localizer.getMessage("gui.info_page.attribute.open_direction.lore"),
@@ -316,6 +312,7 @@ class AttributeButtonFactory
                     .handleExceptional(ex -> handleExceptional(ex, player, "open_direction_button"));
 
                 setOpenDirectionLore(
+                    player,
                     Util.requireNonNull(staticGuiElementRef.get(), "static GUI element reference"),
                     structure,
                     newOpenDir
@@ -328,12 +325,13 @@ class AttributeButtonFactory
         );
         staticGuiElementRef.set(staticElement);
 
-        setOpenDirectionLore(staticElement, structure, structure.getOpenDirection());
+        setOpenDirectionLore(player, staticElement, structure, structure.getOpenDirection());
         return staticElement;
     }
 
     private GuiElement blocksToMoveButton(Structure structure, WrappedPlayer player, char slotChar)
     {
+        final var localizer = player.getPersonalizedLocalizer();
         return new StaticGuiElement(
             slotChar,
             new ItemStack(Material.STICKY_PISTON),
@@ -354,6 +352,7 @@ class AttributeButtonFactory
 
     private GuiElement addOwnerButton(Structure structure, WrappedPlayer player, char slotChar)
     {
+        final var localizer = player.getPersonalizedLocalizer();
         return new StaticGuiElement(
             slotChar,
             new ItemStack(Material.PLAYER_HEAD),
@@ -374,6 +373,7 @@ class AttributeButtonFactory
 
     private GuiElement removeOwnerButton(Structure structure, WrappedPlayer player, char slotChar)
     {
+        final var localizer = player.getPersonalizedLocalizer();
         return new StaticGuiElement(
             slotChar,
             new ItemStack(Material.SKELETON_SKULL),

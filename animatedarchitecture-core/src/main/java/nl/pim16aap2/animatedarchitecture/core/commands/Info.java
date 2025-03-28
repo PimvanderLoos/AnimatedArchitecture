@@ -9,8 +9,6 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
@@ -46,11 +44,9 @@ public class Info extends StructureTargetCommand
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         HighlightedBlockSpawner glowingBlockSpawner)
     {
-        super(commandSender, executor, localizer, textFactory, structureRetriever, StructureAttribute.INFO);
+        super(commandSender, executor, structureRetriever, StructureAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;
     }
 
@@ -83,7 +79,7 @@ public class Info extends StructureTargetCommand
         text.append(
                 localizer.getMessage("commands.info.output.header"),
                 TextType.INFO,
-                arg -> arg.highlight(localizer.getStructureType(structure)),
+                arg -> arg.localizedHighlight(structure),
                 arg -> arg.highlight(structure.getNameAndUid()))
             .append('\n');
     }
@@ -281,7 +277,7 @@ public class Info extends StructureTargetCommand
     // TODO: Implement a decorator pattern properties.
     protected void sendInfoMessage(StructureSnapshot structure)
     {
-        final Text output = textFactory.newText();
+        final Text output = getCommandSender().newText();
 
         decorateHeader(structure, output);
         decorateOwner(structure, output);

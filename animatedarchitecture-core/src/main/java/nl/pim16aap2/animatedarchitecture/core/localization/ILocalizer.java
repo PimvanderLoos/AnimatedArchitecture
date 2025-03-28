@@ -1,7 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
-import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -24,11 +22,11 @@ public interface ILocalizer
      *
      * @param key
      *     The key of the message.
-     * @param args
-     *     The arguments of the message, if any.
      * @param clientLocale
      *     The Locale configured for the client. If the configuration does not allow client-specific locales or if the
      *     provided Locale is null, this parameter is ignored.
+     * @param args
+     *     The arguments of the message, if any.
      * @return The localized message associated with the provided key.
      */
     String getMessage(String key, @Nullable Locale clientLocale, Object... args);
@@ -48,26 +46,6 @@ public interface ILocalizer
     default String getMessage(String key, Object... args)
     {
         return getMessage(key, null, args);
-    }
-
-    /**
-     * Shortcut {@link #getMessage(String, Object...)} for {@link StructureType#getLocalizationKey()}.
-     *
-     * @param structureType
-     *     The structure type to localize.
-     * @return The localized name of the structure type.
-     */
-    default String getStructureType(StructureType structureType)
-    {
-        return getMessage(structureType.getLocalizationKey());
-    }
-
-    /**
-     * See {@link #getStructureType(StructureType)}
-     */
-    default String getStructureType(IStructureConst structure)
-    {
-        return getStructureType(structure.getType());
     }
 
     /**

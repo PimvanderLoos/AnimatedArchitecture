@@ -7,9 +7,7 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IGuiFactory;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -30,11 +28,9 @@ public class Menu extends BaseCommand
         @Assisted ICommandSender commandSender,
         @Assisted @Nullable IPlayer source,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         IGuiFactory guiFactory)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
         this.guiFactory = guiFactory;
         this.source = source;
     }
@@ -57,7 +53,7 @@ public class Menu extends BaseCommand
         // You need the bypass permission to open menus that aren't your own.
         if (!permissions.hasAdminPermission() && source != null && !getCommandSender().equals(source))
         {
-            getCommandSender().sendError(textFactory, localizer.getMessage("commands.menu.no_permission_for_others"));
+            getCommandSender().sendError("commands.menu.no_permission_for_others");
             throw new NoAccessToStructureCommandException(
                 true,
                 "Player " + getCommandSender() + " tried to open the menu of " + source + " without permission."

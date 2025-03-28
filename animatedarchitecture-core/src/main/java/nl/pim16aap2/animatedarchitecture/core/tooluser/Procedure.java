@@ -3,8 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.tooluser;
 import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
@@ -28,8 +27,7 @@ import java.util.concurrent.CompletableFuture;
 @ThreadSafe
 public final class Procedure
 {
-    private final ILocalizer localizer;
-    private final ITextFactory textFactory;
+    private final IMessageable messageable;
 
     @GuardedBy("this")
     private @Nullable Step currentStep;
@@ -48,12 +46,11 @@ public final class Procedure
     @GuardedBy("this")
     private int stepsCompleted = -1;
 
-    public Procedure(List<Step> steps, ILocalizer localizer, ITextFactory textFactory)
+    public Procedure(List<Step> steps, IMessageable messageable)
     {
         this.stepMap = createStepMap(steps);
         this.steps = new ArrayDeque<>(steps);
-        this.localizer = localizer;
-        this.textFactory = textFactory;
+        this.messageable = messageable;
         goToNextStep();
     }
 
@@ -223,9 +220,11 @@ public final class Procedure
         {
             log.atSevere().withStackTrace(StackSize.FULL).log(
                 "Cannot get the current step message because there is no active step!");
-            return textFactory.newText().append(localizer.getMessage("constants.error.generic"), TextType.ERROR);
+            return messageable
+                .newText()
+                .append(messageable.getPersonalizedLocalizer().getMessage("constants.error.generic"), TextType.ERROR);
         }
-        return step.getLocalizedMessage(textFactory);
+        return step.getLocalizedMessage(messageable);
     }
 
     /**

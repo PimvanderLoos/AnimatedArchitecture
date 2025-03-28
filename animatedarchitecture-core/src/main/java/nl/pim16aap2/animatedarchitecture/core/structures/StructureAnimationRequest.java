@@ -21,7 +21,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 
@@ -163,12 +162,11 @@ public class StructureAnimationRequest
             ? "structure_action.open.error.type_has_no_open_status"
             : "structure_action.close.error.type_has_no_open_status";
 
-        messageReceiver.sendMessage(textFactory.newText().append(
-            localizer.getMessage(errorKey),
-            TextType.ERROR,
-            arg -> arg.highlight(localizer.getStructureType(structure.getType())),
+        messageReceiver.sendError(
+            errorKey,
+            arg -> arg.localizedHighlight(structure.getType()),
             arg -> arg.highlight(structure.getName())
-        ));
+        );
 
         return false;
     }

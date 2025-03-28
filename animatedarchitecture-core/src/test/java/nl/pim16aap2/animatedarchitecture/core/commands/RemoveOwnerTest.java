@@ -349,9 +349,6 @@ class RemoveOwnerTest
         assertTrue(exception.isUserInformed());
         assertEquals("Player cannot remove an owner with equal or lower permission level", exception.getMessage());
 
-        verify(commandSender).sendError(
-            textFactory,
-            "commands.remove_owner.error.cannot_remove_lower_permission"
-        );
+        verify(commandSender).sendError("commands.remove_owner.error.cannot_remove_lower_permission");
     }
 }

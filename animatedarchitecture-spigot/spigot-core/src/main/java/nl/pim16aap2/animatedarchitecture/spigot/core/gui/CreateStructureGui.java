@@ -15,7 +15,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
@@ -41,32 +41,29 @@ class CreateStructureGui implements IGuiPage
     private final StructureTypeManager structureTypeManager;
     private final InventoryGui inventoryGui;
     private final IPermissionsManager permissionsManager;
-    private final ITextFactory textFactory;
-    private final ILocalizer localizer;
-
     private final CommandFactory commandFactory;
 
     @Getter
     @ToString.Include
     private final WrappedPlayer inventoryHolder;
 
+    @ToString.Include
+    private final PersonalizedLocalizer localizer;
+
     @AssistedInject
     CreateStructureGui(
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         StructureTypeManager structureTypeManager,
         IPermissionsManager permissionsManager,
-        ITextFactory textFactory,
-        ILocalizer localizer,
         CommandFactory commandFactory,
         @Assisted WrappedPlayer inventoryHolder)
     {
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.structureTypeManager = structureTypeManager;
         this.permissionsManager = permissionsManager;
-        this.textFactory = textFactory;
-        this.localizer = localizer;
         this.commandFactory = commandFactory;
         this.inventoryHolder = inventoryHolder;
+        this.localizer = inventoryHolder.getPersonalizedLocalizer();
 
         this.inventoryGui = createGui();
 
@@ -127,16 +124,17 @@ class CreateStructureGui implements IGuiPage
                         .run()
                         .handleExceptional(ex ->
                         {
-                            inventoryHolder.sendError(textFactory, localizer.getMessage("constants.error.generic"));
+                            inventoryHolder.sendError("constants.error.generic");
                             log.atSevere().withCause(ex).log("Failed to delete structure.");
                         });
                     GuiUtil.closeAllGuis(inventoryHolder);
                     return true;
                 },
-                ITextFactory.getSimpleTextFactory().newText()
+                ITextFactory.getSimpleTextFactory()
+                    .newText(inventoryHolder.getPersonalizedLocalizer())
                     .append(
                         localizer.getMessage("gui.new_structure_page.button.name"),
-                        new TextArgument(localizer.getStructureType(type)))
+                        new TextArgument(localizer.getMessage(type.getLocalizationKey())))
                     .toString()
             );
             group.addElement(element);

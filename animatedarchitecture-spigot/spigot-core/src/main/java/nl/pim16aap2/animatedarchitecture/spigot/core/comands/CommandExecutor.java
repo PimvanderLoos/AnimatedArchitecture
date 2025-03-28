@@ -17,7 +17,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationReque
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
@@ -396,12 +395,7 @@ class CommandExecutor
      */
     private void sendGenericErrorMessageToPlayer(CommandContext<ICommandSender> context)
     {
-        context.getSender().getPlayer().ifPresent(player ->
-            player.sendMessage(
-                textFactory
-                    .newText()
-                    .append(localizer.getMessage("commands.base.error.generic"), TextType.ERROR)
-            ));
+        context.getSender().getPlayer().ifPresent(player -> player.sendError("commands.base.error.generic"));
     }
 
     /**

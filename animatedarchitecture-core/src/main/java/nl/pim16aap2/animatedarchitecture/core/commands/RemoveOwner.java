@@ -7,10 +7,8 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -18,7 +16,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -43,11 +40,9 @@ public class RemoveOwner extends StructureTargetCommand
         @Assisted StructureRetriever structureRetriever,
         @Assisted IPlayer targetPlayer,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         DatabaseManager databaseManager)
     {
-        super(commandSender, executor, localizer, textFactory, structureRetriever, StructureAttribute.REMOVE_OWNER);
+        super(commandSender, executor, structureRetriever, StructureAttribute.REMOVE_OWNER);
         this.targetPlayer = targetPlayer;
         this.databaseManager = databaseManager;
     }
@@ -63,19 +58,17 @@ public class RemoveOwner extends StructureTargetCommand
     {
         final var description = getRetrievedStructureDescription(retrieverResult);
 
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.remove_owner.success"),
-            TextType.SUCCESS,
+        getCommandSender().sendSuccess(
+            "commands.remove_owner.success",
             arg -> arg.highlight(targetPlayer.getName()),
             arg -> arg.highlight(description.localizedTypeName())
-        ));
+        );
 
-        targetPlayer.sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.remove_owner.removed_player_notification"),
-            TextType.INFO,
+        targetPlayer.sendInfo(
+            "commands.remove_owner.removed_player_notification",
             arg -> arg.highlight(description.localizedTypeName()),
             arg -> arg.highlight(description.id())
-        ));
+        );
     }
 
     @Override
@@ -94,10 +87,9 @@ public class RemoveOwner extends StructureTargetCommand
         final var structureOwner = getCommandSender().getPlayer().flatMap(structure::getOwner);
         if (structureOwner.isEmpty() && !bypassOwnership)
         {
-            getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.remove_owner.error.not_an_owner"),
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(structure)))
+            getCommandSender().sendError(
+                "commands.remove_owner.error.not_an_owner",
+                arg -> arg.localizedHighlight(structure)
             );
             throw new InvalidCommandInputException(
                 true,
@@ -113,10 +105,9 @@ public class RemoveOwner extends StructureTargetCommand
 
         if (!StructureAttribute.REMOVE_OWNER.canAccessWith(ownerPermission))
         {
-            getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.remove_owner.error.not_allowed"),
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(structure)))
+            getCommandSender().sendError(
+                "commands.remove_owner.error.not_allowed",
+                arg -> arg.localizedHighlight(structure)
             );
             throw new NoAccessToStructureCommandException(true,
                 String.format("Player %s does not have permission to remove an owner", getCommandSender()));
@@ -125,12 +116,11 @@ public class RemoveOwner extends StructureTargetCommand
         final var targetStructureOwner = structure.getOwner(targetPlayer);
         if (targetStructureOwner.isEmpty())
         {
-            getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.remove_owner.error.target_not_an_owner"),
-                TextType.ERROR,
+            getCommandSender().sendError(
+                "commands.remove_owner.error.target_not_an_owner",
                 arg -> arg.highlight(targetPlayer.asString()),
-                arg -> arg.highlight(localizer.getStructureType(structure)),
-                arg -> arg.highlight(structure.getBasicInfo()))
+                arg -> arg.localizedHighlight(structure),
+                arg -> arg.highlight(structure.getBasicInfo())
             );
             throw new NoAccessToStructureCommandException(
                 true,
@@ -144,10 +134,7 @@ public class RemoveOwner extends StructureTargetCommand
 
         if (targetStructureOwner.get().permission().isLowerThanOrEquals(ownerPermission))
         {
-            getCommandSender().sendError(
-                textFactory,
-                localizer.getMessage("commands.remove_owner.error.cannot_remove_lower_permission")
-            );
+            getCommandSender().sendError("commands.remove_owner.error.cannot_remove_lower_permission");
             throw new NoAccessToStructureCommandException(
                 true,
                 "Player cannot remove an owner with equal or lower permission level"

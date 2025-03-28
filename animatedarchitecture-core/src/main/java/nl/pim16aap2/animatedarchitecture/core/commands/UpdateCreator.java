@@ -8,9 +8,7 @@ import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
@@ -44,11 +42,9 @@ public final class UpdateCreator extends BaseCommand
         @Assisted String stepName,
         @Assisted @Nullable Object stepValue,
         IExecutor executor,
-        ToolUserManager toolUserManager,
-        ILocalizer localizer,
-        ITextFactory textFactory)
+        ToolUserManager toolUserManager)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
         this.stepName = stepName;
         this.stepValue = stepValue;
         this.toolUserManager = toolUserManager;
@@ -68,10 +64,7 @@ public final class UpdateCreator extends BaseCommand
 
         if (!(toolUser instanceof Creator creator))
         {
-            getCommandSender().sendError(
-                textFactory,
-                localizer.getMessage("commands.update_creator.error.no_creator_process")
-            );
+            getCommandSender().sendError("commands.update_creator.error.no_creator_process");
             throw new CommandExecutionException(true, "Could not find a creator process for the player.");
         }
 

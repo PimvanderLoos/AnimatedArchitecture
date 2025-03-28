@@ -8,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
@@ -32,20 +33,20 @@ public final class WrappedPlayer implements IPlayer
     private final Player spigotPlayer;
 
     @Getter
-    private final ILocalizer localizer;
-
-    @Getter
     private final ITextFactory textFactory;
 
     @Getter
     private final @Nullable Locale locale;
 
+    @Getter
+    private final PersonalizedLocalizer personalizedLocalizer;
+
     public WrappedPlayer(Player spigotPlayer, ILocalizer localizer, ITextFactory textFactory)
     {
         this.spigotPlayer = spigotPlayer;
         this.locale = parseLocale(spigotPlayer.getLocale());
-        this.localizer = localizer;
         this.textFactory = textFactory;
+        this.personalizedLocalizer = new PersonalizedLocalizer(localizer, locale);
     }
 
     @Override

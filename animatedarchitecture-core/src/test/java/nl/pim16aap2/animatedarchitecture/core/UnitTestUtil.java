@@ -10,7 +10,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -773,10 +772,10 @@ public class UnitTestUtil
      * It checks for the following methods:
      * <ul>
      *     <li>{@link IMessageable#sendMessage(Text)}</li>
-     *     <li>{@link IMessageable#sendMessage(ITextFactory, TextType, String)}</li>
-     *     <li>{@link IMessageable#sendError(ITextFactory, String)}</li>
-     *     <li>{@link IMessageable#sendSuccess(ITextFactory, String)}</li>
-     *     <li>{@link IMessageable#sendInfo(ITextFactory, String)} </li>
+     *     <li>{@link IMessageable#sendMessage(TextType, String, Text.ArgumentCreator...)}</li>
+     *     <li>{@link IMessageable#sendError(String, Text.ArgumentCreator...)}</li>
+     *     <li>{@link IMessageable#sendSuccess(String, Text.ArgumentCreator...)}</li>
+     *     <li>{@link IMessageable#sendInfo(String, Text.ArgumentCreator...)} </li>
      * </ul>
      *
      * @param messageable
@@ -785,10 +784,10 @@ public class UnitTestUtil
     public static void verifyNoMessagesSent(IMessageable messageable)
     {
         verify(messageable, never()).sendMessage(any(Text.class));
-        verify(messageable, never()).sendMessage(any(ITextFactory.class), any(TextType.class), anyString());
-        verify(messageable, never()).sendError(any(ITextFactory.class), anyString());
-        verify(messageable, never()).sendSuccess(any(ITextFactory.class), anyString());
-        verify(messageable, never()).sendInfo(any(ITextFactory.class), anyString());
+        verify(messageable, never()).sendMessage(any(TextType.class), anyString(), any(Text.ArgumentCreator.class));
+        verify(messageable, never()).sendError(anyString(), any(Text.ArgumentCreator.class));
+        verify(messageable, never()).sendSuccess(anyString(), any(Text.ArgumentCreator.class));
+        verify(messageable, never()).sendInfo(anyString(), any(Text.ArgumentCreator.class));
     }
 
     /**

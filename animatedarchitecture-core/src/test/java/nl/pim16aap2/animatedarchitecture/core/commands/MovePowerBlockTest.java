@@ -1,10 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
@@ -29,8 +26,9 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
@@ -71,8 +69,6 @@ class MovePowerBlockTest
         when(commandSender.getUUID()).thenReturn(uuid);
         when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
-
         final PowerBlockRelocator.IFactory powerBlockRelocatorFactory = mock(PowerBlockRelocator.IFactory.class);
         when(powerBlockRelocatorFactory.create(Mockito.any(), any())).thenReturn(mock(PowerBlockRelocator.class));
 
@@ -82,8 +78,6 @@ class MovePowerBlockTest
                 invoc.getArgument(0, ICommandSender.class),
                 invoc.getArgument(1, StructureRetriever.class),
                 executor,
-                localizer,
-                ITextFactory.getSimpleTextFactory(),
                 toolUserManager,
                 powerBlockRelocatorFactory)
             );

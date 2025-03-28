@@ -64,9 +64,11 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
             tool.hasItemMeta() ? tool.getItemMeta() : Bukkit.getItemFactory().getItemMeta(tool.getType());
         if (itemMeta == null)
             throw new IllegalArgumentException("Tried to create tool from invalid item: " + tool);
+
+        final var localizer = player.getPersonalizedLocalizer();
         itemMeta.getPersistentDataContainer().set(animatedArchitectureToolKey, PersistentDataType.BYTE, (byte) 1);
-        itemMeta.setDisplayName(player.localized(nameKey));
-        itemMeta.setLore(Arrays.asList(player.localized(loreKey).split("\n")));
+        itemMeta.setDisplayName(localizer.getMessage(nameKey));
+        itemMeta.setLore(Arrays.asList(localizer.getMessage(loreKey).split("\n")));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         tool.setItemMeta(itemMeta);
 

@@ -85,7 +85,6 @@ class AddOwnerDelayedTest
         DelayedCommandTest.initInputRequestFactory(
             inputRequestFactory,
             executor,
-            localizer,
             delayedCommandInputManager
         );
 

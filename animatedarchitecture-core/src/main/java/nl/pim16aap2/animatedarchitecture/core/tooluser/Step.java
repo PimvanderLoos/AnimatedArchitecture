@@ -7,17 +7,14 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
-import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
-import nl.pim16aap2.animatedarchitecture.core.text.TextArgumentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -31,7 +28,7 @@ import java.util.function.Supplier;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Step
 {
-    private final ILocalizer localizer;
+    private final PersonalizedLocalizer localizer;
 
     /**
      * The name of this step.
@@ -132,9 +129,9 @@ public final class Step
     /**
      * @return The localized {@link String} that belongs to the current step.
      */
-    public Text getLocalizedMessage(ITextFactory textFactory)
+    public Text getLocalizedMessage(IMessageable messageable)
     {
-        return textSupplier.apply(textFactory.newText());
+        return textSupplier.apply(messageable.newText());
     }
 
     /**
@@ -145,18 +142,17 @@ public final class Step
      * If {@link #updatable} is true and the supplied value is not null, the text will contain clickable text to take
      * the user back to this step.
      *
-     * @param textFactory
-     *     The factory to use to create the {@link Text} object.
-     * @return The created text if it was created.
+     * @param text
+     *     The text to append the property information to.
      */
-    public Optional<Text> getPropertyText(ITextFactory textFactory)
+    public void appendPropertyText(Text text)
     {
         if (propertyName == null || propertyValueSupplier == null)
-            return Optional.empty();
+            return;
 
         final @Nullable Object value = propertyValueSupplier.get();
 
-        final Function<TextArgumentFactory, TextArgument> argument;
+        final Text.ArgumentCreator argument;
         if (updatable && value != null)
             argument = arg -> arg.clickable(
                 value,
@@ -165,7 +161,7 @@ public final class Step
         else
             argument = arg -> arg.highlight(value);
 
-        return Optional.of(textFactory.newText().append(propertyName, TextType.INFO, argument));
+        text.append(propertyName, TextType.INFO, argument).append('\n');
     }
 
     /**
@@ -173,7 +169,7 @@ public final class Step
      */
     public static final class Factory
     {
-        private final ILocalizer localizer;
+        private final PersonalizedLocalizer localizer;
         private final String name;
         private @Nullable StepExecutor stepExecutor = null;
         private @Nullable Runnable stepPreparation;
@@ -185,13 +181,9 @@ public final class Step
         private @Nullable Supplier<?> propertyValueSupplier;
         private boolean updatable;
 
-        /**
-         * @deprecated Prefer instantiation using {@link Step.Factory.IFactory} instead.
-         */
         @VisibleForTesting
         @AssistedInject
-        @Deprecated
-        public Factory(ILocalizer localizer, @Assisted String name)
+        public Factory(@Assisted PersonalizedLocalizer localizer, @Assisted String name)
         {
             this.localizer = localizer;
             this.name = name;
@@ -379,11 +371,13 @@ public final class Step
             /**
              * Creates a new {@link Step.Factory}.
              *
+             * @param localizer
+             *     The {@link PersonalizedLocalizer} that will be used to create messages.
              * @param stepName
              *     The name of the step to be created.
              * @return The new factory.
              */
-            Step.Factory stepName(String stepName);
+            Step.Factory stepName(PersonalizedLocalizer localizer, String stepName);
         }
     }
 }

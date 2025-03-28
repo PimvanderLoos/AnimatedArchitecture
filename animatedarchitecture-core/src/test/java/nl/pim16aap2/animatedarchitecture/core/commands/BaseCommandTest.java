@@ -9,7 +9,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoStructuresForCommandException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
@@ -200,7 +199,7 @@ class BaseCommandTest
 
         command.sendGenericErrorMessage();
 
-        verify(commandSender).sendError(textFactory, "commands.base.error.generic");
+        verify(commandSender).sendError("commands.base.error.generic");
     }
 
     @Test
@@ -222,7 +221,7 @@ class BaseCommandTest
             exception.getMessage()
         );
 
-        verify(commandSender).sendError(textFactory, "commands.base.error.no_permission_for_command");
+        verify(commandSender).sendError("commands.base.error.no_permission_for_command");
     }
 
     @Test
@@ -303,7 +302,7 @@ class BaseCommandTest
             () -> command.getStructure(structureRetriever, permissionLevel).get()
         );
 
-        verify(commandSender).sendError(textFactory, "commands.base.error.cannot_find_target_structure");
+        verify(commandSender).sendError("commands.base.error.cannot_find_target_structure");
         assertTrue(exception.isUserInformed());
     }
 
@@ -345,11 +344,9 @@ class BaseCommandTest
 
         TestCommand(
             ICommandSender commandSender,
-            IExecutor executor,
-            ILocalizer localizer,
-            ITextFactory textFactory)
+            IExecutor executor)
         {
-            super(commandSender, executor, localizer, textFactory);
+            super(commandSender, executor);
         }
 
         /**
@@ -367,9 +364,7 @@ class BaseCommandTest
         {
             return new TestCommand(
                 getOrMock(objects, ICommandSender.class),
-                getOrMock(objects, IExecutor.class),
-                getOrMock(objects, ILocalizer.class),
-                getOrMock(objects, ITextFactory.class)
+                getOrMock(objects, IExecutor.class)
             );
         }
 

@@ -6,8 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.PowerBlockInspector;
@@ -31,12 +29,10 @@ public class InspectPowerBlock extends BaseCommand
     InspectPowerBlock(
         @Assisted ICommandSender commandSender,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         ToolUserManager toolUserManager,
         PowerBlockInspector.IFactory inspectPowerBlockFactory)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
         this.toolUserManager = toolUserManager;
         this.inspectPowerBlockFactory = inspectPowerBlockFactory;
     }

@@ -81,7 +81,7 @@ class SpecifyTest
         specify.run().get(1, TimeUnit.SECONDS);
 
         verify(specify, never()).executeCommand(any());
-        verify(server).sendError(any(), eq("commands.base.error.only_available_for_players"));
+        verify(server).sendError(eq("commands.base.error.only_available_for_players"));
         verify(structureSpecificationManager, never()).handleInput(any(), any());
     }
 
@@ -99,7 +99,7 @@ class SpecifyTest
             .executeCommand(null)
             .join();
 
-        verify(player).sendError(any(), eq("commands.base.error.no_pending_process"));
+        verify(player).sendError(eq("commands.base.error.no_pending_process"));
     }
 
     @Test
@@ -115,6 +115,6 @@ class SpecifyTest
             .executeCommand(null)
             .join();
 
-        verify(player, never()).sendError(any(), anyString());
+        verify(player, never()).sendError(anyString());
     }
 }

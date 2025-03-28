@@ -5,15 +5,12 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -32,11 +29,9 @@ public class Delete extends StructureTargetCommand
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         DatabaseManager databaseManager)
     {
-        super(commandSender, executor, localizer, textFactory, structureRetriever, StructureAttribute.DELETE);
+        super(commandSender, executor, structureRetriever, StructureAttribute.DELETE);
         this.databaseManager = databaseManager;
     }
 
@@ -52,10 +47,9 @@ public class Delete extends StructureTargetCommand
         if (hasAccessToAttribute(structure, StructureAttribute.DELETE, bypassPermission))
             return;
 
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.delete.error.not_allowed"),
-            TextType.ERROR,
-            arg -> arg.highlight(localizer.getStructureType(structure)))
+        getCommandSender().sendError(
+            "commands.delete.error.not_allowed",
+            arg -> arg.localizedHighlight(structure)
         );
 
         throw new NoAccessToStructureCommandException(true);
@@ -65,11 +59,10 @@ public class Delete extends StructureTargetCommand
     protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
     {
         final var desc = getRetrievedStructureDescription(retrieverResult);
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.delete.success"),
-            TextType.SUCCESS,
+        getCommandSender().sendSuccess(
+            "commands.delete.success",
             arg -> arg.highlight(desc.localizedTypeName()),
-            arg -> arg.highlight(desc.id()))
+            arg -> arg.highlight(desc.id())
         );
     }
 

@@ -5,6 +5,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.IServer;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 
 import javax.inject.Inject;
@@ -18,25 +19,19 @@ import javax.inject.Singleton;
 @Getter
 public class SpigotServer implements IServer
 {
-    private final ILocalizer localizer;
     private final ITextFactory textFactory;
+    private final PersonalizedLocalizer personalizedLocalizer;
 
     @Inject
     SpigotServer(ILocalizer localizer, ITextFactory textFactory)
     {
-        this.localizer = localizer;
         this.textFactory = textFactory;
+        this.personalizedLocalizer = new PersonalizedLocalizer(localizer, null);
     }
 
     @Override
     public void sendMessage(Text text)
     {
         log.atInfo().log("%s", text);
-    }
-
-    @Override
-    public void sendError(ITextFactory textFactory, String message)
-    {
-        log.atWarning().log("%s", message);
     }
 }

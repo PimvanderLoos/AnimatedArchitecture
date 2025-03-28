@@ -7,14 +7,11 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IAnimatedArchitectureEventFactory;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventCaller;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -41,8 +38,6 @@ public class Lock extends StructureTargetCommand
         @Assisted("isLocked") boolean isLocked,
         @Assisted("sendUpdatedInfo") boolean sendUpdatedInfo,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         CommandFactory commandFactory,
         IAnimatedArchitectureEventCaller animatedArchitectureEventCaller,
         IAnimatedArchitectureEventFactory animatedArchitectureEventFactory)
@@ -50,8 +45,6 @@ public class Lock extends StructureTargetCommand
         super(
             commandSender,
             executor,
-            localizer,
-            textFactory,
             structureRetriever,
             StructureAttribute.LOCK,
             sendUpdatedInfo,
@@ -68,11 +61,10 @@ public class Lock extends StructureTargetCommand
     {
         final String msg = isLocked ? "commands.lock.success.locked" : "commands.lock.success.unlocked";
         final var desc = getRetrievedStructureDescription(retrieverResult);
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage(msg),
-            TextType.SUCCESS,
+        getCommandSender().sendSuccess(
+            msg,
             arg -> arg.highlight(desc.localizedTypeName()),
-            arg -> arg.highlight(desc.id()))
+            arg -> arg.highlight(desc.id())
         );
     }
 

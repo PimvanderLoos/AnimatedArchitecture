@@ -50,7 +50,7 @@ public class CreatorPortcullis extends Creator
         throws InstantiationException
     {
         final Step stepBlocksToMove = stepFactory
-            .stepName("SET_BLOCKS_TO_MOVE")
+            .stepName(localizer, "SET_BLOCKS_TO_MOVE")
             .textSupplier(text -> text.append(
                 localizer.getMessage("creator.portcullis.set_blocks_to_move"),
                 TextType.INFO,
@@ -108,12 +108,11 @@ public class CreatorPortcullis extends Creator
         final OptionalInt blocksToMoveLimit = limitsManager.getLimit(getPlayer(), Limit.BLOCKS_TO_MOVE);
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
-            getPlayer().sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.base.error.blocks_to_move_too_far"),
-                TextType.ERROR,
+            getPlayer().sendError(
+                "creator.base.error.blocks_to_move_too_far",
                 getStructureArg(),
                 arg -> arg.highlight(blocksToMove),
-                arg -> arg.highlight(blocksToMoveLimit.getAsInt()))
+                arg -> arg.highlight(blocksToMoveLimit.getAsInt())
             );
             log.atFiner().log(
                 "Blocks to move is too far. Got: %d, Limit: %d", blocksToMove, blocksToMoveLimit.getAsInt());

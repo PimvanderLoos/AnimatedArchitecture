@@ -9,7 +9,6 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
@@ -304,11 +303,7 @@ public abstract class DelayedCommand<T>
             commandSender,
             data
         );
-        commandSender.sendMessage(
-            textFactory,
-            TextType.ERROR,
-            localizer.getMessage("commands.base.error.not_waiting")
-        );
+        commandSender.sendError("commands.base.error.not_waiting");
         return CompletableFuture.completedFuture(null);
     }
 

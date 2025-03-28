@@ -10,10 +10,9 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.SetOpenDirectionDelayed;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
@@ -60,6 +59,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @Timeout(1)
@@ -91,34 +92,37 @@ public class CreatorTest
     @Mock
     private IProtectionHookManager protectionHookManager;
 
+    @Mock
+    private PersonalizedLocalizer personalizedLocalizer;
+
     @BeforeEach
     void init()
     {
         Mockito.when(structureType.getLocalizationKey()).thenReturn("StructureType");
         Mockito.when(structureType.getProperties()).thenReturn(PROPERTIES);
 
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
-        final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
-        //noinspection deprecation
-        Mockito.when(assistedStepFactory.stepName(Mockito.anyString()))
-            .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
+        when(personalizedLocalizer.getMessage(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+        final var assistedStepFactory = mock(Step.Factory.IFactory.class);
 
-        final var structureAnimationRequestBuilder = Mockito.mock(StructureAnimationRequestBuilder.class);
-        Mockito.when(structureAnimationRequestBuilder.builder())
-            .thenReturn(Mockito.mock(StructureAnimationRequestBuilder.IBuilderStructure.class));
+        when(assistedStepFactory
+            .stepName(any(), anyString()))
+            .thenAnswer(invocation -> new Step.Factory(invocation.getArgument(0), invocation.getArgument(1)));
+
+        final var structureAnimationRequestBuilder = mock(StructureAnimationRequestBuilder.class);
+        when(structureAnimationRequestBuilder
+            .builder())
+            .thenReturn(mock(StructureAnimationRequestBuilder.IBuilderStructure.class));
 
         context = new ToolUser.Context(
-            Mockito.mock(StructureBuilder.class),
-            localizer,
-            ITextFactory.getSimpleTextFactory(),
-            Mockito.mock(ToolUserManager.class),
-            Mockito.mock(DatabaseManager.class),
+            mock(StructureBuilder.class),
+            mock(ToolUserManager.class),
+            mock(DatabaseManager.class),
             limitsManager,
             economyManager,
             protectionHookManager,
-            Mockito.mock(IAnimatedArchitectureToolUtil.class),
+            mock(IAnimatedArchitectureToolUtil.class),
             structureAnimationRequestBuilder,
-            Mockito.mock(StructureActivityManager.class),
+            mock(StructureActivityManager.class),
             commandFactory,
             assistedStepFactory
         );
@@ -409,7 +413,7 @@ public class CreatorTest
         Mockito.when(structureType.getValidMovementDirections())
             .thenReturn(EnumSet.of(MovementDirection.EAST, MovementDirection.WEST));
 
-        final var setDirectionDelayed = Mockito.mock(SetOpenDirectionDelayed.class);
+        final var setDirectionDelayed = mock(SetOpenDirectionDelayed.class);
         Mockito.when(commandFactory.getSetOpenDirectionDelayed())
             .thenReturn(setDirectionDelayed);
         Mockito.when(setDirectionDelayed.runDelayed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
@@ -662,7 +666,7 @@ public class CreatorTest
         final CheckedFunction<Creator, Step, InstantiationException> openDirectionStep =
             creator -> context
                 .getStepFactory()
-                .stepName("OPEN_DIRECTION")
+                .stepName(personalizedLocalizer, "OPEN_DIRECTION")
                 .stepExecutor(new StepExecutorOpenDirection(creator::completeSetOpenDirStep))
                 .textSupplier(text -> text.append("OPEN_DIRECTION"))
                 .updatable(true)
@@ -671,7 +675,7 @@ public class CreatorTest
         final CheckedFunction<Creator, Step, InstantiationException> previewStep =
             creator -> context
                 .getStepFactory()
-                .stepName("PREVIEW")
+                .stepName(personalizedLocalizer, "PREVIEW")
                 .stepPreparation(creator::prepareReviewResult)
                 .stepExecutor(new StepExecutorBoolean(ignored -> true))
                 .textSupplier(text -> text.append("PREVIEW"))
@@ -818,8 +822,8 @@ public class CreatorTest
         final String stepName = "DefaultStep_" + System.nanoTime();
         return context
             .getStepFactory()
-            .stepName(stepName)
-            .stepExecutor(Objects.requireNonNullElseGet(stepExecutor, () -> Mockito.mock(StepExecutor.class)))
+            .stepName(personalizedLocalizer, stepName)
+            .stepExecutor(Objects.requireNonNullElseGet(stepExecutor, () -> mock(StepExecutor.class)))
             .textSupplier(text -> text.append(stepName));
     }
 

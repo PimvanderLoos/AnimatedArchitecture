@@ -3,8 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -55,17 +53,13 @@ class SetBlocksToMoveTest
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
-
         when(factory
             .newSetBlocksToMove(any(ICommandSender.class), any(StructureRetriever.class), anyInt()))
             .thenAnswer(invoc -> new SetBlocksToMove(
                 invoc.getArgument(0, ICommandSender.class),
                 invoc.getArgument(1, StructureRetriever.class),
                 invoc.getArgument(2, Integer.class),
-                executor,
-                localizer,
-                ITextFactory.getSimpleTextFactory())
+                executor)
             );
     }
 

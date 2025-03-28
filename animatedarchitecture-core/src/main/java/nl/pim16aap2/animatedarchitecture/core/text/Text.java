@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.text;
 
 import lombok.Getter;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * Represents a piece of text with styled sections.
@@ -30,6 +30,11 @@ public class Text implements CharSequence
     private List<StyledSection> styledSections = new ArrayList<>();
 
     /**
+     * The {@link PersonalizedLocalizer} function used to localize the strings.
+     */
+    private final @Nullable PersonalizedLocalizer personalizedLocalizer;
+
+    /**
      * The factory for the {@link TextComponent} instance used by this Text.
      */
     @Getter
@@ -41,10 +46,11 @@ public class Text implements CharSequence
     @Getter
     private final TextArgumentFactory textArgumentFactory;
 
-    public Text(ITextComponentFactory textComponentFactory)
+    public Text(ITextComponentFactory textComponentFactory, @Nullable PersonalizedLocalizer personalizedLocalizer)
     {
         this.textComponentFactory = textComponentFactory;
-        this.textArgumentFactory = new TextArgumentFactory(textComponentFactory);
+        this.textArgumentFactory = new TextArgumentFactory(textComponentFactory, personalizedLocalizer);
+        this.personalizedLocalizer = personalizedLocalizer;
     }
 
     // CopyConstructor
@@ -54,6 +60,7 @@ public class Text implements CharSequence
         other.styledSections.forEach(section -> this.styledSections.add(new StyledSection(section)));
         this.textComponentFactory = other.textComponentFactory;
         this.textArgumentFactory = other.textArgumentFactory;
+        this.personalizedLocalizer = other.personalizedLocalizer;
     }
 
     /**
@@ -94,7 +101,7 @@ public class Text implements CharSequence
                 start, end, stringBuilder.length()));
 
         final String string = stringBuilder.substring(start, end);
-        final Text newText = new Text(textComponentFactory);
+        final Text newText = new Text(textComponentFactory, personalizedLocalizer);
         newText.append(string);
 
         for (final StyledSection section : styledSections)
@@ -181,12 +188,11 @@ public class Text implements CharSequence
         return this;
     }
 
-    @SafeVarargs
-    private TextArgument[] retrieveArguments(Function<TextArgumentFactory, TextArgument>... argumentRetrievers)
+    private TextArgument[] retrieveArguments(ArgumentCreator... argumentRetrievers)
     {
         final TextArgument[] ret = new TextArgument[argumentRetrievers.length];
         for (int idx = 0; idx < ret.length; ++idx)
-            ret[idx] = argumentRetrievers[idx].apply(this.textArgumentFactory);
+            ret[idx] = argumentRetrievers[idx].create(this.textArgumentFactory);
         return ret;
     }
 
@@ -237,11 +243,10 @@ public class Text implements CharSequence
      * @return The current {@link Text} instance.
      */
     @Contract("_, _, _ -> this")
-    @SafeVarargs
     public final Text append(
         String text,
         @Nullable TextType type,
-        Function<TextArgumentFactory, TextArgument>... argumentRetrievers)
+        ArgumentCreator... argumentRetrievers)
     {
         return append(text, type, retrieveArguments(argumentRetrievers));
     }
@@ -288,11 +293,10 @@ public class Text implements CharSequence
      * @return The current {@link Text} instance.
      */
     @Contract("_, _, _ -> this")
-    @SafeVarargs
     public final Text append(
         String text,
         @Nullable TextComponent component,
-        Function<TextArgumentFactory, TextArgument>... argumentRetrievers)
+        ArgumentCreator... argumentRetrievers)
     {
         addStyledSections(null, Collections.emptyList());
         return append(text, component, retrieveArguments(argumentRetrievers));
@@ -585,6 +589,15 @@ public class Text implements CharSequence
         hashCode = hashCode * prime + this.toString().hashCode();
 
         return hashCode;
+    }
+
+    /**
+     * Represents a function that creates a {@link TextArgument} using the given {@link TextArgumentFactory}.
+     */
+    @FunctionalInterface
+    public interface ArgumentCreator
+    {
+        TextArgument create(TextArgumentFactory factory);
     }
 
     /**

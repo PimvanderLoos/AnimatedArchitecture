@@ -5,8 +5,6 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IGuiFactory;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
@@ -24,23 +22,17 @@ import java.util.concurrent.TimeUnit;
 public class GuiFactory implements IGuiFactory
 {
     private final MainGui.IFactory factory;
-    private final ILocalizer localizer;
-    private final ITextFactory textFactory;
     private final StructureRetrieverFactory structureRetrieverFactory;
     private final IExecutor executor;
 
     @Inject
     GuiFactory(
         MainGui.IFactory factory,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         StructureRetrieverFactory structureRetrieverFactory,
         IExecutor executor
     )
     {
         this.factory = factory;
-        this.localizer = localizer;
-        this.textFactory = textFactory;
         this.structureRetrieverFactory = structureRetrieverFactory;
         this.executor = executor;
     }
@@ -62,7 +54,7 @@ public class GuiFactory implements IGuiFactory
                     inventoryHolder,
                     finalSource
                 );
-                inventoryHolder.sendError(textFactory, localizer.getMessage("constants.error.generic"));
+                inventoryHolder.sendError("constants.error.generic");
             });
     }
 }

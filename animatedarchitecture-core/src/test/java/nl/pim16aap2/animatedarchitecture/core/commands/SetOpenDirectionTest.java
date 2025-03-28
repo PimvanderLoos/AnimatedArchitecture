@@ -1,10 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -26,9 +23,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.animatedarchitecture.core.commands.CommandTestingUtil.initCommandSenderPermissions;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(1)
@@ -64,8 +60,6 @@ class SetOpenDirectionTest
         initCommandSenderPermissions(commandSender, true, true);
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
 
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
-
         when(factory
             .newSetOpenDirection(
                 any(ICommandSender.class),
@@ -78,8 +72,6 @@ class SetOpenDirectionTest
                 invoc.getArgument(2, MovementDirection.class),
                 invoc.getArgument(3, Boolean.class),
                 executor,
-                localizer,
-                ITextFactory.getSimpleTextFactory(),
                 mock(CommandFactory.class))
             );
     }

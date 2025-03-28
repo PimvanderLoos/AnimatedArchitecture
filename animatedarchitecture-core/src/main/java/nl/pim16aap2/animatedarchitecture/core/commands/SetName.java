@@ -6,9 +6,7 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
@@ -33,11 +31,9 @@ public class SetName extends BaseCommand
         @Assisted ICommandSender commandSender,
         @Assisted String name,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         ToolUserManager toolUserManager)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
         this.name = name;
         this.toolUserManager = toolUserManager;
     }
@@ -62,10 +58,7 @@ public class SetName extends BaseCommand
         if (tu.isPresent() && tu.get() instanceof Creator creator)
             return creator.handleInput(name);
 
-        getCommandSender().sendError(
-            textFactory,
-            localizer.getMessage("commands.base.error.no_pending_process")
-        );
+        getCommandSender().sendError("commands.base.error.no_pending_process");
         return CompletableFuture.failedFuture(new CommandExecutionException(true, "No pending process."));
     }
 

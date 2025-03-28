@@ -6,8 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
@@ -35,16 +33,12 @@ public class MovePowerBlock extends StructureTargetCommand
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         ToolUserManager toolUserManager,
         PowerBlockRelocator.IFactory powerBlockRelocatorFactory)
     {
         super(
             commandSender,
             executor,
-            localizer,
-            textFactory,
             structureRetriever,
             StructureAttribute.RELOCATE_POWERBLOCK
         );

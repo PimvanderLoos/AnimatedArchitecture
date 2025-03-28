@@ -1,10 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import org.junit.jupiter.api.Assertions;
@@ -24,8 +21,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.animatedarchitecture.core.commands.CommandTestingUtil.initCommandSenderPermissions;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
@@ -57,15 +53,11 @@ class CancelTest
         initCommandSenderPermissions(commandSender, true, true);
         when(commandSender.getUUID()).thenReturn(uuid);
 
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
-
         when(factory
             .newCancel(Mockito.any(ICommandSender.class)))
             .thenAnswer(invoc -> new Cancel(
                 invoc.getArgument(0, ICommandSender.class),
                 executor,
-                localizer,
-                ITextFactory.getSimpleTextFactory(),
                 toolUserManager,
                 doorSpecificationManager)
             );

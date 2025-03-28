@@ -14,6 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.DelayedCommand;
@@ -162,10 +163,9 @@ public class CreatorTestsUtil
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
 
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
-        //noinspection deprecation
         when(assistedStepFactory
-            .stepName(Mockito.anyString()))
-            .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
+            .stepName(any(), anyString()))
+            .thenAnswer(invocation -> new Step.Factory(invocation.getArgument(0), invocation.getArgument(1)));
 
         when(protectionHookManager
             .canBreakBlock(Mockito.any(), Mockito.any()))
@@ -176,8 +176,6 @@ public class CreatorTestsUtil
 
         context = new ToolUser.Context(
             structureBuilder,
-            localizer,
-            ITextFactory.getSimpleTextFactory(),
             toolUserManager,
             databaseManager,
             limitsManager,
@@ -194,10 +192,10 @@ public class CreatorTestsUtil
 
         initPlayer();
 
-//        final IPlayerFactory playerFactory = Mockito.mock(IPlayerFactory.class);
-//        when(playerFactory
-//            .create(playerData.getUUID()))
-//            .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
+        final IPlayerFactory playerFactory = Mockito.mock(IPlayerFactory.class);
+        when(playerFactory
+            .create(playerData.getUUID()))
+            .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
 
         // Immediately return whatever structure was being added to the database as if it was successful.
         when(databaseManager

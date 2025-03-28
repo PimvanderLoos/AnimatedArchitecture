@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
 
+import lombok.Getter;
 import lombok.experimental.Delegate;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
@@ -9,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.bukkit.Bukkit;
@@ -28,10 +30,15 @@ public final class WrappedOfflinePlayer implements IPlayer
     private final PlayerData playerData;
     private final OfflinePlayer spigotPlayer;
 
+    @Getter
+    private final PersonalizedLocalizer personalizedLocalizer;
+
     public WrappedOfflinePlayer(PlayerData playerData, OfflinePlayer spigotPlayer)
     {
         this.playerData = Util.requireNonNull(playerData, "playerData");
         this.spigotPlayer = Util.requireNonNull(spigotPlayer, "spigotPlayer");
+
+        this.personalizedLocalizer = new PersonalizedLocalizer(ILocalizer.NULL, null);
     }
 
     public WrappedOfflinePlayer(PlayerData playerData)
@@ -47,12 +54,6 @@ public final class WrappedOfflinePlayer implements IPlayer
     public void sendMessage(Text text)
     {
         log.atFine().log("Sent message to offline player: %s", text);
-    }
-
-    @Override
-    public ILocalizer getLocalizer()
-    {
-        return ILocalizer.NULL;
     }
 
     @Override

@@ -6,8 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 
@@ -29,12 +27,10 @@ public class Cancel extends BaseCommand
     Cancel(
         @Assisted ICommandSender commandSender,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         ToolUserManager toolUserManager,
         StructureSpecificationManager doorSpecificationManager)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
         this.toolUserManager = toolUserManager;
         this.doorSpecificationManager = doorSpecificationManager;
     }
@@ -55,9 +51,9 @@ public class Cancel extends BaseCommand
     private void cancelPlayer(IPlayer player)
     {
         if (toolUserManager.cancelToolUser(player) || doorSpecificationManager.cancelRequest(player))
-            getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.cancel.success"));
+            getCommandSender().sendSuccess("commands.cancel.success");
         else
-            getCommandSender().sendError(textFactory, localizer.getMessage("commands.cancel.no_process"));
+            getCommandSender().sendError("commands.cancel.no_process");
     }
 
     @AssistedFactory

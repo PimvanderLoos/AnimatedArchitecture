@@ -5,12 +5,11 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
+import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 
 import java.util.List;
@@ -29,11 +28,9 @@ public class ListStructures extends BaseCommand
     ListStructures(
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
-        IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory)
+        IExecutor executor)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
         this.structureRetriever = structureRetriever;
     }
 
@@ -59,19 +56,18 @@ public class ListStructures extends BaseCommand
     {
         if (structures.isEmpty())
         {
-            getCommandSender().sendMessage(
-                textFactory,
-                TextType.ERROR,
-                localizer.getMessage("commands.list_structures.error.no_structures_found")
-            );
+            getCommandSender().sendError("commands.list_structures.error.no_structures_found");
             return;
         }
 
-        final StringBuilder sb = new StringBuilder(
-            localizer.getMessage("commands.list_structures.structure_list_header")).append('\n');
+        final var target = getCommandSender();
+        final Text text = target.newText();
+
+        text.append(localizer.getMessage("commands.list_structures.structure_list_header"), TextType.INFO).append('\n');
         for (final var structure : structures)
-            sb.append("  ").append(structure.getBasicInfo()).append('\n');
-        getCommandSender().sendMessage(textFactory, TextType.INFO, sb.toString());
+            text.append("  ").append(structure.getBasicInfo(), TextType.INFO).append('\n');
+
+        getCommandSender().sendMessage(text);
     }
 
     @AssistedFactory

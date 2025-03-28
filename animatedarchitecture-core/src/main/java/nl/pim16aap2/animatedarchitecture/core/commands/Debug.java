@@ -7,8 +7,6 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessagingInterface;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebugReporter;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -30,12 +28,10 @@ public class Debug extends BaseCommand
     Debug(
         @Assisted ICommandSender commandSender,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         IMessagingInterface messagingInterface,
         DebugReporter debugReporter)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
         this.messagingInterface = messagingInterface;
         this.debugReporter = debugReporter;
     }
@@ -55,7 +51,7 @@ public class Debug extends BaseCommand
     private void postDebugMessage()
     {
         messagingInterface.writeToConsole(Level.INFO, debugReporter.getDebugReport());
-        getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.debug.success"));
+        getCommandSender().sendSuccess("commands.debug.success");
     }
 
     @AssistedFactory
