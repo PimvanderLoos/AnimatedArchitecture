@@ -120,7 +120,7 @@ interface AnimatedArchitectureSpigotComponent
         Builder setPlugin(AnimatedArchitecturePlugin javaPlugin);
 
         @BindsInstance
-        Builder setProjectVersion(Semver projectVersion);
+        Builder setProjectVersion(@Named("projectVersion") Semver projectVersion);
 
         @BindsInstance
         Builder setUpdateChecker(UpdateChecker updateChecker);
@@ -137,6 +137,7 @@ interface AnimatedArchitectureSpigotComponent
 
     RestartableHolder getRestartableHolder();
 
+    @Named("projectVersion")
     Semver getProjectVersion();
 
     IAnimatedArchitectureEventCaller getDoorEventCaller();
