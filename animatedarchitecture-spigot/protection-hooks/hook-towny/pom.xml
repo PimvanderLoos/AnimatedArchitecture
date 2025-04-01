@@ -16,7 +16,7 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <dependency.towny.version>0.101.1.5</dependency.towny.version>
+        <dependency.towny.version>0.101.1.7</dependency.towny.version>
     </properties>
 
     <dependencies>
