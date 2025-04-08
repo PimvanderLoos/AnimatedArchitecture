@@ -37,7 +37,7 @@
         <dependency.jimfs.version>1.3.0</dependency.jimfs.version>
         <dependency.junit.version>5.12.1</dependency.junit.version>
         <dependency.log4j.version>2.24.3</dependency.log4j.version>
-        <dependency.logcaptor.version>2.10.1</dependency.logcaptor.version>
+        <dependency.logcaptor.version>2.10.2</dependency.logcaptor.version>
         <dependency.lombok-plugin.version>1.18.20.0</dependency.lombok-plugin.version>
         <dependency.lombok.version>1.18.36</dependency.lombok.version>
         <dependency.maven-antrun.version>3.1.0</dependency.maven-antrun.version>
