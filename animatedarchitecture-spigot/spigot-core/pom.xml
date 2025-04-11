@@ -14,7 +14,7 @@
     <properties>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
 
-        <dependency.adventure-api.version>4.19.0</dependency.adventure-api.version>
+        <dependency.adventure-api.version>4.20.0</dependency.adventure-api.version>
         <dependency.adventure-bukkit.version>4.3.4</dependency.adventure-bukkit.version>
         <dependency.bstats.version>3.1.0</dependency.bstats.version>
         <dependency.commodore.version>2.2</dependency.commodore.version>
