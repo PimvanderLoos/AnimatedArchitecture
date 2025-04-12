@@ -13,6 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
@@ -22,7 +23,10 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
+import nl.pim16aap2.animatedarchitecture.core.text.ITextComponentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
+import nl.pim16aap2.animatedarchitecture.core.text.TextArgumentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -36,9 +40,11 @@ import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.testing.TestUtil;
 import nl.pim16aap2.testing.assertions.AssertionsUtil;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -49,6 +55,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,14 +65,35 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class UnitTestUtil
 {
-    @SuppressWarnings("unused")
-    public static final double EPSILON = 1E-6;
+    public static ILocalizer DUMMY_LOCALIZER = new ILocalizer()
+    {
+        @Override
+        public @NotNull String getMessage(@NotNull String key, @Nullable Locale clientLocale, @NotNull Object... args)
+        {
+            return key + Stream.of(args).map(Objects::toString).collect(Collectors.joining(" "));
+        }
+
+        @Override
+        public @NotNull List<Locale> getAvailableLocales()
+        {
+            return List.of();
+        }
+    };
+
+    public static final PersonalizedLocalizer DUMMY_PERSONALIZED_LOCALIZER =
+        new PersonalizedLocalizer(DUMMY_LOCALIZER, null);
+
+    private static final TextArgumentFactory DUMMY_TEXT_ARGUMENT_FACTORY =
+        new TextArgumentFactory(ITextComponentFactory.SimpleTextComponentFactory.INSTANCE,
+            DUMMY_PERSONALIZED_LOCALIZER);
 
     private UnitTestUtil()
     {
@@ -78,15 +106,36 @@ public class UnitTestUtil
         return structureID;
     }
 
+    public static void setPersonalizedLocalizer(IMessageable messageable)
+    {
+        setPersonalizedLocalizer(messageable, null);
+    }
+
+    public static void setPersonalizedLocalizer(IMessageable messageable, @Nullable Locale locale)
+    {
+        final var personalizedLocalizer = initPersonalizedLocalizer(locale);
+        when(messageable.getPersonalizedLocalizer()).thenReturn(personalizedLocalizer);
+    }
+
+    public static PersonalizedLocalizer initPersonalizedLocalizer()
+    {
+        return initPersonalizedLocalizer(null);
+    }
+
+    public static PersonalizedLocalizer initPersonalizedLocalizer(@Nullable Locale locale)
+    {
+        return new PersonalizedLocalizer(initLocalizer(), locale);
+    }
+
     public static ILocalizer initLocalizer()
     {
         final ILocalizer localizer = mock(ILocalizer.class, Mockito.CALLS_REAL_METHODS);
         when(localizer
-            .getMessage(anyString(), ArgumentMatchers.any(Object[].class)))
+            .getMessage(anyString(), nullable(Locale.class), ArgumentMatchers.any(Object[].class)))
             .thenAnswer(invocation ->
             {
                 String ret = invocation.getArgument(0, String.class);
-                for (int idx = 1; idx < invocation.getArguments().length; ++idx)
+                for (int idx = 2; idx < invocation.getArguments().length; ++idx)
                     //noinspection StringConcatenationInLoop
                     ret += " " + invocation.getArgument(idx, Object.class);
                 return ret;
@@ -640,7 +689,7 @@ public class UnitTestUtil
         while (cause.getCause() != null)
             cause = cause.getCause();
         if (!expectedType.isAssignableFrom(cause.getClass()))
-            fail(getThrowableMisMatchMessage(expectedType, cause));
+            Assertions.fail(getThrowableMisMatchMessage(expectedType, cause));
 
         return expectedType.cast(cause);
     }
@@ -732,6 +781,79 @@ public class UnitTestUtil
             ret[idx] = (T) obj;
         }
         return ret;
+    }
+
+    public static void assertSendErrorIgnoreArgs(IMessageable messageable, String message)
+    {
+        verify(messageable).sendError(eq(message), any(Text.ArgumentCreator[].class));
+    }
+
+    public static void assertSendSuccessIgnoreArgs(IMessageable messageable, String message)
+    {
+        verify(messageable).sendSuccess(eq(message), any(Text.ArgumentCreator[].class));
+    }
+
+    public static void assertSendInfoIgnoreArgs(IMessageable messageable, String message)
+    {
+        verify(messageable).sendInfo(eq(message), any(Text.ArgumentCreator[].class));
+    }
+
+    private static void assertArgumentsEqual(
+        ArgumentCaptor<Text.ArgumentCreator[]> captor,
+        String methodName,
+        String message,
+        Object[] expectedArgs)
+    {
+        final Text.ArgumentCreator[] actualCreators = captor.getValue();
+        if (actualCreators.length != expectedArgs.length)
+        {
+            throw new AssertionError(String.format(
+                "Expected %d arguments but got %d arguments for message key '%s'",
+                expectedArgs.length, actualCreators.length, message));
+        }
+
+        final Object[] actualValues = new String[actualCreators.length];
+        for (int i = 0; i < actualCreators.length; i++)
+        {
+            TextArgument textArg = actualCreators[i].create(DUMMY_TEXT_ARGUMENT_FACTORY);
+            actualValues[i] = textArg.argument();
+        }
+
+        assertThat(actualValues)
+            .withFailMessage(() -> String.format("""
+                    
+                    Expected IMessageable.%s('%s') to be called with arguments:
+                      [%s]
+                    But got:
+                      [%s]
+                    """,
+                methodName,
+                message,
+                Stream.of(expectedArgs).map(Objects::toString).collect(Collectors.joining(", ")),
+                Stream.of(actualValues).map(Objects::toString).collect(Collectors.joining(", "))
+            ))
+            .containsExactly(expectedArgs);
+    }
+
+    public static void assertSendError(IMessageable messageable, String message, Object... expectedArgs)
+    {
+        final ArgumentCaptor<Text.ArgumentCreator[]> captor = ArgumentCaptor.forClass(Text.ArgumentCreator[].class);
+        verify(messageable).sendError(eq(message), captor.capture());
+        assertArgumentsEqual(captor, "sendError", message, expectedArgs);
+    }
+
+    public static void assertSendSuccess(IMessageable messageable, String message, Object... expectedArgs)
+    {
+        final ArgumentCaptor<Text.ArgumentCreator[]> captor = ArgumentCaptor.forClass(Text.ArgumentCreator[].class);
+        verify(messageable).sendSuccess(eq(message), captor.capture());
+        assertArgumentsEqual(captor, "sendSuccess", message, expectedArgs);
+    }
+
+    public static void assertSendInfo(IMessageable messageable, String message, Object... expectedArgs)
+    {
+        final ArgumentCaptor<Text.ArgumentCreator[]> captor = ArgumentCaptor.forClass(Text.ArgumentCreator[].class);
+        verify(messageable).sendInfo(eq(message), captor.capture());
+        assertArgumentsEqual(captor, "sendInfo", message, expectedArgs);
     }
 
     /**
