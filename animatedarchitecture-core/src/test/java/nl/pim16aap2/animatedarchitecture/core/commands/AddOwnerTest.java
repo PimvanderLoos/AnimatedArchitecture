@@ -347,15 +347,33 @@ class AddOwnerTest
     @Test
     void handleDatabaseActionSuccess_shouldSendCorrectSuccessMessages()
     {
+        // setup
         final AddOwner addOwner =
             addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.USER);
-
+        UnitTestUtil.setPersonalizedLocalizer(commandSender);
         UnitTestUtil.setStructureLocalization(structure);
 
+        when(structure.getName()).thenReturn("structure-name");
+        when(structure.getUid()).thenReturn(12L);
+
+        // execute
         addOwner.handleDatabaseActionSuccess(structure);
 
-        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher("commands.add_owner.success"));
-        verify(target).sendMessage(UnitTestUtil.textArgumentMatcher("commands.add_owner.added_player_notification"));
+        // verify
+        UnitTestUtil.assertSendInfo(
+            target,
+            "commands.add_owner.added_player_notification",
+            PermissionLevel.USER.getTranslationKey(),
+            structure.getType().getLocalizationKey(),
+            "structure-name (12)"
+        );
+        UnitTestUtil.assertSendSuccess(
+            commandSender,
+            "commands.add_owner.success",
+            target.getName(),
+            PermissionLevel.USER.getTranslationKey(),
+            structure.getType().getLocalizationKey()
+        );
     }
 
     @Test

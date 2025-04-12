@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
@@ -27,8 +28,6 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +39,6 @@ import java.util.concurrent.Executors;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 @Timeout(10)
 public class ToolUserTest
 {
@@ -68,8 +66,7 @@ public class ToolUserTest
     void init()
         throws NoSuchMethodException
     {
-        when(personalizedLocalizer.getMessage(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(player.getPersonalizedLocalizer()).thenReturn(personalizedLocalizer);
+        when(player.newText()).thenReturn(ITextFactory.getSimpleTextFactory().newText());
 
         stepFactory = new AssistedFactoryMocker<>(
             Step.Factory.class,
