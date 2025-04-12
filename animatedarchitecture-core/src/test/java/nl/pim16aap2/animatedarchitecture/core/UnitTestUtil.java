@@ -106,15 +106,16 @@ public class UnitTestUtil
         return structureID;
     }
 
-    public static void setPersonalizedLocalizer(IMessageable messageable)
+    public static void setPersonalizedLocalizer(IMessageable... messageables)
     {
-        setPersonalizedLocalizer(messageable, null);
+        setPersonalizedLocalizer(null, messageables);
     }
 
-    public static void setPersonalizedLocalizer(IMessageable messageable, @Nullable Locale locale)
+    public static void setPersonalizedLocalizer(@Nullable Locale locale, IMessageable... messageables)
     {
         final var personalizedLocalizer = initPersonalizedLocalizer(locale);
-        when(messageable.getPersonalizedLocalizer()).thenReturn(personalizedLocalizer);
+        for (final IMessageable messageable : messageables)
+            when(messageable.getPersonalizedLocalizer()).thenReturn(personalizedLocalizer);
     }
 
     public static PersonalizedLocalizer initPersonalizedLocalizer()
@@ -783,79 +784,6 @@ public class UnitTestUtil
         return ret;
     }
 
-    public static void assertSendErrorIgnoreArgs(IMessageable messageable, String message)
-    {
-        verify(messageable).sendError(eq(message), any(Text.ArgumentCreator[].class));
-    }
-
-    public static void assertSendSuccessIgnoreArgs(IMessageable messageable, String message)
-    {
-        verify(messageable).sendSuccess(eq(message), any(Text.ArgumentCreator[].class));
-    }
-
-    public static void assertSendInfoIgnoreArgs(IMessageable messageable, String message)
-    {
-        verify(messageable).sendInfo(eq(message), any(Text.ArgumentCreator[].class));
-    }
-
-    private static void assertArgumentsEqual(
-        ArgumentCaptor<Text.ArgumentCreator[]> captor,
-        String methodName,
-        String message,
-        Object[] expectedArgs)
-    {
-        final Text.ArgumentCreator[] actualCreators = captor.getValue();
-        if (actualCreators.length != expectedArgs.length)
-        {
-            throw new AssertionError(String.format(
-                "Expected %d arguments but got %d arguments for message key '%s'",
-                expectedArgs.length, actualCreators.length, message));
-        }
-
-        final Object[] actualValues = new String[actualCreators.length];
-        for (int i = 0; i < actualCreators.length; i++)
-        {
-            TextArgument textArg = actualCreators[i].create(DUMMY_TEXT_ARGUMENT_FACTORY);
-            actualValues[i] = textArg.argument();
-        }
-
-        assertThat(actualValues)
-            .withFailMessage(() -> String.format("""
-                    
-                    Expected IMessageable.%s('%s') to be called with arguments:
-                      [%s]
-                    But got:
-                      [%s]
-                    """,
-                methodName,
-                message,
-                Stream.of(expectedArgs).map(Objects::toString).collect(Collectors.joining(", ")),
-                Stream.of(actualValues).map(Objects::toString).collect(Collectors.joining(", "))
-            ))
-            .containsExactly(expectedArgs);
-    }
-
-    public static void assertSendError(IMessageable messageable, String message, Object... expectedArgs)
-    {
-        final ArgumentCaptor<Text.ArgumentCreator[]> captor = ArgumentCaptor.forClass(Text.ArgumentCreator[].class);
-        verify(messageable).sendError(eq(message), captor.capture());
-        assertArgumentsEqual(captor, "sendError", message, expectedArgs);
-    }
-
-    public static void assertSendSuccess(IMessageable messageable, String message, Object... expectedArgs)
-    {
-        final ArgumentCaptor<Text.ArgumentCreator[]> captor = ArgumentCaptor.forClass(Text.ArgumentCreator[].class);
-        verify(messageable).sendSuccess(eq(message), captor.capture());
-        assertArgumentsEqual(captor, "sendSuccess", message, expectedArgs);
-    }
-
-    public static void assertSendInfo(IMessageable messageable, String message, Object... expectedArgs)
-    {
-        final ArgumentCaptor<Text.ArgumentCreator[]> captor = ArgumentCaptor.forClass(Text.ArgumentCreator[].class);
-        verify(messageable).sendInfo(eq(message), captor.capture());
-        assertArgumentsEqual(captor, "sendInfo", message, expectedArgs);
-    }
-
     /**
      * Creates a new argument matcher that matches a Text argument using its {@link Text#toString()} method against an
      * input string.
@@ -910,6 +838,170 @@ public class UnitTestUtil
         verify(messageable, never()).sendError(anyString(), any(Text.ArgumentCreator.class));
         verify(messageable, never()).sendSuccess(anyString(), any(Text.ArgumentCreator.class));
         verify(messageable, never()).sendInfo(anyString(), any(Text.ArgumentCreator.class));
+    }
+
+    private static void assertArgumentsEqual(
+        Text.ArgumentCreator[] actualCreators,
+        String methodName,
+        String message,
+        Object[] expectedArgs)
+    {
+        if (actualCreators.length != expectedArgs.length)
+        {
+            throw new AssertionError(String.format(
+                "Expected %d arguments but got %d arguments for message key '%s'",
+                expectedArgs.length, actualCreators.length, message));
+        }
+
+        final Object[] actualValues = new String[actualCreators.length];
+        for (int i = 0; i < actualCreators.length; i++)
+        {
+            TextArgument textArg = actualCreators[i].create(DUMMY_TEXT_ARGUMENT_FACTORY);
+            actualValues[i] = textArg.argument();
+        }
+
+        assertThat(actualValues)
+            .withFailMessage(() -> String.format("""
+                    
+                    Expected IMessageable.%s('%s') to be called with arguments:
+                      [%s]
+                    But got:
+                      [%s]
+                    """,
+                methodName,
+                message,
+                Stream.of(expectedArgs).map(Objects::toString).collect(Collectors.joining(", ")),
+                Stream.of(actualValues).map(Objects::toString).collect(Collectors.joining(", "))
+            ))
+            .containsExactly(expectedArgs);
+    }
+
+    /**
+     * Creates a new {@link MessageableAssert} for the given {@link IMessageable}.
+     *
+     * @param messageable
+     *     The {@link IMessageable} to create the assert for.
+     * @return The {@link MessageableAssert} for the given {@link IMessageable}.
+     */
+    public static MessageableAssert assertThatMessageable(IMessageable messageable)
+    {
+        return new MessageableAssert(messageable);
+    }
+
+    /**
+     * Assert that a message was sent to a messageable.
+     */
+    public static class MessageableAssert
+    {
+        private final IMessageable messageable;
+
+        private MessageableAssert(IMessageable messageable)
+        {
+            this.messageable = messageable;
+        }
+
+        /**
+         * Asserts that a success message was sent to the messageable.
+         *
+         * @param message
+         *     The message to check for.
+         * @return The {@link MessageAssert} for the given messageable.
+         *
+         * @throws AssertionError
+         *     If the messageable did not receive the success message.
+         */
+        public MessageAssert sentSuccessMessage(String message)
+        {
+            return new MessageAssert("sendSuccess", messageable, message);
+        }
+
+        /**
+         * Asserts that an error message was sent to the messageable.
+         *
+         * @param message
+         *     The message to check for.
+         * @return The {@link MessageAssert} for the given messageable.
+         *
+         * @throws AssertionError
+         *     If the messageable did not receive the error message.
+         */
+        public MessageAssert sentErrorMessage(String message)
+        {
+            return new MessageAssert("sendError", messageable, message);
+        }
+
+        /**
+         * Asserts that an info message was sent to the messageable.
+         *
+         * @param message
+         *     The message to check for.
+         * @return The {@link MessageAssert} for the given messageable.
+         *
+         * @throws AssertionError
+         *     If the messageable did not receive the info message.
+         */
+        public MessageAssert sentInfoMessage(String message)
+        {
+            return new MessageAssert("sendInfo", messageable, message);
+        }
+    }
+
+    /**
+     * Assert that a message was sent to a messageable.
+     */
+    public static class MessageAssert
+    {
+        private final String methodName;
+        private final String message;
+        private final Text.ArgumentCreator[] actualCreators;
+
+        private MessageAssert(String methodName, IMessageable messageable, String message)
+        {
+            this.methodName = methodName;
+            this.message = message;
+
+            final var captor = ArgumentCaptor.forClass(Text.ArgumentCreator[].class);
+
+            switch (methodName)
+            {
+                case "sendSuccess" -> verify(messageable).sendSuccess(eq(message), captor.capture());
+                case "sendError" -> verify(messageable).sendError(eq(message), captor.capture());
+                case "sendInfo" -> verify(messageable).sendInfo(eq(message), captor.capture());
+                default -> throw new IllegalArgumentException("Unknown method: " + methodName);
+            }
+
+            this.actualCreators = captor.getValue();
+        }
+
+        /**
+         * Asserts that the message was sent with the given arguments.
+         *
+         * @param expectedArgs
+         *     The expected arguments.
+         * @throws AssertionError
+         *     If the message was not sent with the expected arguments.
+         */
+        public void withArgs(Object... expectedArgs)
+        {
+            assertArgumentsEqual(
+                actualCreators,
+                methodName,
+                message,
+                expectedArgs
+            );
+        }
+
+        /**
+         * Gets the actual arguments that were passed to the messageable.
+         *
+         * @return The actual arguments that were passed to the messageable.
+         */
+        public Object[] getActualArguments()
+        {
+            return Stream.of(actualCreators)
+                .map(creator -> creator.create(DUMMY_TEXT_ARGUMENT_FACTORY).argument())
+                .toArray();
+        }
     }
 
     /**

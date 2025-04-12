@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
+import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.RequiredPropertiesMissingForCommandException;
@@ -267,12 +268,36 @@ public abstract class StructureTargetCommand extends BaseCommand
      */
     protected abstract CompletableFuture<?> performAction(Structure structure);
 
+
     /**
+     * Gets the structure description of the {@link #retrieverResult}.
+     * <p>
+     * This is a shortcut for {@link #getRetrievedStructureDescription(Structure, IMessageable)} with
+     * {@link #getCommandSender()} as the {@link IMessageable}.
+     *
+     * @param retrieverResult
+     *     The {@link Structure} that was retrieved.
      * @return The structure description of the {@link #retrieverResult}.
      */
     protected final StructureDescription getRetrievedStructureDescription(@Nullable Structure retrieverResult)
     {
-        return StructureDescription.of(getCommandSender().getPersonalizedLocalizer(), retrieverResult);
+        return getRetrievedStructureDescription(retrieverResult, getCommandSender());
+    }
+
+    /**
+     * Gets the structure description of the {@link #retrieverResult}.
+     *
+     * @param retrieverResult
+     *     The {@link Structure} that was retrieved.
+     * @param messageable
+     *     The {@link IMessageable} to use for localization.
+     * @return The structure description of the {@link #retrieverResult}.
+     */
+    protected final StructureDescription getRetrievedStructureDescription(
+        @Nullable Structure retrieverResult,
+        IMessageable messageable)
+    {
+        return StructureDescription.of(messageable.getPersonalizedLocalizer(), retrieverResult);
     }
 
     /**

@@ -71,20 +71,20 @@ public final class AddOwner extends StructureTargetCommand
     @Override
     protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
     {
-        final var description = getRetrievedStructureDescription(retrieverResult);
-
+        final var commandSenderDescription = getRetrievedStructureDescription(retrieverResult);
         getCommandSender().sendSuccess(
             "commands.add_owner.success",
             arg -> arg.highlight(targetPlayer.getName()),
             arg -> arg.localizedHighlight(targetPermissionLevel.getTranslationKey()),
-            arg -> arg.highlight(description.localizedTypeName())
+            arg -> arg.highlight(commandSenderDescription.id())
         );
 
+        final var targetPlayerDescription = getRetrievedStructureDescription(retrieverResult, targetPlayer);
         targetPlayer.sendInfo(
             "commands.add_owner.added_player_notification",
             arg -> arg.localizedHighlight(targetPermissionLevel.getTranslationKey()),
-            arg -> arg.highlight(description.localizedTypeName()),
-            arg -> arg.highlight(description.id())
+            arg -> arg.highlight(targetPlayerDescription.localizedTypeName()),
+            arg -> arg.highlight(targetPlayerDescription.id())
         );
     }
 
