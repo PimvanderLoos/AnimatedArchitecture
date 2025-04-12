@@ -6,7 +6,6 @@ import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoStructuresForCommandException;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
@@ -112,11 +111,11 @@ class BaseCommandTest
     @Test
     void handleRunException_shouldSendPlayerGenericErrorForUninformedException()
     {
-        final ICommandSender sender = mock();
+        final ICommandSender commandSender = mock();
         final var exception = new CommandExecutionException(false);
-        final var command = spy(TestCommand.withMocks(sender));
+        final var command = spy(TestCommand.withMocks(commandSender));
 
-        when(sender.isPlayer()).thenReturn(true);
+        when(commandSender.isPlayer()).thenReturn(true);
 
         command.handleRunException(exception);
 
@@ -193,9 +192,8 @@ class BaseCommandTest
     @Test
     void sendGenericErrorMessage_shouldSendMessage()
     {
-        final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
         final ICommandSender commandSender = mock();
-        final var command = TestCommand.withMocks(commandSender, textFactory, UnitTestUtil.initLocalizer());
+        final var command = TestCommand.withMocks(commandSender);
 
         command.sendGenericErrorMessage();
 
@@ -205,9 +203,8 @@ class BaseCommandTest
     @Test
     void handlePermissionResult_shouldThrowExceptionForNoPermission()
     {
-        final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
         final ICommandSender commandSender = mock();
-        final var command = TestCommand.withMocks(commandSender, textFactory, UnitTestUtil.initLocalizer());
+        final var command = TestCommand.withMocks(commandSender);
         final PermissionsStatus permissions = new PermissionsStatus(false, false);
 
         final CommandExecutionException exception = UnitTestUtil.assertRootCause(
@@ -288,8 +285,7 @@ class BaseCommandTest
     void getStructure_shouldThrowExceptionWhenNoStructureFound()
     {
         final ICommandSender commandSender = mock();
-        final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
-        final var command = TestCommand.withMocks(commandSender, textFactory, UnitTestUtil.initLocalizer());
+        final var command = TestCommand.withMocks(commandSender);
         final Structure structure = mock();
         final StructureRetriever structureRetriever = spy(StructureRetrieverFactory.ofStructure(structure));
         final PermissionLevel permissionLevel = PermissionLevel.USER;

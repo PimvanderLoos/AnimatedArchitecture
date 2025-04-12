@@ -4,6 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
@@ -90,6 +91,7 @@ class AddOwnerDelayedTest
 
         structureRetriever = structureRetrieverFactory.of(structure);
 
+        when(commandSender.newText()).thenReturn(ITextFactory.getSimpleTextFactory().newText());
         when(addOwner.run()).thenReturn(CompletableFuture.completedFuture(null));
         when(commandFactory.newAddOwner(any(), any(), any(), any())).thenReturn(addOwner);
     }

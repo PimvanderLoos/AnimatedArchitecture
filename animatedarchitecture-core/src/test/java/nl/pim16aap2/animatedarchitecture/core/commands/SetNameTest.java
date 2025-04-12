@@ -3,9 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
@@ -33,8 +31,6 @@ class SetNameTest
     @Mock
     private ToolUserManager toolUserManager;
 
-    private final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
-
     private AssistedFactoryMocker<SetName, SetName.IFactory> assistedFactoryMocker;
 
     @BeforeEach
@@ -43,8 +39,7 @@ class SetNameTest
     {
         assistedFactoryMocker = new AssistedFactoryMocker<>(SetName.class, SetName.IFactory.class)
             .setMock(IExecutor.class, executor)
-            .setMock(ToolUserManager.class, toolUserManager)
-            .setMock(ITextFactory.class, textFactory);
+            .setMock(ToolUserManager.class, toolUserManager);
     }
 
     @AfterEach
@@ -108,7 +103,6 @@ class SetNameTest
         final IPlayer commandSender = mock();
         final ToolUser toolUser = mock();
         final String name = "my-new-windmill";
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         when(commandSender.getPlayer()).thenReturn(Optional.of(commandSender));
         when(toolUserManager.getToolUser(commandSender)).thenReturn(Optional.of(toolUser));
@@ -116,7 +110,6 @@ class SetNameTest
         final CommandExecutionException exception = UnitTestUtil.assertRootCause(
             CommandExecutionException.class,
             () -> assistedFactoryMocker
-                .setMock(ILocalizer.class, localizer)
                 .getFactory()
                 .newSetName(commandSender, name)
                 .executeCommand(null)
@@ -139,7 +132,6 @@ class SetNameTest
         final IPlayer commandSender = mock();
         final ToolUser toolUser = mock();
         final String name = "my-new-garage-door";
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         when(commandSender.getPlayer()).thenReturn(Optional.of(commandSender));
         when(toolUserManager.getToolUser(commandSender)).thenReturn(Optional.empty());
@@ -147,7 +139,6 @@ class SetNameTest
         final CommandExecutionException exception = UnitTestUtil.assertRootCause(
             CommandExecutionException.class,
             () -> assistedFactoryMocker
-                .setMock(ILocalizer.class, localizer)
                 .getFactory()
                 .newSetName(commandSender, name)
                 .executeCommand(null)

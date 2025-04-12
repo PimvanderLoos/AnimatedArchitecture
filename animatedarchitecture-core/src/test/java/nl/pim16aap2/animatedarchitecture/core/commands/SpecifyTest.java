@@ -1,9 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.AfterEach;
@@ -74,7 +72,6 @@ class SpecifyTest
 
         final Specify specify = spy(
             assistedFactoryMocker
-                .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
                 .getFactory()
                 .newSpecify(server, "my-new-portcullis-name")
         );
@@ -93,7 +90,6 @@ class SpecifyTest
         when(structureSpecificationManager.handleInput(player, name)).thenReturn(false);
 
         assistedFactoryMocker
-            .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
             .getFactory()
             .newSpecify(player, name)
             .executeCommand(null)

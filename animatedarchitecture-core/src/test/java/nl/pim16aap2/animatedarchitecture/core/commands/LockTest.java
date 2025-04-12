@@ -4,9 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IAnimatedArchitectureEventFactory;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareLockChangeEvent;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
@@ -35,8 +33,6 @@ import static org.mockito.Mockito.*;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class LockTest
 {
-    private final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
-
     private StructureRetriever structureRetriever;
 
     @Mock
@@ -71,8 +67,6 @@ class LockTest
         when(eventFactory.createStructurePrepareLockChangeEvent(any(), anyBoolean(), any())).thenReturn(event);
 
         assistedFactoryMocker = new AssistedFactoryMocker<>(Lock.class, Lock.IFactory.class)
-            .setMock(ITextFactory.class, textFactory)
-            .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
             .setMock(IExecutor.class, executor)
             .setMock(IAnimatedArchitectureEventFactory.class, eventFactory);
 

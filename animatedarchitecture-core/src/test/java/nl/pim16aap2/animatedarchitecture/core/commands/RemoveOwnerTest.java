@@ -2,10 +2,8 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -33,8 +31,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RemoveOwnerTest
 {
-    private final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
-
     @Mock
     private DatabaseManager databaseManager;
 
@@ -58,7 +54,6 @@ class RemoveOwnerTest
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
 
         assistedFactoryMocker = new AssistedFactoryMocker<>(RemoveOwner.class, RemoveOwner.IFactory.class)
-            .setMock(ITextFactory.class, textFactory)
             .setMock(DatabaseManager.class, databaseManager);
     }
 
@@ -97,7 +92,6 @@ class RemoveOwnerTest
         UnitTestUtil.setStructureLocalization(structure);
 
         assistedFactoryMocker
-            .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
             .getFactory()
             .newRemoveOwner(commandSender, structureRetriever, target)
             .handleDatabaseActionSuccess(structure);
@@ -142,7 +136,6 @@ class RemoveOwnerTest
         UnitTestUtil.setStructureLocalization(structure);
 
         assistedFactoryMocker
-            .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
             .getFactory()
             .newRemoveOwner(commandSender, structureRetriever, target)
             .performAction(structure)
@@ -206,7 +199,6 @@ class RemoveOwnerTest
         final InvalidCommandInputException exception = UnitTestUtil.assertRootCause(
             InvalidCommandInputException.class,
             () -> assistedFactoryMocker
-                .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
                 .getFactory()
                 .newRemoveOwner(commandSender, structureRetriever, target)
                 .isAllowed(structure, false)
@@ -278,7 +270,6 @@ class RemoveOwnerTest
         final NoAccessToStructureCommandException exception = UnitTestUtil.assertRootCause(
             NoAccessToStructureCommandException.class,
             () -> assistedFactoryMocker
-                .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
                 .getFactory()
                 .newRemoveOwner(commandSender, structureRetriever, target)
                 .isAllowed(structure, false)
@@ -309,7 +300,6 @@ class RemoveOwnerTest
         final NoAccessToStructureCommandException exception = UnitTestUtil.assertRootCause(
             NoAccessToStructureCommandException.class,
             () -> assistedFactoryMocker
-                .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
                 .getFactory()
                 .newRemoveOwner(commandSender, structureRetriever, target)
                 .isAllowed(structure, false)
@@ -340,7 +330,6 @@ class RemoveOwnerTest
         final NoAccessToStructureCommandException exception = UnitTestUtil.assertRootCause(
             NoAccessToStructureCommandException.class,
             () -> assistedFactoryMocker
-                .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
                 .getFactory()
                 .newRemoveOwner(commandSender, structureRetriever, target)
                 .isAllowed(structure, false)
