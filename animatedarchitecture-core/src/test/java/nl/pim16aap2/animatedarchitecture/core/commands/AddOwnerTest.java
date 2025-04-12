@@ -328,7 +328,7 @@ class AddOwnerTest
             .withArgs(
                 target.getName(),
                 PermissionLevel.USER.getTranslationKey(),
-                "structure-name (12)"
+                structure.getType().getLocalizationKey()
             );
 
         verify(databaseManager).addOwner(structure, target, PermissionLevel.USER, commandSender);

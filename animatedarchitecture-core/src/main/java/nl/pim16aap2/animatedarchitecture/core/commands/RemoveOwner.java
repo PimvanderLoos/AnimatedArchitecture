@@ -56,18 +56,18 @@ public class RemoveOwner extends StructureTargetCommand
     @Override
     protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
     {
-        final var description = getRetrievedStructureDescription(retrieverResult);
-
+        final var descriptionForCommandSender = getRetrievedStructureDescription(retrieverResult);
         getCommandSender().sendSuccess(
             "commands.remove_owner.success",
             arg -> arg.highlight(targetPlayer.getName()),
-            arg -> arg.highlight(description.localizedTypeName())
+            arg -> arg.highlight(descriptionForCommandSender.localizedTypeName())
         );
 
+        final var descriptionForTargetPlayer = getRetrievedStructureDescription(retrieverResult, targetPlayer);
         targetPlayer.sendInfo(
             "commands.remove_owner.removed_player_notification",
-            arg -> arg.highlight(description.localizedTypeName()),
-            arg -> arg.highlight(description.id())
+            arg -> arg.highlight(descriptionForTargetPlayer.localizedTypeName()),
+            arg -> arg.highlight(descriptionForTargetPlayer.id())
         );
     }
 

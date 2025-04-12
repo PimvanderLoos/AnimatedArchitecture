@@ -10,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -38,7 +39,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.testing.TestUtil;
-import nl.pim16aap2.testing.assertions.AssertionsUtil;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -104,6 +104,31 @@ public class UnitTestUtil
         final StructureID structureID = Mockito.mock();
         when(structureID.getId()).thenReturn(id);
         return structureID;
+    }
+
+    public static void initMessageable(IMessageable... messageables)
+    {
+        final var personalizedLocalizer = initPersonalizedLocalizer();
+        for (final var messageable : messageables)
+        {
+            final ITextFactory textFactory = new ITextFactory()
+            {
+                @Override
+                public Text newText(@Nullable PersonalizedLocalizer personalizedLocalizer)
+                {
+                    return new Text(ITextComponentFactory.SimpleTextComponentFactory.INSTANCE, personalizedLocalizer);
+                }
+
+                @Override
+                public Text newText()
+                {
+                    return newText(personalizedLocalizer);
+                }
+            };
+
+            when(messageable.getPersonalizedLocalizer()).thenReturn(personalizedLocalizer);
+            doReturn(textFactory.newText()).when(messageable).newText();
+        }
     }
 
     public static void setPersonalizedLocalizer(IMessageable... messageables)
@@ -800,20 +825,6 @@ public class UnitTestUtil
     }
 
     /**
-     * Creates a new argument matcher that matches a String argument against an input string.
-     *
-     * @param input
-     *     The input string.
-     * @param matchType
-     *     The type of match to perform.
-     * @return null.
-     */
-    public static String stringMatcher(String input, AssertionsUtil.StringMatchType matchType)
-    {
-        return argThat(new AssertionsUtil.StringArgumentMatcher(input, matchType));
-    }
-
-    /**
      * Verifies that no messages were sent to a messageable.
      * <p>
      * This method uses Mockito's {@link Mockito#verify(Object)} and {@link Mockito#never()} to verify that no messages
@@ -943,6 +954,32 @@ public class UnitTestUtil
         public MessageAssert sentInfoMessage(String message)
         {
             return new MessageAssert("sendInfo", messageable, message);
+        }
+
+        /**
+         * Asserts that a message was sent to the messageable.
+         *
+         * @param text
+         *     The text to check for.
+         * @throws AssertionError
+         *     If the messageable did not receive the message.
+         */
+        public void sentMessage(Text text)
+        {
+            verify(messageable).sendMessage(text);
+        }
+
+        /**
+         * Asserts that a message was sent to the messageable using {@link IMessageable#sendMessage(Text)}.
+         *
+         * @param text
+         *     The String representation of the text to check for.
+         * @throws AssertionError
+         *     If the messageable did not receive the message.
+         */
+        public void sentMessage(String text)
+        {
+            verify(messageable).sendMessage(textArgumentMatcher(text));
         }
     }
 

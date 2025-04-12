@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.assertThatMessageable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -89,20 +90,24 @@ class RemoveOwnerTest
     @Test
     void handleDatabaseActionResult_shouldMessageCommandSenderAndTargetOnSuccess()
     {
+        // setup
         UnitTestUtil.setStructureLocalization(structure);
+        UnitTestUtil.setPersonalizedLocalizer(commandSender, target);
 
+        // execute
         assistedFactoryMocker
             .getFactory()
             .newRemoveOwner(commandSender, structureRetriever, target)
             .handleDatabaseActionSuccess(structure);
 
-        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher(
-            "commands.remove_owner.success")
-        );
+        // verify
+        assertThatMessageable(commandSender)
+            .sentSuccessMessage("commands.remove_owner.success")
+            .withArgs(target.getName(), structure.getType().getLocalizationKey());
 
-        verify(target).sendMessage(UnitTestUtil.textArgumentMatcher(
-            "commands.remove_owner.removed_player_notification")
-        );
+        assertThatMessageable(target)
+            .sentInfoMessage("commands.remove_owner.removed_player_notification")
+            .withArgs(structure.getType().getLocalizationKey(), "null (0)");
     }
 
     @Test
@@ -126,6 +131,7 @@ class RemoveOwnerTest
     @Test
     void performAction_shouldUnwrapCommandSenderIfPlayer()
     {
+        // setup
         final IPlayer playerCommandSender = mock();
         when(commandSender.getPlayer()).thenReturn(Optional.of(playerCommandSender));
 
@@ -134,13 +140,16 @@ class RemoveOwnerTest
             .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         UnitTestUtil.setStructureLocalization(structure);
+        UnitTestUtil.setPersonalizedLocalizer(commandSender, target);
 
+        // execute
         assistedFactoryMocker
             .getFactory()
             .newRemoveOwner(commandSender, structureRetriever, target)
             .performAction(structure)
             .join();
 
+        // verify
         verify(databaseManager).removeOwner(structure, target, playerCommandSender);
     }
 
@@ -210,7 +219,9 @@ class RemoveOwnerTest
             exception.getMessage()
         );
 
-        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher("commands.remove_owner.error.not_an_owner"));
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.remove_owner.error.not_an_owner")
+            .withArgs(structure.getType().getLocalizationKey());
     }
 
     @Test
@@ -281,7 +292,9 @@ class RemoveOwnerTest
             exception.getMessage()
         );
 
-        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher("commands.remove_owner.error.not_allowed"));
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.remove_owner.error.not_allowed")
+            .withArgs(structure.getType().getLocalizationKey());
     }
 
     @Test
@@ -311,8 +324,9 @@ class RemoveOwnerTest
             exception.getMessage()
         );
 
-        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher(
-            "commands.remove_owner.error.target_not_an_owner"));
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.remove_owner.error.target_not_an_owner")
+            .withArgs(target.asString(), structure.getType().getLocalizationKey(), structure.getBasicInfo());
     }
 
     @Test
