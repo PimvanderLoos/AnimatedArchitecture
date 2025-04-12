@@ -142,7 +142,7 @@ public class PlayerFactorySpigot implements IPlayerFactory
         // 'computeIfAbsent' is marked as nullable, but that can only happen when
         // the mapping function returns null, which it doesn't.
 
-        //noinspection DataFlowIssue
+        //noinspection DataFlowIssue,deprecation
         return playerCache.computeIfAbsent(
             player.getUniqueId(),
             uuid -> new WrappedPlayer(player, localizer, textFactory)

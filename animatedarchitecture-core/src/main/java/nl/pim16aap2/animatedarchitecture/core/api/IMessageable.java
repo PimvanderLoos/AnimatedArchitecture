@@ -4,9 +4,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Locale;
 
 /**
  * Represents objects that can receive messages.
@@ -27,18 +24,6 @@ public interface IMessageable
      * @return The text factory of this messageable.
      */
     ITextFactory getTextFactory();
-
-    /**
-     * Gets the locale of this sender.
-     * <p>
-     * Defaults to null.
-     *
-     * @return The locale of this sender or null if no locale is set.
-     */
-    default @Nullable Locale getLocale()
-    {
-        return null;
-    }
 
     /**
      * Creates a new {@link PersonalizedLocalizer} using the localizer and locale of this messageable.

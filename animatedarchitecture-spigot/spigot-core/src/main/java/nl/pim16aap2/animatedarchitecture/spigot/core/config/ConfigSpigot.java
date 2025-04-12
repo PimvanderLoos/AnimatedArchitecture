@@ -262,8 +262,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
             """;
 
         final String allowClientLocaleComment = """
-            # When enabled, the plugin will try to use the locale of the client if it is supported.
-            # If the client's locale is not supported, the plugin will default to the locale set in 'locale'.
+            # When enabled, the plugin will allow players to use a different locale than the server.
             """;
 
         final String commandAliasesComment = """

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
@@ -36,17 +37,25 @@ public final class WrappedPlayer implements IPlayer
     private final ITextFactory textFactory;
 
     @Getter
-    private final @Nullable Locale locale;
-
-    @Getter
     private final PersonalizedLocalizer personalizedLocalizer;
 
+    /**
+     * Creates a new {@link WrappedPlayer} object.
+     *
+     * @param spigotPlayer
+     *     The Spigot player to wrap.
+     * @param localizer
+     *     The localizer to use for localization of messages to send to the player.
+     * @param textFactory
+     *     The text factory to use for creating text objects.
+     * @deprecated Use {@link IPlayerFactory} instead.
+     */
+    @Deprecated
     public WrappedPlayer(Player spigotPlayer, ILocalizer localizer, ITextFactory textFactory)
     {
         this.spigotPlayer = spigotPlayer;
-        this.locale = parseLocale(spigotPlayer.getLocale());
         this.textFactory = textFactory;
-        this.personalizedLocalizer = new PersonalizedLocalizer(localizer, locale);
+        this.personalizedLocalizer = new PersonalizedLocalizer(localizer, null);
     }
 
     @Override
