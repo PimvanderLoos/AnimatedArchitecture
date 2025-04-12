@@ -61,6 +61,10 @@ public interface ILocalizer
      */
     final class DummyLocalizer implements ILocalizer
     {
+        private DummyLocalizer()
+        {
+        }
+
         @Override
         public String getMessage(String key, @Nullable Locale clientLocale, Object... args)
         {

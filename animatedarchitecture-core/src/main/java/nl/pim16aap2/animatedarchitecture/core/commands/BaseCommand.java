@@ -314,23 +314,23 @@ public abstract class BaseCommand
      * <p>
      * If no structure is found, the {@link ICommandSender} will be informed.
      *
-     * @param doorRetriever
+     * @param structureRetriever
      *     The {@link StructureRetrieverFactory} to use
      * @param permissionLevel
      *     The minimum {@link PermissionLevel} required to retrieve the structure.
      * @return The {@link Structure} if one could be retrieved.
      */
     protected CompletableFuture<Structure> getStructure(
-        StructureRetriever doorRetriever,
+        StructureRetriever structureRetriever,
         PermissionLevel permissionLevel)
     {
         return commandSender
             .getPlayer()
-            .map(player -> doorRetriever.getStructureInteractive(player, permissionLevel))
-            .orElseGet(doorRetriever::getStructure)
+            .map(player -> structureRetriever.getStructureInteractive(player, permissionLevel))
+            .orElseGet(structureRetriever::getStructure)
             .withExceptionContext(
                 "Get structure from retriever '%s' with permission level '%s' for command: %s",
-                doorRetriever,
+                structureRetriever,
                 permissionLevel,
                 this
             )

@@ -56,13 +56,13 @@ public final class AddOwner extends StructureTargetCommand
     @AssistedInject
     AddOwner(
         @Assisted ICommandSender commandSender,
-        @Assisted StructureRetriever doorRetriever,
+        @Assisted StructureRetriever structureRetriever,
         @Assisted IPlayer targetPlayer,
         @Assisted @Nullable PermissionLevel targetPermissionLevel,
         IExecutor executor,
         DatabaseManager databaseManager)
     {
-        super(commandSender, executor, doorRetriever, StructureAttribute.ADD_OWNER);
+        super(commandSender, executor, structureRetriever, StructureAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel == null ? DEFAULT_PERMISSION_LEVEL : targetPermissionLevel;
         this.databaseManager = databaseManager;
@@ -198,7 +198,7 @@ public final class AddOwner extends StructureTargetCommand
          * @param commandSender
          *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
          *     execution.
-         * @param doorRetriever
+         * @param structureRetriever
          *     A {@link StructureRetrieverFactory} that references the target structure.
          * @param targetPlayer
          *     The target player to add to this structure as co-owner.
@@ -212,7 +212,7 @@ public final class AddOwner extends StructureTargetCommand
          */
         AddOwner newAddOwner(
             ICommandSender commandSender,
-            StructureRetriever doorRetriever,
+            StructureRetriever structureRetriever,
             IPlayer targetPlayer,
             @Nullable PermissionLevel targetPermissionLevel);
 
@@ -223,10 +223,10 @@ public final class AddOwner extends StructureTargetCommand
          */
         default AddOwner newAddOwner(
             ICommandSender commandSender,
-            StructureRetriever doorRetriever,
+            StructureRetriever structureRetriever,
             IPlayer targetPlayer)
         {
-            return newAddOwner(commandSender, doorRetriever, targetPlayer, null);
+            return newAddOwner(commandSender, structureRetriever, targetPlayer, null);
         }
     }
 }

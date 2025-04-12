@@ -37,7 +37,7 @@ class LockTest
 {
     private final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
 
-    private StructureRetriever doorRetriever;
+    private StructureRetriever structureRetriever;
 
     @Mock
     private Structure door;
@@ -62,7 +62,7 @@ class LockTest
         initCommandSenderPermissions(commandSender, true, true);
         when(door.isOwner(any(UUID.class), any())).thenReturn(true);
         when(door.isOwner(any(IPlayer.class), any())).thenReturn(true);
-        doorRetriever = StructureRetrieverFactory.ofStructure(door);
+        structureRetriever = StructureRetrieverFactory.ofStructure(door);
 
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
         when(door.syncData()).thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
@@ -88,11 +88,17 @@ class LockTest
 
         UnitTestUtil.setStructureLocalization(door);
 
-        assertDoesNotThrow(() -> factory.newLock(commandSender, doorRetriever, lock).run().get(1, TimeUnit.SECONDS));
+        assertDoesNotThrow(() -> factory
+            .newLock(commandSender, structureRetriever, lock)
+            .run()
+            .get(1, TimeUnit.SECONDS));
         verify(door, never()).setLocked(lock);
 
         when(event.isCancelled()).thenReturn(false);
-        assertDoesNotThrow(() -> factory.newLock(commandSender, doorRetriever, lock).run().get(1, TimeUnit.SECONDS));
+        assertDoesNotThrow(() -> factory
+            .newLock(commandSender, structureRetriever, lock)
+            .run()
+            .get(1, TimeUnit.SECONDS));
         verify(door).setLocked(lock);
     }
 }

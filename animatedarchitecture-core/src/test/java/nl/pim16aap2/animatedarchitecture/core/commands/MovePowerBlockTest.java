@@ -44,7 +44,7 @@ class MovePowerBlockTest
     @Mock
     private ToolUserManager toolUserManager;
 
-    private StructureRetriever doorRetriever;
+    private StructureRetriever structureRetriever;
 
     @Mock
     private Structure door;
@@ -63,7 +63,7 @@ class MovePowerBlockTest
         final UUID uuid = UUID.randomUUID();
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
-        doorRetriever = StructureRetrieverFactory.ofStructure(door);
+        structureRetriever = StructureRetrieverFactory.ofStructure(door);
         when(door.isOwner(uuid, StructureAttribute.RELOCATE_POWERBLOCK.getPermissionLevel())).thenReturn(true);
         when(door.isOwner(any(IPlayer.class), any())).thenReturn(true);
         when(commandSender.getUUID()).thenReturn(uuid);
@@ -88,7 +88,7 @@ class MovePowerBlockTest
     {
         final IServer server = mock(IServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertDoesNotThrow(
-            () -> factory.newMovePowerBlock(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
+            () -> factory.newMovePowerBlock(server, structureRetriever).run().get(1, TimeUnit.SECONDS));
         verify(toolUserManager, never()).startToolUser(Mockito.any(), anyInt());
     }
 
@@ -96,7 +96,7 @@ class MovePowerBlockTest
     void testExecution()
     {
         Assertions.assertDoesNotThrow(
-            () -> factory.newMovePowerBlock(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
+            () -> factory.newMovePowerBlock(commandSender, structureRetriever).run().get(1, TimeUnit.SECONDS));
         verify(toolUserManager).startToolUser(Mockito.any(), anyInt());
     }
 }
