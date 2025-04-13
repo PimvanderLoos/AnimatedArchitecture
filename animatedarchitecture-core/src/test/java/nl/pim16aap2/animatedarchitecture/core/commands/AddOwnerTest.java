@@ -297,7 +297,7 @@ class AddOwnerTest
     void performAction_shouldCallDatabaseManagerAndHandleResult()
         throws ExecutionException, InterruptedException, TimeoutException
     {
-        // setup
+        // Setup
         final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.USER);
 
         UnitTestUtil.setPersonalizedLocalizer(commandSender, target);
@@ -315,7 +315,7 @@ class AddOwnerTest
             .performAction(structure)
             .get(1, TimeUnit.SECONDS);
 
-        // verify
+        // Verify
         assertThatMessageable(target)
             .sentInfoMessage("commands.add_owner.added_player_notification")
             .withArgs(
@@ -337,7 +337,7 @@ class AddOwnerTest
     @Test
     void handleDatabaseActionSuccess_shouldSendCorrectSuccessMessages()
     {
-        // setup
+        // Setup
         final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.USER);
         UnitTestUtil.setPersonalizedLocalizer(commandSender, target);
         UnitTestUtil.setStructureLocalization(structure);
@@ -348,7 +348,7 @@ class AddOwnerTest
         // execute
         addOwner.handleDatabaseActionSuccess(structure);
 
-        // verify
+        // Verify
         assertThatMessageable(target)
             .sentInfoMessage("commands.add_owner.added_player_notification")
             .withArgs(
@@ -361,7 +361,7 @@ class AddOwnerTest
             .withArgs(
                 target.getName(),
                 PermissionLevel.USER.getTranslationKey(),
-                "structure-name (12)"
+                structure.getType().getLocalizationKey()
             );
     }
 

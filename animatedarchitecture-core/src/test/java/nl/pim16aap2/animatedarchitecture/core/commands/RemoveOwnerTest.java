@@ -90,7 +90,7 @@ class RemoveOwnerTest
     @Test
     void handleDatabaseActionResult_shouldMessageCommandSenderAndTargetOnSuccess()
     {
-        // setup
+        // Setup
         UnitTestUtil.setStructureLocalization(structure);
         UnitTestUtil.setPersonalizedLocalizer(commandSender, target);
 
@@ -100,7 +100,7 @@ class RemoveOwnerTest
             .newRemoveOwner(commandSender, structureRetriever, target)
             .handleDatabaseActionSuccess(structure);
 
-        // verify
+        // Verify
         assertThatMessageable(commandSender)
             .sentSuccessMessage("commands.remove_owner.success")
             .withArgs(target.getName(), structure.getType().getLocalizationKey());
@@ -131,7 +131,7 @@ class RemoveOwnerTest
     @Test
     void performAction_shouldUnwrapCommandSenderIfPlayer()
     {
-        // setup
+        // Setup
         final IPlayer playerCommandSender = mock();
         when(commandSender.getPlayer()).thenReturn(Optional.of(playerCommandSender));
 
@@ -149,7 +149,7 @@ class RemoveOwnerTest
             .performAction(structure)
             .join();
 
-        // verify
+        // Verify
         verify(databaseManager).removeOwner(structure, target, playerCommandSender);
     }
 

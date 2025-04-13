@@ -40,6 +40,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.testing.TestUtil;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
+import org.assertj.core.api.AbstractAssert;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -67,7 +68,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -140,7 +140,7 @@ public class UnitTestUtil
     {
         final var personalizedLocalizer = initPersonalizedLocalizer(locale);
         for (final IMessageable messageable : messageables)
-            when(messageable.getPersonalizedLocalizer()).thenReturn(personalizedLocalizer);
+            lenient().when(messageable.getPersonalizedLocalizer()).thenReturn(personalizedLocalizer);
     }
 
     public static PersonalizedLocalizer initPersonalizedLocalizer()
@@ -871,7 +871,7 @@ public class UnitTestUtil
             actualValues[i] = textArg.argument();
         }
 
-        assertThat(actualValues)
+        org.assertj.core.api.Assertions.assertThat(actualValues)
             .withFailMessage(() -> String.format("""
                     
                     Expected IMessageable.%s('%s') to be called with arguments:
@@ -900,15 +900,36 @@ public class UnitTestUtil
     }
 
     /**
+     * Creates a new {@link MessageableAssert} for the given {@link IMessageable}. AssertJ standard naming convention.
+     */
+    public static MessageableAssert assertThat(IMessageable messageable)
+    {
+        return MessageableAssert.assertThat(messageable);
+    }
+
+    /**
      * Assert that a message was sent to a messageable.
      */
-    public static class MessageableAssert
+    public static class MessageableAssert extends AbstractAssert<MessageableAssert, IMessageable>
     {
         private final IMessageable messageable;
 
         private MessageableAssert(IMessageable messageable)
         {
+            super(messageable, MessageableAssert.class);
             this.messageable = messageable;
+        }
+
+        /**
+         * Static factory method for AssertJ standard pattern.
+         *
+         * @param messageable
+         *     The messageable to assert on.
+         * @return The {@link MessageableAssert} for the given messageable.z
+         */
+        public static MessageableAssert assertThat(IMessageable messageable)
+        {
+            return new MessageableAssert(messageable);
         }
 
         /**
