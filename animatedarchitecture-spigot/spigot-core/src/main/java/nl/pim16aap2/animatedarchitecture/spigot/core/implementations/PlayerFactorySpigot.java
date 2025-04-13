@@ -137,11 +137,11 @@ public class PlayerFactorySpigot implements IPlayerFactory
      *     The Bukkit player.
      * @return The new {@link WrappedPlayer} instance.
      */
+    // 'computeIfAbsent' is marked as nullable, but that can only happen when
+    // the mapping function returns null, which it doesn't.
+    @SuppressWarnings("NullAway")
     public WrappedPlayer wrapPlayer(Player player)
     {
-        // 'computeIfAbsent' is marked as nullable, but that can only happen when
-        // the mapping function returns null, which it doesn't.
-
         //noinspection DataFlowIssue,deprecation
         return playerCache.computeIfAbsent(
             player.getUniqueId(),

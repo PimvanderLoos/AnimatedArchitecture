@@ -5,13 +5,11 @@ import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.AddOwnerDelayed;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -44,24 +42,18 @@ class CommandExecutor
     private final PlayerFactorySpigot playerFactory;
     private final StructureRetrieverFactory structureRetrieverFactory;
     private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
-    private final ITextFactory textFactory;
-    private final ILocalizer localizer;
 
     @Inject
     CommandExecutor(
         CommandFactory commandFactory,
         PlayerFactorySpigot playerFactory,
         StructureRetrieverFactory structureRetrieverFactory,
-        StructureAnimationRequestBuilder structureAnimationRequestBuilder,
-        ITextFactory textFactory,
-        ILocalizer localizer)
+        StructureAnimationRequestBuilder structureAnimationRequestBuilder)
     {
         this.commandFactory = commandFactory;
         this.playerFactory = playerFactory;
         this.structureRetrieverFactory = structureRetrieverFactory;
         this.structureAnimationRequestBuilder = structureAnimationRequestBuilder;
-        this.textFactory = textFactory;
-        this.localizer = localizer;
     }
 
     // NullAway doesn't see the @Nullable on permissionLevel.

@@ -153,6 +153,7 @@ class AssistedFactoryMockerTest
         }
     }
 
+    @SuppressWarnings("NullAway")
     static class TestClassWithMockAnnotatedFields
     {
         @Mock

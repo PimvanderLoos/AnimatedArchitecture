@@ -14,7 +14,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.DelayedCommand;
 import nl.pim16aap2.animatedarchitecture.core.commands.DelayedCommandInputRequest;
@@ -192,11 +191,6 @@ public class CreatorTestsUtil
         initCommands();
 
         initPlayer();
-
-        final IPlayerFactory playerFactory = Mockito.mock(IPlayerFactory.class);
-        when(playerFactory
-            .create(playerData.getUUID()))
-            .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
 
         // Immediately return whatever structure was being added to the database as if it was successful.
         when(databaseManager

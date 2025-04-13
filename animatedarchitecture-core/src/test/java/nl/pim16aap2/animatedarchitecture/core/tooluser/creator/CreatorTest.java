@@ -149,7 +149,7 @@ public class CreatorTest
 
         assertThatMessageable(player)
             .sentErrorMessage("creator.base.error.invalid_name")
-            .withArgs(invalidName, structureType.getLocalizationKey());
+            .withArgs(invalidName, "StructureType");
 
         assertEquals(0, creator.getStepsCompleted());
         assertTrue(creator.isActive());
@@ -298,7 +298,7 @@ public class CreatorTest
 
         assertThatMessageable(player)
             .sentErrorMessage("creator.base.error.area_too_big")
-            .withArgs(structureType.getLocalizationKey(), DEFAULT_CUBOID.getVolume(), limit);
+            .withArgs("StructureType", DEFAULT_CUBOID.getVolume(), limit);
 
         assertEquals(0, creator.getStepsCompleted());
         assertTrue(creator.isActive());
@@ -385,7 +385,7 @@ public class CreatorTest
 
         assertThatMessageable(player)
             .sentErrorMessage("creator.base.error.insufficient_funds")
-            .withArgs(structureType.getLocalizationKey(), 0D);
+            .withArgs("StructureType", 0D);
 
         assertEquals(1, creator.getStepsCompleted());
         assertFalse(creator.isActive());
@@ -550,7 +550,7 @@ public class CreatorTest
 
         assertThatMessageable(player)
             .sentErrorMessage("creator.base.error.powerblock_inside_structure")
-            .withArgs(structureType.getLocalizationKey());
+            .withArgs("StructureType");
 
         assertEquals(0, creator.getStepsCompleted());
         assertTrue(creator.isActive());
@@ -574,7 +574,7 @@ public class CreatorTest
 
         assertThatMessageable(player)
             .sentErrorMessage("creator.base.error.powerblock_too_far")
-            .withArgs(structureType.getLocalizationKey(), distance, lowLimit);
+            .withArgs("StructureType", distance, lowLimit);
 
         assertEquals(0, creator.getStepsCompleted());
         assertTrue(creator.isActive());

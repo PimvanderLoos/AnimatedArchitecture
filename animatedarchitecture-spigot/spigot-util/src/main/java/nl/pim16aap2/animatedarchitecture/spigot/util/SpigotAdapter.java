@@ -55,8 +55,8 @@ public final class SpigotAdapter
      */
     public static Location getBukkitLocation(ILocation location)
     {
-        if (location instanceof LocationSpigot)
-            return ((LocationSpigot) location).getBukkitLocation();
+        if (location instanceof LocationSpigot locationSpigot)
+            return locationSpigot.getBukkitLocation();
 
         return new Location(
             getBukkitWorld(location.getWorld()),

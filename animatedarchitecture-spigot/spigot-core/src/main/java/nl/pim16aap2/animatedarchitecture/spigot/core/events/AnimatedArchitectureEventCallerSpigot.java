@@ -31,7 +31,7 @@ public class AnimatedArchitectureEventCallerSpigot implements IAnimatedArchitect
     @Override
     public <T extends IAnimatedArchitectureEvent> void callAnimatedArchitectureEvent(T animatedArchitectureEvent)
     {
-        if (!(animatedArchitectureEvent instanceof AnimatedArchitectureSpigotEvent))
+        if (!(animatedArchitectureEvent instanceof AnimatedArchitectureSpigotEvent animatedArchitectureSpigotEvent))
         {
             log.atSevere().withStackTrace(StackSize.FULL).log(
                 "Event '%s', is not a Spigot event, but it was called on the Spigot platform!",
@@ -53,13 +53,13 @@ public class AnimatedArchitectureEventCallerSpigot implements IAnimatedArchitect
         final boolean isMainThread = executor.isMainThread();
         if (isMainThread && animatedArchitectureEvent.isAsynchronous())
             executor.runAsync(
-                () -> Bukkit.getPluginManager().callEvent((AnimatedArchitectureSpigotEvent) animatedArchitectureEvent)
+                () -> Bukkit.getPluginManager().callEvent(animatedArchitectureSpigotEvent)
             );
         else if (!isMainThread && !animatedArchitectureEvent.isAsynchronous())
             executor.runSync(
-                () -> Bukkit.getPluginManager().callEvent((AnimatedArchitectureSpigotEvent) animatedArchitectureEvent)
+                () -> Bukkit.getPluginManager().callEvent(animatedArchitectureSpigotEvent)
             );
         else
-            Bukkit.getPluginManager().callEvent((AnimatedArchitectureSpigotEvent) animatedArchitectureEvent);
+            Bukkit.getPluginManager().callEvent(animatedArchitectureSpigotEvent);
     }
 }

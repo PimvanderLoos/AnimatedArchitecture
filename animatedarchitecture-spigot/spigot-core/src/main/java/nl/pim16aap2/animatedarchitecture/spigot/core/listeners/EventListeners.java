@@ -268,9 +268,9 @@ public class EventListeners extends AbstractListener
                 return;
 
             final Inventory src = event.getSource();
-            if (src instanceof PlayerInventory && ((PlayerInventory) src).getHolder() instanceof Player)
+            if (src instanceof PlayerInventory playerInventory && playerInventory.getHolder() instanceof Player player)
             {
-                if (isToolUser((Player) ((PlayerInventory) src).getHolder()))
+                if (isToolUser(player))
                 {
                     event.setCancelled(true);
                     return;

@@ -300,6 +300,9 @@ class AddOwnerTest
         // Setup
         final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.USER);
 
+        final String targetName = "target-name";
+        when(target.getName()).thenReturn(targetName);
+
         UnitTestUtil.setPersonalizedLocalizer(commandSender, target);
         UnitTestUtil.setStructureLocalization(structure);
 
@@ -320,15 +323,15 @@ class AddOwnerTest
             .sentInfoMessage("commands.add_owner.added_player_notification")
             .withArgs(
                 PermissionLevel.USER.getTranslationKey(),
-                structure.getType().getLocalizationKey(),
+                "StructureType",
                 "structure-name (12)"
             );
         assertThatMessageable(commandSender)
             .sentSuccessMessage("commands.add_owner.success")
             .withArgs(
-                target.getName(),
+                targetName,
                 PermissionLevel.USER.getTranslationKey(),
-                structure.getType().getLocalizationKey()
+                "StructureType"
             );
 
         verify(databaseManager).addOwner(structure, target, PermissionLevel.USER, commandSender);
@@ -342,6 +345,9 @@ class AddOwnerTest
         UnitTestUtil.setPersonalizedLocalizer(commandSender, target);
         UnitTestUtil.setStructureLocalization(structure);
 
+        final String targetName = "target-name";
+        when(target.getName()).thenReturn(targetName);
+
         when(structure.getName()).thenReturn("structure-name");
         when(structure.getUid()).thenReturn(12L);
 
@@ -353,15 +359,15 @@ class AddOwnerTest
             .sentInfoMessage("commands.add_owner.added_player_notification")
             .withArgs(
                 PermissionLevel.USER.getTranslationKey(),
-                structure.getType().getLocalizationKey(),
+                "StructureType",
                 "structure-name (12)"
             );
         assertThatMessageable(commandSender)
             .sentSuccessMessage("commands.add_owner.success")
             .withArgs(
-                target.getName(),
+                targetName,
                 PermissionLevel.USER.getTranslationKey(),
-                structure.getType().getLocalizationKey()
+                "StructureType"
             );
     }
 

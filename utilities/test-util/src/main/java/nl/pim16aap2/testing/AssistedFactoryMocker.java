@@ -313,6 +313,20 @@ public class AssistedFactoryMocker<T, U>
         return this;
     }
 
+    /**
+     * Injects a single parameter into the factory method.
+     * <p>
+     * See {@link #injectParameters(Object...)} for more information.
+     *
+     * @param param
+     *     The parameter to inject.
+     * @return The current {@link AssistedFactoryMocker} instance.
+     */
+    public AssistedFactoryMocker<T, U> injectParameter(Object param)
+    {
+        return injectParameters(param);
+    }
+
     void attemptInjectParameters(List<IInjectedParameter<Object>> params)
     {
         for (final IInjectedParameter<Object> param : params)
