@@ -243,10 +243,10 @@ public class CreatorTestsUtil
     {
         final AssistedFactoryMocker<DelayedCommandInputRequest, DelayedCommandInputRequest.IFactory> assistedFactory =
             new AssistedFactoryMocker<>(DelayedCommandInputRequest.class, DelayedCommandInputRequest.IFactory.class)
-                .setMock(IExecutor.class, executor)
-                .setMock(ILocalizer.class, localizer)
-                .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory())
-                .setMock(DelayedCommandInputManager.class, delayedCommandInputManager);
+                .injectParameter(IExecutor.class, executor)
+                .injectParameter(ILocalizer.class, localizer)
+                .injectParameter(ITextFactory.class, ITextFactory.getSimpleTextFactory())
+                .injectParameter(DelayedCommandInputManager.class, delayedCommandInputManager);
 
         final var commandContext = new DelayedCommand.Context(
             delayedCommandInputManager,

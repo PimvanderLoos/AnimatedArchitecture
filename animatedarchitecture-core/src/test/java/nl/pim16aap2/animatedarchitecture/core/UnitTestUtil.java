@@ -1047,7 +1047,8 @@ public class UnitTestUtil
      * @param structureBuilder
      *     The builder that was created.
      * @param assistedFactoryMocker
-     *     The mocker for the factory. Use {@link AssistedFactoryMocker#setMock(Class, Object)} to set its parameters.
+     *     The mocker for the factory. Use {@link AssistedFactoryMocker#injectParameter(Class, Object)} to set its
+     *     parameters.
      */
     public record StructureBuilderResult(
         StructureBuilder structureBuilder,

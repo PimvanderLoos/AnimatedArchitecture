@@ -51,7 +51,7 @@ class InfoTest
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
 
         assistedFactoryMocker = new AssistedFactoryMocker<>(Info.class, Info.IFactory.class)
-            .setMock(HighlightedBlockSpawner.class, highlightedBlockSpawner);
+            .injectParameter(HighlightedBlockSpawner.class, highlightedBlockSpawner);
     }
 
     @AfterEach

@@ -55,7 +55,7 @@ class RemoveOwnerTest
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
 
         assistedFactoryMocker = new AssistedFactoryMocker<>(RemoveOwner.class, RemoveOwner.IFactory.class)
-            .setMock(DatabaseManager.class, databaseManager);
+            .injectParameter(DatabaseManager.class, databaseManager);
     }
 
     @AfterEach

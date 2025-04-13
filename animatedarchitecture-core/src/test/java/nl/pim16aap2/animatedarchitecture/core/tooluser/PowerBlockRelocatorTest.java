@@ -85,7 +85,7 @@ class PowerBlockRelocatorTest
         when(context.getStepFactory()).thenReturn(assistedStepFactory);
 
         assistedFactory = new AssistedFactoryMocker<>(PowerBlockRelocator.class, PowerBlockRelocator.IFactory.class)
-            .setMock(ToolUser.Context.class, context);
+            .injectParameter(ToolUser.Context.class, context);
     }
 
     @Test

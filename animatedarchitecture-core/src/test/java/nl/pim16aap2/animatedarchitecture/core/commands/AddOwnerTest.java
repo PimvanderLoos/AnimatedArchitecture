@@ -55,7 +55,7 @@ class AddOwnerTest
     {
         assistedFactoryMocker =
             new AssistedFactoryMocker<>(AddOwner.class, AddOwner.IFactory.class)
-                .setMock(DatabaseManager.class, databaseManager);
+                .injectParameter(DatabaseManager.class, databaseManager);
 
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
     }

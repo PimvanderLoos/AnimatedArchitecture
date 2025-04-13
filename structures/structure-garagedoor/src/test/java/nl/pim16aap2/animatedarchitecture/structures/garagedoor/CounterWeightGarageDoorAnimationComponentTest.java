@@ -29,7 +29,7 @@ class CounterWeightGarageDoorAnimationComponentTest
         this.animationRequestDataFactory = new AssistedFactoryMocker<>(
             AnimationRequestData.class,
             AnimationRequestData.IFactory.class
-        ).setMock(int.class, "serverTickTime", 50)
+        ).injectParameter(int.class, "serverTickTime", 50)
             .getFactory();
     }
 

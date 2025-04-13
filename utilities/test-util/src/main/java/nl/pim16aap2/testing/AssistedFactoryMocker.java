@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  * Represents a class that can be used to create mocked objects for an {@link AssistedFactory}.
  * <p>
  * Any dependencies that cannot be mocked will default to null. These can later be manually updated using
- * {@link AssistedFactoryMocker#setMock(Class, String, Object)} if needed.
+ * {@link AssistedFactoryMocker#injectParameter(Class, String, Object)} if needed.
  * <p>
  * Example usage:
  * <pre>{@code
@@ -287,10 +287,10 @@ public class AssistedFactoryMocker<T, U>
      * compared against the type of the parameter in the constructor using {@link Class#isAssignableFrom(Class)} instead
      * of requiring an exact match.
      * <p>
-     * If it is required for the type to be exact, use {@link #setMock(Class, Object)} instead.
+     * If it is required for the type to be exact, use {@link #injectParameter(Class, Object)} instead.
      * <p>
      * Additionally, because this method does not know the name of the parameters, it will not match any named
-     * parameters in the constructor. To match named parameters, use {@link #setMock(Class, String, Object)}.
+     * parameters in the constructor. To match named parameters, use {@link #injectParameter(Class, String, Object)}.
      *
      * @param params
      *     The parameters to provide to the factory method.
@@ -299,24 +299,24 @@ public class AssistedFactoryMocker<T, U>
     public AssistedFactoryMocker<T, U> injectParameters(Object... params)
     {
         for (final Object param : params)
-            IInjectedParameter.of(param).injectParameter(this, null);
+            IInjectedParameter.of(param).inject(this, null);
         return this;
     }
 
     void attemptInjectParameters(List<IInjectedParameter<Object>> params)
     {
         for (final IInjectedParameter<Object> param : params)
-            param.injectParameter(true, this, null);
+            param.inject(true, this, null);
     }
 
     /**
-     * See {@link #setMock(Class, String, Object)}.
+     * See {@link #injectParameter(Class, String, Object)}.
      * <p>
      * Shortcut for unnamed parameters.
      */
-    public <V> AssistedFactoryMocker<T, U> setMock(Class<V> type, V mock)
+    public <V> AssistedFactoryMocker<T, U> injectParameter(Class<V> type, V mock)
     {
-        return setMock(type, null, mock);
+        return injectParameter(type, null, mock);
     }
 
     /**
@@ -334,143 +334,10 @@ public class AssistedFactoryMocker<T, U>
      *     The type of the mocked object.
      * @return The current {@link AssistedFactoryMocker} instance.
      */
-    public <V> AssistedFactoryMocker<T, U> setMock(Class<V> type, @Nullable String name, V value)
+    public <V> AssistedFactoryMocker<T, U> injectParameter(Class<V> type, @Nullable String name, V value)
     {
-        IInjectedParameter.of(type, value).injectParameter(this, name);
+        IInjectedParameter.of(type, value).inject(this, name);
         return this;
-    }
-
-    /**
-     * Represents a parameter that is injected into the target class.
-     *
-     * @param <T>
-     *     The type of the parameter that is injected.
-     */
-    sealed interface IInjectedParameter<T>
-    {
-        /**
-         * Gets the type of the parameter.
-         *
-         * @return The type of the parameter.
-         */
-        T value();
-
-        /**
-         * Creates a new instance of an injected parameter with the given value.
-         * <p>
-         * Because no type is provided, the type of the parameter is inferred from the value and will be compared
-         * against the type of the parameter in the constructor using {@link Class#isAssignableFrom(Class)} instead of
-         * requiring an exact match.
-         *
-         * @param value
-         *     The value of the parameter.
-         * @param <U>
-         *     The type of the parameter.
-         * @return The new instance of the injected parameter.
-         */
-        static <U> IInjectedParameter<U> of(U value)
-        {
-            return of(null, value);
-        }
-
-        /**
-         * Creates a new instance of an injected parameter with the given type and value.
-         *
-         * @param type
-         *     The type of the parameter. This can be null if the type is not known.
-         *     <p>
-         *     If a non-null type is provided, the type of the parameter in the constructor will have to be an exact
-         *     match.
-         *     <p>
-         *     If the type is null, the type of the parameter will be inferred from the value and will be compared
-         *     against the type of the parameter in the constructor using {@link Class#isAssignableFrom(Class)} instead
-         *     of requiring an exact match.
-         * @param value
-         *     The value of the parameter.
-         * @param <U>
-         *     The type of the parameter.
-         * @param <V>
-         *     The type of the value.
-         * @return The new instance of the injected parameter.
-         */
-        static <U, V> IInjectedParameter<V> of(@Nullable Class<U> type, V value)
-        {
-            if (type != null)
-                //noinspection unchecked
-                return new InjectedParameterExact<>((Class<V>) type, value);
-
-            return new InjectedParameterGeneric<>(value.getClass(), value);
-        }
-
-        /**
-         * Gets the mapped parameter for the given factory method and name.
-         *
-         * @param afm
-         *     The {@link AssistedFactoryMocker} instance to use to find the mapped parameter.
-         * @param name
-         *     The name of the parameter, as specified by {@link Assisted#value()} in the constructor.
-         * @return The mapped parameter for the given factory method and name or null if no such parameter exists.
-         */
-        @Nullable MappedParameter getMappedParameter(AssistedFactoryMocker<?, ?> afm, @Nullable String name);
-
-        /**
-         * Shortcut for {@link #injectParameter(boolean, AssistedFactoryMocker, String)} with
-         * {@code skipMissing = false}.
-         *
-         * @param afm
-         *     The {@link AssistedFactoryMocker} instance to use to find the mapped parameter.
-         * @param name
-         *     The name of the parameter, as specified by {@link Assisted#value()} in the constructor.
-         */
-        default void injectParameter(AssistedFactoryMocker<?, ?> afm, @Nullable String name)
-        {
-            injectParameter(false, afm, name);
-        }
-
-        /**
-         * Injects the parameter into the factory method.
-         *
-         * @param skipMissing
-         *     Whether to skip the parameter if it is not found in the factory method.
-         * @param afm
-         *     The {@link AssistedFactoryMocker} instance to use to find the mapped parameter.
-         * @param name
-         *     The name of the parameter, as specified by {@link Assisted#value()} in the constructor.
-         */
-        default void injectParameter(boolean skipMissing, AssistedFactoryMocker<?, ?> afm, @Nullable String name)
-        {
-            final @Nullable MappedParameter param = getMappedParameter(afm, name);
-            if (param == null)
-            {
-                if (skipMissing)
-                    return;
-                throw new IllegalArgumentException(
-                    "Failed to find a matching parameter for " + this + " in constructor: " + afm.targetCtor);
-            }
-
-            param.setValue(value());
-        }
-    }
-
-    record InjectedParameterExact<T>(Class<T> type, T value) implements IInjectedParameter<T>
-    {
-        @Override
-        public MappedParameter getMappedParameter(AssistedFactoryMocker<?, ?> afm, @Nullable String name)
-        {
-            return afm.injectedParameters.get(MappedParameter.getNamedTypeHash(type, name));
-        }
-    }
-
-    record InjectedParameterGeneric<T, U>(Class<T> type, U value) implements IInjectedParameter<U>
-    {
-        @Override
-        public @Nullable MappedParameter getMappedParameter(AssistedFactoryMocker<?, ?> afm, @Nullable String name)
-        {
-            for (final var param : afm.mappedParameters)
-                if (param.isMatch(type, name))
-                    return param;
-            return null;
-        }
     }
 
     /**
@@ -723,6 +590,138 @@ public class AssistedFactoryMocker<T, U>
         }
         throw new NoSuchMethodException(
             "Failed to find constructor annotated with " + AssistedInject.class + " in target class: " + targetClass);
+    }
+
+    /**
+     * Represents a parameter that is injected into the target class.
+     *
+     * @param <T>
+     *     The type of the parameter that is injected.
+     */
+    private sealed interface IInjectedParameter<T>
+    {
+        /**
+         * Gets the type of the parameter.
+         *
+         * @return The type of the parameter.
+         */
+        T value();
+
+        /**
+         * Creates a new instance of an injected parameter with the given value.
+         * <p>
+         * Because no type is provided, the type of the parameter is inferred from the value and will be compared
+         * against the type of the parameter in the constructor using {@link Class#isAssignableFrom(Class)} instead of
+         * requiring an exact match.
+         *
+         * @param value
+         *     The value of the parameter.
+         * @param <U>
+         *     The type of the parameter.
+         * @return The new instance of the injected parameter.
+         */
+        static <U> IInjectedParameter<U> of(U value)
+        {
+            return of(null, value);
+        }
+
+        /**
+         * Creates a new instance of an injected parameter with the given type and value.
+         *
+         * @param type
+         *     The type of the parameter. This can be null if the type is not known.
+         *     <p>
+         *     If a non-null type is provided, the type of the parameter in the constructor will have to be an exact
+         *     match.
+         *     <p>
+         *     If the type is null, the type of the parameter will be inferred from the value and will be compared
+         *     against the type of the parameter in the constructor using {@link Class#isAssignableFrom(Class)} instead
+         *     of requiring an exact match.
+         * @param value
+         *     The value of the parameter.
+         * @param <U>
+         *     The type of the parameter.
+         * @param <V>
+         *     The type of the value.
+         * @return The new instance of the injected parameter.
+         */
+        static <U, V> IInjectedParameter<V> of(@Nullable Class<U> type, V value)
+        {
+            if (type != null)
+                //noinspection unchecked
+                return new InjectedParameterExact<>((Class<V>) type, value);
+
+            return new InjectedParameterGeneric<>(value.getClass(), value);
+        }
+
+        /**
+         * Gets the mapped parameter for the given factory method and name.
+         *
+         * @param afm
+         *     The {@link AssistedFactoryMocker} instance to use to find the mapped parameter.
+         * @param name
+         *     The name of the parameter, as specified by {@link Assisted#value()} in the constructor.
+         * @return The mapped parameter for the given factory method and name or null if no such parameter exists.
+         */
+        @Nullable MappedParameter getMappedParameter(AssistedFactoryMocker<?, ?> afm, @Nullable String name);
+
+        /**
+         * Shortcut for {@link #inject(boolean, AssistedFactoryMocker, String)} with {@code skipMissing = false}.
+         *
+         * @param afm
+         *     The {@link AssistedFactoryMocker} instance to use to find the mapped parameter.
+         * @param name
+         *     The name of the parameter, as specified by {@link Assisted#value()} in the constructor.
+         */
+        default void inject(AssistedFactoryMocker<?, ?> afm, @Nullable String name)
+        {
+            inject(false, afm, name);
+        }
+
+        /**
+         * Injects the parameter into the factory method.
+         *
+         * @param skipMissing
+         *     Whether to skip the parameter if it is not found in the factory method.
+         * @param afm
+         *     The {@link AssistedFactoryMocker} instance to use to find the mapped parameter.
+         * @param name
+         *     The name of the parameter, as specified by {@link Assisted#value()} in the constructor.
+         */
+        default void inject(boolean skipMissing, AssistedFactoryMocker<?, ?> afm, @Nullable String name)
+        {
+            final @Nullable MappedParameter param = getMappedParameter(afm, name);
+            if (param == null)
+            {
+                if (skipMissing)
+                    return;
+                throw new IllegalArgumentException(
+                    "Failed to find a matching parameter for " + this + " in constructor: " + afm.targetCtor);
+            }
+
+            param.setValue(value());
+        }
+    }
+
+    private record InjectedParameterExact<T>(Class<T> type, T value) implements IInjectedParameter<T>
+    {
+        @Override
+        public MappedParameter getMappedParameter(AssistedFactoryMocker<?, ?> afm, @Nullable String name)
+        {
+            return afm.injectedParameters.get(MappedParameter.getNamedTypeHash(type, name));
+        }
+    }
+
+    private record InjectedParameterGeneric<T, U>(Class<T> type, U value) implements IInjectedParameter<U>
+    {
+        @Override
+        public @Nullable MappedParameter getMappedParameter(AssistedFactoryMocker<?, ?> afm, @Nullable String name)
+        {
+            for (final var param : afm.mappedParameters)
+                if (param.isMatch(type, name))
+                    return param;
+            return null;
+        }
     }
 
     /**

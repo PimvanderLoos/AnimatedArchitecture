@@ -62,8 +62,8 @@ class ConfirmTest
         when(toolUser.handleInput(true)).thenReturn(CompletableFuture.completedFuture(null));
 
         factory = new AssistedFactoryMocker<>(Confirm.class, Confirm.IFactory.class, Mockito.CALLS_REAL_METHODS)
-            .setMock(ToolUserManager.class, toolUserManager)
-            .setMock(IExecutor.class, executor)
+            .injectParameter(ToolUserManager.class, toolUserManager)
+            .injectParameter(IExecutor.class, executor)
             .getFactory();
     }
 

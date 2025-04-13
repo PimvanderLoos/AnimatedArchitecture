@@ -68,7 +68,7 @@ class AssistedFactoryMockerTest
         assertEquals(TestClassWithAnnotation.DEFAULT_IDX, factory.create(obj).idx);
 
         final String testVal = "TestVal";
-        mocker.setMock(String.class, null, testVal);
+        mocker.injectParameter(String.class, null, testVal);
         assertEquals(testVal, factory.create(obj).str);
     }
 

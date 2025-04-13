@@ -51,9 +51,9 @@ class StructureAnimationRequestTest
         final var structureAnimationRequestFactory = new AssistedFactoryMocker<>(
             StructureAnimationRequest.class,
             StructureAnimationRequest.IFactory.class)
-            .setMock(ILocalizer.class, localizer)
-            .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory())
-            .setMock(IPlayerFactory.class, playerFactory)
+            .injectParameter(ILocalizer.class, localizer)
+            .injectParameter(ITextFactory.class, ITextFactory.getSimpleTextFactory())
+            .injectParameter(IPlayerFactory.class, playerFactory)
             .getFactory();
 
         builder = new StructureAnimationRequestBuilder(

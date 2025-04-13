@@ -38,8 +38,8 @@ class SetNameTest
         throws NoSuchMethodException
     {
         assistedFactoryMocker = new AssistedFactoryMocker<>(SetName.class, SetName.IFactory.class)
-            .setMock(IExecutor.class, executor)
-            .setMock(ToolUserManager.class, toolUserManager);
+            .injectParameter(IExecutor.class, executor)
+            .injectParameter(ToolUserManager.class, toolUserManager);
     }
 
     @AfterEach
