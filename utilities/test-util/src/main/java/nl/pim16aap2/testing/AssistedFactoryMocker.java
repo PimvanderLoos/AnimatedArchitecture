@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
@@ -19,6 +20,7 @@ import org.mockito.stubbing.Answer;
 import javax.inject.Named;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -178,6 +180,42 @@ public class AssistedFactoryMocker<T, U>
         this(targetClass, factoryClass, Mockito.withSettings());
     }
 
+    public static <T, U> AssistedFactoryMocker<T, U> injectMocksFromTestClass(
+        Class<T> targetClass,
+        Class<U> factoryClass,
+        Object testClass)
+        throws NoSuchMethodException
+    {
+        final List<Field> fields = ReflectionBuilder
+            .findField()
+            .inClass(testClass.getClass())
+            .withAnnotations(org.mockito.Mock.class)
+            .setAccessible()
+            .get();
+
+        final List<IInjectedParameter<Object>> injectedParameters =
+            fields
+                .stream()
+                .map(field -> IInjectedParameter.of(field.getType(), getFieldValue(field, testClass)))
+                .toList();
+
+        final AssistedFactoryMocker<T, U> mocker = new AssistedFactoryMocker<>(targetClass, factoryClass);
+        mocker.attemptInjectParameters(injectedParameters);
+        return mocker;
+    }
+
+    private static Object getFieldValue(Field field, Object testClass)
+    {
+        try
+        {
+            return field.get(testClass);
+        }
+        catch (IllegalAccessException e)
+        {
+            throw new RuntimeException("Failed to get field value for field: " + field, e);
+        }
+    }
+
     /**
      * Creates a new instance of the target class using the provided parameters.
      * <p>
@@ -251,20 +289,24 @@ public class AssistedFactoryMocker<T, U>
      * <p>
      * If it is required for the type to be exact, use {@link #setMock(Class, Object)} instead.
      * <p>
-     * Additionally, because this method does not know the name of any of the parameters, it will not match any named
+     * Additionally, because this method does not know the name of the parameters, it will not match any named
      * parameters in the constructor. To match named parameters, use {@link #setMock(Class, String, Object)}.
      *
      * @param params
      *     The parameters to provide to the factory method.
      * @return The current {@link AssistedFactoryMocker} instance.
      */
-    public AssistedFactoryMocker<T, U> provideParameters(Object... params)
+    public AssistedFactoryMocker<T, U> injectParameters(Object... params)
     {
         for (final Object param : params)
-            IInjectedParameter
-                .of(param)
-                .injectParameter(this, null);
+            IInjectedParameter.of(param).injectParameter(this, null);
         return this;
+    }
+
+    void attemptInjectParameters(List<IInjectedParameter<Object>> params)
+    {
+        for (final IInjectedParameter<Object> param : params)
+            param.injectParameter(true, this, null);
     }
 
     /**
@@ -372,7 +414,8 @@ public class AssistedFactoryMocker<T, U>
         @Nullable MappedParameter getMappedParameter(AssistedFactoryMocker<?, ?> afm, @Nullable String name);
 
         /**
-         * Injects the parameter into the factory method.
+         * Shortcut for {@link #injectParameter(boolean, AssistedFactoryMocker, String)} with
+         * {@code skipMissing = false}.
          *
          * @param afm
          *     The {@link AssistedFactoryMocker} instance to use to find the mapped parameter.
@@ -381,10 +424,29 @@ public class AssistedFactoryMocker<T, U>
          */
         default void injectParameter(AssistedFactoryMocker<?, ?> afm, @Nullable String name)
         {
+            injectParameter(false, afm, name);
+        }
+
+        /**
+         * Injects the parameter into the factory method.
+         *
+         * @param skipMissing
+         *     Whether to skip the parameter if it is not found in the factory method.
+         * @param afm
+         *     The {@link AssistedFactoryMocker} instance to use to find the mapped parameter.
+         * @param name
+         *     The name of the parameter, as specified by {@link Assisted#value()} in the constructor.
+         */
+        default void injectParameter(boolean skipMissing, AssistedFactoryMocker<?, ?> afm, @Nullable String name)
+        {
             final @Nullable MappedParameter param = getMappedParameter(afm, name);
             if (param == null)
+            {
+                if (skipMissing)
+                    return;
                 throw new IllegalArgumentException(
                     "Failed to find a matching parameter for " + this + " in constructor: " + afm.targetCtor);
+            }
 
             param.setValue(value());
         }

@@ -7,6 +7,8 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -79,7 +81,7 @@ class AssistedFactoryMockerTest
     }
 
     @Test
-    void provideParameters_shouldMapUntypedParameters()
+    void injectParameters_shouldMapUntypedParameters()
         throws NoSuchMethodException
     {
         // Setup
@@ -89,7 +91,7 @@ class AssistedFactoryMockerTest
         lst.add("DEF");
 
         // Execute
-        afm.provideParameters("ABC", lst);
+        afm.injectParameters("ABC", lst);
         final var factory = afm.getFactory();
         final var result = factory.create(new Object());
 
@@ -99,7 +101,7 @@ class AssistedFactoryMockerTest
     }
 
     @Test
-    void provideParameters_shouldMapUntypedMockedParameters()
+    void injectParameters_shouldMapUntypedMockedParameters()
         throws NoSuchMethodException
     {
         // Setup
@@ -108,7 +110,7 @@ class AssistedFactoryMockerTest
         final List<String> lst = mock();
 
         // Execute
-        afm.provideParameters("ABC", lst);
+        afm.injectParameters("ABC", lst);
         final var factory = afm.getFactory();
         final var result = factory.create(new Object());
 
@@ -118,7 +120,7 @@ class AssistedFactoryMockerTest
     }
 
     @Test
-    void provideParameters_shouldThrowExceptionForUnmappedType()
+    void injectParameters_shouldThrowExceptionForUnmappedType()
         throws NoSuchMethodException
     {
         // Setup
@@ -126,9 +128,38 @@ class AssistedFactoryMockerTest
             new AssistedFactoryMocker<>(TestClassWithAnnotation.class, TestClassWithAnnotation.IFactory.class);
 
         // Execute & Verify
-        assertThatThrownBy(() -> afm.provideParameters("ABC", new Object()))
+        assertThatThrownBy(() -> afm.injectParameters("ABC", new Object()))
             .isExactlyInstanceOf(IllegalArgumentException.class)
             .hasMessageStartingWith("Failed to find a matching parameter for ");
+    }
+
+    @Test
+    void injectMocksFromTestClass_shouldInjectAllMockedFields()
+        throws Exception
+    {
+        final var testObj = new TestClassWithMockAnnotatedFields();
+        try (var mocks = MockitoAnnotations.openMocks(testObj))
+        {
+            final var afm = AssistedFactoryMocker.injectMocksFromTestClass(
+                TestClassWithAnnotation.class,
+                TestClassWithAnnotation.IFactory.class,
+                testObj
+            );
+
+            final var result = afm.getFactory().create(new Object());
+
+            assertThat(result.lst).isSameAs(testObj.lst);
+            assertThat(result.obj).isNotSameAs(testObj.obj);
+        }
+    }
+
+    static class TestClassWithMockAnnotatedFields
+    {
+        @Mock
+        private Object obj;
+
+        @Mock
+        private List<String> lst;
     }
 
     /**
