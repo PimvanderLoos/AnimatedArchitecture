@@ -3,9 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
@@ -45,18 +43,6 @@ public abstract class DelayedCommand<T>
     protected final DelayedCommandInputManager delayedCommandInputManager;
 
     /**
-     * Localizer to generate localized messages.
-     */
-    @ToString.Exclude
-    protected final ILocalizer localizer;
-
-    /**
-     * Factory for creating text components.
-     */
-    @ToString.Exclude
-    protected final ITextFactory textFactory;
-
-    /**
      * Provider for the command factory to create new commands.
      */
     @ToString.Exclude
@@ -89,11 +75,9 @@ public abstract class DelayedCommand<T>
         Class<T> delayedInputClz)
     {
         this.delayedCommandInputManager = context.delayedCommandInputManager;
-        this.localizer = context.localizer;
         this.commandFactory = context.commandFactoryProvider;
         this.inputRequestFactory = inputRequestFactory;
         this.delayedInputClz = delayedInputClz;
-        this.textFactory = context.textFactory;
     }
 
     /**
@@ -358,16 +342,6 @@ public abstract class DelayedCommand<T>
         private final DelayedCommandInputManager delayedCommandInputManager;
 
         /**
-         * Localizer for message localization.
-         */
-        private final ILocalizer localizer;
-
-        /**
-         * Factory for creating text components.
-         */
-        private final ITextFactory textFactory;
-
-        /**
          * Provider for the command factory.
          */
         private final Provider<CommandFactory> commandFactoryProvider;
@@ -377,23 +351,15 @@ public abstract class DelayedCommand<T>
          *
          * @param delayedCommandInputManager
          *     Manager for handling delayed command input requests.
-         * @param localizer
-         *     Localizer for message localization.
-         * @param textFactory
-         *     Factory for creating text components.
          * @param commandFactoryProvider
          *     Provider for the command factory.
          */
         @Inject
         public Context(
             DelayedCommandInputManager delayedCommandInputManager,
-            ILocalizer localizer,
-            ITextFactory textFactory,
             Provider<CommandFactory> commandFactoryProvider)
         {
             this.delayedCommandInputManager = delayedCommandInputManager;
-            this.localizer = localizer;
-            this.textFactory = textFactory;
             this.commandFactoryProvider = commandFactoryProvider;
         }
     }

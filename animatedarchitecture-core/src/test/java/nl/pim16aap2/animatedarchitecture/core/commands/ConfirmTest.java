@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
@@ -86,6 +87,7 @@ class ConfirmTest
         Mockito.verify(toolUserManager).getToolUser(uuid);
         Mockito.verify(toolUser).handleInput(true);
         Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any(Text.class));
+        UnitTestUtil.initMessageable(commandSender);
 
         when(toolUserManager.getToolUser(Mockito.any(UUID.class))).thenReturn(Optional.empty());
         Assertions.assertDoesNotThrow(() -> factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));

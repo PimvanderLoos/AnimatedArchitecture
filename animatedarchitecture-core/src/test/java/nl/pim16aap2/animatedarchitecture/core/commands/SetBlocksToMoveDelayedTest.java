@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
@@ -90,6 +91,7 @@ class SetBlocksToMoveDelayedTest
     void normal()
     {
         final SetBlocksToMoveDelayed setBlocksToMoveDelayed = new SetBlocksToMoveDelayed(context, inputRequestFactory);
+        UnitTestUtil.initMessageable(commandSender);
 
         final CompletableFuture<?> result0 = setBlocksToMoveDelayed.runDelayed(commandSender, structureRetriever);
         final CompletableFuture<?> result1 = setBlocksToMoveDelayed.provideDelayedInput(commandSender, 10);

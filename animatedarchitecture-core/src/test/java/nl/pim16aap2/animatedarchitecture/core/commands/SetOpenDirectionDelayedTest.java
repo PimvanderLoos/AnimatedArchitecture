@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
@@ -84,8 +85,8 @@ class SetOpenDirectionDelayedTest
     @Test
     void normal()
     {
-        final SetOpenDirectionDelayed setOpenDirectionDelayed =
-            new SetOpenDirectionDelayed(context, inputRequestFactory);
+        final var setOpenDirectionDelayed = new SetOpenDirectionDelayed(context, inputRequestFactory);
+        UnitTestUtil.initMessageable(commandSender);
 
         final CompletableFuture<?> result0 = setOpenDirectionDelayed.runDelayed(commandSender, structureRetriever);
         final CompletableFuture<?> result1 =

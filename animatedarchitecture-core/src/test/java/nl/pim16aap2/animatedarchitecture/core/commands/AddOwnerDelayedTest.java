@@ -100,6 +100,7 @@ class AddOwnerDelayedTest
     void normal()
     {
         final AddOwnerDelayed addOwnerDelayed = new AddOwnerDelayed(context, inputRequestFactory);
+        UnitTestUtil.initMessageable(commandSender);
 
         final CompletableFuture<?> result0 = addOwnerDelayed.runDelayed(commandSender, structureRetriever);
         final AddOwnerDelayed.DelayedInput input = new AddOwnerDelayed.DelayedInput(targetPlayer);

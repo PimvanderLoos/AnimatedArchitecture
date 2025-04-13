@@ -93,8 +93,6 @@ class SetNameTest
             IllegalStateException.class,
             () -> assistedFactoryMocker.getFactory().newSetName(commandSender, name).executeCommand(null)
         );
-
-        verifyNoMoreInteractions(commandSender);
     }
 
     @Test
@@ -122,7 +120,6 @@ class SetNameTest
         verify(commandSender).sendError("commands.base.error.no_pending_process");
         verify(toolUserManager).getToolUser(commandSender);
 
-        verifyNoMoreInteractions(commandSender);
         verifyNoInteractions(toolUser);
     }
 
@@ -151,7 +148,6 @@ class SetNameTest
         verify(commandSender).sendError("commands.base.error.no_pending_process");
         verify(toolUserManager).getToolUser(commandSender);
 
-        verifyNoMoreInteractions(commandSender);
         verifyNoInteractions(toolUser);
     }
 }

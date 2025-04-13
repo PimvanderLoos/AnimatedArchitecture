@@ -41,6 +41,7 @@ import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.testing.TestUtil;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.ListAssert;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -156,8 +157,8 @@ public class UnitTestUtil
     public static ILocalizer initLocalizer()
     {
         final ILocalizer localizer = mock(ILocalizer.class, Mockito.CALLS_REAL_METHODS);
-        when(localizer
-            .getMessage(anyString(), nullable(Locale.class), ArgumentMatchers.any(Object[].class)))
+        lenient()
+            .when(localizer.getMessage(anyString(), nullable(Locale.class), ArgumentMatchers.any(Object[].class)))
             .thenAnswer(invocation ->
             {
                 String ret = invocation.getArgument(0, String.class);
@@ -819,7 +820,7 @@ public class UnitTestUtil
      *     The input string.
      * @return null.
      */
-    public static Text textArgumentMatcher(String string)
+    private static Text textArgumentMatcher(String string)
     {
         return argThat(new TextArgumentMatcher(string));
     }
@@ -864,7 +865,7 @@ public class UnitTestUtil
                 expectedArgs.length, actualCreators.length, message));
         }
 
-        final Object[] actualValues = new String[actualCreators.length];
+        final Object[] actualValues = new Object[actualCreators.length];
         for (int i = 0; i < actualCreators.length; i++)
         {
             TextArgument textArg = actualCreators[i].create(DUMMY_TEXT_ARGUMENT_FACTORY);
@@ -975,6 +976,23 @@ public class UnitTestUtil
         public MessageAssert sentInfoMessage(String message)
         {
             return new MessageAssert("sendInfo", messageable, message);
+        }
+
+        /**
+         * Gets the list of messages sent to the messageable using {@link IMessageable#sendMessage(Text)}.
+         *
+         * @return A new {@link ListAssert} containing the messages sent to the messageable.
+         */
+        public ListAssert<String> extractSentTextMessages()
+        {
+            final List<String> messages = mockingDetails(messageable)
+                .getInvocations()
+                .stream()
+                .filter(invocation -> invocation.getArguments().length == 1)
+                .filter(invocation -> "sendMessage".equals(invocation.getMethod().getName()))
+                .map(invocation -> invocation.getArgument(0, Text.class).toString())
+                .toList();
+            return new ListAssert<>(messages);
         }
 
         /**

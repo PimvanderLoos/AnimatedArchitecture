@@ -51,6 +51,6 @@ public class SetBlocksToMoveDelayed extends DelayedCommand<Integer>
     @Override
     protected String inputRequestMessage(ICommandSender commandSender, StructureRetriever structureRetriever)
     {
-        return localizer.getMessage("commands.set_blocks_to_move.delayed.init");
+        return commandSender.getPersonalizedLocalizer().getMessage("commands.set_blocks_to_move.delayed.init");
     }
 }

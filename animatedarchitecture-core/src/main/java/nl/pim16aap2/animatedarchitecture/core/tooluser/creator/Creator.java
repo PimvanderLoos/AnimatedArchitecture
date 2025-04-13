@@ -722,7 +722,7 @@ public abstract class Creator extends ToolUser
     {
         if (!confirm)
         {
-            getPlayer().sendInfo("creator.base.error.creation_cancelled");
+            getPlayer().sendError("creator.base.error.creation_cancelled");
             abort();
             return true;
         }

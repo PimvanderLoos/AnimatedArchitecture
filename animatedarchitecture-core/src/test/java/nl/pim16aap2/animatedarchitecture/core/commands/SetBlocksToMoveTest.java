@@ -67,6 +67,7 @@ class SetBlocksToMoveTest
     void testSetBlocksToMove()
     {
         final Structure structure = newStructure(Property.BLOCKS_TO_MOVE);
+        UnitTestUtil.initMessageable(commandSender);
 
         final int blocksToMove = 42;
 
@@ -86,6 +87,7 @@ class SetBlocksToMoveTest
     void testNoUpdate()
     {
         final Structure structure = newStructure(Property.BLOCKS_TO_MOVE);
+        UnitTestUtil.initMessageable(commandSender);
 
         final int blocksToMove = 84;
         structure.setPropertyValue(Property.BLOCKS_TO_MOVE, blocksToMove);

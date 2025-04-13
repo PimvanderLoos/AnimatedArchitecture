@@ -345,7 +345,7 @@ class AddOwnerTest
         when(structure.getName()).thenReturn("structure-name");
         when(structure.getUid()).thenReturn(12L);
 
-        // execute
+        // Execute
         addOwner.handleDatabaseActionSuccess(structure);
 
         // Verify

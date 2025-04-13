@@ -23,6 +23,7 @@ import org.mockito.quality.Strictness;
 
 import java.util.concurrent.CompletableFuture;
 
+import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.assertThatMessageable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -73,14 +74,8 @@ class PowerBlockRelocatorTest
         final ToolUser.Context context = mock(ToolUser.Context.class, Answers.RETURNS_MOCKS);
         when(context.getProtectionHookManager()).thenReturn(hookManager);
 
-        final Step.Factory.IFactory assistedStepFactory = mock(Step.Factory.IFactory.class);
-
-        when(assistedStepFactory
-            .stepName(any(), anyString()))
-            .thenAnswer(invocation -> new Step.Factory(
-                invocation.getArgument(0),
-                invocation.getArgument(1, String.class))
-            );
+        final var assistedStepFactory =
+            new AssistedFactoryMocker<>(Step.Factory.class, Step.Factory.IFactory.class).getFactory();
 
         when(context.getStepFactory()).thenReturn(assistedStepFactory);
 
@@ -91,14 +86,15 @@ class PowerBlockRelocatorTest
     @Test
     void testMoveToLocWorld()
     {
+        UnitTestUtil.initMessageable(player);
         final PowerBlockRelocator relocator = assistedFactory.getFactory().create(player, structure);
 
         when(location.getWorld()).thenReturn(mock(IWorld.class));
 
         assertFalse(relocator.moveToLoc(location).join());
 
-        Mockito.verify(player).sendMessage(
-            UnitTestUtil.textArgumentMatcher("tool_user.powerblock_relocator.error.world_mismatch"));
+        assertThatMessageable(player)
+            .sentErrorMessage("tool_user.powerblock_relocator.error.world_mismatch");
 
         when(location.getWorld()).thenReturn(mock(IWorld.class));
     }
@@ -106,6 +102,7 @@ class PowerBlockRelocatorTest
     @Test
     void testMoveToLocDuplicated()
     {
+        UnitTestUtil.initMessageable(player);
         final PowerBlockRelocator relocator = assistedFactory.getFactory().create(player, structure);
 
         when(location.getWorld()).thenReturn(world);
@@ -120,6 +117,7 @@ class PowerBlockRelocatorTest
     @Test
     void testMoveToLocNoAccess()
     {
+        UnitTestUtil.initMessageable(player);
         final PowerBlockRelocator relocator = assistedFactory.getFactory().create(player, structure);
 
         final String compat = "TestCompat";
@@ -136,6 +134,7 @@ class PowerBlockRelocatorTest
     @Test
     void testExecution()
     {
+        UnitTestUtil.initMessageable(player);
         final PowerBlockRelocator relocator = assistedFactory.getFactory().create(player, structure);
 
         when(location.getWorld()).thenReturn(world);
@@ -149,6 +148,7 @@ class PowerBlockRelocatorTest
     @Test
     void testExecutionUnchanged()
     {
+        UnitTestUtil.initMessageable(player);
         final PowerBlockRelocator relocator = assistedFactory.getFactory().create(player, structure);
 
         when(location.getWorld()).thenReturn(world);

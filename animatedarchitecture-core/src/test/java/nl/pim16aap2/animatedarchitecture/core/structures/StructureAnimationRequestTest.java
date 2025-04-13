@@ -24,6 +24,8 @@ import org.mockito.quality.Strictness;
 
 import java.util.UUID;
 
+import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.assertThatMessageable;
+
 @Timeout(1)
 @WithLogCapture
 @ExtendWith(MockitoExtension.class)
@@ -81,9 +83,9 @@ class StructureAnimationRequestTest
         final var request = newToggleRequest(structure, player, StructureActionType.OPEN);
 
         Assertions.assertFalse(request.isValidActionType(structure));
-        Mockito
-            .verify(player)
-            .sendMessage(UnitTestUtil.textArgumentMatcher("structure_action.open.error.type_has_no_open_status"));
+        assertThatMessageable(player)
+            .sentErrorMessage("structure_action.open.error.type_has_no_open_status")
+            .withArgs(structure.getType().getLocalizationKey(), structure.getName());
     }
 
     @Test
@@ -94,9 +96,9 @@ class StructureAnimationRequestTest
 
         Assertions.assertFalse(request.isValidActionType(structure));
 
-        Mockito
-            .verify(player)
-            .sendMessage(UnitTestUtil.textArgumentMatcher("structure_action.close.error.type_has_no_open_status"));
+        assertThatMessageable(player)
+            .sentErrorMessage("structure_action.close.error.type_has_no_open_status")
+            .withArgs(structure.getType().getLocalizationKey(), structure.getName());
     }
 
     @Test

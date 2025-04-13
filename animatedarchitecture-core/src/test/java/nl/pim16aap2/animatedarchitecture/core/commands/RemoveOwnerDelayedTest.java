@@ -97,6 +97,7 @@ class RemoveOwnerDelayedTest
     void normal()
     {
         final RemoveOwnerDelayed removeOwnerDelayed = new RemoveOwnerDelayed(context, inputRequestFactory);
+        UnitTestUtil.initMessageable(commandSender);
 
         final CompletableFuture<?> result0 = removeOwnerDelayed.runDelayed(commandSender, structureRetriever);
         final CompletableFuture<?> result1 = removeOwnerDelayed.provideDelayedInput(commandSender, targetPlayer);

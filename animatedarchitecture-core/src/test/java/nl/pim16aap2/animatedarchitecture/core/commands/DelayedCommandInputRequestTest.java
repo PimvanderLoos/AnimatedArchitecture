@@ -84,6 +84,7 @@ class DelayedCommandInputRequestTest
             executor,
             delayedCommandInputManager
         );
+        UnitTestUtil.initMessageable(commandSender);
 
         final CompletableFuture<?> first = inputRequest.getCommandOutput();
         Assertions.assertThrows(InvalidCommandInputException.class, () -> inputRequest.provide("Invalid!"));

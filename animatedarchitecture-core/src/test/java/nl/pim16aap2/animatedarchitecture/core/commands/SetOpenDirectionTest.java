@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
@@ -80,6 +81,7 @@ class SetOpenDirectionTest
     void testOpenDirValidity()
     {
         final MovementDirection movementDirection = MovementDirection.CLOCKWISE;
+        UnitTestUtil.initMessageable(commandSender);
 
         when(structureType.isValidOpenDirection(any())).thenReturn(false);
         final var command = factory.newSetOpenDirection(commandSender, structureRetriever, movementDirection);

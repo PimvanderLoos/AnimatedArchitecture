@@ -45,6 +45,6 @@ public class SetOpenDirectionDelayed extends DelayedCommand<MovementDirection>
     @Override
     protected String inputRequestMessage(ICommandSender commandSender, StructureRetriever structureRetriever)
     {
-        return localizer.getMessage("commands.set_open_direction.delayed.init");
+        return commandSender.getPersonalizedLocalizer().getMessage("commands.set_open_direction.delayed.init");
     }
 }
