@@ -43,8 +43,7 @@ class CancelTest
     void init()
         throws NoSuchMethodException
     {
-        factory =
-            AssistedFactoryMocker.injectMocksFromTestClass(Cancel.class, Cancel.IFactory.class, this).getFactory();
+        factory = AssistedFactoryMocker.injectMocksFromTestClass(Cancel.IFactory.class, this).getFactory();
     }
 
     @Test

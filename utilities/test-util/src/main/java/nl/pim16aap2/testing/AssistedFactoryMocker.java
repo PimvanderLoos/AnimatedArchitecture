@@ -181,6 +181,16 @@ public class AssistedFactoryMocker<T, U>
     }
 
     public static <T, U> AssistedFactoryMocker<T, U> injectMocksFromTestClass(
+        Class<U> factoryClass,
+        Object testClass)
+        throws NoSuchMethodException
+    {
+        final Method method = findFactoryMethod(null, factoryClass);
+        final Class<T> targetClass = (Class<T>) method.getReturnType();
+        return injectMocksFromTestClass(targetClass, factoryClass, testClass);
+    }
+
+    public static <T, U> AssistedFactoryMocker<T, U> injectMocksFromTestClass(
         Class<T> targetClass,
         Class<U> factoryClass,
         Object testClass)
@@ -549,16 +559,33 @@ public class AssistedFactoryMocker<T, U>
      * @throws NoSuchMethodException
      *     When no factory method could be found that meets the requirements.
      */
-    static Method findFactoryMethod(Class<?> targetClass, Class<?> factoryClass)
+    static Method findFactoryMethod(@Nullable Class<?> targetClass, Class<?> factoryClass)
         throws NoSuchMethodException
     {
+        @Nullable Method result = null;
         for (final Method method : factoryClass.getDeclaredMethods())
         {
             if (method.isDefault())
                 continue;
-            if (targetClass.equals(method.getReturnType()))
-                return method;
+
+            if (targetClass == null || targetClass.equals(method.getReturnType()))
+            {
+                if (result == null)
+                {
+                    result = method;
+                    continue;
+                }
+                throw new IllegalStateException(String.format(
+                    "Found Method '%s' when we already found '%s' in factory class: %s",
+                    method,
+                    result,
+                    factoryClass
+                ));
+            }
         }
+        if (result != null)
+            return result;
+
         throw new NoSuchMethodException("Failed to find non-default creation method in factory class: " +
             factoryClass + " with return type: " + targetClass);
     }
