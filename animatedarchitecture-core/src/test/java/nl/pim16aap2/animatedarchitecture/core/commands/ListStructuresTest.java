@@ -114,24 +114,4 @@ class ListStructuresTest
             .extractSentTextMessages()
             .anyMatch(msg -> msg.contains("commands.list_structures.structure_list_header"));
     }
-
-//    @Test
-//    void testBypass()
-//    {
-//        final var retriever = MockInjector.injectInto(StructureRetrieverFactory.class).ofStructures(structures);
-//        UnitTestUtil.initMessageable(playerCommandSender, serverCommandSender);
-//
-//        // Run it again, but now do so with admin permissions enabled.
-//        // As a result, we should NOT get the "No structures found!" message again.
-//
-//        verify(playerCommandSender)
-//            .sendMessage(textArgumentMatcher("commands.list_structures.error.no_structures_found"));
-//
-//
-//        assertDoesNotThrow(
-//            () -> factory.newListStructures(serverCommandSender, retriever).run().get(1, TimeUnit.SECONDS));
-//
-//        verify(serverCommandSender, never())
-//            .sendMessage(textArgumentMatcher("commands.list_structures.error.no_structures_found"));
-//    }
 }

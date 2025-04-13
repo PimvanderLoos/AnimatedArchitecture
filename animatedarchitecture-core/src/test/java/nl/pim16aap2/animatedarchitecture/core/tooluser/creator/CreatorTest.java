@@ -21,6 +21,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationReque
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Procedure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
@@ -200,6 +201,9 @@ public class CreatorTest
             .create();
 
         assertTrue(creator.verifyWorldMatch(Objects.requireNonNull(creator.getWorld())));
+
+        verify(creator.getPlayer(), never())
+            .sendSuccess(eq("creator.base.error.world_mismatch"), any(Text.ArgumentCreator[].class));
     }
 
     @Test
@@ -466,6 +470,9 @@ public class CreatorTest
         assertEquals(1, creator.getStepsCompleted());
         assertTrue(creator.isActive());
         assertEquals(MovementDirection.EAST, creator.getMovementDirection());
+
+        verify(creator.getPlayer(), never())
+            .sendSuccess(eq("creator.base.error.invalid_option"), any(Text.ArgumentCreator[].class));
     }
 
     @Test

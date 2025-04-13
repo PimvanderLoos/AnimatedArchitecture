@@ -15,7 +15,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.DelayedCommand;
 import nl.pim16aap2.animatedarchitecture.core.commands.DelayedCommandInputRequest;
@@ -33,6 +32,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
+import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
@@ -135,6 +135,7 @@ public class CreatorTestsUtil
             OptionalInt.of(11)
         );
 
+        UnitTestUtil.initMessageable(player);
         playerData = new PlayerData(uuid, name, limits, true, true);
 
         when(player.getUUID()).thenReturn(uuid);
@@ -244,14 +245,10 @@ public class CreatorTestsUtil
         final AssistedFactoryMocker<DelayedCommandInputRequest, DelayedCommandInputRequest.IFactory> assistedFactory =
             new AssistedFactoryMocker<>(DelayedCommandInputRequest.class, DelayedCommandInputRequest.IFactory.class)
                 .injectParameter(IExecutor.class, executor)
-                .injectParameter(ILocalizer.class, localizer)
-                .injectParameter(ITextFactory.class, ITextFactory.getSimpleTextFactory())
                 .injectParameter(DelayedCommandInputManager.class, delayedCommandInputManager);
 
         final var commandContext = new DelayedCommand.Context(
             delayedCommandInputManager,
-            localizer,
-            ITextFactory.getSimpleTextFactory(),
             () -> commandFactory
         );
 
@@ -323,7 +320,7 @@ public class CreatorTestsUtil
     {
         applySteps(creator, input);
         verify(creator.getPlayer(), never())
-            .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.creation_cancelled"));
+            .sendSuccess(eq("creator.base.error.creation_cancelled"), any(Text.ArgumentCreator[].class));
         verify(databaseManager).addStructure(actualStructure, player);
     }
 }
