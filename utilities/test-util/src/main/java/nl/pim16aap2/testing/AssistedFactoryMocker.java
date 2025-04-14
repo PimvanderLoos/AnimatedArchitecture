@@ -180,25 +180,67 @@ public class AssistedFactoryMocker<T, U>
         this(targetClass, factoryClass, Mockito.withSettings());
     }
 
+    /**
+     * Creates a new {@link AssistedFactoryMocker} instance using the mocked objects from the provided test class.
+     * <p>
+     * This method is a shortcut for {@link #injectMocksFromTestClass(Class, Class, Object)}.
+     * <p>
+     * Specifically, it will look for fields in the test class that are annotated with {@link org.mockito.Mock} and
+     * inject them into the factory method if any of the parameters in the factory method match the type of the field.
+     *
+     * @param factoryClass
+     *     The factory class that instantiates the target class.
+     * @param testInstance
+     *     The instance of a test class that contains the mocked objects.
+     * @param <T>
+     *     The type of the class that is instantiated by the factory.
+     * @param <U>
+     *     The type of the factory that instantiates the target class.
+     * @return A new {@link AssistedFactoryMocker} instance.
+     *
+     * @throws NoSuchMethodException
+     *     If the factory method or the target constructor could not be found.
+     */
     public static <T, U> AssistedFactoryMocker<T, U> injectMocksFromTestClass(
         Class<U> factoryClass,
-        Object testClass)
+        Object testInstance)
         throws NoSuchMethodException
     {
         final Method method = findFactoryMethod(null, factoryClass);
-        final Class<T> targetClass = (Class<T>) method.getReturnType();
-        return injectMocksFromTestClass(targetClass, factoryClass, testClass);
+        @SuppressWarnings("unchecked") final Class<T> targetClass = (Class<T>) method.getReturnType();
+        return injectMocksFromTestClass(targetClass, factoryClass, testInstance);
     }
 
+    /**
+     * Creates a new {@link AssistedFactoryMocker} instance using the mocked objects from the provided test class.
+     * <p>
+     * Specifically, it will look for fields in the test class that are annotated with {@link org.mockito.Mock} and
+     * inject them into the factory method if any of the parameters in the factory method match the type of the field.
+     *
+     * @param targetClass
+     *     The class that is instantiated by the factory.
+     * @param factoryClass
+     *     The factory class that instantiates the target class.
+     * @param testInstance
+     *     The instance of a test class that contains the mocked objects.
+     * @param <T>
+     *     The type of the class that is instantiated by the factory.
+     * @param <U>
+     *     The type of the factory that instantiates the target class.
+     * @return A new {@link AssistedFactoryMocker} instance.
+     *
+     * @throws NoSuchMethodException
+     *     If the factory method or the target constructor could not be found.
+     */
     public static <T, U> AssistedFactoryMocker<T, U> injectMocksFromTestClass(
         Class<T> targetClass,
         Class<U> factoryClass,
-        Object testClass)
+        Object testInstance)
         throws NoSuchMethodException
     {
         final List<Field> fields = ReflectionBuilder
             .findField()
-            .inClass(testClass.getClass())
+            .inClass(testInstance.getClass())
             .withAnnotations(org.mockito.Mock.class)
             .setAccessible()
             .get();
@@ -206,7 +248,7 @@ public class AssistedFactoryMocker<T, U>
         final List<IInjectedParameter<Object>> injectedParameters =
             fields
                 .stream()
-                .map(field -> IInjectedParameter.of(field.getType(), getFieldValue(field, testClass)))
+                .map(field -> IInjectedParameter.of(field.getType(), getFieldValue(field, testInstance)))
                 .toList();
 
         final AssistedFactoryMocker<T, U> mocker = new AssistedFactoryMocker<>(targetClass, factoryClass);
@@ -289,7 +331,7 @@ public class AssistedFactoryMocker<T, U>
     }
 
     /**
-     * Provides the parameters to the factory method.
+     * Injects the parameters in the factory method.
      * <p>
      * Note that all primitive types are automatically boxed and will not match any primitive types in the constructor.
      * <p>
@@ -579,7 +621,7 @@ public class AssistedFactoryMocker<T, U>
         @Nullable Method result = null;
         for (final Method method : factoryClass.getDeclaredMethods())
         {
-            if (method.isDefault())
+            if (method.isDefault() || Modifier.isStatic(method.getModifiers()))
                 continue;
 
             if (targetClass == null || targetClass.equals(method.getReturnType()))

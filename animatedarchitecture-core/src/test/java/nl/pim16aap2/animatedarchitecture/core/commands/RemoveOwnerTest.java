@@ -55,8 +55,7 @@ class RemoveOwnerTest
     {
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
 
-        assistedFactoryMocker = new AssistedFactoryMocker<>(RemoveOwner.class, RemoveOwner.IFactory.class)
-            .injectParameter(DatabaseManager.class, databaseManager);
+        assistedFactoryMocker = AssistedFactoryMocker.injectMocksFromTestClass(RemoveOwner.IFactory.class, this);
     }
 
     @AfterEach
@@ -98,6 +97,9 @@ class RemoveOwnerTest
         final String targetName = "target-name";
         when(target.getName()).thenReturn(targetName);
 
+        when(structure.getName()).thenReturn("structure-name");
+        when(structure.getUid()).thenReturn(12L);
+
         // execute
         assistedFactoryMocker
             .getFactory()
@@ -111,7 +113,7 @@ class RemoveOwnerTest
 
         assertThatMessageable(target)
             .sentInfoMessage("commands.remove_owner.removed_player_notification")
-            .withArgs("StructureType", "null (0)");
+            .withArgs("StructureType", "structure-name (12)");
     }
 
     @Test

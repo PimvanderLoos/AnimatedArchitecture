@@ -53,9 +53,7 @@ class AddOwnerTest
     void init()
         throws NoSuchMethodException
     {
-        assistedFactoryMocker =
-            new AssistedFactoryMocker<>(AddOwner.class, AddOwner.IFactory.class)
-                .injectParameter(DatabaseManager.class, databaseManager);
+        assistedFactoryMocker = AssistedFactoryMocker.injectMocksFromTestClass(AddOwner.IFactory.class, this);
 
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
     }

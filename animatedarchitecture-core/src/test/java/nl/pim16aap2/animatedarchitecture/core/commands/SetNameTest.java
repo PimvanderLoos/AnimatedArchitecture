@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
-import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
@@ -26,9 +25,6 @@ import static org.mockito.Mockito.*;
 class SetNameTest
 {
     @Mock
-    private IExecutor executor;
-
-    @Mock
     private ToolUserManager toolUserManager;
 
     private AssistedFactoryMocker<SetName, SetName.IFactory> assistedFactoryMocker;
@@ -37,9 +33,7 @@ class SetNameTest
     void init()
         throws NoSuchMethodException
     {
-        assistedFactoryMocker = new AssistedFactoryMocker<>(SetName.class, SetName.IFactory.class)
-            .injectParameter(IExecutor.class, executor)
-            .injectParameter(ToolUserManager.class, toolUserManager);
+        assistedFactoryMocker = AssistedFactoryMocker.injectMocksFromTestClass(SetName.IFactory.class, this);
     }
 
     @AfterEach

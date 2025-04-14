@@ -28,16 +28,7 @@ class CancelTest
     @Mock
     private IPlayer commandSender;
 
-//    @Mock
-//    private StructureSpecificationManager structureSpecificationManager;
-
     private AssistedFactoryMocker<Cancel, Cancel.IFactory> factory;
-
-//    @Mock
-//    private ToolUserManager toolUserManager;
-//
-//    @Mock
-//    private IExecutor executor;
 
     @BeforeEach
     void init()

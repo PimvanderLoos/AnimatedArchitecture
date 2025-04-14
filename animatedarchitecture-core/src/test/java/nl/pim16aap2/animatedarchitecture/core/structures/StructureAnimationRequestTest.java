@@ -3,11 +3,9 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.testing.logging.WithLogCapture;
@@ -50,13 +48,11 @@ class StructureAnimationRequestTest
 
         Mockito.when(config.skipAnimationsByDefault()).thenReturn(true);
 
-        final var structureAnimationRequestFactory = new AssistedFactoryMocker<>(
-            StructureAnimationRequest.class,
-            StructureAnimationRequest.IFactory.class)
-            .injectParameter(ILocalizer.class, localizer)
-            .injectParameter(ITextFactory.class, ITextFactory.getSimpleTextFactory())
-            .injectParameter(IPlayerFactory.class, playerFactory)
-            .getFactory();
+
+        final var structureAnimationRequestFactory =
+            new AssistedFactoryMocker<>(StructureAnimationRequest.class, StructureAnimationRequest.IFactory.class)
+                .injectParameters(localizer, ITextFactory.getSimpleTextFactory(), playerFactory)
+                .getFactory();
 
         builder = new StructureAnimationRequestBuilder(
             structureAnimationRequestFactory,

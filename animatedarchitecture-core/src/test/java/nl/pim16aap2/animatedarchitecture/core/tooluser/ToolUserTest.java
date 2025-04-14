@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
 import nl.altindag.log.LogCaptor;
+import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
@@ -45,8 +46,7 @@ public class ToolUserTest
     @Mock
     private IPlayer player;
 
-    @Mock
-    private PersonalizedLocalizer personalizedLocalizer;
+    private final PersonalizedLocalizer personalizedLocalizer = UnitTestUtil.DUMMY_PERSONALIZED_LOCALIZER;
 
     @Mock
     private ToolUserManager toolUserManager;

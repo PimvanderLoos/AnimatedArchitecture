@@ -238,8 +238,7 @@ public class CreatorTestsUtil
     {
         final AssistedFactoryMocker<DelayedCommandInputRequest, DelayedCommandInputRequest.IFactory> assistedFactory =
             new AssistedFactoryMocker<>(DelayedCommandInputRequest.class, DelayedCommandInputRequest.IFactory.class)
-                .injectParameter(IExecutor.class, executor)
-                .injectParameter(DelayedCommandInputManager.class, delayedCommandInputManager);
+                .injectParameters(executor, delayedCommandInputManager);
 
         final var commandContext = new DelayedCommand.Context(
             delayedCommandInputManager,

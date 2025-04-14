@@ -38,8 +38,7 @@ class SpecifyTest
         throws NoSuchMethodException
     {
         assistedFactoryMocker = new AssistedFactoryMocker<>(Specify.class, Specify.IFactory.class)
-            .injectParameter(IExecutor.class, executor)
-            .injectParameter(StructureSpecificationManager.class, structureSpecificationManager);
+            .injectParameters(executor, structureSpecificationManager);
     }
 
     @AfterEach

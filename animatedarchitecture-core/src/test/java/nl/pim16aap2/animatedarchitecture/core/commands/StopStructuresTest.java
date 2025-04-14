@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
+import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,6 @@ import org.mockito.quality.Strictness;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(1)
@@ -31,7 +31,6 @@ class StopStructuresTest
     @Mock
     private StructureActivityManager structureActivityManager;
 
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
     private StopStructures.IFactory factory;
 
     @Mock
@@ -39,18 +38,15 @@ class StopStructuresTest
 
     @BeforeEach
     void init()
+        throws NoSuchMethodException
     {
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
-        when(factory
-            .newStopStructures(any(ICommandSender.class)))
-            .thenAnswer(invoc -> new StopStructures(
-                invoc.getArgument(0, ICommandSender.class),
-                executor,
-                structureActivityManager
-            ));
+        factory = new AssistedFactoryMocker<>(StopStructures.class, StopStructures.IFactory.class)
+            .injectParameters(structureActivityManager, executor)
+            .getFactory();
     }
 
     @Test

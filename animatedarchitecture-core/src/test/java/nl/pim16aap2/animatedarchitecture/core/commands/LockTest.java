@@ -67,8 +67,7 @@ class LockTest
         when(eventFactory.createStructurePrepareLockChangeEvent(any(), anyBoolean(), any())).thenReturn(event);
 
         assistedFactoryMocker = new AssistedFactoryMocker<>(Lock.class, Lock.IFactory.class)
-            .injectParameter(IExecutor.class, executor)
-            .injectParameter(IAnimatedArchitectureEventFactory.class, eventFactory);
+            .injectParameters(executor, eventFactory);
 
         factory = assistedFactoryMocker.getFactory();
     }

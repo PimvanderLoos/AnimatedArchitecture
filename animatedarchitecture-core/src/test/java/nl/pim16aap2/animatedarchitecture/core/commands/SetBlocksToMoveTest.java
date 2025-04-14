@@ -7,8 +7,8 @@ import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
-import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
+import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -24,7 +24,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(1)
@@ -35,7 +34,6 @@ class SetBlocksToMoveTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPlayer commandSender;
 
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
     private SetBlocksToMove.IFactory factory;
 
     @Mock
@@ -46,6 +44,7 @@ class SetBlocksToMoveTest
 
     @BeforeEach
     void init()
+        throws NoSuchMethodException
     {
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
 
@@ -53,14 +52,9 @@ class SetBlocksToMoveTest
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
-        when(factory
-            .newSetBlocksToMove(any(ICommandSender.class), any(StructureRetriever.class), anyInt()))
-            .thenAnswer(invoc -> new SetBlocksToMove(
-                invoc.getArgument(0, ICommandSender.class),
-                invoc.getArgument(1, StructureRetriever.class),
-                invoc.getArgument(2, Integer.class),
-                executor)
-            );
+        factory = new AssistedFactoryMocker<>(SetBlocksToMove.class, SetBlocksToMove.IFactory.class)
+            .injectParameters(executor)
+            .getFactory();
     }
 
     @Test

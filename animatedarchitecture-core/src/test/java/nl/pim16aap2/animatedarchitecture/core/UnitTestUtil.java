@@ -42,13 +42,11 @@ import nl.pim16aap2.testing.TestUtil;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.ListAssert;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 
@@ -77,13 +75,21 @@ public class UnitTestUtil
     public static ILocalizer DUMMY_LOCALIZER = new ILocalizer()
     {
         @Override
-        public @NotNull String getMessage(@NotNull String key, @Nullable Locale clientLocale, @NotNull Object... args)
+        public String getMessage(String key, @Nullable Locale clientLocale, Object... args)
         {
-            return key + Stream.of(args).map(Objects::toString).collect(Collectors.joining(" "));
+            StringBuilder sb = new StringBuilder(key);
+            Stream.of(args).forEach(arg -> sb.append(' ').append(arg));
+            return sb.toString();
         }
 
         @Override
-        public @NotNull List<Locale> getAvailableLocales()
+        public String getMessage(String key, Object... args)
+        {
+            return getMessage(key, null, args);
+        }
+
+        @Override
+        public List<Locale> getAvailableLocales()
         {
             return List.of();
         }
@@ -127,8 +133,8 @@ public class UnitTestUtil
                 }
             };
 
-            when(messageable.getPersonalizedLocalizer()).thenReturn(personalizedLocalizer);
-            doReturn(textFactory.newText()).when(messageable).newText();
+            lenient().when(messageable.getPersonalizedLocalizer()).thenReturn(personalizedLocalizer);
+            lenient().doReturn(textFactory.newText()).when(messageable).newText();
         }
     }
 
@@ -146,7 +152,7 @@ public class UnitTestUtil
 
     public static PersonalizedLocalizer initPersonalizedLocalizer()
     {
-        return initPersonalizedLocalizer(null);
+        return DUMMY_PERSONALIZED_LOCALIZER;
     }
 
     public static PersonalizedLocalizer initPersonalizedLocalizer(@Nullable Locale locale)
@@ -156,18 +162,7 @@ public class UnitTestUtil
 
     public static ILocalizer initLocalizer()
     {
-        final ILocalizer localizer = mock(ILocalizer.class, Mockito.CALLS_REAL_METHODS);
-        lenient()
-            .when(localizer.getMessage(anyString(), nullable(Locale.class), ArgumentMatchers.any(Object[].class)))
-            .thenAnswer(invocation ->
-            {
-                String ret = invocation.getArgument(0, String.class);
-                for (int idx = 2; idx < invocation.getArguments().length; ++idx)
-                    //noinspection StringConcatenationInLoop
-                    ret += " " + invocation.getArgument(idx, Object.class);
-                return ret;
-            });
-        return localizer;
+        return DUMMY_LOCALIZER;
     }
 
     /**
@@ -898,14 +893,6 @@ public class UnitTestUtil
     public static MessageableAssert assertThatMessageable(IMessageable messageable)
     {
         return new MessageableAssert(messageable);
-    }
-
-    /**
-     * Creates a new {@link MessageableAssert} for the given {@link IMessageable}. AssertJ standard naming convention.
-     */
-    public static MessageableAssert assertThat(IMessageable messageable)
-    {
-        return MessageableAssert.assertThat(messageable);
     }
 
     /**
