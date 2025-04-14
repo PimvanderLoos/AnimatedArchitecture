@@ -4,7 +4,6 @@ import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -19,8 +18,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
@@ -34,15 +31,11 @@ import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-@SuppressWarnings("unused")
 class AddOwnerDelayedTest
 {
     @Spy
     private DelayedCommandInputManager delayedCommandInputManager =
         new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
-
-    private final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
     @Mock
     private DelayedCommandInputRequest.IFactory<AddOwnerDelayed.DelayedInput> inputRequestFactory;
@@ -53,7 +46,7 @@ class AddOwnerDelayedTest
     @Mock
     private CommandFactory commandFactory;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "unused"})
     private final Provider<CommandFactory> commandFactoryProvider =
         mock(Provider.class, delegatesTo((Provider<CommandFactory>) () -> commandFactory));
 
@@ -85,7 +78,6 @@ class AddOwnerDelayedTest
         DelayedCommandTest.initInputRequestFactory(
             inputRequestFactory,
             executor,
-            localizer,
             delayedCommandInputManager
         );
 
@@ -99,6 +91,7 @@ class AddOwnerDelayedTest
     void normal()
     {
         final AddOwnerDelayed addOwnerDelayed = new AddOwnerDelayed(context, inputRequestFactory);
+        UnitTestUtil.initMessageable(commandSender);
 
         final CompletableFuture<?> result0 = addOwnerDelayed.runDelayed(commandSender, structureRetriever);
         final AddOwnerDelayed.DelayedInput input = new AddOwnerDelayed.DelayedInput(targetPlayer);

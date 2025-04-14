@@ -9,14 +9,13 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
-import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -28,7 +27,6 @@ class DeleteGui implements IGuiPage
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
 
     private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
-    private final ITextFactory textFactory;
     private final ILocalizer localizer;
     private final CommandFactory commandFactory;
     private final StructureRetrieverFactory structureRetrieverFactory;
@@ -39,20 +37,18 @@ class DeleteGui implements IGuiPage
 
     @Getter
     @ToString.Include
-    private final PlayerSpigot inventoryHolder;
+    private final WrappedPlayer inventoryHolder;
 
     @AssistedInject
     DeleteGui(
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
-        ITextFactory textFactory,
         ILocalizer localizer,
         CommandFactory commandFactory,
         StructureRetrieverFactory structureRetrieverFactory,
         @Assisted Structure structure,
-        @Assisted PlayerSpigot inventoryHolder)
+        @Assisted WrappedPlayer inventoryHolder)
     {
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
-        this.textFactory = textFactory;
         this.localizer = localizer;
         this.commandFactory = commandFactory;
         this.structureRetrieverFactory = structureRetrieverFactory;
@@ -119,7 +115,7 @@ class DeleteGui implements IGuiPage
                     .run()
                     .handleExceptional(ex ->
                     {
-                        inventoryHolder.sendError(textFactory, localizer.getMessage("constants.error.generic"));
+                        inventoryHolder.sendError("constants.error.generic");
                         log.atSevere().withCause(ex).log("Failed to delete structure.");
                     });
                 GuiUtil.closeGuiPage(gui, inventoryHolder);
@@ -140,6 +136,6 @@ class DeleteGui implements IGuiPage
     @AssistedFactory
     interface IFactory
     {
-        DeleteGui newDeleteGui(Structure structure, PlayerSpigot playerSpigot);
+        DeleteGui newDeleteGui(Structure structure, WrappedPlayer playerSpigot);
     }
 }

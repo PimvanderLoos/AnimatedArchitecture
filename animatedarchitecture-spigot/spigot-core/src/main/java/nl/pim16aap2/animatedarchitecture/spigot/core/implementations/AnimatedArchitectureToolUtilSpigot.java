@@ -4,7 +4,6 @@ import com.google.common.flogger.StackSize;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -49,9 +48,9 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
     }
 
     @Override
-    public void giveToPlayer(IPlayer player, String name, String lore)
+    public void giveToPlayer(IPlayer player, String nameKey, String loreKey)
     {
-        final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
+        final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: %s", player.getUUID());
@@ -65,9 +64,11 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
             tool.hasItemMeta() ? tool.getItemMeta() : Bukkit.getItemFactory().getItemMeta(tool.getType());
         if (itemMeta == null)
             throw new IllegalArgumentException("Tried to create tool from invalid item: " + tool);
+
+        final var localizer = player.getPersonalizedLocalizer();
         itemMeta.getPersistentDataContainer().set(animatedArchitectureToolKey, PersistentDataType.BYTE, (byte) 1);
-        itemMeta.setDisplayName(name);
-        itemMeta.setLore(Arrays.asList(lore.split("\n")));
+        itemMeta.setDisplayName(localizer.getMessage(nameKey));
+        itemMeta.setLore(Arrays.asList(localizer.getMessage(loreKey).split("\n")));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         tool.setItemMeta(itemMeta);
 
@@ -82,7 +83,7 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
     @Override
     public void removeTool(IPlayer player)
     {
-        final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
+        final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
@@ -111,7 +112,7 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
     @Override
     public boolean isPlayerHoldingTool(IPlayer player)
     {
-        final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
+        final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());

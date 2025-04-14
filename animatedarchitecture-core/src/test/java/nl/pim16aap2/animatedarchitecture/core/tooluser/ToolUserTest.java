@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
 import nl.altindag.log.LogCaptor;
+import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
@@ -8,7 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
@@ -27,10 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,18 +37,16 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 @Timeout(10)
 public class ToolUserTest
 {
-    private final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
-
     @Mock
     private IPlayer player;
 
-    @Mock
-    private ILocalizer localizer;
+    private final PersonalizedLocalizer personalizedLocalizer = UnitTestUtil.DUMMY_PERSONALIZED_LOCALIZER;
 
     @Mock
     private ToolUserManager toolUserManager;
@@ -70,25 +66,25 @@ public class ToolUserTest
     void init()
         throws NoSuchMethodException
     {
+        when(player.newText()).thenReturn(ITextFactory.getSimpleTextFactory().newText());
+
         stepFactory = new AssistedFactoryMocker<>(
             Step.Factory.class,
             Step.Factory.IFactory.class,
-            Mockito.CALLS_REAL_METHODS
-        ).setMock(ILocalizer.class, localizer).getFactory();
+            CALLS_REAL_METHODS
+        ).getFactory();
 
         context = new ToolUser.Context(
-            Mockito.mock(StructureBuilder.class),
-            localizer,
-            textFactory,
+            mock(StructureBuilder.class),
             toolUserManager,
-            Mockito.mock(DatabaseManager.class),
-            Mockito.mock(LimitsManager.class),
-            Mockito.mock(IEconomyManager.class),
-            Mockito.mock(IProtectionHookManager.class),
-            Mockito.mock(IAnimatedArchitectureToolUtil.class),
-            Mockito.mock(StructureAnimationRequestBuilder.class),
-            Mockito.mock(StructureActivityManager.class),
-            Mockito.mock(CommandFactory.class),
+            mock(DatabaseManager.class),
+            mock(LimitsManager.class),
+            mock(IEconomyManager.class),
+            mock(IProtectionHookManager.class),
+            mock(IAnimatedArchitectureToolUtil.class),
+            mock(StructureAnimationRequestBuilder.class),
+            mock(StructureActivityManager.class),
+            mock(CommandFactory.class),
             stepFactory
         );
     }
@@ -117,7 +113,7 @@ public class ToolUserTest
                     new AsyncStepExecutor<>(Boolean.class, ignored -> toolUser.appendValueAsync(value)) :
                     new StepExecutorBoolean(ignored -> toolUser.appendValue(value));
 
-            steps.add(createStep(stepFactory, stepName, stepExecutorSupplier));
+            steps.add(createStep(personalizedLocalizer, stepFactory, stepName, stepExecutorSupplier));
         }
 
         setProcedure(toolUser, steps);
@@ -142,6 +138,7 @@ public class ToolUserTest
 
         final var steps = List.of(
             createStep(
+                personalizedLocalizer,
                 stepFactory,
                 "step_1",
                 new AsyncStepExecutor<>(
@@ -151,10 +148,12 @@ public class ToolUserTest
                     return toolUser.appendValueAsync(1);
                 })),
             createStep(
+                personalizedLocalizer,
                 stepFactory,
                 "step_2",
                 new AsyncStepExecutor<>(Integer.class, ignored -> toolUser.appendValueAsync(2))),
             createStep(
+                personalizedLocalizer,
                 stepFactory,
                 "step_3",
                 new AsyncStepExecutor<>(Integer.class, ignored -> toolUser.appendValueAsync(3)))
@@ -183,11 +182,15 @@ public class ToolUserTest
         }
     }
 
-    private static Step createStep(Step.Factory.IFactory stepFactory, String name, StepExecutor stepExecutor)
+    private static Step createStep(
+        PersonalizedLocalizer localizer,
+        Step.Factory.IFactory stepFactory,
+        String name,
+        StepExecutor stepExecutor)
         throws InstantiationException
     {
         return stepFactory
-            .stepName(name)
+            .stepName(localizer, name)
             .stepExecutor(stepExecutor)
             .textSupplier(text -> text.append(name))
             .construct();
@@ -195,7 +198,7 @@ public class ToolUserTest
 
     private void setProcedure(ToolUser toolUser, List<Step> steps)
     {
-        final var newProcedure = new Procedure(steps, localizer, textFactory);
+        final var newProcedure = new Procedure(steps, player);
 
         ReflectionBuilder
             .findField()
@@ -220,7 +223,7 @@ public class ToolUserTest
             throws InstantiationException
         {
             // Add a dummy step to prevent the procedure from being empty.
-            return List.of(createStep(stepFactory, "Step_default", new StepExecutorVoid(() -> false)));
+            return List.of(createStep(localizer, stepFactory, "Step_default", new StepExecutorVoid(() -> false)));
         }
 
         public synchronized CompletableFuture<Boolean> appendValueAsync(Integer value)

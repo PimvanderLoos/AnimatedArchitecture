@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public record TextArgument(@Nullable Object argument, @Nullable TextComponent component)
 {
-    @SuppressWarnings("unused")
     public TextArgument(@Nullable String text)
     {
         this(text, null);

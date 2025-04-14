@@ -6,8 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
 import org.jetbrains.annotations.Nullable;
@@ -36,11 +34,9 @@ public class Specify extends BaseCommand
         @Assisted ICommandSender commandSender,
         @Assisted String input,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         StructureSpecificationManager structureSpecificationManager)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
         this.input = input;
         this.structureSpecificationManager = structureSpecificationManager;
     }
@@ -61,10 +57,7 @@ public class Specify extends BaseCommand
     protected CompletableFuture<?> executeCommand(@Nullable PermissionsStatus permissions)
     {
         if (!structureSpecificationManager.handleInput((IPlayer) getCommandSender(), input))
-            getCommandSender().sendError(
-                textFactory,
-                localizer.getMessage("commands.base.error.no_pending_process")
-            );
+            getCommandSender().sendError("commands.base.error.no_pending_process");
         return CompletableFuture.completedFuture(null);
     }
 

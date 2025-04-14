@@ -26,11 +26,10 @@ class CounterWeightGarageDoorAnimationComponentTest
     {
         structureBuilder = UnitTestUtil.newStructureBuilder().structureBuilder();
 
-        this.animationRequestDataFactory = new AssistedFactoryMocker<>(
-            AnimationRequestData.class,
-            AnimationRequestData.IFactory.class
-        ).setMock(int.class, "serverTickTime", 50)
-            .getFactory();
+        this.animationRequestDataFactory =
+            new AssistedFactoryMocker<>(AnimationRequestData.class, AnimationRequestData.IFactory.class)
+                .injectParameter(int.class, "serverTickTime", 50)
+                .getFactory();
     }
 
     @Test

@@ -12,17 +12,14 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
-import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IPermissionsManagerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IFakePlayer;
 import nl.pim16aap2.jcalculator.JCalculator;
@@ -53,8 +50,6 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
 {
     private final Map<StructureType, Double> flatPrices;
     private final Permission perms;
-    private final ILocalizer localizer;
-    private final ITextFactory textFactory;
     private final IConfig config;
     private final StructureTypeManager structureTypeManager;
     private final IExecutor executor;
@@ -62,15 +57,11 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
 
     @Inject
     public VaultManager(
-        ILocalizer localizer,
-        ITextFactory textFactory,
         IConfig config,
         StructureTypeManager structureTypeManager,
         DebuggableRegistry debuggableRegistry,
         IExecutor executor)
     {
-        this.localizer = localizer;
-        this.textFactory = textFactory;
         this.config = config;
         this.structureTypeManager = structureTypeManager;
         this.executor = executor;
@@ -88,7 +79,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         if (!isEconomyEnabled())
             return true;
 
-        final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
+        final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
@@ -102,19 +93,17 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final double price = priceOpt.getAsDouble();
         if (withdrawPlayer(spigotPlayer, world.worldName(), price))
         {
-            player.sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.base.money_withdrawn"),
-                TextType.SUCCESS,
-                arg -> arg.highlight(price))
+            player.sendSuccess(
+                "creator.base.money_withdrawn",
+                arg -> arg.highlight(price)
             );
             return true;
         }
 
-        player.sendMessage(textFactory.newText().append(
-            localizer.getMessage("creator.base.error.insufficient_funds"),
-            TextType.ERROR,
-            arg -> arg.highlight(localizer.getMessage(type.getLocalizationKey())),
-            arg -> arg.highlight(price))
+        player.sendError(
+            "creator.base.error.insufficient_funds",
+            arg -> arg.localizedHighlight(type),
+            arg -> arg.highlight(price)
         );
 
         log.atFine().log(
@@ -439,7 +428,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
 
     private @Nullable Player getBukkitPlayer(IPlayer player)
     {
-        final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
+        final @Nullable Player bukkitPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (bukkitPlayer == null)
         {
             log.atSevere().withStackTrace(StackSize.FULL).log(

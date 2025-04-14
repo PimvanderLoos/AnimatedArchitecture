@@ -1,10 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
@@ -29,8 +26,9 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
@@ -46,7 +44,7 @@ class MovePowerBlockTest
     @Mock
     private ToolUserManager toolUserManager;
 
-    private StructureRetriever doorRetriever;
+    private StructureRetriever structureRetriever;
 
     @Mock
     private Structure door;
@@ -65,13 +63,11 @@ class MovePowerBlockTest
         final UUID uuid = UUID.randomUUID();
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
-        doorRetriever = StructureRetrieverFactory.ofStructure(door);
+        structureRetriever = StructureRetrieverFactory.ofStructure(door);
         when(door.isOwner(uuid, StructureAttribute.RELOCATE_POWERBLOCK.getPermissionLevel())).thenReturn(true);
         when(door.isOwner(any(IPlayer.class), any())).thenReturn(true);
         when(commandSender.getUUID()).thenReturn(uuid);
         when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
-
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         final PowerBlockRelocator.IFactory powerBlockRelocatorFactory = mock(PowerBlockRelocator.IFactory.class);
         when(powerBlockRelocatorFactory.create(Mockito.any(), any())).thenReturn(mock(PowerBlockRelocator.class));
@@ -82,8 +78,6 @@ class MovePowerBlockTest
                 invoc.getArgument(0, ICommandSender.class),
                 invoc.getArgument(1, StructureRetriever.class),
                 executor,
-                localizer,
-                ITextFactory.getSimpleTextFactory(),
                 toolUserManager,
                 powerBlockRelocatorFactory)
             );
@@ -94,7 +88,7 @@ class MovePowerBlockTest
     {
         final IServer server = mock(IServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertDoesNotThrow(
-            () -> factory.newMovePowerBlock(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
+            () -> factory.newMovePowerBlock(server, structureRetriever).run().get(1, TimeUnit.SECONDS));
         verify(toolUserManager, never()).startToolUser(Mockito.any(), anyInt());
     }
 
@@ -102,7 +96,7 @@ class MovePowerBlockTest
     void testExecution()
     {
         Assertions.assertDoesNotThrow(
-            () -> factory.newMovePowerBlock(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
+            () -> factory.newMovePowerBlock(commandSender, structureRetriever).run().get(1, TimeUnit.SECONDS));
         verify(toolUserManager).startToolUser(Mockito.any(), anyInt());
     }
 }

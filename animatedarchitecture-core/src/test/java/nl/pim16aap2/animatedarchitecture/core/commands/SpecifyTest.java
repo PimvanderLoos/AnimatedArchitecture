@@ -1,9 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.AfterEach;
@@ -40,8 +38,7 @@ class SpecifyTest
         throws NoSuchMethodException
     {
         assistedFactoryMocker = new AssistedFactoryMocker<>(Specify.class, Specify.IFactory.class)
-            .setMock(IExecutor.class, executor)
-            .setMock(StructureSpecificationManager.class, structureSpecificationManager);
+            .injectParameters(executor, structureSpecificationManager);
     }
 
     @AfterEach
@@ -74,14 +71,13 @@ class SpecifyTest
 
         final Specify specify = spy(
             assistedFactoryMocker
-                .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
                 .getFactory()
                 .newSpecify(server, "my-new-portcullis-name")
         );
         specify.run().get(1, TimeUnit.SECONDS);
 
         verify(specify, never()).executeCommand(any());
-        verify(server).sendError(any(), eq("commands.base.error.only_available_for_players"));
+        verify(server).sendError(eq("commands.base.error.only_available_for_players"));
         verify(structureSpecificationManager, never()).handleInput(any(), any());
     }
 
@@ -93,13 +89,12 @@ class SpecifyTest
         when(structureSpecificationManager.handleInput(player, name)).thenReturn(false);
 
         assistedFactoryMocker
-            .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
             .getFactory()
             .newSpecify(player, name)
             .executeCommand(null)
             .join();
 
-        verify(player).sendError(any(), eq("commands.base.error.no_pending_process"));
+        verify(player).sendError(eq("commands.base.error.no_pending_process"));
     }
 
     @Test
@@ -115,6 +110,6 @@ class SpecifyTest
             .executeCommand(null)
             .join();
 
-        verify(player, never()).sendError(any(), anyString());
+        verify(player, never()).sendError(anyString());
     }
 }

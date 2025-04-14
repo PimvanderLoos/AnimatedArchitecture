@@ -6,8 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureSpecificationManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 
@@ -23,20 +21,18 @@ public class Cancel extends BaseCommand
     private final ToolUserManager toolUserManager;
 
     @ToString.Exclude
-    private final StructureSpecificationManager doorSpecificationManager;
+    private final StructureSpecificationManager structureSpecificationManager;
 
     @AssistedInject
     Cancel(
         @Assisted ICommandSender commandSender,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         ToolUserManager toolUserManager,
-        StructureSpecificationManager doorSpecificationManager)
+        StructureSpecificationManager structureSpecificationManager)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
         this.toolUserManager = toolUserManager;
-        this.doorSpecificationManager = doorSpecificationManager;
+        this.structureSpecificationManager = structureSpecificationManager;
     }
 
     @Override
@@ -52,12 +48,12 @@ public class Cancel extends BaseCommand
         return CompletableFuture.completedFuture(null);
     }
 
-    private void cancelPlayer(IPlayer player)
+    void cancelPlayer(IPlayer player)
     {
-        if (toolUserManager.cancelToolUser(player) || doorSpecificationManager.cancelRequest(player))
-            getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.cancel.success"));
+        if (toolUserManager.cancelToolUser(player) || structureSpecificationManager.cancelRequest(player))
+            getCommandSender().sendSuccess("commands.cancel.success");
         else
-            getCommandSender().sendError(textFactory, localizer.getMessage("commands.cancel.no_process"));
+            getCommandSender().sendError("commands.cancel.no_process");
     }
 
     @AssistedFactory

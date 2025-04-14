@@ -6,9 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -25,11 +22,9 @@ public class Version extends BaseCommand
     Version(
         @Assisted ICommandSender commandSender,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         IAnimatedArchitecturePlatformProvider platformProvider)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
         this.platformProvider = platformProvider;
     }
 
@@ -47,10 +42,9 @@ public class Version extends BaseCommand
             .map(platform -> platform.getProjectVersion().toString())
             .orElse("ERROR");
 
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.version.success"),
-            TextType.SUCCESS,
-            arg -> arg.highlight(version))
+        getCommandSender().sendSuccess(
+            "commands.version.success",
+            arg -> arg.highlight(version)
         );
 
         return CompletableFuture.completedFuture(null);

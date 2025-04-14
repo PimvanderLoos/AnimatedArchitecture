@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 
@@ -11,11 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 public interface IMessageable
 {
     /**
-     * Instance of {@link BlackHoleMessageable} that can be used in case messages should not be sent anywhere.
-     */
-    IMessageable NULL = new BlackHoleMessageable();
-
-    /**
      * Sends a message to this object.
      *
      * @param text
@@ -24,73 +19,91 @@ public interface IMessageable
     void sendMessage(Text text);
 
     /**
-     * Sends a message to this object.
+     * Gets the text factory of this messageable.
      *
-     * @param textFactory
-     *     The {@link ITextFactory} to use for creating the {@link Text} object.
-     * @param textType
-     *     The {@link TextType} to use for the message to send.
-     * @param message
-     *     The message to send.
+     * @return The text factory of this messageable.
      */
-    default void sendMessage(ITextFactory textFactory, TextType textType, String message)
+    ITextFactory getTextFactory();
+
+    /**
+     * Creates a new {@link PersonalizedLocalizer} using the localizer and locale of this messageable.
+     *
+     * @return A new {@link PersonalizedLocalizer} object.
+     */
+    PersonalizedLocalizer getPersonalizedLocalizer();
+
+    /**
+     * Creates a new {@link Text} using the text factory of this messageable.
+     *
+     * @return A new {@link Text} object.
+     */
+    default Text newText()
     {
-        sendMessage(textFactory.newText().append(message, textType));
+        return getTextFactory().newText(getPersonalizedLocalizer());
     }
 
     /**
-     * Sends an error message to this object.
+     * Sends a message to this object.
+     * <p>
+     * This is a shortcut for {@link #sendMessage(Text)}.
      *
-     * @param textFactory
-     *     The {@link ITextFactory} to use for creating the {@link Text} object.
-     * @param message
-     *     The error message to send.
+     * @param textType
+     *     The {@link TextType} to use for the message to send.
+     * @param key
+     *     The key of the error message. E.g. {@code constants.error.generic}.
+     * @param args
+     *     The arguments to use for the message.
      */
-    default void sendError(ITextFactory textFactory, String message)
+    default void sendMessage(TextType textType, String key, Text.ArgumentCreator... args)
     {
-        sendMessage(textFactory, TextType.ERROR, message);
+        sendMessage(newText().append(getPersonalizedLocalizer().getMessage(key), textType, args));
+    }
+
+    /**
+     * Sends an error message to this messageable.
+     * <p>
+     * This is a shortcut for {@link #sendMessage(TextType, String, Text.ArgumentCreator...)} with the
+     * {@link TextType#ERROR} type.
+     *
+     * @param key
+     *     The key of the error message. E.g. {@code constants.error.generic}.
+     * @param args
+     *     The arguments to use for the message, if any.
+     */
+    default void sendError(String key, Text.ArgumentCreator... args)
+    {
+        sendMessage(TextType.ERROR, key, args);
     }
 
     /**
      * Sends a success message to this object.
+     * <p>
+     * This is a shortcut for {@link #sendMessage(TextType, String, Text.ArgumentCreator...)} with the
+     * {@link TextType#SUCCESS} type.
      *
-     * @param textFactory
-     *     The {@link ITextFactory} to use for creating the {@link Text} object.
-     * @param message
-     *     The success message to send.
+     * @param key
+     *     The key of the error message. E.g. {@code constants.error.generic}.
+     * @param args
+     *     The arguments to use for the message, if any.
      */
-    default void sendSuccess(ITextFactory textFactory, String message)
+    default void sendSuccess(String key, Text.ArgumentCreator... args)
     {
-        sendMessage(textFactory, TextType.SUCCESS, message);
+        sendMessage(TextType.SUCCESS, key, args);
     }
 
     /**
      * Sends a info message to this object.
+     * <p>
+     * This is a shortcut for {@link #sendMessage(TextType, String, Text.ArgumentCreator...)} with the
+     * {@link TextType#INFO} type.
      *
-     * @param textFactory
-     *     The {@link ITextFactory} to use for creating the {@link Text} object.
-     * @param message
-     *     The info message to send.
+     * @param key
+     *     The key of the error message. E.g. {@code constants.error.generic}.
+     * @param args
+     *     The arguments to use for the message, if any.
      */
-    default void sendInfo(ITextFactory textFactory, String message)
+    default void sendInfo(String key, Text.ArgumentCreator... args)
     {
-        sendMessage(textFactory, TextType.INFO, message);
-    }
-
-    /**
-     * Implementation of {@link IMessageable} that does not send messages anywhere.
-     */
-    @Flogger
-    final class BlackHoleMessageable implements IMessageable
-    {
-        private BlackHoleMessageable()
-        {
-        }
-
-        @Override
-        public void sendMessage(Text text)
-        {
-            log.atFinest().log("Sent to black hole: %s", text);
-        }
+        sendMessage(TextType.INFO, key, args);
     }
 }

@@ -5,13 +5,10 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,15 +31,11 @@ public class SetOpenDirection extends StructureTargetCommand
         @Assisted MovementDirection movementDirection,
         @Assisted boolean sendUpdatedInfo,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         CommandFactory commandFactory)
     {
         super(
             commandSender,
             executor,
-            localizer,
-            textFactory,
             structureRetriever,
             StructureAttribute.OPEN_DIRECTION,
             sendUpdatedInfo,
@@ -61,11 +54,10 @@ public class SetOpenDirection extends StructureTargetCommand
     protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
     {
         final var desc = getRetrievedStructureDescription(retrieverResult);
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.set_open_direction.success"),
-            TextType.SUCCESS,
+        getCommandSender().sendSuccess(
+            "commands.set_open_direction.success",
             arg -> arg.highlight(desc.localizedTypeName()),
-            arg -> arg.highlight(desc.id()))
+            arg -> arg.highlight(desc.id())
         );
     }
 
@@ -74,12 +66,11 @@ public class SetOpenDirection extends StructureTargetCommand
     {
         if (!structure.getType().isValidOpenDirection(movementDirection))
         {
-            getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.set_open_direction.error.invalid_rotation"),
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getMessage(movementDirection.getLocalizationKey())),
-                arg -> arg.highlight(localizer.getStructureType(structure)),
-                arg -> arg.highlight(structure.getBasicInfo()))
+            getCommandSender().sendError(
+                "commands.set_open_direction.error.invalid_rotation",
+                arg -> arg.localizedHighlight(movementDirection.getLocalizationKey()),
+                arg -> arg.localizedHighlight(structure),
+                arg -> arg.highlight(structure.getBasicInfo())
             );
             return CompletableFuture.completedFuture(null);
         }

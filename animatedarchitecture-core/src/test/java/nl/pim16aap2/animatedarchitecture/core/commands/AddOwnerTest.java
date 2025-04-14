@@ -2,10 +2,8 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -27,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.assertThatMessageable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -54,9 +53,7 @@ class AddOwnerTest
     void init()
         throws NoSuchMethodException
     {
-        assistedFactoryMocker = new AssistedFactoryMocker<>(AddOwner.class, AddOwner.IFactory.class)
-            .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory())
-            .setMock(DatabaseManager.class, databaseManager);
+        assistedFactoryMocker = AssistedFactoryMocker.injectMocksFromTestClass(AddOwner.IFactory.class, this);
 
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
     }
@@ -108,8 +105,7 @@ class AddOwnerTest
     @Test
     void validateInput_shouldThrowExceptionForCreatorTarget()
     {
-        final AddOwner addOwner =
-            addOwnerWithDefaults(populateTextFactoryAndLocalizer(assistedFactoryMocker), PermissionLevel.CREATOR);
+        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.CREATOR);
 
         final InvalidCommandInputException exception =
             assertThrows(InvalidCommandInputException.class, addOwner::validateInput);
@@ -120,8 +116,7 @@ class AddOwnerTest
     @Test
     void validateInput_shouldThrowExceptionForNoPermissionInput()
     {
-        final AddOwner addOwner =
-            addOwnerWithDefaults(populateTextFactoryAndLocalizer(assistedFactoryMocker), PermissionLevel.NO_PERMISSION);
+        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.NO_PERMISSION);
 
         assertThrows(InvalidCommandInputException.class, addOwner::validateInput);
     }
@@ -129,9 +124,7 @@ class AddOwnerTest
     @Test
     void isAllowed_shouldRespectBypassForNonOwnerPlayerCommandSender()
     {
-        final AddOwner addOwner =
-            addOwnerWithDefaults(populateTextFactoryAndLocalizer(assistedFactoryMocker), PermissionLevel.ADMIN);
-        UnitTestUtil.setStructureLocalization(structure);
+        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.ADMIN);
 
         when(commandSender.isPlayer()).thenReturn(true);
 
@@ -151,14 +144,11 @@ class AddOwnerTest
     @Test
     void isAllowed_shouldThrowExceptionForNonOwnerCommandSender()
     {
-        final AddOwner addOwner =
-            addOwnerWithDefaults(populateTextFactoryAndLocalizer(assistedFactoryMocker), PermissionLevel.ADMIN);
+        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.ADMIN);
 
         when(commandSender.isPlayer()).thenReturn(true);
         when(commandSender.getPlayer()).thenReturn(Optional.of(commandSender));
         when(structure.getOwner(target)).thenReturn(Optional.empty());
-
-        UnitTestUtil.setStructureLocalization(structure);
 
         final NoAccessToStructureCommandException exception = assertThrows(
             NoAccessToStructureCommandException.class,
@@ -171,9 +161,7 @@ class AddOwnerTest
     @Test
     void isAllowed_shouldThrowExceptionWhenTargetingPrimeOwnerWithBypass()
     {
-        final AddOwner addOwner =
-            addOwnerWithDefaults(populateTextFactoryAndLocalizer(assistedFactoryMocker), PermissionLevel.ADMIN);
-
+        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.ADMIN);
         final StructureOwner targetOwner = new StructureOwner(1L, PermissionLevel.CREATOR, mock());
 
         when(structure.getOwner(target)).thenReturn(Optional.of(targetOwner));
@@ -191,9 +179,7 @@ class AddOwnerTest
     @Test
     void isAllowed_shouldThrowExceptionWhenTargetingPrimeOwnerForNonPlayerCommandSender()
     {
-        final AddOwner addOwner =
-            addOwnerWithDefaults(populateTextFactoryAndLocalizer(assistedFactoryMocker), PermissionLevel.ADMIN);
-
+        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.ADMIN);
         final StructureOwner targetOwner = new StructureOwner(1L, PermissionLevel.CREATOR, mock());
 
         when(structure.getOwner(target)).thenReturn(Optional.of(targetOwner));
@@ -211,12 +197,8 @@ class AddOwnerTest
     @Test
     void isAllowed_shouldThrowExceptionWhenCommandSenderDoesNotHaveAddOwnerPermission()
     {
-        final AddOwner addOwner =
-            addOwnerWithDefaults(populateTextFactoryAndLocalizer(assistedFactoryMocker), PermissionLevel.ADMIN);
-
+        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.ADMIN);
         final StructureOwner senderOwner = new StructureOwner(1L, PermissionLevel.USER, mock());
-
-        UnitTestUtil.setStructureLocalization(structure);
 
         when(commandSender.isPlayer()).thenReturn(true);
         when(commandSender.getPlayer()).thenReturn(Optional.of(commandSender));
@@ -235,9 +217,7 @@ class AddOwnerTest
     @Test
     void isAllowed_shouldThrowExceptionWhenAssigningPermissionBelowOrEqualToSelf()
     {
-        final AddOwner addOwner =
-            addOwnerWithDefaults(populateTextFactoryAndLocalizer(assistedFactoryMocker), PermissionLevel.ADMIN);
-
+        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.ADMIN);
         final StructureOwner senderOwner = new StructureOwner(1L, PermissionLevel.ADMIN, mock());
 
         when(commandSender.isPlayer()).thenReturn(true);
@@ -259,7 +239,6 @@ class AddOwnerTest
     void isAllowed_shouldThrowExceptionWhenTargetAlreadyHasOwnershipBelowCommandSender()
     {
         final AddOwner addOwner = addOwnerWithDefaults(PermissionLevel.ADMIN);
-
         final StructureOwner senderOwner = new StructureOwner(1L, PermissionLevel.ADMIN, mock());
         final StructureOwner targetOwner = new StructureOwner(1L, PermissionLevel.USER, mock());
 
@@ -280,9 +259,7 @@ class AddOwnerTest
     @Test
     void isAllowed_shouldThrowExceptionWhenTargetAlreadyHasSamePermission()
     {
-        final AddOwner addOwner =
-            addOwnerWithDefaults(populateTextFactoryAndLocalizer(assistedFactoryMocker), PermissionLevel.USER);
-
+        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.USER);
         final StructureOwner senderOwner = new StructureOwner(1L, PermissionLevel.ADMIN, mock());
         final StructureOwner targetOwner = new StructureOwner(1L, PermissionLevel.USER, mock());
 
@@ -291,8 +268,6 @@ class AddOwnerTest
 
         when(structure.getOwner(commandSender)).thenReturn(Optional.of(senderOwner));
         when(structure.getOwner(target)).thenReturn(Optional.of(targetOwner));
-
-        UnitTestUtil.setStructureLocalization(structure);
 
         final NoAccessToStructureCommandException exception = assertThrows(
             NoAccessToStructureCommandException.class,
@@ -316,33 +291,46 @@ class AddOwnerTest
         assertDoesNotThrow(() -> addOwner.isAllowed(structure, false));
     }
 
-//    @Test
-//    void isAllowed
-
-
     @Test
     void performAction_shouldCallDatabaseManagerAndHandleResult()
         throws ExecutionException, InterruptedException, TimeoutException
     {
-        final AddOwner addOwner = addOwnerWithDefaults(
-            populateTextFactoryAndLocalizer(assistedFactoryMocker),
-            PermissionLevel.USER
-        );
+        // Setup
+        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.USER);
 
+        final String targetName = "target-name";
+        when(target.getName()).thenReturn(targetName);
+
+        UnitTestUtil.setPersonalizedLocalizer(commandSender, target);
         UnitTestUtil.setStructureLocalization(structure);
 
+        when(structure.getUid()).thenReturn(12L);
+        when(structure.getName()).thenReturn("structure-name");
         when(commandSender.getPlayer()).thenReturn(Optional.of(commandSender));
-
         when(databaseManager
             .addOwner(structure, target, PermissionLevel.USER, commandSender))
             .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
+        // execute
         addOwner
             .performAction(structure)
             .get(1, TimeUnit.SECONDS);
 
-        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher("commands.add_owner.success"));
-        verify(target).sendMessage(UnitTestUtil.textArgumentMatcher("commands.add_owner.added_player_notification"));
+        // Verify
+        assertThatMessageable(target)
+            .sentInfoMessage("commands.add_owner.added_player_notification")
+            .withArgs(
+                PermissionLevel.USER.getTranslationKey(),
+                "StructureType",
+                "structure-name (12)"
+            );
+        assertThatMessageable(commandSender)
+            .sentSuccessMessage("commands.add_owner.success")
+            .withArgs(
+                targetName,
+                PermissionLevel.USER.getTranslationKey(),
+                "StructureType"
+            );
 
         verify(databaseManager).addOwner(structure, target, PermissionLevel.USER, commandSender);
     }
@@ -350,15 +338,35 @@ class AddOwnerTest
     @Test
     void handleDatabaseActionSuccess_shouldSendCorrectSuccessMessages()
     {
-        final AddOwner addOwner =
-            addOwnerWithDefaults(populateTextFactoryAndLocalizer(assistedFactoryMocker), PermissionLevel.USER);
-
+        // Setup
+        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.USER);
+        UnitTestUtil.setPersonalizedLocalizer(commandSender, target);
         UnitTestUtil.setStructureLocalization(structure);
 
+        final String targetName = "target-name";
+        when(target.getName()).thenReturn(targetName);
+
+        when(structure.getName()).thenReturn("structure-name");
+        when(structure.getUid()).thenReturn(12L);
+
+        // Execute
         addOwner.handleDatabaseActionSuccess(structure);
 
-        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher("commands.add_owner.success"));
-        verify(target).sendMessage(UnitTestUtil.textArgumentMatcher("commands.add_owner.added_player_notification"));
+        // Verify
+        assertThatMessageable(target)
+            .sentInfoMessage("commands.add_owner.added_player_notification")
+            .withArgs(
+                PermissionLevel.USER.getTranslationKey(),
+                "StructureType",
+                "structure-name (12)"
+            );
+        assertThatMessageable(commandSender)
+            .sentSuccessMessage("commands.add_owner.success")
+            .withArgs(
+                targetName,
+                PermissionLevel.USER.getTranslationKey(),
+                "StructureType"
+            );
     }
 
     @Test
@@ -401,13 +409,5 @@ class AddOwnerTest
     {
         final var factory = assistedFactoryMocker.getFactory();
         return factory.newAddOwner(commandSender, structureRetriever, target, permissionLevel);
-    }
-
-    private AssistedFactoryMocker<AddOwner, AddOwner.IFactory> populateTextFactoryAndLocalizer(
-        AssistedFactoryMocker<AddOwner, AddOwner.IFactory> assistedFactoryMocker)
-    {
-        return assistedFactoryMocker
-            .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
-            .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory());
     }
 }

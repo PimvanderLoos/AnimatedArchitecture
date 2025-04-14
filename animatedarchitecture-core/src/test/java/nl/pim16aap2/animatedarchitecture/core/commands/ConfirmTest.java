@@ -3,8 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
@@ -65,10 +63,8 @@ class ConfirmTest
         when(toolUser.handleInput(true)).thenReturn(CompletableFuture.completedFuture(null));
 
         factory = new AssistedFactoryMocker<>(Confirm.class, Confirm.IFactory.class, Mockito.CALLS_REAL_METHODS)
-            .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
-            .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory())
-            .setMock(ToolUserManager.class, toolUserManager)
-            .setMock(IExecutor.class, executor)
+            .injectParameter(ToolUserManager.class, toolUserManager)
+            .injectParameter(IExecutor.class, executor)
             .getFactory();
     }
 
@@ -91,6 +87,7 @@ class ConfirmTest
         Mockito.verify(toolUserManager).getToolUser(uuid);
         Mockito.verify(toolUser).handleInput(true);
         Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any(Text.class));
+        UnitTestUtil.initMessageable(commandSender);
 
         when(toolUserManager.getToolUser(Mockito.any(UUID.class))).thenReturn(Optional.empty());
         Assertions.assertDoesNotThrow(() -> factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));

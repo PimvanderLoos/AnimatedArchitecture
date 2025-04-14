@@ -27,8 +27,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
-import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
-import nl.pim16aap2.animatedarchitecture.core.text.TextArgumentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Procedure;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
@@ -54,7 +52,6 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 /**
  * Represents a specialization of the {@link ToolUser} that is used for creating new {@link Structure}s.
@@ -230,15 +227,14 @@ public abstract class Creator extends ToolUser
 
         this.name = name;
 
-        player.sendMessage(textFactory.newText().append(
-            localizer.getMessage("creator.base.init"),
-            TextType.INFO,
+        player.sendInfo(
+            "creator.base.init",
             arg -> arg.clickable(
-                "/AnimatedArchitecture cancel", TextType.CLICKABLE_REFUSE, "/AnimatedArchitecture cancel"))
+                "/AnimatedArchitecture cancel", TextType.CLICKABLE_REFUSE, "/AnimatedArchitecture cancel")
         );
 
         factoryProvideName = stepFactory
-            .stepName("SET_NAME")
+            .stepName(localizer, "SET_NAME")
             .stepExecutor(new StepExecutorString(this::completeNamingStep))
             .propertyName(localizer.getMessage("creator.base.property.type"))
             .propertyValueSupplier(this::getName)
@@ -247,11 +243,11 @@ public abstract class Creator extends ToolUser
                 localizer.getMessage("creator.base.give_name"), TextType.SUCCESS, getStructureArg()));
 
         factoryProvideFirstPos = stepFactory
-            .stepName("SET_FIRST_POS")
+            .stepName(localizer, "SET_FIRST_POS")
             .stepExecutor(new AsyncStepExecutor<>(ILocation.class, this::provideFirstPos));
 
         factoryProvideSecondPos = stepFactory
-            .stepName("SET_SECOND_POS")
+            .stepName(localizer, "SET_SECOND_POS")
             .propertyName(localizer.getMessage("creator.base.property.cuboid"))
             .propertyValueSupplier(() ->
             {
@@ -262,14 +258,14 @@ public abstract class Creator extends ToolUser
             .stepExecutor(new AsyncStepExecutor<>(ILocation.class, this::provideSecondPos));
 
         factoryProvideRotationPointPos = stepFactory
-            .stepName("SET_ROTATION_POINT")
+            .stepName(localizer, "SET_ROTATION_POINT")
             .propertyName(localizer.getMessage("creator.base.property.rotation_point"))
             .propertyValueSupplier(() -> formatVector(getRequiredProperty(Property.ROTATION_POINT)))
             .updatable(true)
             .stepExecutor(new StepExecutorLocation(this::completeSetRotationPointStep));
 
         factoryProvidePowerBlockPos = stepFactory
-            .stepName("SET_POWER_BLOCK_POS")
+            .stepName(localizer, "SET_POWER_BLOCK_POS")
             .messageKey("creator.base.set_power_block")
             .propertyName(localizer.getMessage("creator.base.property.power_block_position"))
             .propertyValueSupplier(() -> formatVector(getPowerBlock()))
@@ -277,7 +273,7 @@ public abstract class Creator extends ToolUser
             .stepExecutor(new AsyncStepExecutor<>(ILocation.class, this::completeSetPowerBlockStep));
 
         factoryProvideOpenStatus = stepFactory
-            .stepName("SET_OPEN_STATUS")
+            .stepName(localizer, "SET_OPEN_STATUS")
             .stepExecutor(new StepExecutorBoolean(this::completeSetOpenStatusStep))
             .stepPreparation(this::prepareSetOpenStatus)
             .propertyName(localizer.getMessage("creator.base.property.open_status"))
@@ -289,7 +285,7 @@ public abstract class Creator extends ToolUser
             .textSupplier(this::setOpenStatusTextSupplier);
 
         factoryProvideOpenDir = stepFactory
-            .stepName("SET_OPEN_DIRECTION")
+            .stepName(localizer, "SET_OPEN_DIRECTION")
             .stepExecutor(new StepExecutorOpenDirection(this::completeSetOpenDirStep))
             .stepPreparation(this::prepareSetOpenDirection)
             .propertyName(localizer.getMessage("creator.base.property.open_direction"))
@@ -302,20 +298,20 @@ public abstract class Creator extends ToolUser
             .textSupplier(this::setOpenDirectionTextSupplier);
 
         factoryReviewResult = stepFactory
-            .stepName("REVIEW_RESULT")
+            .stepName(localizer, "REVIEW_RESULT")
             .stepExecutor(new StepExecutorBoolean(ignored -> true))
             .stepPreparation(this::prepareReviewResult)
             .textSupplier(this::reviewResultTextSupplier);
 
         factoryConfirmPrice = stepFactory
-            .stepName("CONFIRM_STRUCTURE_PRICE")
+            .stepName(localizer, "CONFIRM_STRUCTURE_PRICE")
             .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
             .skipCondition(this::skipConfirmPrice)
             .textSupplier(this::confirmPriceTextSupplier)
             .implicitNextStep(false);
 
         factoryCompleteProcess = stepFactory
-            .stepName("COMPLETE_CREATION_PROCESS")
+            .stepName(localizer, "COMPLETE_CREATION_PROCESS")
             .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
             .textSupplier(text -> text.append(
                 localizer.getMessage("creator.base.success"), TextType.SUCCESS, getStructureArg()))
@@ -386,9 +382,9 @@ public abstract class Creator extends ToolUser
      *
      * @return The function that creates a new structure arg.
      */
-    protected final Function<TextArgumentFactory, TextArgument> getStructureArg()
+    protected final Text.ArgumentCreator getStructureArg()
     {
-        return arg -> arg.highlight(localizer.getStructureType(getStructureType()));
+        return arg -> arg.localizedHighlight(getStructureType());
     }
 
     /**
@@ -443,7 +439,7 @@ public abstract class Creator extends ToolUser
     protected final void handleExceptional(Throwable ex, String context)
     {
         log.atSevere().withCause(ex).log("Failed to %s for Creator '%s'", context, this);
-        getPlayer().sendError(textFactory, localizer.getMessage("creator.base.error.creation_cancelled"));
+        getPlayer().sendError("creator.base.error.creation_cancelled");
         this.abort();
     }
 
@@ -529,8 +525,7 @@ public abstract class Creator extends ToolUser
         catch (Exception e)
         {
             log.atSevere().withCause(e).log("Failed to create structure preview!");
-            getPlayer().sendMessage(
-                textFactory.newText().append(localizer.getMessage("constants.error.generic"), TextType.ERROR));
+            getPlayer().sendError("constants.error.generic");
         }
         this.processIsUpdatable = true;
     }
@@ -570,8 +565,13 @@ public abstract class Creator extends ToolUser
     protected final void giveTool(String nameKey, String loreKey)
     {
         super.giveTool(
-            nameKey, loreKey, textFactory.newText().append(
-                localizer.getMessage("creator.base.received_tool"), TextType.INFO, getStructureArg()));
+            nameKey,
+            loreKey,
+            getPlayer().newText().append(
+                localizer.getMessage("creator.base.received_tool"),
+                TextType.INFO,
+                getStructureArg())
+        );
     }
 
     /**
@@ -597,11 +597,10 @@ public abstract class Creator extends ToolUser
         if (!StringUtil.isValidStructureName(str))
         {
             log.atFine().log("Invalid name '%s' for selected Creator: %s", str, this);
-            getPlayer().sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.base.error.invalid_name"),
-                TextType.ERROR,
+            getPlayer().sendError(
+                "creator.base.error.invalid_name",
                 arg -> arg.highlight(str),
-                arg -> arg.highlight(localizer.getStructureType(getStructureType())))
+                arg -> arg.localizedHighlight(getStructureType())
             );
             return false;
         }
@@ -656,12 +655,11 @@ public abstract class Creator extends ToolUser
         final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.STRUCTURE_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
-            getPlayer().sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.base.error.area_too_big"),
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(getStructureType())),
+            getPlayer().sendError(
+                "creator.base.error.area_too_big",
+                arg -> arg.localizedHighlight(getStructureType()),
                 arg -> arg.highlight(newCuboid.getVolume()),
-                arg -> arg.highlight(sizeLimit.getAsInt()))
+                arg -> arg.highlight(sizeLimit.getAsInt())
             );
             return Optional.empty();
         }
@@ -724,19 +722,16 @@ public abstract class Creator extends ToolUser
     {
         if (!confirm)
         {
-            getPlayer().sendMessage(
-                textFactory, TextType.INFO,
-                localizer.getMessage("creator.base.error.creation_cancelled"));
+            getPlayer().sendError("creator.base.error.creation_cancelled");
             abort();
             return true;
         }
         if (!buyStructure())
         {
-            getPlayer().sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.base.error.insufficient_funds"),
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(getStructureType())),
-                arg -> arg.highlight(getPrice().orElse(0)))
+            getPlayer().sendError(
+                "creator.base.error.insufficient_funds",
+                arg -> arg.localizedHighlight(getStructureType()),
+                arg -> arg.highlight(getPrice().orElse(0))
             );
             abort();
             return true;
@@ -772,10 +767,9 @@ public abstract class Creator extends ToolUser
     {
         if (!getValidOpenDirections().contains(direction))
         {
-            getPlayer().sendMessage(textFactory.newText().append(
-                localizer.getMessage("creator.base.error.invalid_option"),
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getMessage(direction.getLocalizationKey())))
+            getPlayer().sendError(
+                "creator.base.error.invalid_option",
+                arg -> arg.localizedHighlight(direction.getLocalizationKey())
             );
             prepareSetOpenDirection();
             return false;
@@ -806,8 +800,7 @@ public abstract class Creator extends ToolUser
         if (Util.requireNonNull(world, "world").worldName().equals(targetWorld.worldName()))
             return true;
 
-        getPlayer().sendError(
-            textFactory, localizer.getMessage("creator.base.error.world_mismatch"));
+        getPlayer().sendError("creator.base.error.world_mismatch");
 
         log.atFine().log("World mismatch in ToolUser for player: %s", getPlayer());
         return false;
@@ -827,22 +820,20 @@ public abstract class Creator extends ToolUser
             {
                 if (result.cancelled())
                 {
-                    getPlayer().sendError(
-                        textFactory, localizer.getMessage("creator.base.error.creation_cancelled"));
+                    getPlayer().sendError("creator.base.error.creation_cancelled");
                     return;
                 }
 
                 if (result.structure().isEmpty())
                 {
-                    getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
+                    getPlayer().sendError("constants.error.generic");
                     log.atSevere().log("Failed to insert structure after creation!");
                 }
             })
             .orTimeout(30, TimeUnit.SECONDS)
             .handleExceptional(ex ->
             {
-                getPlayer().sendError(
-                    textFactory, localizer.getMessage("constants.error.generic"));
+                getPlayer().sendError("constants.error.generic");
                 log.atSevere().withCause(ex).log("Failed to insert structure after creation!");
             });
     }
@@ -922,10 +913,9 @@ public abstract class Creator extends ToolUser
         final int distance = cuboid.getDistanceToPoint(pos);
         if (distance == -1)
         {
-            getPlayer().sendMessage(textFactory.newText().append(
+            getPlayer().sendError(
                 "creator.base.error.powerblock_inside_structure",
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(getStructureType())))
+                arg -> arg.localizedHighlight(getStructureType())
             );
             return false;
         }
@@ -934,14 +924,12 @@ public abstract class Creator extends ToolUser
         if (distanceLimit.isEmpty() || distance <= distanceLimit.getAsInt())
             return true;
 
-        getPlayer().sendMessage(textFactory.newText().append(
+        getPlayer().sendError(
             "creator.base.error.powerblock_too_far",
-            TextType.ERROR,
-            arg -> arg.highlight(localizer.getStructureType(getStructureType())),
+            arg -> arg.localizedHighlight(getStructureType()),
             arg -> arg.highlight(distance),
-            arg -> arg.highlight(distanceLimit.getAsInt()))
+            arg -> arg.highlight(distanceLimit.getAsInt())
         );
-
         return false;
     }
 
@@ -991,8 +979,7 @@ public abstract class Creator extends ToolUser
         if (!Util.requireNonNull(cuboid, "cuboid").isInRange(loc, 1))
         {
             log.atFinest().log("Rotation point not in range of cuboid for player: %s", getPlayer());
-            getPlayer().sendError(
-                textFactory, localizer.getMessage("creator.base.error.invalid_rotation_point"));
+            getPlayer().sendError("creator.base.error.invalid_rotation_point");
             return false;
         }
 
@@ -1006,7 +993,7 @@ public abstract class Creator extends ToolUser
             localizer.getMessage("creator.base.set_open_status"),
             TextType.INFO,
 
-            arg -> arg.highlight(localizer.getStructureType(getStructureType())),
+            arg -> arg.localizedHighlight(getStructureType()),
 
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.open"),
@@ -1026,7 +1013,7 @@ public abstract class Creator extends ToolUser
         text.append(
             localizer.getMessage("creator.base.set_open_direction") + "\n",
             TextType.INFO,
-            arg -> arg.highlight(localizer.getStructureType(getStructureType()))
+            arg -> arg.localizedHighlight(getStructureType())
         );
 
         getValidOpenDirections()
@@ -1048,11 +1035,11 @@ public abstract class Creator extends ToolUser
         text.append(
             localizer.getMessage("creator.base.property.type") + "\n",
             TextType.INFO,
-            arg -> arg.highlight(localizer.getStructureType(getStructureType()))
+            arg -> arg.localizedHighlight(getStructureType())
         );
 
         for (final Step step : getAllSteps())
-            step.getPropertyText(textFactory).ifPresent(property -> text.append(property).append('\n'));
+            step.appendPropertyText(getPlayer().newText());
 
         text.append(
             localizer.getMessage("creator.base.review_result.footer"),
@@ -1077,7 +1064,7 @@ public abstract class Creator extends ToolUser
             localizer.getMessage("creator.base.confirm_structure_price"),
             TextType.INFO,
 
-            arg -> arg.info(localizer.getStructureType(getStructureType())),
+            arg -> arg.localizedInfo(getStructureType()),
             arg -> arg.highlight(getPrice().orElse(0)),
 
             arg -> arg.clickable(

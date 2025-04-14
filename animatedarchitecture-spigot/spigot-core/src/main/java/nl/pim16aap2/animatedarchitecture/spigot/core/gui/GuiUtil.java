@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 
 import de.themoep.inventorygui.InventoryGui;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Deque;
@@ -43,7 +43,7 @@ final class GuiUtil
      * @param player
      *     The player whose guis to close.
      */
-    public static void closeAllGuis(PlayerSpigot player)
+    public static void closeAllGuis(WrappedPlayer player)
     {
         final Deque<InventoryGui> history = InventoryGui.getHistory(player.getBukkitPlayer());
         @Nullable InventoryGui finalGui = null;
@@ -75,7 +75,7 @@ final class GuiUtil
      * @param player
      *     The player whose guis to close.
      */
-    public static void closeGuiPage(InventoryGui guiPage, PlayerSpigot player)
+    public static void closeGuiPage(InventoryGui guiPage, WrappedPlayer player)
     {
         final Deque<InventoryGui> history = InventoryGui.getHistory(player.getBukkitPlayer());
         while (!history.isEmpty())

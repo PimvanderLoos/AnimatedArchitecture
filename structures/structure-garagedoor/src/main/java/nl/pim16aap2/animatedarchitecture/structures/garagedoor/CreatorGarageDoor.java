@@ -107,7 +107,7 @@ public class CreatorGarageDoor extends Creator
             return super.provideSecondPos(loc);
         }
 
-        getPlayer().sendError(textFactory, localizer.getMessage("creator.base.second_pos_not_2d"));
+        getPlayer().sendError("creator.base.second_pos_not_2d");
         return CompletableFuture.completedFuture(false);
     }
 

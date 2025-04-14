@@ -3,7 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
@@ -24,10 +23,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.AdditionalAnswers.delegatesTo;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(1)
@@ -38,8 +36,6 @@ class SetBlocksToMoveDelayedTest
     @Spy
     private DelayedCommandInputManager delayedCommandInputManager =
         new DelayedCommandInputManager(mock(DebuggableRegistry.class));
-
-    private final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
     @Mock
     private IExecutor executor;
@@ -79,7 +75,6 @@ class SetBlocksToMoveDelayedTest
         DelayedCommandTest.initInputRequestFactory(
             inputRequestFactory,
             executor,
-            localizer,
             delayedCommandInputManager
         );
 
@@ -96,6 +91,7 @@ class SetBlocksToMoveDelayedTest
     void normal()
     {
         final SetBlocksToMoveDelayed setBlocksToMoveDelayed = new SetBlocksToMoveDelayed(context, inputRequestFactory);
+        UnitTestUtil.initMessageable(commandSender);
 
         final CompletableFuture<?> result0 = setBlocksToMoveDelayed.runDelayed(commandSender, structureRetriever);
         final CompletableFuture<?> result1 = setBlocksToMoveDelayed.provideDelayedInput(commandSender, 10);

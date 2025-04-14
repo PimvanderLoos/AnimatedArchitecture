@@ -1,6 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.text;
 
 import lombok.Getter;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -10,10 +13,26 @@ public final class TextArgumentFactory
 {
     @Getter
     private final ITextComponentFactory textComponentFactory;
+    private final @Nullable PersonalizedLocalizer personalizedLocalizer;
 
-    public TextArgumentFactory(ITextComponentFactory textComponentFactory)
+    public TextArgumentFactory(
+        ITextComponentFactory textComponentFactory,
+        @Nullable PersonalizedLocalizer personalizedLocalizer)
     {
         this.textComponentFactory = textComponentFactory;
+        this.personalizedLocalizer = personalizedLocalizer;
+    }
+
+    /**
+     * Localizes the provided key using the {@link PersonalizedLocalizer} of this factory.
+     *
+     * @param key
+     *     The key to localize.
+     * @return The localized key or the key itself if the localizer is null.
+     */
+    public String localized(String key)
+    {
+        return personalizedLocalizer == null ? key : personalizedLocalizer.getMessage(key);
     }
 
     /**
@@ -48,6 +67,45 @@ public final class TextArgumentFactory
     }
 
     /**
+     * Shortcut for localizing a String using {@link #localized(String)} and creating a new {@link TextArgument} with a
+     * {@link TextComponent} for the {@link TextType#HIGHLIGHT} text type.
+     *
+     * @param key
+     *     The key to localize and whose value to highlight.
+     * @return The new TextArgument.
+     */
+    public TextArgument localizedHighlight(String key)
+    {
+        return highlight(localized(key));
+    }
+
+    /**
+     * Shortcut for localizing a structure type using {@link #localized(String)} and creating a new {@link TextArgument}
+     * with a {@link TextComponent} for the {@link TextType#HIGHLIGHT} text type.
+     *
+     * @param structureType
+     *     The structure type to localize and highlight.
+     * @return The new TextArgument.
+     */
+    public TextArgument localizedHighlight(StructureType structureType)
+    {
+        return highlight(structureType.getLocalizationKey());
+    }
+
+    /**
+     * Shortcut for localizing a structure type using {@link #localized(String)} and creating a new {@link TextArgument}
+     * with a {@link TextComponent} for the {@link TextType#HIGHLIGHT} text type.
+     *
+     * @param structure
+     *     The structure whose type to localize and highlight.
+     * @return The new TextArgument.
+     */
+    public TextArgument localizedHighlight(IStructureConst structure)
+    {
+        return localizedHighlight(structure.getType());
+    }
+
+    /**
      * Shortcut for creating a new {@link TextArgument} with a {@link TextComponent} for the {@link TextType#INFO} text
      * type.
      * <p>
@@ -60,6 +118,45 @@ public final class TextArgumentFactory
     public TextArgument info(@Nullable Object argument)
     {
         return newTextArgument(argument, TextType.INFO);
+    }
+
+    /**
+     * Shortcut for localizing a String using {@link #localized(String)} and creating a new {@link TextArgument} with a
+     * {@link TextComponent} for the {@link TextType#INFO} text type.
+     *
+     * @param key
+     *     The key to localize and whose value to info.
+     * @return The new TextArgument.
+     */
+    public TextArgument localizedInfo(String key)
+    {
+        return info(localized(key));
+    }
+
+    /**
+     * Shortcut for localizing a structure type using {@link #localized(String)} and creating a new {@link TextArgument}
+     * with a {@link TextComponent} for the {@link TextType#INFO} text type.
+     *
+     * @param structureType
+     *     The structure type to localize and info.
+     * @return The new TextArgument.
+     */
+    public TextArgument localizedInfo(StructureType structureType)
+    {
+        return info(structureType.getLocalizationKey());
+    }
+
+    /**
+     * Shortcut for localizing a structure type using {@link #localized(String)} and creating a new {@link TextArgument}
+     * with a {@link TextComponent} for the {@link TextType#INFO} text type.
+     *
+     * @param structure
+     *     The structure whose type to localize and info.
+     * @return The new TextArgument.
+     */
+    public TextArgument localizedInfo(IStructureConst structure)
+    {
+        return localizedInfo(structure.getType());
     }
 
     /**

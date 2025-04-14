@@ -7,6 +7,8 @@ import org.mockito.Mockito;
 
 import java.util.concurrent.CompletableFuture;
 
+import static org.mockito.Mockito.*;
+
 class CommandTestingUtil
 {
     public static final PlayerData playerData = Mockito.mock(PlayerData.class);
@@ -35,10 +37,10 @@ class CommandTestingUtil
      */
     public static void initCommandSenderPermissions(ICommandSender commandSender, boolean userPerm, boolean adminPerm)
     {
-        Mockito.doReturn(CompletableFuture.completedFuture(userPerm))
-            .when(commandSender).hasPermission(Mockito.anyString());
+        lenient().doReturn(CompletableFuture.completedFuture(userPerm))
+            .when(commandSender).hasPermission(anyString());
 
-        Mockito.doReturn(CompletableFuture.completedFuture(new PermissionsStatus(userPerm, adminPerm)))
-            .when(commandSender).hasPermission(Mockito.any(CommandDefinition.class));
+        lenient().doReturn(CompletableFuture.completedFuture(new PermissionsStatus(userPerm, adminPerm)))
+            .when(commandSender).hasPermission(any(CommandDefinition.class));
     }
 }

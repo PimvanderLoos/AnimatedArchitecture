@@ -21,7 +21,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 
@@ -163,12 +162,11 @@ public class StructureAnimationRequest
             ? "structure_action.open.error.type_has_no_open_status"
             : "structure_action.close.error.type_has_no_open_status";
 
-        messageReceiver.sendMessage(textFactory.newText().append(
-            localizer.getMessage(errorKey),
-            TextType.ERROR,
-            arg -> arg.highlight(localizer.getStructureType(structure.getType())),
+        messageReceiver.sendError(
+            errorKey,
+            arg -> arg.localizedHighlight(structure.getType()),
             arg -> arg.highlight(structure.getName())
-        ));
+        );
 
         return false;
     }
@@ -216,8 +214,7 @@ public class StructureAnimationRequest
          *     The cause of the movement.
          * @param messageReceiver
          *     The receiver for all messages related to the toggle. When no player is available, this should usually be
-         *     the server (See {@link IAnimatedArchitecturePlatform#getServer()}) or
-         *     {@link IMessageable.BlackHoleMessageable}.
+         *     the server (See {@link IAnimatedArchitecturePlatform#getServer()}).
          * @param time
          *     The duration of the animation in seconds. May be null to use the default time.
          * @param skipAnimation

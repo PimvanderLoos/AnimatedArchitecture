@@ -52,7 +52,7 @@ public class AddOwnerDelayed extends DelayedCommand<AddOwnerDelayed.DelayedInput
     @Override
     protected String inputRequestMessage(ICommandSender commandSender, StructureRetriever structureRetriever)
     {
-        return localizer.getMessage("commands.add_owner.delayed.init");
+        return commandSender.getPersonalizedLocalizer().getMessage("commands.add_owner.delayed.init");
     }
 
     /**

@@ -3,8 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -26,8 +24,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(1)
@@ -41,7 +39,7 @@ class DeleteTest
     @Mock
     private DatabaseManager databaseManager;
 
-    private StructureRetriever doorRetriever;
+    private StructureRetriever structureRetriever;
 
     @Mock
     private Structure door;
@@ -65,13 +63,11 @@ class DeleteTest
 
         when(door.isOwner(any(UUID.class), any())).thenReturn(true);
         when(door.isOwner(any(IPlayer.class), any())).thenReturn(true);
-        doorRetriever = StructureRetrieverFactory.ofStructure(door);
+        structureRetriever = StructureRetrieverFactory.ofStructure(door);
 
         when(databaseManager
             .deleteStructure(any(), any()))
             .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
-
-        final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         when(factory
             .newDelete(any(ICommandSender.class), any(StructureRetriever.class)))
@@ -79,8 +75,6 @@ class DeleteTest
                 invoc.getArgument(0, ICommandSender.class),
                 invoc.getArgument(1, StructureRetriever.class),
                 executor,
-                localizer,
-                ITextFactory.getSimpleTextFactory(),
                 databaseManager)
             );
     }
@@ -89,7 +83,7 @@ class DeleteTest
     void testServer()
     {
         final IServer server = mock(IServer.class, Answers.CALLS_REAL_METHODS);
-        assertDoesNotThrow(() -> factory.newDelete(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
+        assertDoesNotThrow(() -> factory.newDelete(server, structureRetriever).run().get(1, TimeUnit.SECONDS));
         verify(databaseManager).deleteStructure(door, null);
     }
 
@@ -98,27 +92,28 @@ class DeleteTest
     {
         // No permissions, so not allowed.
         CommandTestingUtil.initCommandSenderPermissions(commandSender, false, false);
+        UnitTestUtil.initMessageable(commandSender);
         assertDoesNotThrow(
-            () -> factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
+            () -> factory.newDelete(commandSender, structureRetriever).run().get(1, TimeUnit.SECONDS));
         verify(databaseManager, never()).deleteStructure(door, commandSender);
 
         // Has user permission, but not an owner, so not allowed.
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, false);
         assertDoesNotThrow(
-            () -> factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
+            () -> factory.newDelete(commandSender, structureRetriever).run().get(1, TimeUnit.SECONDS));
         verify(databaseManager, never()).deleteStructure(door, commandSender);
 
         // Has user permission, and is owner, so allowed.
         when(door.getOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.structureOwnerCreator));
         assertDoesNotThrow(
-            () -> factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
+            () -> factory.newDelete(commandSender, structureRetriever).run().get(1, TimeUnit.SECONDS));
         verify(databaseManager, times(1)).deleteStructure(door, commandSender);
 
         // Admin permission, so allowed, despite not being owner.
         when(door.getOwner(commandSender)).thenReturn(Optional.empty());
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
         assertDoesNotThrow(
-            () -> factory.newDelete(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
+            () -> factory.newDelete(commandSender, structureRetriever).run().get(1, TimeUnit.SECONDS));
         verify(databaseManager, times(2)).deleteStructure(door, commandSender);
     }
 }

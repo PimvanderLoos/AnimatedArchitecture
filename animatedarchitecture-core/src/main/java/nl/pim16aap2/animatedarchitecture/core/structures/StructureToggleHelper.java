@@ -22,18 +22,15 @@ import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IAnimatedArchitectureEventFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventCaller;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructureEventTogglePrepare;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructureEventToggleStart;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructureToggleEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
@@ -59,8 +56,6 @@ import java.util.logging.Level;
 @ExtensionMethod(CompletableFutureExtensions.class)
 final class StructureToggleHelper
 {
-    private final ILocalizer localizer;
-    private final ITextFactory textFactory;
     private final StructureActivityManager structureActivityManager;
     private final StructureTypeManager structureTypeManager;
     private final IConfig config;
@@ -79,8 +74,6 @@ final class StructureToggleHelper
 
     @Inject
     StructureToggleHelper(
-        ILocalizer localizer,
-        ITextFactory textFactory,
         StructureActivityManager structureActivityManager,
         StructureTypeManager structureTypeManager,
         IConfig config,
@@ -97,8 +90,6 @@ final class StructureToggleHelper
         AnimatedBlockContainerFactory animatedBlockContainerFactory,
         AnimationRequestData.IFactory movementRequestDataFactory)
     {
-        this.localizer = localizer;
-        this.textFactory = textFactory;
         this.structureActivityManager = structureActivityManager;
         this.structureTypeManager = structureTypeManager;
         this.config = config;
@@ -158,11 +149,10 @@ final class StructureToggleHelper
             structureActivityManager.unregisterAnimation(structure.getUid(), stamp);
 
         if (messageReceiver instanceof IPlayer)
-            messageReceiver.sendMessage(textFactory.newText().append(
-                localizer.getMessage(result.getLocalizationKey()),
-                TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(structure.getType())),
-                arg -> arg.highlight(structure.getName()))
+            messageReceiver.sendError(
+                result.getLocalizationKey(),
+                arg -> arg.localizedHighlight(structure.getType()),
+                arg -> arg.highlight(structure.getName())
             );
         else
         {

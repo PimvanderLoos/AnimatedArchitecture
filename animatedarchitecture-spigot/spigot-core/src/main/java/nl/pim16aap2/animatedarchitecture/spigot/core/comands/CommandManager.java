@@ -21,7 +21,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
@@ -30,11 +29,10 @@ import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
-import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,13 +53,13 @@ public final class CommandManager
     private final JavaPlugin plugin;
     private final ConfigSpigot config;
     private final ILocalizer localizer;
-    private final ITextFactory textFactory;
     private final IPermissionsManager permissionsManager;
     private final StructureTypeManager structureTypeManager;
     private final StructureRetrieverFactory structureRetrieverFactory;
     private volatile @Nullable PaperCommandManager<ICommandSender> manager;
     private boolean asyncCompletions = false;
     private final BukkitAudiences bukkitAudiences;
+    private final PlayerFactorySpigot playerFactory;
     private final StructureTypeParser structureTypeParser;
     private final DirectionParser directionParser;
     private final IsOpenParser isOpenParser;
@@ -73,10 +71,10 @@ public final class CommandManager
         JavaPlugin plugin,
         ConfigSpigot config,
         ILocalizer localizer,
-        ITextFactory textFactory,
         IPermissionsManager permissionsManager,
         StructureTypeManager structureTypeManager,
         StructureRetrieverFactory structureRetrieverFactory,
+        PlayerFactorySpigot playerFactory,
         StructureTypeParser structureTypeParser,
         DirectionParser directionParser,
         IsOpenParser isOpenParser,
@@ -86,10 +84,10 @@ public final class CommandManager
         this.plugin = plugin;
         this.config = config;
         this.localizer = localizer;
-        this.textFactory = textFactory;
         this.permissionsManager = permissionsManager;
         this.structureTypeManager = structureTypeManager;
         this.structureRetrieverFactory = structureRetrieverFactory;
+        this.playerFactory = playerFactory;
         this.structureTypeParser = structureTypeParser;
         this.directionParser = directionParser;
         this.bukkitAudiences = BukkitAudiences.create(plugin);
@@ -118,19 +116,14 @@ public final class CommandManager
         final CommandConfirmationManager<ICommandSender> confirmationManager = new CommandConfirmationManager<>(
             30L,
             TimeUnit.SECONDS,
-            context -> context
-                .getCommandContext()
-                .getSender()
-                .sendMessage(textFactory.newText().append(
-                    localizer.getMessage("commands.spigot.confirmation.message"),
-                    TextType.INFO,
+            context ->
+                context.getCommandContext().getSender().sendInfo(
+                    "commands.spigot.confirmation.message",
                     arg -> arg.clickable(
-                        localizer.getMessage("commands.spigot.confirmation.message.arg0.message"),
+                        arg.localized("commands.spigot.confirmation.message.arg0.message"),
                         "/AnimatedArchitecture confirm",
-                        localizer.getMessage("commands.spigot.confirmation.message.arg0.hint")))),
-            sender -> sender.sendError(
-                textFactory,
-                localizer.getMessage("commands.spigot.confirmation.error.no_pending"))
+                        arg.localized("commands.spigot.confirmation.message.arg0.hint"))),
+            sender -> sender.sendError("commands.spigot.confirmation.error.no_pending")
         );
 
         confirmationManager.registerConfirmationProcessor(this.manager);
@@ -147,7 +140,7 @@ public final class CommandManager
                 .append(text("] ", NamedTextColor.DARK_GRAY))
                 .append(component)
                 .build())
-            .apply(manager, sender -> this.bukkitAudiences.sender(SpigotAdapter.unwrapCommandSender(sender)));
+            .apply(manager, sender -> this.bukkitAudiences.sender(PlayerFactorySpigot.unwrapCommandSender(sender)));
 
         initCommands(manager);
     }
@@ -199,7 +192,7 @@ public final class CommandManager
     {
         final MinecraftHelp<ICommandSender> minecraftHelp = new MinecraftHelp<>(
             "/animatedarchitecture help",
-            sender -> this.bukkitAudiences.sender(SpigotAdapter.unwrapCommandSender(sender)),
+            sender -> this.bukkitAudiences.sender(PlayerFactorySpigot.unwrapCommandSender(sender)),
             manager
         );
 
@@ -631,8 +624,8 @@ public final class CommandManager
         return new PaperCommandManager<>(
             plugin,
             CommandExecutionCoordinator.simpleCoordinator(),
-            SpigotAdapter::wrapCommandSender,
-            SpigotAdapter::unwrapCommandSender
+            playerFactory::wrapCommandSender,
+            PlayerFactorySpigot::unwrapCommandSender
         );
     }
 }

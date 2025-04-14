@@ -5,12 +5,12 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.TriFunction;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -29,7 +29,8 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.textArgumentMatcher;
+import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.assertThatMessageable;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -42,8 +43,6 @@ class DelayedCommandTest
     @Spy
     private DelayedCommandInputManager delayedCommandInputManager =
         new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
-
-    private final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
     @Mock
     private DelayedCommandInputRequest.IFactory<Object> inputRequestFactory;
@@ -76,7 +75,7 @@ class DelayedCommandTest
     void init()
     {
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
-        initInputRequestFactory(inputRequestFactory, executor, localizer, delayedCommandInputManager);
+        initInputRequestFactory(inputRequestFactory, executor, delayedCommandInputManager);
         structureRetriever = structureRetrieverFactory.of(structure);
     }
 
@@ -84,9 +83,10 @@ class DelayedCommandTest
     void normal()
     {
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
+        UnitTestUtil.initMessageable(commandSender);
 
         final var result = delayedCommand.runDelayed(commandSender, structureRetriever);
-        verify(commandSender, times(1)).sendMessage(textArgumentMatcher(DelayedCommandImpl.INPUT_REQUEST_MSG));
+        assertThatMessageable(commandSender).sentMessage(DelayedCommandImpl.INPUT_REQUEST_MSG);
         verify(inputRequestFactory, times(1)).create(anyLong(), any(), any(), any(), any(), any());
         verify(delayedFunction, never()).apply(any(), any(), any());
 
@@ -96,24 +96,24 @@ class DelayedCommandTest
         verify(delayedFunction, times(1)).apply(commandSender, structureRetriever, input);
 
         delayedCommand.provideDelayedInput(commandSender, new Object()).join();
-        verify(commandSender, times(1)).sendMessage(textArgumentMatcher("commands.base.error.not_waiting"));
+        assertThatMessageable(commandSender).sentErrorMessage("commands.base.error.not_waiting");
     }
 
     @Test
     void notWaiting()
     {
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
+        UnitTestUtil.initMessageable(commandSender);
 
         delayedCommand.provideDelayedInput(commandSender, new Object()).join();
-        verify(commandSender, times(1)).sendMessage(textArgumentMatcher("commands.base.error.not_waiting"));
+        assertThatMessageable(commandSender).sentErrorMessage("commands.base.error.not_waiting");
     }
 
     @Test
     void exception()
-        throws InterruptedException
     {
         when(delayedFunction.apply(any(), any(), any())).thenThrow(RuntimeException.class);
-
+        UnitTestUtil.initMessageable(commandSender);
         final DelayedCommandImpl delayedCommand = new DelayedCommandImpl(context, inputRequestFactory, delayedFunction);
         var result = delayedCommand.runDelayed(commandSender, structureRetriever);
 
@@ -129,8 +129,10 @@ class DelayedCommandTest
         while (!(cause instanceof CommandExecutionException) && cause.getCause() != null)
             cause = cause.getCause();
 
-        assertNotNull(cause);
-        assertTrue(cause.getMessage().startsWith("Failed to execute delayed command 'DelayedCommand("));
+        assertThat(cause)
+            .isNotNull()
+            .extracting(Throwable::getMessage, InstanceOfAssertFactories.STRING)
+            .startsWith("Failed to execute delayed command 'DelayedCommand(");
     }
 
     /**
@@ -140,7 +142,6 @@ class DelayedCommandTest
     public static <T> void initInputRequestFactory(
         DelayedCommandInputRequest.IFactory<T> inputRequestFactory,
         IExecutor executor,
-        ILocalizer localizer,
         DelayedCommandInputManager delayedCommandInputManager)
     {
         when(inputRequestFactory
@@ -153,8 +154,6 @@ class DelayedCommandTest
                 invocation.getArgument(4),
                 invocation.getArgument(5),
                 executor,
-                localizer,
-                ITextFactory.getSimpleTextFactory(),
                 delayedCommandInputManager)
             );
     }

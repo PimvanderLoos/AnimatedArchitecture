@@ -1,8 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.api.factories;
 
 
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.ITextComponentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Factory class that can be used to create new {@link Text} instances.
@@ -18,9 +20,16 @@ public interface ITextFactory
     /**
      * Creates a new {@link Text} instance.
      *
+     * @param personalizedLocalizer
+     *     the string localizer to use for this text.
      * @return The new text instance.
      */
-    Text newText();
+    Text newText(@Nullable PersonalizedLocalizer personalizedLocalizer);
+
+    default Text newText()
+    {
+        return newText(null);
+    }
 
     /**
      * Gets a simple {@link ITextFactory} that only produces unstyled texts.
@@ -45,9 +54,9 @@ public interface ITextFactory
         }
 
         @Override
-        public Text newText()
+        public Text newText(@Nullable PersonalizedLocalizer personalizedLocalizer)
         {
-            return new Text(textComponentFactory);
+            return new Text(textComponentFactory, personalizedLocalizer);
         }
 
         private static ITextFactory getInstance()

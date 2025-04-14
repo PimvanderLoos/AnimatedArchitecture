@@ -47,8 +47,8 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
     @Override
     public void sendMessageToTarget(Object target, Level level, String message)
     {
-        if (target instanceof Player)
-            SpigotUtil.messagePlayer((Player) target, message);
+        if (target instanceof Player player)
+            SpigotUtil.messagePlayer(player, message);
         else
             writeToConsole(level, ChatColor.stripColor(message));
     }

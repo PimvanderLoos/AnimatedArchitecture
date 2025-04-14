@@ -9,6 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.AnimatedArchitectureToolUtilSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -41,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 public class EventListeners extends AbstractListener
 {
     private final AnimatedArchitectureToolUtilSpigot animatedArchitectureToolUtil;
+    private final PlayerFactorySpigot playerFactory;
     private final DatabaseManager databaseManager;
     private final ToolUserManager toolUserManager;
     private final DelayedCommandInputManager delayedCommandInputManager;
@@ -49,6 +51,7 @@ public class EventListeners extends AbstractListener
     EventListeners(
         JavaPlugin javaPlugin,
         AnimatedArchitectureToolUtilSpigot animatedArchitectureToolUtil,
+        PlayerFactorySpigot playerFactory,
         DatabaseManager databaseManager,
         ToolUserManager toolUserManager,
         DelayedCommandInputManager delayedCommandInputManager,
@@ -56,6 +59,7 @@ public class EventListeners extends AbstractListener
     {
         super(restartableHolder, javaPlugin);
         this.animatedArchitectureToolUtil = animatedArchitectureToolUtil;
+        this.playerFactory = playerFactory;
         this.databaseManager = databaseManager;
         this.toolUserManager = toolUserManager;
         this.delayedCommandInputManager = delayedCommandInputManager;
@@ -76,7 +80,7 @@ public class EventListeners extends AbstractListener
         if (event.getClickedBlock() == null)
             return;
 
-        if (!animatedArchitectureToolUtil.isPlayerHoldingTool(SpigotAdapter.wrapPlayer(event.getPlayer())))
+        if (!animatedArchitectureToolUtil.isPlayerHoldingTool(playerFactory.wrapPlayer(event.getPlayer())))
             return;
 
         toolUserManager
@@ -107,7 +111,7 @@ public class EventListeners extends AbstractListener
         try
         {
             databaseManager
-                .updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()))
+                .updatePlayer(playerFactory.wrapPlayer(event.getPlayer()))
                 .orTimeout(20, TimeUnit.SECONDS)
                 .logExceptions();
         }
@@ -129,7 +133,7 @@ public class EventListeners extends AbstractListener
         try
         {
             final Player player = event.getPlayer();
-            final var wrappedPlayer = SpigotAdapter.wrapPlayer(player);
+            final var wrappedPlayer = playerFactory.wrapPlayer(player);
             delayedCommandInputManager.cancelAll(wrappedPlayer);
             toolUserManager.abortToolUser(player.getUniqueId());
             databaseManager
@@ -264,9 +268,9 @@ public class EventListeners extends AbstractListener
                 return;
 
             final Inventory src = event.getSource();
-            if (src instanceof PlayerInventory && ((PlayerInventory) src).getHolder() instanceof Player)
+            if (src instanceof PlayerInventory playerInventory && playerInventory.getHolder() instanceof Player player)
             {
-                if (isToolUser((Player) ((PlayerInventory) src).getHolder()))
+                if (isToolUser(player))
                 {
                     event.setCancelled(true);
                     return;

@@ -3,7 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
@@ -29,8 +28,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class InfoTest
 {
-    private final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
-
     @Mock
     private HighlightedBlockSpawner highlightedBlockSpawner;
 
@@ -53,9 +50,7 @@ class InfoTest
     {
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
 
-        assistedFactoryMocker = new AssistedFactoryMocker<>(Info.class, Info.IFactory.class)
-            .setMock(ITextFactory.class, textFactory)
-            .setMock(HighlightedBlockSpawner.class, highlightedBlockSpawner);
+        assistedFactoryMocker = AssistedFactoryMocker.injectMocksFromTestClass(Info.IFactory.class, this);
     }
 
     @AfterEach

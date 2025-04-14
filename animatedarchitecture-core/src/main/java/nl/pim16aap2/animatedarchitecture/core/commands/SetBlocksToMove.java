@@ -5,14 +5,11 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -35,11 +32,9 @@ public class SetBlocksToMove extends StructureTargetCommand
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
         @Assisted int blocksToMove,
-        IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory)
+        IExecutor executor)
     {
-        super(commandSender, executor, localizer, textFactory, structureRetriever, StructureAttribute.BLOCKS_TO_MOVE);
+        super(commandSender, executor, structureRetriever, StructureAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;
     }
 
@@ -54,22 +49,20 @@ public class SetBlocksToMove extends StructureTargetCommand
     {
         final var desc = getRetrievedStructureDescription(retrieverResult);
 
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.set_blocks_to_move.success"),
-            TextType.SUCCESS,
+        getCommandSender().sendSuccess(
+            "commands.set_blocks_to_move.success",
             arg -> arg.highlight(desc.localizedTypeName()),
-            arg -> arg.highlight(desc.id()))
+            arg -> arg.highlight(desc.id())
         );
     }
 
     @Override
     protected void notifyMissingProperties(Structure structure)
     {
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.set_blocks_to_move.error.invalid_structure_type"),
-            TextType.ERROR,
-            arg -> arg.highlight(localizer.getStructureType(structure)),
-            arg -> arg.highlight(structure.getBasicInfo()))
+        getCommandSender().sendError(
+            "commands.set_blocks_to_move.error.invalid_structure_type",
+            arg -> arg.localizedHighlight(structure),
+            arg -> arg.highlight(structure.getBasicInfo())
         );
     }
 
@@ -83,12 +76,11 @@ public class SetBlocksToMove extends StructureTargetCommand
                 .syncData()
                 .thenAccept(result -> handleDatabaseActionResult(result, structure));
 
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.set_blocks_to_move.error.status_not_changed"),
-            TextType.ERROR,
-            arg -> arg.highlight(localizer.getStructureType(structure)),
+        getCommandSender().sendError(
+            "commands.set_blocks_to_move.error.status_not_changed",
+            arg -> arg.localizedHighlight(structure),
             arg -> arg.highlight(structure.getNameAndUid()),
-            arg -> arg.highlight(blocksToMove))
+            arg -> arg.highlight(blocksToMove)
         );
 
         return CompletableFuture.completedFuture(null);

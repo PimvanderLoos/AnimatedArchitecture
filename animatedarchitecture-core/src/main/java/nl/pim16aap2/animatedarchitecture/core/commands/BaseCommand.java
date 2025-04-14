@@ -6,18 +6,16 @@ import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoStructuresForCommandException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NonPlayerExecutingPlayerCommandException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.PlayerExecutingNonPlayerCommandException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
@@ -48,24 +46,17 @@ public abstract class BaseCommand
     private final ICommandSender commandSender;
 
     @ToString.Exclude
-    protected final ILocalizer localizer;
-
-    @ToString.Exclude
-    protected final ITextFactory textFactory;
-
-    @ToString.Exclude
     protected final IExecutor executor;
+
+    protected final PersonalizedLocalizer localizer;
 
     protected BaseCommand(
         ICommandSender commandSender,
-        IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory)
+        IExecutor executor)
     {
         this.commandSender = commandSender;
         this.executor = executor;
-        this.localizer = localizer;
-        this.textFactory = textFactory;
+        this.localizer = commandSender.getPersonalizedLocalizer();
     }
 
     /**
@@ -242,11 +233,7 @@ public abstract class BaseCommand
         if (isPlayer && !availableForPlayers())
         {
             log.atFine().log("Command not allowed for players: %s", this);
-            commandSender.sendMessage(
-                textFactory,
-                TextType.ERROR,
-                localizer.getMessage("commands.base.error.no_permission_for_command")
-            );
+            commandSender.sendError("commands.base.error.no_permission_for_command");
             return CompletableFuture
                 .failedFuture(new PlayerExecutingNonPlayerCommandException(true))
                 .withExceptionContext(exceptionContext);
@@ -254,10 +241,7 @@ public abstract class BaseCommand
         if (!isPlayer && !availableForNonPlayers())
         {
             log.atFine().log("Command not allowed for non-players: %s", this);
-            commandSender.sendError(
-                textFactory,
-                localizer.getMessage("commands.base.error.only_available_for_players")
-            );
+            commandSender.sendError("commands.base.error.only_available_for_players");
             return CompletableFuture
                 .failedFuture(new NonPlayerExecutingPlayerCommandException(true))
                 .withExceptionContext(exceptionContext);
@@ -269,10 +253,7 @@ public abstract class BaseCommand
 
     protected final void sendGenericErrorMessage()
     {
-        commandSender.sendError(
-            textFactory,
-            localizer.getMessage("commands.base.error.generic")
-        );
+        commandSender.sendError("commands.base.error.generic");
     }
 
     /**
@@ -291,10 +272,7 @@ public abstract class BaseCommand
         if (!permissionResult.hasAnyPermission())
         {
             log.atFine().log("Permission for command: %s: %s", this, permissionResult);
-            commandSender.sendError(
-                textFactory,
-                localizer.getMessage("commands.base.error.no_permission_for_command")
-            );
+            commandSender.sendError("commands.base.error.no_permission_for_command");
             throw new CommandExecutionException(
                 true,
                 String.format("CommandSender %s does not have permission to run command: %s", commandSender, this)
@@ -336,23 +314,23 @@ public abstract class BaseCommand
      * <p>
      * If no structure is found, the {@link ICommandSender} will be informed.
      *
-     * @param doorRetriever
+     * @param structureRetriever
      *     The {@link StructureRetrieverFactory} to use
      * @param permissionLevel
      *     The minimum {@link PermissionLevel} required to retrieve the structure.
      * @return The {@link Structure} if one could be retrieved.
      */
     protected CompletableFuture<Structure> getStructure(
-        StructureRetriever doorRetriever,
+        StructureRetriever structureRetriever,
         PermissionLevel permissionLevel)
     {
         return commandSender
             .getPlayer()
-            .map(player -> doorRetriever.getStructureInteractive(player, permissionLevel))
-            .orElseGet(doorRetriever::getStructure)
+            .map(player -> structureRetriever.getStructureInteractive(player, permissionLevel))
+            .orElseGet(structureRetriever::getStructure)
             .withExceptionContext(
                 "Get structure from retriever '%s' with permission level '%s' for command: %s",
-                doorRetriever,
+                structureRetriever,
                 permissionLevel,
                 this
             )
@@ -362,10 +340,7 @@ public abstract class BaseCommand
                 if (structure.isPresent())
                     return structure.get();
 
-                commandSender.sendError(
-                    textFactory,
-                    localizer.getMessage("commands.base.error.cannot_find_target_structure")
-                );
+                commandSender.sendError("commands.base.error.cannot_find_target_structure");
                 throw new NoStructuresForCommandException(true);
             });
     }

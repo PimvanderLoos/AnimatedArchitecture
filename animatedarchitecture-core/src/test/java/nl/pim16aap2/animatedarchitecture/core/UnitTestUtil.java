@@ -14,6 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandDefinition;
 import nl.pim16aap2.animatedarchitecture.core.commands.PermissionsStatus;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
@@ -23,7 +24,10 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
+import nl.pim16aap2.animatedarchitecture.core.text.ITextComponentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
+import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
+import nl.pim16aap2.animatedarchitecture.core.text.TextArgumentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
@@ -35,13 +39,14 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.testing.TestUtil;
-import nl.pim16aap2.testing.assertions.AssertionsUtil;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
+import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.ListAssert;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 
@@ -50,6 +55,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -59,14 +65,42 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class UnitTestUtil
 {
-    @SuppressWarnings("unused")
-    public static final double EPSILON = 1E-6;
+    public static ILocalizer DUMMY_LOCALIZER = new ILocalizer()
+    {
+        @Override
+        public String getMessage(String key, @Nullable Locale clientLocale, Object... args)
+        {
+            StringBuilder sb = new StringBuilder(key);
+            Stream.of(args).forEach(arg -> sb.append(' ').append(arg));
+            return sb.toString();
+        }
+
+        @Override
+        public String getMessage(String key, Object... args)
+        {
+            return getMessage(key, null, args);
+        }
+
+        @Override
+        public List<Locale> getAvailableLocales()
+        {
+            return List.of();
+        }
+    };
+
+    public static final PersonalizedLocalizer DUMMY_PERSONALIZED_LOCALIZER =
+        new PersonalizedLocalizer(DUMMY_LOCALIZER, null);
+
+    private static final TextArgumentFactory DUMMY_TEXT_ARGUMENT_FACTORY =
+        new TextArgumentFactory(ITextComponentFactory.SimpleTextComponentFactory.INSTANCE,
+            DUMMY_PERSONALIZED_LOCALIZER);
 
     private UnitTestUtil()
     {
@@ -79,20 +113,56 @@ public class UnitTestUtil
         return structureID;
     }
 
+    public static void initMessageable(IMessageable... messageables)
+    {
+        final var personalizedLocalizer = initPersonalizedLocalizer();
+        for (final var messageable : messageables)
+        {
+            final ITextFactory textFactory = new ITextFactory()
+            {
+                @Override
+                public Text newText(@Nullable PersonalizedLocalizer personalizedLocalizer)
+                {
+                    return new Text(ITextComponentFactory.SimpleTextComponentFactory.INSTANCE, personalizedLocalizer);
+                }
+
+                @Override
+                public Text newText()
+                {
+                    return newText(personalizedLocalizer);
+                }
+            };
+
+            lenient().when(messageable.getPersonalizedLocalizer()).thenReturn(personalizedLocalizer);
+            lenient().doReturn(textFactory.newText()).when(messageable).newText();
+        }
+    }
+
+    public static void setPersonalizedLocalizer(IMessageable... messageables)
+    {
+        setPersonalizedLocalizer(null, messageables);
+    }
+
+    public static void setPersonalizedLocalizer(@Nullable Locale locale, IMessageable... messageables)
+    {
+        final var personalizedLocalizer = initPersonalizedLocalizer(locale);
+        for (final IMessageable messageable : messageables)
+            lenient().when(messageable.getPersonalizedLocalizer()).thenReturn(personalizedLocalizer);
+    }
+
+    public static PersonalizedLocalizer initPersonalizedLocalizer()
+    {
+        return DUMMY_PERSONALIZED_LOCALIZER;
+    }
+
+    public static PersonalizedLocalizer initPersonalizedLocalizer(@Nullable Locale locale)
+    {
+        return new PersonalizedLocalizer(initLocalizer(), locale);
+    }
+
     public static ILocalizer initLocalizer()
     {
-        final ILocalizer localizer = mock(ILocalizer.class, Mockito.CALLS_REAL_METHODS);
-        when(localizer
-            .getMessage(anyString(), ArgumentMatchers.any(Object[].class)))
-            .thenAnswer(invocation ->
-            {
-                String ret = invocation.getArgument(0, String.class);
-                for (int idx = 1; idx < invocation.getArguments().length; ++idx)
-                    //noinspection StringConcatenationInLoop
-                    ret += " " + invocation.getArgument(idx, Object.class);
-                return ret;
-            });
-        return localizer;
+        return DUMMY_LOCALIZER;
     }
 
     /**
@@ -641,7 +711,7 @@ public class UnitTestUtil
         while (cause.getCause() != null)
             cause = cause.getCause();
         if (!expectedType.isAssignableFrom(cause.getClass()))
-            fail(getThrowableMisMatchMessage(expectedType, cause));
+            Assertions.fail(getThrowableMisMatchMessage(expectedType, cause));
 
         return expectedType.cast(cause);
     }
@@ -745,23 +815,9 @@ public class UnitTestUtil
      *     The input string.
      * @return null.
      */
-    public static Text textArgumentMatcher(String string)
+    private static Text textArgumentMatcher(String string)
     {
         return argThat(new TextArgumentMatcher(string));
-    }
-
-    /**
-     * Creates a new argument matcher that matches a String argument against an input string.
-     *
-     * @param input
-     *     The input string.
-     * @param matchType
-     *     The type of match to perform.
-     * @return null.
-     */
-    public static String stringMatcher(String input, AssertionsUtil.StringMatchType matchType)
-    {
-        return argThat(new AssertionsUtil.StringArgumentMatcher(input, matchType));
     }
 
     /**
@@ -773,10 +829,10 @@ public class UnitTestUtil
      * It checks for the following methods:
      * <ul>
      *     <li>{@link IMessageable#sendMessage(Text)}</li>
-     *     <li>{@link IMessageable#sendMessage(ITextFactory, TextType, String)}</li>
-     *     <li>{@link IMessageable#sendError(ITextFactory, String)}</li>
-     *     <li>{@link IMessageable#sendSuccess(ITextFactory, String)}</li>
-     *     <li>{@link IMessageable#sendInfo(ITextFactory, String)} </li>
+     *     <li>{@link IMessageable#sendMessage(TextType, String, Text.ArgumentCreator...)}</li>
+     *     <li>{@link IMessageable#sendError(String, Text.ArgumentCreator...)}</li>
+     *     <li>{@link IMessageable#sendSuccess(String, Text.ArgumentCreator...)}</li>
+     *     <li>{@link IMessageable#sendInfo(String, Text.ArgumentCreator...)} </li>
      * </ul>
      *
      * @param messageable
@@ -785,10 +841,230 @@ public class UnitTestUtil
     public static void verifyNoMessagesSent(IMessageable messageable)
     {
         verify(messageable, never()).sendMessage(any(Text.class));
-        verify(messageable, never()).sendMessage(any(ITextFactory.class), any(TextType.class), anyString());
-        verify(messageable, never()).sendError(any(ITextFactory.class), anyString());
-        verify(messageable, never()).sendSuccess(any(ITextFactory.class), anyString());
-        verify(messageable, never()).sendInfo(any(ITextFactory.class), anyString());
+        verify(messageable, never()).sendMessage(any(TextType.class), anyString(), any(Text.ArgumentCreator.class));
+        verify(messageable, never()).sendError(anyString(), any(Text.ArgumentCreator.class));
+        verify(messageable, never()).sendSuccess(anyString(), any(Text.ArgumentCreator.class));
+        verify(messageable, never()).sendInfo(anyString(), any(Text.ArgumentCreator.class));
+    }
+
+    private static void assertArgumentsEqual(
+        Text.ArgumentCreator[] actualCreators,
+        String methodName,
+        String message,
+        Object[] expectedArgs)
+    {
+        if (actualCreators.length != expectedArgs.length)
+        {
+            throw new AssertionError(String.format(
+                "Expected %d arguments but got %d arguments for message key '%s'",
+                expectedArgs.length, actualCreators.length, message));
+        }
+
+        final Object[] actualValues = new Object[actualCreators.length];
+        for (int i = 0; i < actualCreators.length; i++)
+        {
+            TextArgument textArg = actualCreators[i].create(DUMMY_TEXT_ARGUMENT_FACTORY);
+            actualValues[i] = textArg.argument();
+        }
+
+        org.assertj.core.api.Assertions.assertThat(actualValues)
+            .withFailMessage(() -> String.format("""
+                    
+                    Expected IMessageable.%s('%s') to be called with arguments:
+                      [%s]
+                    But got:
+                      [%s]
+                    """,
+                methodName,
+                message,
+                Stream.of(expectedArgs).map(Objects::toString).collect(Collectors.joining(", ")),
+                Stream.of(actualValues).map(Objects::toString).collect(Collectors.joining(", "))
+            ))
+            .containsExactly(expectedArgs);
+    }
+
+    /**
+     * Creates a new {@link MessageableAssert} for the given {@link IMessageable}.
+     *
+     * @param messageable
+     *     The {@link IMessageable} to create the assert for.
+     * @return The {@link MessageableAssert} for the given {@link IMessageable}.
+     */
+    public static MessageableAssert assertThatMessageable(IMessageable messageable)
+    {
+        return new MessageableAssert(messageable);
+    }
+
+    /**
+     * Assert that a message was sent to a messageable.
+     */
+    public static class MessageableAssert extends AbstractAssert<MessageableAssert, IMessageable>
+    {
+        private final IMessageable messageable;
+
+        private MessageableAssert(IMessageable messageable)
+        {
+            super(messageable, MessageableAssert.class);
+            this.messageable = messageable;
+        }
+
+        /**
+         * Static factory method for AssertJ standard pattern.
+         *
+         * @param messageable
+         *     The messageable to assert on.
+         * @return The {@link MessageableAssert} for the given messageable.z
+         */
+        public static MessageableAssert assertThat(IMessageable messageable)
+        {
+            return new MessageableAssert(messageable);
+        }
+
+        /**
+         * Asserts that a success message was sent to the messageable.
+         *
+         * @param message
+         *     The message to check for.
+         * @return The {@link MessageAssert} for the given messageable.
+         *
+         * @throws AssertionError
+         *     If the messageable did not receive the success message.
+         */
+        public MessageAssert sentSuccessMessage(String message)
+        {
+            return new MessageAssert("sendSuccess", messageable, message);
+        }
+
+        /**
+         * Asserts that an error message was sent to the messageable.
+         *
+         * @param message
+         *     The message to check for.
+         * @return The {@link MessageAssert} for the given messageable.
+         *
+         * @throws AssertionError
+         *     If the messageable did not receive the error message.
+         */
+        public MessageAssert sentErrorMessage(String message)
+        {
+            return new MessageAssert("sendError", messageable, message);
+        }
+
+        /**
+         * Asserts that an info message was sent to the messageable.
+         *
+         * @param message
+         *     The message to check for.
+         * @return The {@link MessageAssert} for the given messageable.
+         *
+         * @throws AssertionError
+         *     If the messageable did not receive the info message.
+         */
+        public MessageAssert sentInfoMessage(String message)
+        {
+            return new MessageAssert("sendInfo", messageable, message);
+        }
+
+        /**
+         * Gets the list of messages sent to the messageable using {@link IMessageable#sendMessage(Text)}.
+         *
+         * @return A new {@link ListAssert} containing the messages sent to the messageable.
+         */
+        public ListAssert<String> extractSentTextMessages()
+        {
+            final List<String> messages = mockingDetails(messageable)
+                .getInvocations()
+                .stream()
+                .filter(invocation -> invocation.getArguments().length == 1)
+                .filter(invocation -> "sendMessage".equals(invocation.getMethod().getName()))
+                .map(invocation -> invocation.getArgument(0, Text.class).toString())
+                .toList();
+            return new ListAssert<>(messages);
+        }
+
+        /**
+         * Asserts that a message was sent to the messageable.
+         *
+         * @param text
+         *     The text to check for.
+         * @throws AssertionError
+         *     If the messageable did not receive the message.
+         */
+        public void sentMessage(Text text)
+        {
+            verify(messageable).sendMessage(text);
+        }
+
+        /**
+         * Asserts that a message was sent to the messageable using {@link IMessageable#sendMessage(Text)}.
+         *
+         * @param text
+         *     The String representation of the text to check for.
+         * @throws AssertionError
+         *     If the messageable did not receive the message.
+         */
+        public void sentMessage(String text)
+        {
+            verify(messageable).sendMessage(textArgumentMatcher(text));
+        }
+    }
+
+    /**
+     * Assert that a message was sent to a messageable.
+     */
+    public static class MessageAssert
+    {
+        private final String methodName;
+        private final String message;
+        private final Text.ArgumentCreator[] actualCreators;
+
+        private MessageAssert(String methodName, IMessageable messageable, String message)
+        {
+            this.methodName = methodName;
+            this.message = message;
+
+            final var captor = ArgumentCaptor.forClass(Text.ArgumentCreator[].class);
+
+            switch (methodName)
+            {
+                case "sendSuccess" -> verify(messageable).sendSuccess(eq(message), captor.capture());
+                case "sendError" -> verify(messageable).sendError(eq(message), captor.capture());
+                case "sendInfo" -> verify(messageable).sendInfo(eq(message), captor.capture());
+                default -> throw new IllegalArgumentException("Unknown method: " + methodName);
+            }
+
+            this.actualCreators = captor.getValue();
+        }
+
+        /**
+         * Asserts that the message was sent with the given arguments.
+         *
+         * @param expectedArgs
+         *     The expected arguments.
+         * @throws AssertionError
+         *     If the message was not sent with the expected arguments.
+         */
+        public void withArgs(Object... expectedArgs)
+        {
+            assertArgumentsEqual(
+                actualCreators,
+                methodName,
+                message,
+                expectedArgs
+            );
+        }
+
+        /**
+         * Gets the actual arguments that were passed to the messageable.
+         *
+         * @return The actual arguments that were passed to the messageable.
+         */
+        public Object[] getActualArguments()
+        {
+            return Stream.of(actualCreators)
+                .map(creator -> creator.create(DUMMY_TEXT_ARGUMENT_FACTORY).argument())
+                .toArray();
+        }
     }
 
     /**
@@ -797,7 +1073,8 @@ public class UnitTestUtil
      * @param structureBuilder
      *     The builder that was created.
      * @param assistedFactoryMocker
-     *     The mocker for the factory. Use {@link AssistedFactoryMocker#setMock(Class, Object)} to set its parameters.
+     *     The mocker for the factory. Use {@link AssistedFactoryMocker#injectParameter(Class, Object)} to set its
+     *     parameters.
      */
     public record StructureBuilderResult(
         StructureBuilder structureBuilder,

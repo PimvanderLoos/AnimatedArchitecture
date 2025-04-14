@@ -12,16 +12,14 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import org.jetbrains.annotations.CheckReturnValue;
@@ -59,6 +57,8 @@ public abstract class ToolUser
     @Getter
     private final IPlayer player;
 
+    protected final PersonalizedLocalizer localizer;
+
     /**
      * Lock used to ensure that only one input is processed at a time.
      * <p>
@@ -66,15 +66,11 @@ public abstract class ToolUser
      */
     private final Semaphore inputLock = new Semaphore(1, true);
 
-    protected final ILocalizer localizer;
-
     protected final ToolUserManager toolUserManager;
 
     protected final IProtectionHookManager protectionHookManager;
 
     protected final IAnimatedArchitectureToolUtil animatedArchitectureToolUtil;
-
-    protected final ITextFactory textFactory;
 
     protected final Step.Factory.IFactory stepFactory;
 
@@ -119,13 +115,12 @@ public abstract class ToolUser
      */
     protected ToolUser(Context context, IPlayer player)
     {
-        stepFactory = context.getStepFactory();
+        this.stepFactory = context.getStepFactory();
         this.player = player;
-        localizer = context.getLocalizer();
-        toolUserManager = context.getToolUserManager();
-        protectionHookManager = context.getProtectionHookManager();
-        animatedArchitectureToolUtil = context.getAnimatedArchitectureToolUtil();
-        textFactory = context.getTextFactory();
+        this.localizer = player.getPersonalizedLocalizer();
+        this.toolUserManager = context.getToolUserManager();
+        this.protectionHookManager = context.getProtectionHookManager();
+        this.animatedArchitectureToolUtil = context.getAnimatedArchitectureToolUtil();
     }
 
     /**
@@ -154,7 +149,7 @@ public abstract class ToolUser
 
         try
         {
-            procedure = new Procedure(generateSteps(), localizer, textFactory);
+            procedure = new Procedure(generateSteps(), player);
         }
         catch (InstantiationException | IndexOutOfBoundsException e)
         {
@@ -218,8 +213,7 @@ public abstract class ToolUser
      */
     protected final synchronized void giveTool(String nameKey, String loreKey, @Nullable Text text)
     {
-        animatedArchitectureToolUtil.giveToPlayer(
-            getPlayer(), localizer.getMessage(nameKey), localizer.getMessage(loreKey));
+        animatedArchitectureToolUtil.giveToPlayer(getPlayer(), nameKey, loreKey);
         playerHasTool = true;
 
         if (text != null)
@@ -325,13 +319,13 @@ public abstract class ToolUser
         }
         catch (IllegalArgumentException e)
         {
-            getPlayer().sendMessage(textFactory, TextType.ERROR, localizer.getMessage("constants.error.generic"));
+            getPlayer().sendError("constants.error.generic");
             return CompletableFuture.failedFuture(new RuntimeException(
                 "Provided incompatible input '" + obj + "' for ToolUser '" + toMinimalString() + "'!", e));
         }
         catch (Exception e)
         {
-            getPlayer().sendMessage(textFactory, TextType.ERROR, localizer.getMessage("constants.error.generic"));
+            getPlayer().sendError("constants.error.generic");
             abort();
             return CompletableFuture.failedFuture(new RuntimeException(
                 "Failed to apply input '" + obj + "' to ToolUser '" + toMinimalString() + "'!", e));
@@ -506,11 +500,7 @@ public abstract class ToolUser
                 log.atFine().log(
                     "Blocked access to location %s for player %s! Reason: %s",
                     loc, getPlayer(), result.denyingHookName());
-                getPlayer().sendMessage(
-                    textFactory,
-                    TextType.ERROR,
-                    localizer.getMessage("tool_user.base.error.no_permission_for_location")
-                );
+                getPlayer().sendError("tool_user.base.error.no_permission_for_location");
                 return false;
             });
     }
@@ -543,11 +533,7 @@ public abstract class ToolUser
                     world,
                     result.denyingHookName()
                 );
-                getPlayer().sendMessage(
-                    textFactory,
-                    TextType.ERROR,
-                    localizer.getMessage("tool_user.base.error.no_permission_for_location")
-                );
+                getPlayer().sendError("tool_user.base.error.no_permission_for_location");
                 return Optional.empty();
             });
     }
@@ -731,8 +717,6 @@ public abstract class ToolUser
     public static final class Context
     {
         private final StructureBuilder structureBuilder;
-        private final ILocalizer localizer;
-        private final ITextFactory textFactory;
         private final ToolUserManager toolUserManager;
         private final DatabaseManager databaseManager;
         private final LimitsManager limitsManager;
@@ -747,8 +731,6 @@ public abstract class ToolUser
         @Inject
         public Context(
             StructureBuilder structureBuilder,
-            ILocalizer localizer,
-            ITextFactory textFactory,
             ToolUserManager toolUserManager,
             DatabaseManager databaseManager,
             LimitsManager limitsManager,
@@ -761,7 +743,6 @@ public abstract class ToolUser
             Step.Factory.IFactory stepFactory)
         {
             this.structureBuilder = structureBuilder;
-            this.localizer = localizer;
             this.toolUserManager = toolUserManager;
             this.databaseManager = databaseManager;
             this.limitsManager = limitsManager;
@@ -771,7 +752,6 @@ public abstract class ToolUser
             this.structureAnimationRequestBuilder = structureAnimationRequestBuilder;
             this.structureActivityManager = structureActivityManager;
             this.commandFactory = commandFactory;
-            this.textFactory = textFactory;
             this.stepFactory = stepFactory;
         }
     }

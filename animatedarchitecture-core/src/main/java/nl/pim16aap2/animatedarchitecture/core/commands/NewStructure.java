@@ -7,8 +7,6 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
@@ -43,13 +41,11 @@ public class NewStructure extends BaseCommand
         @Assisted StructureType structureType,
         @Assisted @Nullable String structureName,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         IPermissionsManager permissionsManager,
         ToolUserManager toolUserManager,
         Provider<ToolUser.Context> creatorContextProvider)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
         this.structureType = structureType;
         this.structureName = structureName;
         this.permissionsManager = permissionsManager;

@@ -3,9 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,15 +38,12 @@ class DelayedCommandInputRequestTest
     @Mock
     private IExecutor executor;
 
-    private ILocalizer localizer;
-
     private DelayedCommandInputManager delayedCommandInputManager;
 
     @BeforeEach
     void init()
     {
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
-        localizer = UnitTestUtil.initLocalizer();
         delayedCommandInputManager = new DelayedCommandInputManager(mock(DebuggableRegistry.class));
         when(commandDefinition.getName()).thenReturn("MockedCommand");
     }
@@ -65,8 +60,6 @@ class DelayedCommandInputRequestTest
             () -> "",
             DelayedInput.class,
             executor,
-            localizer,
-            ITextFactory.getSimpleTextFactory(),
             delayedCommandInputManager
         );
 
@@ -89,10 +82,9 @@ class DelayedCommandInputRequestTest
             () -> "",
             DelayedInput.class,
             executor,
-            localizer,
-            ITextFactory.getSimpleTextFactory(),
             delayedCommandInputManager
         );
+        UnitTestUtil.initMessageable(commandSender);
 
         final CompletableFuture<?> first = inputRequest.getCommandOutput();
         Assertions.assertThrows(InvalidCommandInputException.class, () -> inputRequest.provide("Invalid!"));
@@ -115,8 +107,6 @@ class DelayedCommandInputRequestTest
             () -> "",
             DelayedInput.class,
             executor,
-            localizer,
-            ITextFactory.getSimpleTextFactory(),
             delayedCommandInputManager
         );
 

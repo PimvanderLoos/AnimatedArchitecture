@@ -43,6 +43,6 @@ public class RemoveOwnerDelayed extends DelayedCommand<IPlayer>
     @Override
     protected String inputRequestMessage(ICommandSender commandSender, StructureRetriever structureRetriever)
     {
-        return localizer.getMessage("commands.remove_owner.delayed.init");
+        return commandSender.getPersonalizedLocalizer().getMessage("commands.remove_owner.delayed.init");
     }
 }

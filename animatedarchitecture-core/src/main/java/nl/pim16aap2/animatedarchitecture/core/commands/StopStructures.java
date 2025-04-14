@@ -6,8 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -24,11 +22,9 @@ public class StopStructures extends BaseCommand
     StopStructures(
         @Assisted ICommandSender commandSender,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         StructureActivityManager structureActivityManager)
     {
-        super(commandSender, executor, localizer, textFactory);
+        super(commandSender, executor);
         this.structureActivityManager = structureActivityManager;
     }
 
@@ -44,7 +40,7 @@ public class StopStructures extends BaseCommand
         structureActivityManager.shutDown();
         structureActivityManager.initialize();
 
-        getCommandSender().sendSuccess(textFactory, localizer.getMessage("commands.stop_structures.success"));
+        getCommandSender().sendSuccess("commands.stop_structures.success");
         return CompletableFuture.completedFuture(null);
     }
 

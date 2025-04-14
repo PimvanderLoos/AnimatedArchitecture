@@ -10,9 +10,7 @@ import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
@@ -56,14 +54,6 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * The {@link CommandDefinition} for which the delayed input will be retrieved.
      */
     private final CommandDefinition commandDefinition;
-
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private final ILocalizer localizer;
-
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private final ITextFactory textFactory;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -120,15 +110,11 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         @Assisted @Nullable Supplier<String> initMessageSupplier,
         @Assisted Class<T> inputClass,
         IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         DelayedCommandInputManager delayedCommandInputManager)
     {
         super(timeout, TimeUnit.MILLISECONDS, executor);
         this.commandSender = commandSender;
         this.commandDefinition = commandDefinition;
-        this.localizer = localizer;
-        this.textFactory = textFactory;
         this.delayedCommandInputManager = delayedCommandInputManager;
         this.initMessageSupplier = initMessageSupplier;
         this.inputClass = inputClass;
@@ -150,7 +136,8 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         delayedCommandInputManager.register(commandSender, this);
         final @Nullable String initMessage = initMessageSupplier == null ? null : initMessageSupplier.get();
         if (initMessage != null && !initMessage.isBlank())
-            commandSender.sendMessage(textFactory, TextType.INFO, initMessage);
+            // We don't use sendInfo here because the msg is already localized
+            commandSender.sendMessage(commandSender.newText().append(initMessage, TextType.INFO));
     }
 
     /**
@@ -176,11 +163,10 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
 
     private CompletableFuture<?> handleIllegalInput(Object input)
     {
-        commandSender.sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.base.error.unexpected_input_type"),
-            TextType.ERROR,
+        commandSender.sendError(
+            "commands.base.error.unexpected_input_type",
             arg -> arg.highlight(input.getClass().getName())
-        ));
+        );
 
         throw new InvalidCommandInputException(true,
             "Unexpected input type: " + input.getClass().getName() + " for request: " + this);
@@ -224,17 +210,15 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         delayedCommandInputManager.deregister(commandSender, this);
         if (getStatus() == Status.TIMED_OUT)
-            commandSender.sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.base.error.timed_out"),
-                TextType.ERROR,
-                arg -> arg.highlight(commandDefinition.getName().toLowerCase(Locale.ROOT)))
+            commandSender.sendError(
+                "commands.base.error.timed_out",
+                arg -> arg.highlight(commandDefinition.getName().toLowerCase(Locale.ROOT))
             );
 
         if (getStatus() == Status.CANCELLED)
-            commandSender.sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.base.error.cancelled"),
-                TextType.ERROR,
-                arg -> arg.highlight(commandDefinition.getName().toLowerCase(Locale.ROOT)))
+            commandSender.sendError(
+                "commands.base.error.cancelled",
+                arg -> arg.highlight(commandDefinition.getName().toLowerCase(Locale.ROOT))
             );
     }
 

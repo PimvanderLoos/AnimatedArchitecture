@@ -6,10 +6,8 @@ import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoStructuresForCommandException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
@@ -113,11 +111,11 @@ class BaseCommandTest
     @Test
     void handleRunException_shouldSendPlayerGenericErrorForUninformedException()
     {
-        final ICommandSender sender = mock();
+        final ICommandSender commandSender = mock();
         final var exception = new CommandExecutionException(false);
-        final var command = spy(TestCommand.withMocks(sender));
+        final var command = spy(TestCommand.withMocks(commandSender));
 
-        when(sender.isPlayer()).thenReturn(true);
+        when(commandSender.isPlayer()).thenReturn(true);
 
         command.handleRunException(exception);
 
@@ -194,21 +192,19 @@ class BaseCommandTest
     @Test
     void sendGenericErrorMessage_shouldSendMessage()
     {
-        final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
         final ICommandSender commandSender = mock();
-        final var command = TestCommand.withMocks(commandSender, textFactory, UnitTestUtil.initLocalizer());
+        final var command = TestCommand.withMocks(commandSender);
 
         command.sendGenericErrorMessage();
 
-        verify(commandSender).sendError(textFactory, "commands.base.error.generic");
+        verify(commandSender).sendError("commands.base.error.generic");
     }
 
     @Test
     void handlePermissionResult_shouldThrowExceptionForNoPermission()
     {
-        final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
         final ICommandSender commandSender = mock();
-        final var command = TestCommand.withMocks(commandSender, textFactory, UnitTestUtil.initLocalizer());
+        final var command = TestCommand.withMocks(commandSender);
         final PermissionsStatus permissions = new PermissionsStatus(false, false);
 
         final CommandExecutionException exception = UnitTestUtil.assertRootCause(
@@ -222,7 +218,7 @@ class BaseCommandTest
             exception.getMessage()
         );
 
-        verify(commandSender).sendError(textFactory, "commands.base.error.no_permission_for_command");
+        verify(commandSender).sendError("commands.base.error.no_permission_for_command");
     }
 
     @Test
@@ -289,8 +285,7 @@ class BaseCommandTest
     void getStructure_shouldThrowExceptionWhenNoStructureFound()
     {
         final ICommandSender commandSender = mock();
-        final ITextFactory textFactory = ITextFactory.getSimpleTextFactory();
-        final var command = TestCommand.withMocks(commandSender, textFactory, UnitTestUtil.initLocalizer());
+        final var command = TestCommand.withMocks(commandSender);
         final Structure structure = mock();
         final StructureRetriever structureRetriever = spy(StructureRetrieverFactory.ofStructure(structure));
         final PermissionLevel permissionLevel = PermissionLevel.USER;
@@ -303,7 +298,7 @@ class BaseCommandTest
             () -> command.getStructure(structureRetriever, permissionLevel).get()
         );
 
-        verify(commandSender).sendError(textFactory, "commands.base.error.cannot_find_target_structure");
+        verify(commandSender).sendError("commands.base.error.cannot_find_target_structure");
         assertTrue(exception.isUserInformed());
     }
 
@@ -345,11 +340,9 @@ class BaseCommandTest
 
         TestCommand(
             ICommandSender commandSender,
-            IExecutor executor,
-            ILocalizer localizer,
-            ITextFactory textFactory)
+            IExecutor executor)
         {
-            super(commandSender, executor, localizer, textFactory);
+            super(commandSender, executor);
         }
 
         /**
@@ -367,9 +360,7 @@ class BaseCommandTest
         {
             return new TestCommand(
                 getOrMock(objects, ICommandSender.class),
-                getOrMock(objects, IExecutor.class),
-                getOrMock(objects, ILocalizer.class),
-                getOrMock(objects, ITextFactory.class)
+                getOrMock(objects, IExecutor.class)
             );
         }
 

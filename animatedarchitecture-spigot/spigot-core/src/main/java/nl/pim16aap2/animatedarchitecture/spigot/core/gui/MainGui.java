@@ -15,17 +15,15 @@ import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
-import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
-import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.PlayerSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -50,17 +48,16 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
 
     private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
-    private final ILocalizer localizer;
     private final InfoGui.IFactory infoGuiFactory;
     private final CreateStructureGui.IFactory createStructureGuiFactory;
-    private final ITextFactory textFactory;
     private final GuiStructureDeletionManager deletionManager;
     private final IExecutor executor;
     private final ConfigSpigot config;
+    private final PersonalizedLocalizer localizer;
 
     @Getter
     @ToString.Include
-    private final PlayerSpigot inventoryHolder;
+    private final WrappedPlayer inventoryHolder;
 
     private InventoryGui inventoryGui;
 
@@ -74,26 +71,24 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     @AssistedInject
     MainGui(
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
-        ILocalizer localizer,
-        ITextFactory textFactory,
         InfoGui.IFactory infoGuiFactory,
         CreateStructureGui.IFactory createStructureGuiFactory,
         GuiStructureDeletionManager deletionManager,
         IExecutor executor,
         ConfigSpigot config,
+        PlayerFactorySpigot playerFactory,
         @Assisted IPlayer inventoryHolder,
         @Assisted List<NamedStructure> structures)
     {
-        this.textFactory = textFactory;
         this.createStructureGuiFactory = createStructureGuiFactory;
         this.deletionManager = deletionManager;
         this.executor = executor;
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
-        this.localizer = localizer;
         this.infoGuiFactory = infoGuiFactory;
         this.config = config;
-        this.inventoryHolder = Util.requireNonNull(SpigotAdapter.getPlayerSpigot(inventoryHolder), "InventoryHolder");
+        this.inventoryHolder = Util.requireNonNull(playerFactory.wrapPlayer(inventoryHolder), "InventoryHolder");
         this.structures = getStructuresMap(structures);
+        this.localizer = inventoryHolder.getPersonalizedLocalizer();
 
         this.inventoryGui = createGUI();
 
@@ -160,7 +155,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                             .orTimeout(10, TimeUnit.SECONDS)
                             .handleExceptional(e ->
                             {
-                                inventoryHolder.sendError(textFactory, localizer.getMessage("constants.error.generic"));
+                                inventoryHolder.sendError("constants.error.generic");
                                 log.atSevere().withCause(e).log("Failed to sync structure data.");
                             });
                         this.selectedStructure = null;
@@ -179,13 +174,16 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     private void addHeader(InventoryGui gui)
     {
         gui.addElement(new GuiPageElement(
-            'f', new ItemStack(Material.ARROW), GuiPageElement.PageAction.FIRST,
+            'f',
+            new ItemStack(Material.ARROW),
+            GuiPageElement.PageAction.FIRST,
             localizer.getMessage("gui.main_page.nav.first_page")));
 
         //noinspection SpellCheckingInspection
         gui.addElement(new GuiPageElement(
             'p',
-            new ItemStack(Material.BIRCH_SIGN), GuiPageElement.PageAction.PREVIOUS,
+            new ItemStack(Material.BIRCH_SIGN),
+            GuiPageElement.PageAction.PREVIOUS,
             localizer.getMessage("gui.main_page.nav.previous_page", "%prevpage%", "%pages%"))
         );
 
@@ -202,13 +200,15 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
         //noinspection SpellCheckingInspection
         gui.addElement(new GuiPageElement(
-            'n', new ItemStack(Material.BIRCH_SIGN),
+            'n',
+            new ItemStack(Material.BIRCH_SIGN),
             GuiPageElement.PageAction.NEXT,
             localizer.getMessage("gui.main_page.nav.next_page", "%nextpage%", "%pages%"))
         );
 
         gui.addElement(new GuiPageElement(
-            'l', new ItemStack(Material.ARROW),
+            'l',
+            new ItemStack(Material.ARROW),
             GuiPageElement.PageAction.LAST,
             localizer.getMessage("gui.main_page.nav.last_page"))
         );
@@ -285,10 +285,9 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                 this.redraw();
 
             if (notify)
-                inventoryHolder.sendMessage(textFactory.newText().append(
-                    localizer.getMessage("gui.notification.structure_inaccessible"),
-                    TextType.ERROR,
-                    arg -> arg.highlight(structure.getName()))
+                inventoryHolder.sendError(
+                    "gui.notification.structure_inaccessible",
+                    arg -> arg.highlight(structure.getName())
                 );
         }
     }

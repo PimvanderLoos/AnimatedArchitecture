@@ -1,6 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
-import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -13,6 +12,8 @@ import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 
 import java.util.OptionalInt;
+
+import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.assertThatMessageable;
 
 @Timeout(1)
 class CreatorPortcullisTest extends CreatorTestsUtil
@@ -66,8 +67,9 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         Mockito.when(config.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMoveLimit));
 
         Assertions.assertFalse(creator.provideBlocksToMove(blocksToMove));
-        Mockito.verify(player).sendMessage(
-            UnitTestUtil.textArgumentMatcher("creator.base.error.blocks_to_move_too_far"));
+        assertThatMessageable(player)
+            .sentErrorMessage("creator.base.error.blocks_to_move_too_far")
+            .withArgs(type.getLocalizationKey(), blocksToMove, blocksToMoveLimit);
 
         Mockito.when(config.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMove));
         Assertions.assertTrue(creator.provideBlocksToMove(blocksToMove));

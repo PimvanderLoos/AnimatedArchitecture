@@ -46,15 +46,10 @@ class AudioConfigIO
         if (!Files.isRegularFile(file))
             return Collections.emptyMap();
 
-        // Older versions of gson don't have the new method yet, so this avoids
-        // breaking on older versions.
-        @SuppressWarnings("deprecation")//
-        final JsonParser jsonParser = new JsonParser();
         try
         {
             final Reader reader = Files.newBufferedReader(file);
-            @SuppressWarnings("deprecation")//
-            final JsonObject base = jsonParser.parse(reader).getAsJsonObject();
+            final JsonObject base = JsonParser.parseReader(reader).getAsJsonObject();
             return readConfig(base);
         }
         catch (Exception | AssertionError e)

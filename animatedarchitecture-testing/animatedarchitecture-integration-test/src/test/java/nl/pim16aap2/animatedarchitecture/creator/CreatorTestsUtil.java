@@ -14,7 +14,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.DelayedCommand;
 import nl.pim16aap2.animatedarchitecture.core.commands.DelayedCommandInputRequest;
@@ -32,6 +31,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
+import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.Step;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
@@ -134,6 +134,7 @@ public class CreatorTestsUtil
             OptionalInt.of(11)
         );
 
+        UnitTestUtil.initMessageable(player);
         playerData = new PlayerData(uuid, name, limits, true, true);
 
         when(player.getUUID()).thenReturn(uuid);
@@ -162,10 +163,9 @@ public class CreatorTestsUtil
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
 
         final var assistedStepFactory = Mockito.mock(Step.Factory.IFactory.class);
-        //noinspection deprecation
         when(assistedStepFactory
-            .stepName(Mockito.anyString()))
-            .thenAnswer(invocation -> new Step.Factory(localizer, invocation.getArgument(0, String.class)));
+            .stepName(any(), anyString()))
+            .thenAnswer(invocation -> new Step.Factory(invocation.getArgument(0), invocation.getArgument(1)));
 
         when(protectionHookManager
             .canBreakBlock(Mockito.any(), Mockito.any()))
@@ -176,8 +176,6 @@ public class CreatorTestsUtil
 
         context = new ToolUser.Context(
             structureBuilder,
-            localizer,
-            ITextFactory.getSimpleTextFactory(),
             toolUserManager,
             databaseManager,
             limitsManager,
@@ -193,11 +191,6 @@ public class CreatorTestsUtil
         initCommands();
 
         initPlayer();
-
-//        final IPlayerFactory playerFactory = Mockito.mock(IPlayerFactory.class);
-//        when(playerFactory
-//            .create(playerData.getUUID()))
-//            .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
 
         // Immediately return whatever structure was being added to the database as if it was successful.
         when(databaseManager
@@ -245,15 +238,10 @@ public class CreatorTestsUtil
     {
         final AssistedFactoryMocker<DelayedCommandInputRequest, DelayedCommandInputRequest.IFactory> assistedFactory =
             new AssistedFactoryMocker<>(DelayedCommandInputRequest.class, DelayedCommandInputRequest.IFactory.class)
-                .setMock(IExecutor.class, executor)
-                .setMock(ILocalizer.class, localizer)
-                .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory())
-                .setMock(DelayedCommandInputManager.class, delayedCommandInputManager);
+                .injectParameters(executor, delayedCommandInputManager);
 
         final var commandContext = new DelayedCommand.Context(
             delayedCommandInputManager,
-            localizer,
-            ITextFactory.getSimpleTextFactory(),
             () -> commandFactory
         );
 
@@ -325,7 +313,7 @@ public class CreatorTestsUtil
     {
         applySteps(creator, input);
         verify(creator.getPlayer(), never())
-            .sendMessage(UnitTestUtil.textArgumentMatcher("creator.base.error.creation_cancelled"));
+            .sendSuccess(eq("creator.base.error.creation_cancelled"), any(Text.ArgumentCreator[].class));
         verify(databaseManager).addStructure(actualStructure, player);
     }
 }

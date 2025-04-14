@@ -39,6 +39,7 @@ final class Localizer implements ILocalizer
     private Locale defaultLocale;
     private @Nullable URLClassLoader classLoader = null;
     private List<Locale> localeList;
+    private boolean allowClientLocales;
 
     /**
      * @param directory
@@ -91,7 +92,7 @@ final class Localizer implements ILocalizer
     }
 
     @Override
-    public String getMessage(String key, Locale locale, Object... args)
+    public String getMessage(String key, @Nullable Locale clientLocale, Object... args)
     {
         if (classLoader == null)
         {
@@ -99,9 +100,11 @@ final class Localizer implements ILocalizer
             return formatKeyNotFoundMessage(key);
         }
 
+        final Locale resultLocale = allowClientLocales && clientLocale != null ? clientLocale : defaultLocale;
+
         try
         {
-            final var bundle = ResourceBundle.getBundle(baseName, locale, classLoader);
+            final var bundle = ResourceBundle.getBundle(baseName, resultLocale, classLoader);
 
             if (!bundle.containsKey(key))
             {
@@ -117,12 +120,6 @@ final class Localizer implements ILocalizer
             log.atWarning().log("Failed to find localization key '%s'! Reason: Bundle does not exist!", key);
             return formatKeyNotFoundMessage(key);
         }
-    }
-
-    @Override
-    public String getMessage(String key, Object... args)
-    {
-        return getMessage(key, defaultLocale, args);
     }
 
     @Override
@@ -222,5 +219,10 @@ final class Localizer implements ILocalizer
     {
         shutdown();
         init();
+    }
+
+    public void allowClientLocales(boolean allowClientLocales)
+    {
+        this.allowClientLocales = allowClientLocales;
     }
 }

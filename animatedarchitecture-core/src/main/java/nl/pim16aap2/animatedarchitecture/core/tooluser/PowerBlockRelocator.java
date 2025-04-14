@@ -44,8 +44,9 @@ public class PowerBlockRelocator extends ToolUser
         this.structure = structure;
 
         giveTool(
-            "tool_user.base.stick_name", "tool_user.powerblock_relocator.stick_lore",
-            textFactory.newText().append(localizer.getMessage("tool_user.powerblock_relocator.init"), TextType.INFO));
+            "tool_user.base.stick_name",
+            "tool_user.powerblock_relocator.stick_lore",
+            player.newText().append(localizer.getMessage("tool_user.powerblock_relocator.init"), TextType.INFO));
 
         init();
     }
@@ -54,9 +55,10 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (!loc.getWorld().equals(structure.getWorld()))
         {
-            getPlayer().sendMessage(textFactory.newText().append(
-                localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch"), TextType.ERROR,
-                arg -> arg.highlight(localizer.getStructureType(structure.getType()))));
+            getPlayer().sendError(
+                "tool_user.powerblock_relocator.error.world_mismatch",
+                arg -> arg.localizedHighlight(structure.getType())
+            );
             return CompletableFuture.completedFuture(false);
         }
 
@@ -89,23 +91,20 @@ public class PowerBlockRelocator extends ToolUser
         {
             log.atSevere().withStackTrace(StackSize.FULL).log(
                 "newLoc is null, which should not be possible at this point!");
-            getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
+            getPlayer().sendError("constants.error.generic");
         }
         else if (structure.getPowerBlock().equals(newLoc.getPosition()))
-            getPlayer().sendError(
-                textFactory,
-                localizer.getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
+            getPlayer().sendError("tool_user.powerblock_relocator.error.location_unchanged");
         else
         {
             structure.setPowerBlock(newLoc.getPosition());
             structure
                 .syncData()
                 .thenRun(() ->
-                    getPlayer().sendSuccess(textFactory,
-                        localizer.getMessage("tool_user.powerblock_relocator.success")))
+                    getPlayer().sendSuccess("tool_user.powerblock_relocator.success"))
                 .handleExceptional(ex ->
                 {
-                    getPlayer().sendError(textFactory, localizer.getMessage("constants.error.generic"));
+                    getPlayer().sendError("constants.error.generic");
                     log.atSevere().withCause(ex).log("Failed to sync structure data after powerblock relocation.");
                 });
         }
@@ -117,13 +116,13 @@ public class PowerBlockRelocator extends ToolUser
         throws InstantiationException
     {
         final Step stepPowerblockRelocatorInit = stepFactory
-            .stepName("RELOCATE_POWER_BLOCK_INIT")
+            .stepName(localizer, "RELOCATE_POWER_BLOCK_INIT")
             .messageKey("tool_user.powerblock_relocator.init")
             .stepExecutor(new AsyncStepExecutor<>(ILocation.class, this::moveToLoc))
             .waitForUserInput(true).construct();
 
         final Step stepPowerblockRelocatorCompleted = stepFactory
-            .stepName("RELOCATE_POWER_BLOCK_COMPLETED")
+            .stepName(localizer, "RELOCATE_POWER_BLOCK_COMPLETED")
             .messageKey("tool_user.powerblock_relocator.success")
             .stepExecutor(new StepExecutorVoid(this::completeProcess))
             .waitForUserInput(false).construct();

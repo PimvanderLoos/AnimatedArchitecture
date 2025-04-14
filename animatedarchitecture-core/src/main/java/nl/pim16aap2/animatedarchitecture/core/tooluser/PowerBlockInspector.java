@@ -38,17 +38,20 @@ public class PowerBlockInspector extends ToolUser
 
     @AssistedInject
     public PowerBlockInspector(
-        ToolUser.Context context, PowerBlockManager powerBlockManager,
-        @Assisted IPlayer player, @Assisted boolean bypassPermission)
+        ToolUser.Context context,
+        PowerBlockManager powerBlockManager,
+        @Assisted IPlayer player,
+        @Assisted boolean bypassPermission
+    )
     {
         super(context, player);
         this.powerBlockManager = powerBlockManager;
         this.bypassPermission = bypassPermission;
 
         giveTool(
-            "tool_user.base.stick_name", "tool_user.powerblock_inspector.stick_lore",
-            textFactory.newText()
-                .append(localizer.getMessage("tool_user.powerblock_inspector.init"), TextType.INFO)
+            "tool_user.base.stick_name",
+            "tool_user.powerblock_inspector.stick_lore",
+            player.newText().append(localizer.getMessage("tool_user.powerblock_inspector.init"), TextType.INFO)
         );
 
         init();
@@ -66,10 +69,7 @@ public class PowerBlockInspector extends ToolUser
                 else
                     filtered = lst.stream().filter(structure -> structure.isOwner(getPlayer())).toList();
                 if (filtered.isEmpty())
-                    getPlayer().sendError(
-                        textFactory,
-                        localizer.getMessage("tool_user.power_block_inspected.error.no_structures_found")
-                    );
+                    getPlayer().sendError("tool_user.power_block_inspected.error.no_structures_found");
                 else
                     sendPowerBlockInfo(getPlayer(), filtered);
             }).handleExceptional(ex ->
@@ -79,7 +79,7 @@ public class PowerBlockInspector extends ToolUser
 
     private void sendPowerBlockInfo(IPlayer player, List<Structure> filtered)
     {
-        final Text text = textFactory.newText();
+        final Text text = player.newText();
         text.append(localizer.getMessage("tool_user.power_block_inspected.result.header"), TextType.INFO).append('\n');
 
         for (final Structure structure : filtered)
@@ -93,7 +93,7 @@ public class PowerBlockInspector extends ToolUser
         throws InstantiationException
     {
         final Step stepBlocksToMove = stepFactory
-            .stepName("INSPECT_POWER_BLOCK")
+            .stepName(localizer, "INSPECT_POWER_BLOCK")
             .messageKey("tool_user.powerblock_inspector.init")
             .stepExecutor(new StepExecutorLocation(this::inspectLoc))
             .waitForUserInput(true)

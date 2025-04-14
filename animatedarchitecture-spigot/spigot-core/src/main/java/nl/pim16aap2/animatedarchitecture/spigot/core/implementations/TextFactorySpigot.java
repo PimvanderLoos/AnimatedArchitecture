@@ -7,6 +7,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
+import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.ColorScheme;
 import nl.pim16aap2.animatedarchitecture.core.text.ITextComponentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
@@ -47,9 +48,9 @@ public class TextFactorySpigot implements ITextFactory
     }
 
     @Override
-    public Text newText()
+    public Text newText(@Nullable PersonalizedLocalizer personalizedLocalizer)
     {
-        return new Text(textComponentFactory);
+        return new Text(textComponentFactory, personalizedLocalizer);
     }
 
     @Accessors(chain = true, fluent = true)

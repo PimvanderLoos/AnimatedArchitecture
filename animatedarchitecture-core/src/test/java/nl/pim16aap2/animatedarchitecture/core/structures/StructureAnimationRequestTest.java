@@ -3,11 +3,9 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.testing.logging.WithLogCapture;
@@ -23,6 +21,8 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.UUID;
+
+import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.assertThatMessageable;
 
 @Timeout(1)
 @WithLogCapture
@@ -48,13 +48,11 @@ class StructureAnimationRequestTest
 
         Mockito.when(config.skipAnimationsByDefault()).thenReturn(true);
 
-        final var structureAnimationRequestFactory = new AssistedFactoryMocker<>(
-            StructureAnimationRequest.class,
-            StructureAnimationRequest.IFactory.class)
-            .setMock(ILocalizer.class, localizer)
-            .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory())
-            .setMock(IPlayerFactory.class, playerFactory)
-            .getFactory();
+
+        final var structureAnimationRequestFactory =
+            new AssistedFactoryMocker<>(StructureAnimationRequest.class, StructureAnimationRequest.IFactory.class)
+                .injectParameters(localizer, ITextFactory.getSimpleTextFactory(), playerFactory)
+                .getFactory();
 
         builder = new StructureAnimationRequestBuilder(
             structureAnimationRequestFactory,
@@ -81,9 +79,9 @@ class StructureAnimationRequestTest
         final var request = newToggleRequest(structure, player, StructureActionType.OPEN);
 
         Assertions.assertFalse(request.isValidActionType(structure));
-        Mockito
-            .verify(player)
-            .sendMessage(UnitTestUtil.textArgumentMatcher("structure_action.open.error.type_has_no_open_status"));
+        assertThatMessageable(player)
+            .sentErrorMessage("structure_action.open.error.type_has_no_open_status")
+            .withArgs(structure.getType().getLocalizationKey(), structure.getName());
     }
 
     @Test
@@ -94,9 +92,9 @@ class StructureAnimationRequestTest
 
         Assertions.assertFalse(request.isValidActionType(structure));
 
-        Mockito
-            .verify(player)
-            .sendMessage(UnitTestUtil.textArgumentMatcher("structure_action.close.error.type_has_no_open_status"));
+        assertThatMessageable(player)
+            .sentErrorMessage("structure_action.close.error.type_has_no_open_status")
+            .withArgs(structure.getType().getLocalizationKey(), structure.getName());
     }
 
     @Test
