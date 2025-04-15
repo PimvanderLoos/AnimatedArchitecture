@@ -3,12 +3,10 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CannotAddPropertyException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.PropertyCannotBeEditedByUserException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
@@ -33,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
+import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.assertThatMessageable;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -58,8 +57,8 @@ class SetPropertyTest
     void init()
         throws NoSuchMethodException
     {
-        assistedFactoryMocker = new AssistedFactoryMocker<>(SetProperty.class, SetProperty.IFactory.class)
-            .setMock(DatabaseManager.class, databaseManager);
+        assistedFactoryMocker =
+            new AssistedFactoryMocker<>(SetProperty.class, SetProperty.IFactory.class).injectParameter(databaseManager);
 
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
     }
@@ -73,100 +72,105 @@ class SetPropertyTest
     @Test
     void validateInput_shouldSucceedForValidInputForUserEditableProperty()
     {
+        // Setup
         final Property<String> property = mock();
         when(property.getType()).thenReturn(String.class);
         when(property.getPropertyAccessLevel()).thenReturn(PropertyAccessLevel.USER_EDITABLE);
 
         final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
 
+        // Execute & Verify
         assertDoesNotThrow(setProperty::validateInput);
+        verify(commandSender).getPersonalizedLocalizer();
     }
 
     @Test
     void validateInput_shouldAcceptNullValue()
     {
+        // Setup
         final Property<String> property = mock();
         when(property.getPropertyAccessLevel()).thenReturn(PropertyAccessLevel.USER_EDITABLE);
 
         final SetProperty setProperty = setPropertyWithDefaults(property, null);
 
+        // Execute & Verify
         assertDoesNotThrow(setProperty::validateInput);
+        verify(commandSender).getPersonalizedLocalizer();
     }
 
     @Test
     void validateInput_shouldThrowExceptionForInvalidValueType()
     {
+        // Setup
         final Property<String> property = mock();
         when(property.getType()).thenReturn(String.class);
 
-        final SetProperty setProperty = setPropertyWithDefaults(
-            populateTextFactoryAndLocalizer(assistedFactoryMocker),
-            property,
-            12
-        );
+        final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, 12);
 
+        // Execute & Verify
         assertThatExceptionOfType(InvalidCommandInputException.class)
             .isThrownBy(setProperty::validateInput)
             .withMessage("Value '%d' cannot be assigned to property 'null'.", 12)
             .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
             .isTrue();
 
-        verify(commandSender)
-            .sendMessage(UnitTestUtil.textArgumentMatcher("commands.set_property.error.invalid_value_type"));
+        assertThatMessageable(commandSender).sentErrorMessage("commands.set_property.error.invalid_value_type");
+        verify(commandSender).getPersonalizedLocalizer();
     }
 
     @ParameterizedTest
     @EnumSource(value = PropertyAccessLevel.class, names = {"USER_EDITABLE"}, mode = EnumSource.Mode.EXCLUDE)
     void validateInput_shouldThrowExceptionForNonEditableProperty(PropertyAccessLevel propertyAccessLevel)
     {
+        // Setup
         final Property<String> property = mockPropertyWithNamespacedKey();
 
         when(property.getType()).thenReturn(String.class);
         when(property.getPropertyAccessLevel()).thenReturn(propertyAccessLevel);
 
-        final SetProperty setProperty = setPropertyWithDefaults(
-            populateTextFactoryAndLocalizer(assistedFactoryMocker),
-            property,
-            "newValue"
-        );
+        final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, "newValue");
 
+        // Execute & Verify
         assertThatExceptionOfType(PropertyCannotBeEditedByUserException.class)
             .isThrownBy(setProperty::validateInput)
             .withMessage(property.getNamespacedKey().toString())
             .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
             .isTrue();
 
-        verify(commandSender)
-            .sendMessage(UnitTestUtil.textArgumentMatcher("commands.set_property.error.property_not_editable"));
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.set_property.error.property_not_editable")
+            .withArgs(property.getNamespacedKey().getKey());
+        verify(commandSender).getPersonalizedLocalizer();
     }
 
     @Test
     void performAction0_shouldThrowExceptionWhenPropertyCannotBeAdded()
     {
+        // Setup
         final Property<?> property = mockPropertyWithNamespacedKey();
 
         when(structure.hasProperty(property)).thenReturn(false);
         when(property.canBeAdded()).thenReturn(false);
         UnitTestUtil.setStructureLocalization(structure);
 
-        final SetProperty setProperty = setPropertyWithDefaults(
-            populateTextFactoryAndLocalizer(assistedFactoryMocker),
-            property,
-            "newValue"
-        );
+        final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, "newValue");
 
+        // Execute & Verify
         assertThatExceptionOfType(CannotAddPropertyException.class)
             .isThrownBy(() -> setProperty.performAction0(structure))
             .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
             .isTrue();
 
-        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher(
-            "commands.set_property.error.property_cannot_be_added"));
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.set_property.error.property_cannot_be_added")
+            .withArgs(property.getNamespacedKey().getKey(), "StructureType");
+        verify(commandSender).getPersonalizedLocalizer();
     }
 
     @Test
     void performAction0_shouldSucceedWhenPropertyCanBeAdded()
     {
+        // Setup
         final Property<String> property = mock();
         final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
 
@@ -174,40 +178,45 @@ class SetPropertyTest
         when(property.canBeAdded()).thenReturn(true);
         when(property.cast("newValue")).thenAnswer(invocation -> invocation.getArguments()[0]);
 
+        // Execute
         assertDoesNotThrow(() -> setProperty.performAction0(structure));
 
+        // Verify
         verify(structure).setPropertyValue(property, "newValue");
+        verify(commandSender).getPersonalizedLocalizer();
     }
 
     @Test
     void performAction0_shouldSucceedWhenPropertyExists()
     {
+        // Setup
         final Property<String> property = mock();
         final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
 
         when(structure.hasProperty(property)).thenReturn(true);
         when(property.cast("newValue")).thenAnswer(invocation -> invocation.getArguments()[0]);
 
+        // Execute
         assertDoesNotThrow(() -> setProperty.performAction0(structure));
 
+        // Verify
         verify(structure).setPropertyValue(property, "newValue");
+        verify(commandSender).getPersonalizedLocalizer();
     }
 
     @Test
     void performAction0_shouldThrowNewExceptionWhenExceptionOccurs()
     {
+        // Setup
         final String newValue = "newValue";
         final Property<String> property = mockPropertyWithNamespacedKey();
-        final SetProperty setProperty = setPropertyWithDefaults(
-            populateTextFactoryAndLocalizer(assistedFactoryMocker),
-            property,
-            newValue
-        );
+        final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, newValue);
 
         when(structure.hasProperty(property)).thenReturn(true);
         when(property.cast("newValue")).thenAnswer(invocation -> invocation.getArguments()[0]);
         doThrow(new RuntimeException("Test exception")).when(structure).setPropertyValue(property, newValue);
 
+        // Execute & Verify
         assertThatExceptionOfType(CommandExecutionException.class)
             .isThrownBy(() -> setProperty.performAction0(structure))
             .withMessageStartingWith("Failed to set value 'newValue' for property 'property' for structure ")
@@ -215,12 +224,14 @@ class SetPropertyTest
             .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
             .isTrue();
 
-        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher("commands.base.error.generic"));
+        assertThatMessageable(commandSender).sentErrorMessage("commands.base.error.generic");
+        verify(commandSender).getPersonalizedLocalizer();
     }
 
     @Test
     void performAction_shouldSyncStructureDataWhenSuccessIsTrue()
     {
+        // Setup
         final Property<?> property = mockPropertyWithNamespacedKey();
         final IExecutor executor = mock();
         final StructureSnapshot snapshot = mock(StructureSnapshot.class);
@@ -229,36 +240,40 @@ class SetPropertyTest
         when(structure.getSnapshot()).thenReturn(snapshot);
         when(databaseManager.syncStructureData(snapshot)).thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
-        final SetProperty setProperty = spy(setPropertyWithDefaults(
-            populateTextFactoryAndLocalizer(assistedFactoryMocker)
-                .setMock(IExecutor.class, executor),
-            property,
-            "newValue"
-        ));
+        final SetProperty setProperty =
+            spy(setPropertyWithDefaults(assistedFactoryMocker.injectParameter(executor), property, "newValue"));
+
         doNothing().when(setProperty).performAction0(structure);
 
+        // Execute
         setProperty.performAction(structure).join();
 
+        // Verify
         verify(databaseManager).syncStructureData(snapshot);
-        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher("commands.set_property.success"));
+        assertThatMessageable(commandSender)
+            .sentSuccessMessage("commands.set_property.success")
+            .withArgs(property.getNamespacedKey().getKey());
+        verify(commandSender).getPersonalizedLocalizer();
     }
 
     @Test
     void performAction_shouldAppendExceptionContext()
     {
+        // Setup
         final Property<Integer> property = mockPropertyWithNamespacedKey();
         final IExecutor executor = mock();
 
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
 
         final SetProperty setProperty = spy(setPropertyWithDefaults(
-            assistedFactoryMocker.setMock(IExecutor.class, executor),
+            assistedFactoryMocker.injectParameter(executor),
             property,
             12
         ));
 
         doThrow(new CommandExecutionException(true, "TEST EXCEPTION")).when(setProperty).performAction0(structure);
 
+        // Execute & Verify
         final var thrown = AssertionBuilder
             .assertHasExceptionContext(setProperty.performAction(structure))
             .withMessage("Set value '12' for property 'property' for structure 'null'.")
@@ -270,31 +285,36 @@ class SetPropertyTest
             .hasMessage("TEST EXCEPTION")
             .extracting("userInformed", InstanceOfAssertFactories.BOOLEAN)
             .isTrue();
+        verify(commandSender).getPersonalizedLocalizer();
     }
 
     @Test
     void handleDatabaseActionSuccess_shouldSendSuccessMessage()
     {
+        // Setup
         final Property<?> property = mockPropertyWithNamespacedKey();
 
-        final SetProperty setProperty = setPropertyWithDefaults(
-            populateTextFactoryAndLocalizer(assistedFactoryMocker),
-            property,
-            "newValue"
-        );
+        final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, "newValue");
 
+        // Execute
         setProperty.handleDatabaseActionSuccess(structure);
 
-        verify(commandSender).sendMessage(UnitTestUtil.textArgumentMatcher("commands.set_property.success"));
+        assertThatMessageable(commandSender)
+            .sentSuccessMessage("commands.set_property.success")
+            .withArgs(property.getNamespacedKey().getKey());
+        verify(commandSender).getPersonalizedLocalizer();
     }
 
     @Test
     void getCommand_shouldReturnCorrectCommandDefinition()
     {
+        // Setup
         final Property<?> property = mock();
         final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
 
+        // Execute & Verify
         assertEquals(CommandDefinition.SET_PROPERTY, setProperty.getCommand());
+        verify(commandSender).getPersonalizedLocalizer();
     }
 
     private SetProperty setPropertyWithDefaults(Property<?> property, @Nullable Object newValue)
@@ -337,13 +357,5 @@ class SetPropertyTest
         final NamespacedKey namespacedKey = NamespacedKey.of("test:property");
         when(property.getNamespacedKey()).thenReturn(namespacedKey);
         return property;
-    }
-
-    private AssistedFactoryMocker<SetProperty, SetProperty.IFactory> populateTextFactoryAndLocalizer(
-        AssistedFactoryMocker<SetProperty, SetProperty.IFactory> assistedFactoryMocker)
-    {
-        return assistedFactoryMocker
-            .setMock(ILocalizer.class, UnitTestUtil.initLocalizer())
-            .setMock(ITextFactory.class, ITextFactory.getSimpleTextFactory());
     }
 }

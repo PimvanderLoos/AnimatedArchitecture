@@ -7,19 +7,16 @@ import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CannotAddPropertyException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.PropertyCannotBeEditedByUserException;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyAccessLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
-import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
@@ -58,11 +55,9 @@ public class SetProperty extends StructureTargetCommand
         @Assisted Property<?> property,
         @Assisted @Nullable Object newValue,
         DatabaseManager databaseManager,
-        IExecutor executor,
-        ILocalizer localizer,
-        ITextFactory textFactory)
+        IExecutor executor)
     {
-        super(commandSender, executor, localizer, textFactory, structureRetriever, StructureAttribute.SET_PROPERTY);
+        super(commandSender, executor, structureRetriever, StructureAttribute.SET_PROPERTY);
         this.property = property;
         this.newValue = newValue;
         this.databaseManager = databaseManager;
@@ -79,10 +74,7 @@ public class SetProperty extends StructureTargetCommand
     {
         if (newValue != null && !property.getType().isAssignableFrom(newValue.getClass()))
         {
-            getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.set_property.error.invalid_value_type"),
-                TextType.ERROR
-            ));
+            getCommandSender().sendError("commands.set_property.error.invalid_value_type");
 
             throw new InvalidCommandInputException(
                 true,
@@ -94,11 +86,10 @@ public class SetProperty extends StructureTargetCommand
 
         if (property.getPropertyAccessLevel() != PropertyAccessLevel.USER_EDITABLE)
         {
-            getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.set_property.error.property_not_editable"),
-                TextType.ERROR,
+            getCommandSender().sendError(
+                "commands.set_property.error.property_not_editable",
                 arg -> arg.highlight(property.getNamespacedKey().getKey())
-            ));
+            );
             throw new PropertyCannotBeEditedByUserException(true, property.getNamespacedKey().toString());
         }
     }
@@ -113,12 +104,11 @@ public class SetProperty extends StructureTargetCommand
     {
         if (!structure.hasProperty(property) && !property.canBeAdded())
         {
-            getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.set_property.error.property_cannot_be_added"),
-                TextType.ERROR,
+            getCommandSender().sendError(
+                "commands.set_property.error.property_cannot_be_added",
                 arg -> arg.highlight(property.getNamespacedKey().getKey()),
-                arg -> arg.highlight(localizer.getStructureType(structure))
-            ));
+                arg -> arg.localizedHighlight(structure)
+            );
             throw new CannotAddPropertyException(true, property.getNamespacedKey().toString());
         }
 
@@ -128,10 +118,7 @@ public class SetProperty extends StructureTargetCommand
         }
         catch (Exception exception)
         {
-            getCommandSender().sendMessage(textFactory.newText().append(
-                localizer.getMessage("commands.base.error.generic"),
-                TextType.ERROR
-            ));
+            getCommandSender().sendError("commands.base.error.generic");
 
             throw new CommandExecutionException(
                 true,
@@ -165,11 +152,10 @@ public class SetProperty extends StructureTargetCommand
     @Override
     public void handleDatabaseActionSuccess(Structure structure)
     {
-        getCommandSender().sendMessage(textFactory.newText().append(
-            localizer.getMessage("commands.set_property.success"),
-            TextType.SUCCESS,
+        getCommandSender().sendSuccess(
+            "commands.set_property.success",
             arg -> arg.highlight(property.getNamespacedKey().getKey())
-        ));
+        );
     }
 
     /**

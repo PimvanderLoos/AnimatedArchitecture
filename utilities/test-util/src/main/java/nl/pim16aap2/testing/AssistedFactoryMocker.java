@@ -893,7 +893,7 @@ public class AssistedFactoryMocker<T, U>
             if (!Objects.equals(this.named, named))
                 return false;
 
-            return type.isAssignableFrom(injectedParameterType);
+            return type != Object.class && type.isAssignableFrom(injectedParameterType);
         }
     }
 
