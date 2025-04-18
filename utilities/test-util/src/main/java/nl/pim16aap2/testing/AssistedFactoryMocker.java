@@ -343,6 +343,7 @@ public class AssistedFactoryMocker<T, U>
         }
         catch (Exception e)
         {
+            //noinspection ConstantValue
             throw new RuntimeException(String.format("""
                     Failed to create new instance of target class: '%s'
                     Used factory method: '%s'
