@@ -181,6 +181,20 @@ public class AssistedFactoryMocker<T, U>
     }
 
     /**
+     * Shortcut for {@link #AssistedFactoryMocker(Class, Class, MockSettings)}.
+     *
+     * @param factoryClass
+     *     The factory class that instantiates the target class.
+     * @throws IllegalArgumentException
+     *     If the factory method or the target constructor could not be found.
+     */
+    public AssistedFactoryMocker(Class<U> factoryClass)
+        throws IllegalArgumentException
+    {
+        this(AssistedFactoryMocker.findTargetClass(factoryClass), factoryClass);
+    }
+
+    /**
      * Creates a new {@link AssistedFactoryMocker} instance using the mocked objects from the provided test class.
      * <p>
      * This method is a shortcut for {@link #injectMocksFromTestClass(Class, Class, Object)}.
