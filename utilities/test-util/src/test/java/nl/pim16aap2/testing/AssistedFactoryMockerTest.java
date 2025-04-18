@@ -22,6 +22,38 @@ import static org.mockito.Mockito.*;
 class AssistedFactoryMockerTest
 {
     @Test
+    void findTargetClass_shouldReturnClass()
+    {
+        assertThat(AssistedFactoryMocker.findTargetClass(TestClassWithAnnotation.IFactory.class))
+            .isEqualTo(TestClassWithAnnotation.class);
+    }
+
+    @Test
+    void findTargetClass_shouldThrowExceptionForInvalidClass()
+    {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> AssistedFactoryMocker.findTargetClass(Object.class))
+            .withCauseInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void injectParameter_withoutName_shouldInjectParameter()
+    {
+        // Setup
+        final var afm =
+            new AssistedFactoryMocker<>(TestClassWithAnnotation.class, TestClassWithAnnotation.IFactory.class);
+
+        final String testVal = "TestVal";
+
+        // Execute
+        final TestClassWithAnnotation.IFactory factory = afm.injectParameter(String.class, testVal).getFactory();
+        final var result = factory.create(new Object());
+
+        // Verify
+        assertThat(result.str).isEqualTo(testVal);
+    }
+
+    @Test
     void testGetParameterName()
         throws NoSuchMethodException
     {
@@ -137,7 +169,6 @@ class AssistedFactoryMockerTest
         try (var ignored = MockitoAnnotations.openMocks(testObj))
         {
             final var afm = AssistedFactoryMocker.injectMocksFromTestClass(
-                TestClassWithAnnotation.class,
                 TestClassWithAnnotation.IFactory.class,
                 testObj
             );
