@@ -122,11 +122,11 @@ public class AssistedFactoryMocker<T, U>
      * @param mockSettings
      *     The mock settings that are used to create the injected objects for the factory (i.e. the objects that are not
      *     provided by the factory method).
-     * @throws NoSuchMethodException
+     * @throws IllegalArgumentException
      *     If the factory method or the target constructor could not be found.
      */
     public AssistedFactoryMocker(Class<T> targetClass, Class<U> factoryClass, MockSettings mockSettings)
-        throws NoSuchMethodException
+        throws IllegalArgumentException
     {
         if (!factoryClass.isAnnotationPresent(AssistedFactory.class))
             throw new IllegalArgumentException(
@@ -157,11 +157,11 @@ public class AssistedFactoryMocker<T, U>
      *     The factory class that instantiates the target class.
      * @param defaultAnswer
      *     The default answer that is used for all mocks that are created for the factory.
-     * @throws NoSuchMethodException
+     * @throws IllegalArgumentException
      *     If the factory method or the target constructor could not be found.
      */
     public AssistedFactoryMocker(Class<T> targetClass, Class<U> factoryClass, Answer<?> defaultAnswer)
-        throws NoSuchMethodException
+        throws IllegalArgumentException
     {
         this(targetClass, factoryClass, Mockito.withSettings().defaultAnswer(defaultAnswer));
     }
@@ -171,11 +171,11 @@ public class AssistedFactoryMocker<T, U>
      *     The class that is instantiated by the factory.
      * @param factoryClass
      *     The factory class that instantiates the target class.
-     * @throws NoSuchMethodException
+     * @throws IllegalArgumentException
      *     If the factory method or the target constructor could not be found.
      */
     public AssistedFactoryMocker(Class<T> targetClass, Class<U> factoryClass)
-        throws NoSuchMethodException
+        throws IllegalArgumentException
     {
         this(targetClass, factoryClass, Mockito.withSettings());
     }
@@ -198,13 +198,13 @@ public class AssistedFactoryMocker<T, U>
      *     The type of the factory that instantiates the target class.
      * @return A new {@link AssistedFactoryMocker} instance.
      *
-     * @throws NoSuchMethodException
+     * @throws IllegalArgumentException
      *     If the factory method or the target constructor could not be found.
      */
     public static <T, U> AssistedFactoryMocker<T, U> injectMocksFromTestClass(
         Class<U> factoryClass,
         Object testInstance)
-        throws NoSuchMethodException
+        throws IllegalArgumentException
     {
         final Method method = findFactoryMethod(null, factoryClass);
         @SuppressWarnings("unchecked") final Class<T> targetClass = (Class<T>) method.getReturnType();
@@ -229,14 +229,14 @@ public class AssistedFactoryMocker<T, U>
      *     The type of the factory that instantiates the target class.
      * @return A new {@link AssistedFactoryMocker} instance.
      *
-     * @throws NoSuchMethodException
+     * @throws IllegalArgumentException
      *     If the factory method or the target constructor could not be found.
      */
     public static <T, U> AssistedFactoryMocker<T, U> injectMocksFromTestClass(
         Class<T> targetClass,
         Class<U> factoryClass,
         Object testInstance)
-        throws NoSuchMethodException
+        throws IllegalArgumentException
     {
         final List<Field> fields = ReflectionBuilder
             .findField()
@@ -612,11 +612,11 @@ public class AssistedFactoryMocker<T, U>
      *     The factory class to analyze.
      * @return The factory method.
      *
-     * @throws NoSuchMethodException
+     * @throws IllegalArgumentException
      *     When no factory method could be found that meets the requirements.
      */
     static Method findFactoryMethod(@Nullable Class<?> targetClass, Class<?> factoryClass)
-        throws NoSuchMethodException
+        throws IllegalArgumentException
     {
         @Nullable Method result = null;
         for (final Method method : factoryClass.getDeclaredMethods())
@@ -642,7 +642,7 @@ public class AssistedFactoryMocker<T, U>
         if (result != null)
             return result;
 
-        throw new NoSuchMethodException("Failed to find non-default creation method in factory class: " +
+        throw new IllegalArgumentException("Failed to find non-default creation method in factory class: " +
             factoryClass + " with return type: " + targetClass);
     }
 
@@ -657,11 +657,11 @@ public class AssistedFactoryMocker<T, U>
      *     The type of the class.
      * @return The target constructor.
      *
-     * @throws NoSuchMethodException
+     * @throws IllegalArgumentException
      *     When no constructor could be found that meets the requirements.
      */
     static <T> Constructor<T> findTargetCtor(Class<T> targetClass)
-        throws NoSuchMethodException
+        throws IllegalArgumentException
     {
         for (final Constructor<?> ctor : targetClass.getDeclaredConstructors())
         {
@@ -671,7 +671,7 @@ public class AssistedFactoryMocker<T, U>
             //noinspection unchecked
             return (Constructor<T>) ctor;
         }
-        throw new NoSuchMethodException(
+        throw new IllegalArgumentException(
             "Failed to find constructor annotated with " + AssistedInject.class + " in target class: " + targetClass);
     }
 

@@ -52,7 +52,6 @@ class AssistedFactoryMockerTest
 
     @Test
     void testFullMock()
-        throws NoSuchMethodException
     {
         final AssistedFactoryMocker<TestClassWithAnnotation, TestClassWithAnnotation.IFactory> mocker =
             new AssistedFactoryMocker<>(TestClassWithAnnotation.class, TestClassWithAnnotation.IFactory.class);
@@ -82,7 +81,6 @@ class AssistedFactoryMockerTest
 
     @Test
     void injectParameters_shouldMapUntypedParameters()
-        throws NoSuchMethodException
     {
         // Setup
         final var afm =
@@ -102,7 +100,6 @@ class AssistedFactoryMockerTest
 
     @Test
     void injectParameters_shouldMapUntypedMockedParameters()
-        throws NoSuchMethodException
     {
         // Setup
         final var afm =
@@ -121,7 +118,6 @@ class AssistedFactoryMockerTest
 
     @Test
     void injectParameters_shouldThrowExceptionForUnmappedType()
-        throws NoSuchMethodException
     {
         // Setup
         final var afm =
@@ -138,7 +134,7 @@ class AssistedFactoryMockerTest
         throws Exception
     {
         final var testObj = new TestClassWithMockAnnotatedFields();
-        try (var mocks = MockitoAnnotations.openMocks(testObj))
+        try (var ignored = MockitoAnnotations.openMocks(testObj))
         {
             final var afm = AssistedFactoryMocker.injectMocksFromTestClass(
                 TestClassWithAnnotation.class,
