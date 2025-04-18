@@ -373,6 +373,41 @@ public class AssistedFactoryMocker<T, U>
     }
 
     /**
+     * See {@link #getParameter(Class, String)}.
+     * <p>
+     * Shortcut for unnamed parameters.
+     */
+    public <V> V getParameter(Class<V> type)
+    {
+        return getParameter(type, null);
+    }
+
+    /**
+     * Gets the mocked object of the given type.
+     *
+     * @param type
+     *     The type of the mocked object to get.
+     * @param name
+     *     The name of the mocked object, as specified by {@link Assisted#value()} in the constructor..
+     * @param <V>
+     *     The type of the mocked object to get.
+     * @return The mocked object of the given type with the given name.
+     *
+     * @throws IllegalArgumentException
+     *     when null values are not allowed and no existing mock exists for the given type and name combination.
+     */
+    public <V> V getParameter(Class<V> type, @Nullable String name)
+    {
+        final @Nullable MappedParameter param = injectedParameters.get(MappedParameter.getNamedTypeHash(type, name));
+        //noinspection unchecked
+        final @Nullable V ret = param == null ? null : (V) param.getValue();
+        if (ret == null)
+            throw new IllegalArgumentException(
+                "Could not find a mapping for a mocked object with type: " + type + " and name: " + name);
+        return ret;
+    }
+
+    /**
      * Injects the parameters in the factory method.
      * <p>
      * Note that all primitive types are automatically boxed and will not match any primitive types in the constructor.
