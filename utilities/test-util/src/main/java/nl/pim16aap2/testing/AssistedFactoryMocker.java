@@ -206,9 +206,36 @@ public class AssistedFactoryMocker<T, U>
         Object testInstance)
         throws IllegalArgumentException
     {
-        final Method method = findFactoryMethod(null, factoryClass);
-        @SuppressWarnings("unchecked") final Class<T> targetClass = (Class<T>) method.getReturnType();
+        final Class<T> targetClass = findTargetClass(factoryClass);
         return injectMocksFromTestClass(targetClass, factoryClass, testInstance);
+    }
+
+    /**
+     * Finds the target class that is instantiated by the factory.
+     *
+     * @param factoryClass
+     *     The factory class that instantiates the target class.
+     * @param <T>
+     *     The type of the class that is instantiated by the factory.
+     * @param <U>
+     *     The type of the factory that instantiates the target class.
+     * @return The target class.
+     */
+    static <T, U> Class<T> findTargetClass(Class<U> factoryClass)
+    {
+        Class<T> targetClass;
+        try
+        {
+            final Method method = findFactoryMethod(null, factoryClass);
+            //noinspection unchecked
+            targetClass = (Class<T>) method.getReturnType();
+        }
+        catch (Exception e)
+        {
+            throw new IllegalArgumentException(
+                "Failed to find target class for factory class: " + factoryClass, e);
+        }
+        return targetClass;
     }
 
     /**
@@ -380,9 +407,9 @@ public class AssistedFactoryMocker<T, U>
      * <p>
      * Shortcut for unnamed parameters.
      */
-    public <V> AssistedFactoryMocker<T, U> injectParameter(Class<V> type, V mock)
+    public <V> AssistedFactoryMocker<T, U> injectParameter(Class<V> type, V parameter)
     {
-        return injectParameter(type, null, mock);
+        return injectParameter(type, null, parameter);
     }
 
     /**
@@ -442,7 +469,7 @@ public class AssistedFactoryMocker<T, U>
 
     /**
      * Ensures that the number of assisted parameters provided by {@link #factoryMethod} matches the number of assisted
-     * parameters expected by {@link #targetCtor}
+     * parameters expected by {@link #targetCtor}.
      *
      * @throws IllegalStateException
      *     When the number of assisted parameters does not match the number of provided parameters.
