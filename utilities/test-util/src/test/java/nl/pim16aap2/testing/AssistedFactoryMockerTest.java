@@ -303,7 +303,6 @@ class AssistedFactoryMockerTest
     {
         // Setup
         final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
-        final Object obj = new Object();
 
         // Verify
         assertThatExceptionOfType(IllegalArgumentException.class)
