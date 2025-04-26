@@ -237,19 +237,17 @@ public class AssistedFactoryMocker<T, U>
      */
     static <T, U> Class<T> findTargetClass(Class<U> factoryClass)
     {
-        Class<T> targetClass;
         try
         {
             final Method method = findFactoryMethod(null, factoryClass);
             //noinspection unchecked
-            targetClass = (Class<T>) method.getReturnType();
+            return (Class<T>) method.getReturnType();
         }
         catch (Exception e)
         {
             throw new IllegalArgumentException(
                 "Failed to find target class for factory class: " + factoryClass, e);
         }
-        return targetClass;
     }
 
     /**
