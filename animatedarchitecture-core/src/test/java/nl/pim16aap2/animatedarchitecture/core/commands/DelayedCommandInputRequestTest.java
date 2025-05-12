@@ -62,7 +62,7 @@ class DelayedCommandInputRequestTest
             commandDefinition,
             input ->
             {
-                verifyInput(delayedInput, input);
+                verifyInput(delayedInput, input).join();
                 return CompletableFuture.completedFuture(resultValue);
             },
             () -> "",
