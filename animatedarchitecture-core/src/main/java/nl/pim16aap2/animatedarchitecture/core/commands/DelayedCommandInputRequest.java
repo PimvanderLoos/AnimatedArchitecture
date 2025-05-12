@@ -109,6 +109,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         @Assisted Function<T, CompletableFuture<?>> executorFunction,
         @Assisted @Nullable Supplier<String> initMessageSupplier,
         @Assisted Class<T> inputClass,
+        @Assisted @Nullable ContextProvider contextSupplier,
         IExecutor executor,
         DelayedCommandInputManager delayedCommandInputManager)
     {
@@ -121,7 +122,14 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
 
         log.atFinest().log("Started delayed input request for command: %s", this);
 
-        commandOutput = constructOutput(executorFunction);
+        final var commandOutputFuture = constructOutput(executorFunction);
+
+        if (contextSupplier == null)
+            this.commandOutput = commandOutputFuture;
+        else
+            this.commandOutput = commandOutputFuture
+                .withExceptionContext(contextSupplier::getContext);
+
         init();
     }
 
@@ -193,7 +201,15 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
 
         //noinspection unchecked
         super.set((T) input);
-        return commandOutput;
+
+        return CompletableFuture.completedFuture(null)
+            .thenApply(val ->
+            {
+                // Join the command output future to ensure that the command is executed before returning
+                // the result. This is necessary to ensure that the input has been fully 'provided' before
+                // returning the result.
+                return commandOutput.join();
+            });
     }
 
     /**
@@ -220,6 +236,12 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
                 "commands.base.error.cancelled",
                 arg -> arg.highlight(commandDefinition.getName().toLowerCase(Locale.ROOT))
             );
+    }
+
+    @FunctionalInterface
+    public interface ContextProvider
+    {
+        String getContext();
     }
 
     /**
@@ -249,6 +271,8 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
          *     Supplier for the initialization message (can be null).
          * @param inputClass
          *     The class of the expected input object.
+         * @param contextSupplier
+         *     The context to include in the exception if the future completes exceptionally (can be null).
          * @return A new DelayedCommandInputRequest instance.
          */
         DelayedCommandInputRequest<T> create(
@@ -256,8 +280,9 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
             ICommandSender commandSender,
             CommandDefinition commandDefinition,
             Function<T, CompletableFuture<?>> executorFunction,
-            @Nullable Supplier<String> initMessageSupplier,
-            Class<T> inputClass
+            @Assisted @Nullable Supplier<String> initMessageSupplier,
+            Class<T> inputClass,
+            @Assisted @Nullable ContextProvider contextSupplier
         );
     }
 }

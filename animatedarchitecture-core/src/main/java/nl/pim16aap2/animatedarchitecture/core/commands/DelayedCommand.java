@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import com.google.common.flogger.LazyArgs;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
@@ -106,11 +107,13 @@ public abstract class DelayedCommand<T>
         Function<T, CompletableFuture<?>> executor,
         @Nullable Supplier<String> initMessageSupplier)
     {
-        log.atFinest().log(
-            "Creating delayed command for command '%s' with command sender: '%s' for Creator: %s",
+        final Supplier<String> contextSupplier = () -> String.format(
+            "Creating delayed command for command '%s' with command sender '%s' for Creator %s",
             getCommandDefinition(),
-            commandSender, creator
+            commandSender,
+            creator
         );
+        log.atFinest().log("%s", LazyArgs.lazy(contextSupplier::get));
 
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return inputRequestFactory
@@ -120,7 +123,8 @@ public abstract class DelayedCommand<T>
                 getCommandDefinition(),
                 wrapExecutor(commandSender, executor),
                 initMessageSupplier,
-                delayedInputClz)
+                delayedInputClz,
+                contextSupplier::get)
             .getCommandOutput();
     }
 
@@ -142,12 +146,13 @@ public abstract class DelayedCommand<T>
      */
     public CompletableFuture<?> runDelayed(ICommandSender commandSender, StructureRetriever structureRetriever)
     {
-        log.atFinest().log(
-            "Creating delayed command for command '%s' with command sender: '%s' for StructureRetriever: %s",
+        final Supplier<String> contextSupplier = () -> String.format(
+            "Creating delayed command for command '%s' with command sender '%s' for StructureRetriever %s",
             getCommandDefinition(),
             commandSender,
             structureRetriever
         );
+        log.atFinest().log("%s", LazyArgs.lazy(contextSupplier::get));
 
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return inputRequestFactory
@@ -157,14 +162,9 @@ public abstract class DelayedCommand<T>
                 getCommandDefinition(),
                 getExecutor(commandSender, structureRetriever),
                 () -> inputRequestMessage(commandSender, structureRetriever),
-                delayedInputClz)
-            .getCommandOutput()
-            .withExceptionContext(
-                "Create delayed command for command '%s' with command sender '%s' for StructureRetriever %s",
-                getCommandDefinition(),
-                commandSender,
-                structureRetriever
-            );
+                delayedInputClz,
+                contextSupplier::get)
+            .getCommandOutput();
     }
 
     /**

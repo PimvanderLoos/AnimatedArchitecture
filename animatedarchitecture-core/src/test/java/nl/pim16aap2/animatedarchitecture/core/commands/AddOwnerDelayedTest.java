@@ -3,12 +3,12 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
+import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -34,10 +34,8 @@ import static org.mockito.Mockito.*;
 class AddOwnerDelayedTest
 {
     @Spy
-    private DelayedCommandInputManager delayedCommandInputManager =
-        new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
+    private DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager(Mockito.mock());
 
-    @Mock
     private DelayedCommandInputRequest.IFactory<AddOwnerDelayed.DelayedInput> inputRequestFactory;
 
     @InjectMocks
@@ -75,11 +73,11 @@ class AddOwnerDelayedTest
     {
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
 
-        DelayedCommandTest.initInputRequestFactory(
-            inputRequestFactory,
-            executor,
-            delayedCommandInputManager
-        );
+        //noinspection unchecked
+        inputRequestFactory = AssistedFactoryMocker
+            .injectMocksFromTestClass(DelayedCommandInputRequest.IFactory.class, this)
+            .injectParameter(delayedCommandInputManager)
+            .getFactory();
 
         structureRetriever = structureRetrieverFactory.of(structure);
 
