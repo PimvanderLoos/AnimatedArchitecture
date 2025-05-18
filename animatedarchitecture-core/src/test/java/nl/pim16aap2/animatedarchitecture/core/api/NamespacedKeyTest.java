@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Timeout(1)
@@ -83,16 +84,22 @@ class NamespacedKeyTest
     @Test
     public void testEqualsAndHashCode()
     {
-        NamespacedKey key1 = new NamespacedKey("owner", "Name");
-        NamespacedKey key2 = new NamespacedKey("Owner", "name");
-        assertEquals(key1, key2);
-        assertEquals(key1.hashCode(), key2.hashCode());
+        // Setup
+        final NamespacedKey key1 = new NamespacedKey("owner", "Name");
+        final NamespacedKey key2 = new NamespacedKey("Owner", "name");
+
+        // Verify
+        assertThat(key1).isEqualTo(key2);
+        assertThat(key1.hashCode()).isEqualTo(key2.hashCode());
     }
 
     @Test
     public void testToString()
     {
-        NamespacedKey key = new NamespacedKey("owner", "name");
-        assertEquals("NamespacedKey(owner:name)", key.toString());
+        // Setup
+        final NamespacedKey key = new NamespacedKey("owner", "name");
+
+        // Verify
+        assertThat(key.toString()).isEqualTo("NamespacedKey(owner:name)");
     }
 }
