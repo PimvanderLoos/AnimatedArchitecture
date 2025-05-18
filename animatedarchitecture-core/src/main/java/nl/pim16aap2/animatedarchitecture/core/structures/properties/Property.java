@@ -295,11 +295,11 @@ public final class Property<T> implements IKeyed
     }
 
     /**
-     * Checks if this property can be added to a structure.
+     * Checks if this property can be added to a structure by a user.
      *
-     * @return True if this property can be added to a structure
+     * @return True if this property can be added to a structure.
      */
-    public boolean canBeAdded()
+    public boolean canBeAddedByUser()
     {
         return propertyAccessLevel != PropertyAccessLevel.HIDDEN;
     }
