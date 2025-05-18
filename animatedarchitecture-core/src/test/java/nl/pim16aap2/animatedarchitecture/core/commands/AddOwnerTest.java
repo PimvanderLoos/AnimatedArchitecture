@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
@@ -27,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.assertThatMessageable;
+import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.verifyNoMoreMessagesSent;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -64,6 +66,7 @@ class AddOwnerTest
     void afterEach()
     {
         verifyNoMoreInteractions(databaseManager);
+        verifyNoMoreMessagesSent(commandSender, target);
     }
 
     @Test
@@ -140,6 +143,7 @@ class AddOwnerTest
         // Setup
         final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.NO_PERMISSION);
 
+        // Execute & Verify
         assertThatExceptionOfType(InvalidCommandInputException.class)
             .isThrownBy(addOwner::validateInput)
             .withMessage(
@@ -154,18 +158,6 @@ class AddOwnerTest
     }
 
     @Test
-    void isAllowed_shouldRespectBypassForNonOwnerPlayerCommandSender()
-    {
-        // Setup
-        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.ADMIN);
-
-        when(commandSender.isPlayer()).thenReturn(true);
-
-        // Execute & Verify
-        assertThrows(NoAccessToStructureCommandException.class, () -> addOwner.isAllowed(structure, false));
-    }
-
-    @Test
     void isAllowed_shouldBypassForNonPlayerCommandSender()
     {
         // Setup
@@ -175,6 +167,45 @@ class AddOwnerTest
 
         // Execute & Verify
         assertDoesNotThrow(() -> addOwner.isAllowed(structure, false));
+    }
+
+    @Test
+    void isAllowed_shouldAllowWhenAllConditionsAreMet()
+    {
+        // Setup
+        final AddOwner addOwner = addOwnerWithDefaults(PermissionLevel.USER);
+        final StructureOwner senderOwner = new StructureOwner(1L, PermissionLevel.ADMIN, mock());
+
+        when(commandSender.isPlayer()).thenReturn(true);
+        when(commandSender.getPlayer()).thenReturn(Optional.of(commandSender));
+
+        when(structure.getOwner(commandSender)).thenReturn(Optional.of(senderOwner));
+        when(structure.getOwner(target)).thenReturn(Optional.empty());
+
+        // Execute & Verify
+        assertDoesNotThrow(() -> addOwner.isAllowed(structure, false));
+    }
+
+    @Test
+    void isAllowed_shouldThrowExceptionForNonOwner()
+    {
+        // Setup
+        final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.ADMIN);
+
+        when(commandSender.isPlayer()).thenReturn(true);
+
+        UnitTestUtil.setStructureLocalization(structure);
+
+        // Execute & Verify
+        assertThatExceptionOfType(NoAccessToStructureCommandException.class)
+            .isThrownBy(() -> addOwner.isAllowed(structure, false))
+            .withMessage("The command sender is not an owner of the structure.")
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
+
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.add_owner.error.not_an_owner")
+            .withArgs("StructureType");
     }
 
     @Test
@@ -194,7 +225,7 @@ class AddOwnerTest
         assertThatExceptionOfType(NoAccessToStructureCommandException.class)
             .isThrownBy(() -> addOwner.isAllowed(structure, false))
             .withMessage("The command sender is not an owner of the structure.")
-            .extracting(NoAccessToStructureCommandException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
             .isTrue();
 
         assertThatMessageable(commandSender)
@@ -205,40 +236,49 @@ class AddOwnerTest
     @Test
     void isAllowed_shouldThrowExceptionWhenTargetingPrimeOwnerWithBypass()
     {
+        // Setup
         final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.ADMIN);
         final StructureOwner targetOwner = new StructureOwner(1L, PermissionLevel.CREATOR, mock());
 
         when(structure.getOwner(target)).thenReturn(Optional.of(targetOwner));
         when(commandSender.isPlayer()).thenReturn(true);
 
-        final NoAccessToStructureCommandException exception = assertThrows(
-            NoAccessToStructureCommandException.class,
-            () -> addOwner.isAllowed(structure, true)
-        );
+        // Execute & Verify
+        assertThatExceptionOfType(NoAccessToStructureCommandException.class)
+            .isThrownBy(() -> addOwner.isAllowed(structure, true))
+            .withMessage("Cannot target the prime owner of a structure.")
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
 
-        assertThat(exception.isUserInformed()).isTrue();
-        assertThat(exception.getMessage()).isEqualTo("Cannot target the prime owner of a structure.");
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.add_owner.error.targeting_prime_owner");
     }
 
     @Test
     void isAllowed_shouldThrowExceptionWhenTargetingPrimeOwnerForNonPlayerCommandSender()
     {
+        // Setup
         final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.ADMIN);
         final StructureOwner targetOwner = new StructureOwner(1L, PermissionLevel.CREATOR, mock());
 
         when(structure.getOwner(target)).thenReturn(Optional.of(targetOwner));
         when(commandSender.isPlayer()).thenReturn(false);
 
+        // Execute & Verify
         assertThatExceptionOfType(NoAccessToStructureCommandException.class)
             .isThrownBy(() -> addOwner.isAllowed(structure, false))
             .withMessage("Cannot target the prime owner of a structure.")
-            .extracting(NoAccessToStructureCommandException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
             .isTrue();
+
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.add_owner.error.targeting_prime_owner");
     }
 
     @Test
     void isAllowed_shouldThrowExceptionWhenCommandSenderDoesNotHaveAddOwnerPermission()
     {
+        // Setup
         final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.ADMIN);
         final StructureOwner senderOwner = new StructureOwner(1L, PermissionLevel.USER, mock());
 
@@ -248,16 +288,21 @@ class AddOwnerTest
         when(structure.getOwner(target)).thenReturn(Optional.empty());
         when(structure.getOwner(commandSender)).thenReturn(Optional.of(senderOwner));
 
+        // Execute & Verify
         assertThatExceptionOfType(NoAccessToStructureCommandException.class)
             .isThrownBy(() -> addOwner.isAllowed(structure, false))
             .withMessage("The command sender is not allowed to add owners.")
-            .extracting(NoAccessToStructureCommandException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
             .isTrue();
+
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.add_owner.error.not_allowed");
     }
 
     @Test
     void isAllowed_shouldThrowExceptionWhenAssigningPermissionBelowOrEqualToSelf()
     {
+        // Setup
         final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.ADMIN);
         final StructureOwner senderOwner = new StructureOwner(1L, PermissionLevel.ADMIN, mock());
 
@@ -267,18 +312,21 @@ class AddOwnerTest
         when(structure.getOwner(target)).thenReturn(Optional.empty());
         when(structure.getOwner(commandSender)).thenReturn(Optional.of(senderOwner));
 
-        final NoAccessToStructureCommandException exception = assertThrows(
-            NoAccessToStructureCommandException.class,
-            () -> addOwner.isAllowed(structure, false)
-        );
+        // Execute & Verify
+        assertThatExceptionOfType(NoAccessToStructureCommandException.class)
+            .isThrownBy(() -> addOwner.isAllowed(structure, false))
+            .withMessage("Cannot assign a permission level below the command sender.")
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
 
-        assertThat(exception.isUserInformed()).isTrue();
-        assertEquals("Cannot assign a permission level below the command sender.", exception.getMessage());
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.add_owner.error.cannot_assign_below_self");
     }
 
     @Test
     void isAllowed_shouldThrowExceptionWhenTargetAlreadyHasOwnershipBelowCommandSender()
     {
+        // Setup
         final AddOwner addOwner = addOwnerWithDefaults(PermissionLevel.ADMIN);
         final StructureOwner senderOwner = new StructureOwner(1L, PermissionLevel.ADMIN, mock());
         final StructureOwner targetOwner = new StructureOwner(1L, PermissionLevel.USER, mock());
@@ -289,17 +337,21 @@ class AddOwnerTest
         when(structure.getOwner(commandSender)).thenReturn(Optional.of(senderOwner));
         when(structure.getOwner(target)).thenReturn(Optional.of(targetOwner));
 
-        final NoAccessToStructureCommandException exception = assertThrows(
-            NoAccessToStructureCommandException.class,
-            () -> addOwner.isAllowed(structure, false)
-        );
+        // Execute & Verify
+        assertThatExceptionOfType(NoAccessToStructureCommandException.class)
+            .isThrownBy(() -> addOwner.isAllowed(structure, false))
+            .withMessage("Cannot assign a permission level below the command sender.")
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
 
-        assertThat(exception.isUserInformed()).isTrue();
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.add_owner.error.cannot_assign_below_self");
     }
 
     @Test
     void isAllowed_shouldThrowExceptionWhenTargetAlreadyHasSamePermission()
     {
+        // Setup
         final AddOwner addOwner = addOwnerWithDefaults(assistedFactoryMocker, PermissionLevel.USER);
         final StructureOwner senderOwner = new StructureOwner(1L, PermissionLevel.ADMIN, mock());
         final StructureOwner targetOwner = new StructureOwner(1L, PermissionLevel.USER, mock());
@@ -310,26 +362,15 @@ class AddOwnerTest
         when(structure.getOwner(commandSender)).thenReturn(Optional.of(senderOwner));
         when(structure.getOwner(target)).thenReturn(Optional.of(targetOwner));
 
-        final NoAccessToStructureCommandException exception = assertThrows(
-            NoAccessToStructureCommandException.class,
-            () -> addOwner.isAllowed(structure, false)
-        );
-        assertThat(exception.isUserInformed()).isTrue();
-    }
+        // Execute & Verify
+        assertThatExceptionOfType(NoAccessToStructureCommandException.class)
+            .isThrownBy(() -> addOwner.isAllowed(structure, false))
+            .withMessage("The target player is already an owner of the structure.")
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
 
-    @Test
-    void isAllowed_shouldAllowWhenAllConditionsAreMet()
-    {
-        final AddOwner addOwner = addOwnerWithDefaults(PermissionLevel.USER);
-        final StructureOwner senderOwner = new StructureOwner(1L, PermissionLevel.ADMIN, mock());
-
-        when(commandSender.isPlayer()).thenReturn(true);
-        when(commandSender.getPlayer()).thenReturn(Optional.of(commandSender));
-
-        when(structure.getOwner(commandSender)).thenReturn(Optional.of(senderOwner));
-        when(structure.getOwner(target)).thenReturn(Optional.empty());
-
-        assertDoesNotThrow(() -> addOwner.isAllowed(structure, false));
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.add_owner.error.target_already_owner");
     }
 
     @Test
@@ -413,17 +454,23 @@ class AddOwnerTest
     @Test
     void getCommand_shouldReturnCorrectCommandDefinition()
     {
+        // Setup
         final AddOwner addOwner = addOwnerWithDefaults(PermissionLevel.USER);
 
+        // Execute & Verify
         assertThat(addOwner.getCommand()).isEqualTo(CommandDefinition.ADD_OWNER);
     }
 
     @Test
     void defaultConstructor_shouldUseDefaultPermissionLevel()
     {
+        // Setup
         final var factory = assistedFactoryMocker.getFactory();
+
+        // Execute
         final AddOwner addOwner = factory.newAddOwner(commandSender, structureRetriever, target);
 
+        // Verify
         assertThat(addOwner.getTargetPermissionLevel()).isEqualTo(PermissionLevel.USER);
     }
 
