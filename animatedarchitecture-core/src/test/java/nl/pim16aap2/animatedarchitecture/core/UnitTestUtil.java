@@ -43,22 +43,28 @@ import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.ListAssert;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.mockito.exceptions.verification.NoInteractionsWanted;
+import org.mockito.invocation.Invocation;
 import org.mockito.invocation.InvocationOnMock;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
@@ -69,6 +75,8 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.internal.exceptions.Reporter.noMoreInteractionsWanted;
+import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
 
 public class UnitTestUtil
 {
@@ -101,6 +109,12 @@ public class UnitTestUtil
     private static final TextArgumentFactory DUMMY_TEXT_ARGUMENT_FACTORY =
         new TextArgumentFactory(ITextComponentFactory.SimpleTextComponentFactory.INSTANCE,
             DUMMY_PERSONALIZED_LOCALIZER);
+
+    @VisibleForTesting
+    static final Set<Method> SEND_MESSAGE_METHODS = Arrays
+        .stream(IMessageable.class.getDeclaredMethods())
+        .filter(method -> method.getName().startsWith("send"))
+        .collect(Collectors.toUnmodifiableSet());
 
     private UnitTestUtil()
     {
@@ -815,7 +829,7 @@ public class UnitTestUtil
      *     The input string.
      * @return null.
      */
-    private static Text textArgumentMatcher(String string)
+    static Text textArgumentMatcher(String string)
     {
         return argThat(new TextArgumentMatcher(string));
     }
@@ -845,6 +859,43 @@ public class UnitTestUtil
         verify(messageable, never()).sendError(anyString(), any(Text.ArgumentCreator.class));
         verify(messageable, never()).sendSuccess(anyString(), any(Text.ArgumentCreator.class));
         verify(messageable, never()).sendInfo(anyString(), any(Text.ArgumentCreator.class));
+    }
+
+    private static void verifyNoMoreMessagesSent(IMessageable messageable)
+    {
+        mockingProgress().validateState();
+
+        final List<Invocation> invocations = mockingDetails(messageable)
+            .getInvocations().stream()
+            .filter(invocation -> !invocation.isVerified())
+            .filter(invocation -> SEND_MESSAGE_METHODS.contains(invocation.getMethod()))
+            .toList();
+
+        if (invocations.isEmpty())
+            return;
+
+        // reinterpret_cast List<Invocation> to List<VerificationAwareInvocation>
+        // This is copied from Mockito itself, so I guess it's 'safe' enough to do this.
+        //noinspection unchecked,rawtypes
+        throw noMoreInteractionsWanted(invocations.getFirst(), (List) invocations);
+    }
+
+    /**
+     * Checks if any of given mocks has any unverified interaction.
+     *
+     * @param messageables
+     *     The messageables to check.
+     * @throws NullPointerException
+     *     If any of the messageables are null.
+     * @throws NoInteractionsWanted
+     *     If any messages were sent to any of the messageables that were not verified.
+     */
+    public static void verifyNoMoreMessagesSent(IMessageable... messageables)
+    {
+        for (IMessageable messageable : messageables)
+        {
+            verifyNoMoreMessagesSent(Objects.requireNonNull(messageable));
+        }
     }
 
     private static void assertArgumentsEqual(
