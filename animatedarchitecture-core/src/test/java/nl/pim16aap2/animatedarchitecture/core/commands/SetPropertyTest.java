@@ -150,7 +150,7 @@ class SetPropertyTest
         final Property<?> property = mockPropertyWithNamespacedKey();
 
         when(structure.hasProperty(property)).thenReturn(false);
-        when(property.canBeAdded()).thenReturn(false);
+        when(property.canBeAddedByUser()).thenReturn(false);
         UnitTestUtil.setStructureLocalization(structure);
 
         final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, "newValue");
@@ -168,14 +168,14 @@ class SetPropertyTest
     }
 
     @Test
-    void performAction0_shouldSucceedWhenPropertyCanBeAdded()
+    void performAction0_shouldSucceedWhenPropertyCanBeAddedByUser()
     {
         // Setup
         final Property<String> property = mock();
         final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
 
         when(structure.hasProperty(property)).thenReturn(false);
-        when(property.canBeAdded()).thenReturn(true);
+        when(property.canBeAddedByUser()).thenReturn(true);
         when(property.cast("newValue")).thenAnswer(invocation -> invocation.getArguments()[0]);
 
         // Execute

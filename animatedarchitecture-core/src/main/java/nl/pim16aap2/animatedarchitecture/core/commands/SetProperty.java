@@ -102,7 +102,7 @@ public class SetProperty extends StructureTargetCommand
     @VisibleForTesting
     void performAction0(Structure structure)
     {
-        if (!structure.hasProperty(property) && !property.canBeAdded())
+        if (!structure.hasProperty(property) && !property.canBeAddedByUser())
         {
             getCommandSender().sendError(
                 "commands.set_property.error.property_cannot_be_added",
