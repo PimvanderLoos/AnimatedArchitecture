@@ -68,6 +68,7 @@ class UnitTestUtilTest
 
     @ParameterizedTest
     @EnumSource(value = SendMessageMethod.class)
+    @SuppressWarnings("DirectInvocationOnMock")
     void verifyNoMoreMessagesSent_shouldNotThrowExceptionForOtherUnverifiedMethods(SendMessageMethod method)
     {
         // Setup
@@ -75,7 +76,7 @@ class UnitTestUtilTest
         method.verifyMessageSent(commandSender);
 
         // Execute
-        commandSender.hasPermission("test.permission");
+        commandSender.getPlayer();
 
         // Verify
         assertThatCode(() -> UnitTestUtil.verifyNoMoreMessagesSent(commandSender))
