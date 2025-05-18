@@ -42,7 +42,6 @@ import nl.pim16aap2.testing.TestUtil;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.ListAssert;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
@@ -897,14 +896,6 @@ public class UnitTestUtil
     }
 
     /**
-     * Creates a new {@link MessageableAssert} for the given {@link IMessageable}. AssertJ standard naming convention.
-     */
-    public static MessageableAssert assertThat(IMessageable messageable)
-    {
-        return MessageableAssert.assertThat(messageable);
-    }
-
-    /**
      * Assert that a message was sent to a messageable.
      */
     public static class MessageableAssert extends AbstractAssert<MessageableAssert, IMessageable>
@@ -915,18 +906,6 @@ public class UnitTestUtil
         {
             super(messageable, MessageableAssert.class);
             this.messageable = messageable;
-        }
-
-        /**
-         * Static factory method for AssertJ standard pattern.
-         *
-         * @param messageable
-         *     The messageable to assert on.
-         * @return The {@link MessageableAssert} for the given messageable.z
-         */
-        public static MessageableAssert assertThat(IMessageable messageable)
-        {
-            return new MessageableAssert(messageable);
         }
 
         /**
