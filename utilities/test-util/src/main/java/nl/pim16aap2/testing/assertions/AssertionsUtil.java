@@ -97,7 +97,7 @@ public final class AssertionsUtil
                         fail(String.format("""
                                 Expected String did not match actual String:
                                 Expected string to contain: "%s"
-                                Actual string:               "%s"
+                                Actual string:              "%s"
                                 """,
                             expected,
                             actual)

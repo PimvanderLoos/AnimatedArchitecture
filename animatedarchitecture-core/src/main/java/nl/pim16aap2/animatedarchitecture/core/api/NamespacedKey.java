@@ -2,7 +2,6 @@ package nl.pim16aap2.animatedarchitecture.core.api;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidNameSpacedKeyException;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 
@@ -14,7 +13,6 @@ import java.util.regex.Pattern;
  * Represents a key that exists in a namespace.
  */
 @Getter
-@ToString
 @EqualsAndHashCode
 public final class NamespacedKey
 {
@@ -28,7 +26,6 @@ public final class NamespacedKey
      *
      * @return The namespace of this {@link NamespacedKey}.
      */
-    @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private final String namespace;
 
@@ -37,7 +34,6 @@ public final class NamespacedKey
      *
      * @return The key of this {@link NamespacedKey}.
      */
-    @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private final String key;
 
@@ -123,5 +119,11 @@ public final class NamespacedKey
                 test
             );
         return testLower;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "NamespacedKey(" + this.getFullKey() + ")";
     }
 }
