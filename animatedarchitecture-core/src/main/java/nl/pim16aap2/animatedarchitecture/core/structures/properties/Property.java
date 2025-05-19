@@ -81,19 +81,6 @@ public final class Property<T> implements IKeyed
     @Getter
     private final List<PropertyScope> propertyScopes;
 
-    /**
-     * Sets whether the property should be removed when the value is set to null. * <p> * Note that this only applies
-     * when the following conditions are all met:
-     * <ul>
-     *     <li>The property is not a default property of a structure type.</li>
-     *     <li>{@link #canBeAddedByUser} is enabled.</li>
-     * </ul>
-     * <p>
-     * If any of these conditions are not met, the property will not be removed when the value is set to null.
-     */
-    @Getter
-    private final boolean keepOnNull;
-
     private final boolean canBeAddedByUser;
 
     /**
@@ -182,7 +169,6 @@ public final class Property<T> implements IKeyed
         @Nullable T defaultValue,
         PropertyAccessLevel propertyAccessLevel,
         List<PropertyScope> scopes,
-        boolean keepOnNull,
         boolean canBeAddedByUser,
         boolean nonNullable)
     {
@@ -191,7 +177,6 @@ public final class Property<T> implements IKeyed
         this.propertyAccessLevel = propertyAccessLevel;
         this.defaultValue = defaultValue;
         this.propertyScopes = List.copyOf(scopes);
-        this.keepOnNull = keepOnNull
         this.canBeAddedByUser = canBeAddedByUser;
         this.nonNullable = nonNullable;
 
@@ -341,8 +326,6 @@ public final class Property<T> implements IKeyed
 
         private @Nullable T defaultValue = null;
 
-        private boolean keepOnNull = false;
-
         private boolean canBeAddedByUser = false;
 
         private boolean nonNullable = false;
@@ -366,7 +349,6 @@ public final class Property<T> implements IKeyed
                 defaultValue,
                 propertyAccessLevel,
                 propertyScopes,
-                keepOnNull,
                 canBeAddedByUser,
                 nonNullable
             );
@@ -460,27 +442,6 @@ public final class Property<T> implements IKeyed
         public PropertyBuilder<T> withDefaultValue(@Nullable T defaultValue)
         {
             this.defaultValue = defaultValue;
-            return this;
-        }
-
-        /**
-         * Sets whether the property should be removed when the value is set to null.
-         * <p>
-         * Note that this only applies when the following conditions are all met:
-         * <ul>
-         *     <li>The property is not a default property of a structure type.</li>
-         *     <li>{@link #canBeAddedByUser()} is enabled.</li>
-         * </ul>
-         * <p>
-         * If any of these conditions are not met, the property will not be removed when the value is set to null.
-         * <p>
-         * This defaults to {@code false}.
-         *
-         * @return The builder.
-         */
-        public PropertyBuilder<T> keepOnNull()
-        {
-            this.keepOnNull = true;
             return this;
         }
 

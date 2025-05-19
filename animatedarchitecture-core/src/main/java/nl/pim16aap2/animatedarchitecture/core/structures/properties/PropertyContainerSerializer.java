@@ -204,6 +204,7 @@ public final class PropertyContainerSerializer
      * @return The deserialized {@link PropertyContainer}.
      */
     static PropertyContainer deserialize(
+        asdf, // TODO: Figure out some way to determine the 'hardcoded' state of each property.
         StructureType structureType,
         Map<String, JSONObject> deserializedMap)
     {
@@ -294,10 +295,16 @@ public final class PropertyContainerSerializer
      *     The key of the property.
      * @param serializedValue
      *     The serialized value of the property.
+     * @param isRemovable
+     *     Whether the property is removable.
+     *     <p>
+     *     When set to {@code false}, the property cannot be removed from the property container and will throw an
+     *     exception if an attempt is made to do so.
      */
     record UndefinedPropertyValue(
         @JSONField(serialize = false) String propertyKey,
-        @JSONField(serialize = false) JSONObject serializedValue)
+        @JSONField(serialize = false) JSONObject serializedValue,
+        @JSONField(serialize = false) boolean isRemovable)
         implements IPropertyValue<Object>
     {
         @JSONField(serialize = false)

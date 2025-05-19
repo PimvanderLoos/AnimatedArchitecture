@@ -31,6 +31,36 @@ class PropertyContainerTest
     }
 
     @Test
+    void clearPropertyValue_shouldThrowExceptionWhenClearingNonNullableNonRemovableProperty()
+    {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> propertyContainer.clearPropertyValue(PROPERTY_STRING))
+            .withMessage(
+                "Property '%s' is not removable and cannot be set to null!",
+                PROPERTY_STRING.getNamespacedKey().getFullKey()
+            );
+    }
+
+    @Test
+    void clearPropertyValue_shouldUnsetForNullableNonRemovableProperty()
+    {
+
+    }
+
+    @Test
+    void clearPropertyValue_shouldRemoveRemovableNonNullableProperty()
+    {
+
+    }
+
+    @Test
+    void clearPropertyValue_shouldUnsetNonRemovableNullableProperty()
+    {
+
+    }
+
+
+    @Test
     void getValue_shouldThrowExceptionWhenSettingNullValueForNonNullableProperty()
     {
         assertThatExceptionOfType(IllegalArgumentException.class)
