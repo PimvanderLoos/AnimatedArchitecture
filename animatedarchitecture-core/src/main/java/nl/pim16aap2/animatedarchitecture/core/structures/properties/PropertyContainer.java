@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -113,31 +114,79 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      *
      * @param property
      *     The property to set the value for.
-     * @param providedPropertyValue
-     *     The value to set. May be {@code null} if the property is nullable.
+     * @param value
+     *     The value to set.
      * @param <T>
      *     The type of the property.
      * @return The previous value of the property, or {@link UnsetPropertyValue#INSTANCE} if the property was not set.
      */
     private <T> IPropertyValue<?> setPropertyValue0(
         Property<T> property,
-        ProvidedPropertyValue<T> providedPropertyValue)
+        @Nullable T value)
     {
-        verifyNullableState(property, providedPropertyValue.value());
+        if (value == null)
+            return Objects.requireNonNullElse(clearPropertyValue(property), UnsetPropertyValue.INSTANCE);
 
-        final @Nullable IPropertyValue<?> prev = propertyMap.put(mapKey(property), providedPropertyValue);
+        final AtomicReference<@Nullable IPropertyValue<?>> oldValueRef = new AtomicReference<>();
+        final IPropertyValue<?> newValue = propertyMap.compute(
+            mapKey(property),
+            (key, oldValue) ->
+            {
+                final boolean required = oldValue == null || oldValue.isRemovable();
+                oldValueRef.set(oldValue);
+                return new ProvidedPropertyValue<>(property.getType(), value, required);
+            }
+        );
         propertySet.reset();
 
-        if (prev instanceof PropertyContainerSerializer.UndefinedPropertyValue undefinedPropertyValue)
+        final @Nullable IPropertyValue<?> oldValue = oldValueRef.get();
+
+        if (oldValue instanceof PropertyContainerSerializer.UndefinedPropertyValue undefinedPropertyValue)
         {
             log.atWarning().log(
                 "Property '%s' was previously undefined. Overwriting with new value '%s'.",
                 property.getFullKey(),
-                providedPropertyValue.value()
+                newValue.value()
             );
             return undefinedPropertyValue.deserializeValue(property);
         }
-        return prev == null ? UnsetPropertyValue.INSTANCE : prev;
+        return oldValue == null ? UnsetPropertyValue.INSTANCE : oldValue;
+    }
+
+    @VisibleForTesting
+    <T> @Nullable IPropertyValue<?> clearPropertyValue(Property<T> property)
+    {
+        final @Nullable IPropertyValue<?> removedValue = propertyMap.computeIfPresent(
+            mapKey(property),
+            (key, oldValue) ->
+            {
+                // What we need to consider:
+                // 1)  The property may be nullable (so it shouldn't be removed; we should just set it to 'null').
+                // 2)  The property may be non-nullable (so it should be removed).
+                // 3)X The property may be a hard-coded property (so we should throw an exception).
+
+                if (!oldValue.isRemovable())
+                {
+                    if (property.isNonNullable())
+                    {
+                        throw new IllegalArgumentException(
+                            String.format(
+                                "Property '%s' is not removable and cannot be set to null!",
+                                property.getFullKey())
+                        );
+                    }
+                    return UnsetPropertyValue.INSTANCE;
+                }
+
+                if (property.isNonNullable())
+                    return null;
+
+                return UnsetPropertyValue.INSTANCE;
+            }
+        );
+
+        propertySet.reset();
+        return removedValue == null ? UnsetPropertyValue.INSTANCE : removedValue;
     }
 
     /**
@@ -160,7 +209,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     @Override
     public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
     {
-        final IPropertyValue<?> prev = setPropertyValue0(property, mapValue(property, value));
+        final IPropertyValue<?> prev = setPropertyValue0(property, value);
         try
         {
             return cast(property, prev);
@@ -193,7 +242,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      */
     public <T> IPropertyValue<?> setUntypedPropertyValue(Property<T> property, @Nullable Object value)
     {
-        return setPropertyValue0(property, mapUntypedValue(property, value));
+        return setPropertyValue0(property, property.cast(value));
     }
 
     @Override
@@ -443,9 +492,9 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      *     The type of the property.
      * @return The default value for the property.
      */
-    static <T> ProvidedPropertyValue<T> defaultMapValue(Property<T> property)
+    static <T> ProvidedPropertyValue<T> defaultMapValue(Property<T> property, boolean hardCoded)
     {
-        return mapValue(property, property.getDefaultValue());
+        return mapValue(property, property.getDefaultValue(), hardCoded);
     }
 
     /**
@@ -458,36 +507,9 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      * @return {@link UnsetPropertyValue#INSTANCE} if the value is {@code null}, otherwise the value wrapped in a
      * {@link ProvidedPropertyValue}.
      */
-    static <T> ProvidedPropertyValue<T> mapValue0(Property<T> property, @Nullable T value)
+    static <T> ProvidedPropertyValue<T> mapValue(Property<T> property, @Nullable T value, boolean hardCoded)
     {
-        verifyNullableState(property, value);
-
-        if (value == null && !property.isKeepOnNull())
-
-            return new ProvidedPropertyValue<>(property.getType(), value);
-    }
-
-    /**
-     * Gets the map value for the given untyped value.
-     * <p>
-     * If the value is {@code null}, this method returns {@link UnsetPropertyValue#INSTANCE}.
-     * <p>
-     * If possible, consider using {@link #mapValue(Property, Object)} instead for better type safety.
-     *
-     * @param property
-     *     The property to get the value for.
-     * @param value
-     *     The value to convert.
-     * @param <T>
-     *     The type of the property.
-     * @return The value wrapped in a {@link ProvidedPropertyValue}.
-     *
-     * @throws ClassCastException
-     *     If the value cannot be cast to the type of the property.
-     */
-    static <T> ProvidedPropertyValue<T> mapUntypedValue(Property<T> property, @Nullable Object value)
-    {
-        return mapValue(property, property.cast(value));
+        return new ProvidedPropertyValue<>(property.getType(), value);
     }
 
     @Override
@@ -683,8 +705,15 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     /**
      * Represents a property value that is set.
      *
+     * @param type
+     *     The type of the property value.
      * @param value
      *     The value of the property.
+     * @param isRemovable
+     *     Whether the property is removable.
+     *     <p>
+     *     When set to {@code false}, the property cannot be removed from the property container and will throw an
+     *     exception if an attempt is made to do so.
      * @param <T>
      *     The type of the property.
      */
@@ -692,7 +721,8 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         // We do not serialize the type because doing so is annoying and unnecessary, as the type
         // is provided by the property, which we can get from the key.
         @JSONField(serialize = false) Class<T> type,
-        @Nullable T value)
+        @Nullable T value,
+        @JSONField(serialize = false) boolean isRemovable)
         implements IPropertyValue<T>
     {
         @JSONField(serialize = false)
@@ -714,6 +744,12 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         public boolean isSet()
         {
             return false;
+        }
+
+        @Override
+        public boolean isRemovable()
+        {
+            return true; // Essentially a no-op.
         }
 
         @Override

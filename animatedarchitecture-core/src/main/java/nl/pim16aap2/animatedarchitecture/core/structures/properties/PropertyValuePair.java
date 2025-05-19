@@ -30,8 +30,8 @@ public record PropertyValuePair<T>(
      */
     public static <T> PropertyValuePair<?> of(Property<T> property, IPropertyValue<?> value)
     {
-        final IPropertyValue<T> castedValue = PropertyContainer.cast(property, value);
-        return new PropertyValuePair<>(property, castedValue);
+        final IPropertyValue<T> castValue = PropertyContainer.cast(property, value);
+        return new PropertyValuePair<>(property, castValue);
     }
 
     /**
