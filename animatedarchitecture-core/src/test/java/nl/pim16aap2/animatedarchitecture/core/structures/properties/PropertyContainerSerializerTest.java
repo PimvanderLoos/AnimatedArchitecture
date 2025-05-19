@@ -35,13 +35,12 @@ import java.util.stream.Collectors;
 @WithLogCapture
 public class PropertyContainerSerializerTest
 {
-    private static final Property<Integer> PROPERTY_UNSET = new Property<>(
-        "external",
-        "unset_property",
-        Integer.class,
-        5,
-        PropertyAccessLevel.USER_EDITABLE
-    );
+    private static final Property<Integer> PROPERTY_UNSET = Property
+        .builder("external", "unset_property", Integer.class)
+        .withDefaultValue(5)
+        .nonNullable()
+        .isEditable()
+        .build();
 
     @Mock
     private StructureType structureType;

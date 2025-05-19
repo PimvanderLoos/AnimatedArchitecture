@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyTestUtil.*;
+import static org.assertj.core.api.Assertions.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
@@ -29,6 +30,21 @@ class PropertyContainerTest
         propertyContainer = PropertyContainer.forProperties(PROPERTIES);
     }
 
+    @Test
+    void getValue_shouldThrowExceptionWhenSettingNullValueForNonNullableProperty()
+    {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> propertyContainer.setPropertyValue(PROPERTY_STRING, null))
+            .withMessage("Property '%s' cannot be set to null.", PROPERTY_STRING.getNamespacedKey().getFullKey());
+    }
+
+    @Test
+    void setUntypedPropertyValue_shouldThrowExceptionWhenSettingNullValueForNonNullableProperty()
+    {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> propertyContainer.setUntypedPropertyValue(PROPERTY_STRING, null))
+            .withMessage("Property '%s' cannot be set to null.", PROPERTY_STRING.getNamespacedKey().getFullKey());
+    }
 
     @Test
     void testSetProperty()

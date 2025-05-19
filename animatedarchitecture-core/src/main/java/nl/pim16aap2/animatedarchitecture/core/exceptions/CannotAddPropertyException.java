@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
  * Represents an exception that is thrown when trying to add a property to a structure, but the property cannot be
  * added.
  * <p>
- * See {@link Property#canBeAddedByUser()}.
+ * This can happen is {@link Property#canBeAddedByUser()} is false, for example.
  */
 public class CannotAddPropertyException extends CommandExecutionException
 {

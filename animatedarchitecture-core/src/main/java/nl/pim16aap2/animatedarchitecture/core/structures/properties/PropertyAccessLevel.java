@@ -23,7 +23,7 @@ public enum PropertyAccessLevel
      * <p>
      * This is useful for properties that the user should be able to see but not change directly.
      */
-    VISIBLE,
+    READ_ONLY,
 
     /**
      * The property is editable by the user.

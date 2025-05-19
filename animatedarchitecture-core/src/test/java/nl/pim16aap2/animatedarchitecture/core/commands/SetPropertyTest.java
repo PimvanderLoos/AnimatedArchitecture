@@ -99,6 +99,26 @@ class SetPropertyTest
     }
 
     @Test
+    void validateInput_shouldThrowExceptionForNullValueForNonNullableProperty()
+    {
+        // Setup
+        final Property<String> property = mock();
+        when(property.isNonNullable()).thenReturn(true);
+
+        final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, null);
+
+        // Execute & Verify
+        assertThatExceptionOfType(InvalidCommandInputException.class)
+            .isThrownBy(setProperty::validateInput)
+            .withMessage("Property 'null' cannot be set to null.")
+            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
+
+        assertThatMessageable(commandSender).sentErrorMessage("commands.set_property.error.null_value");
+        verify(commandSender).getPersonalizedLocalizer();
+    }
+
+    @Test
     void validateInput_shouldThrowExceptionForInvalidValueType()
     {
         // Setup
@@ -168,7 +188,7 @@ class SetPropertyTest
     }
 
     @Test
-    void performAction0_shouldSucceedWhenPropertyCanBeAddedByUser()
+    void performAction0_shouldSucceedWhenPropertyCanBeAdded()
     {
         // Setup
         final Property<String> property = mock();
