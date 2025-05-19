@@ -123,6 +123,8 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         Property<T> property,
         ProvidedPropertyValue<T> providedPropertyValue)
     {
+        verifyNullableState(property, providedPropertyValue.value());
+
         final @Nullable IPropertyValue<?> prev = propertyMap.put(mapKey(property), providedPropertyValue);
         propertySet.reset();
 
@@ -148,7 +150,12 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      * @param <T>
      *     The type of the property.
      * @throws IllegalArgumentException
-     *     If the property is not valid for the structure type this property container was created for.
+     *     In case of:
+     *     <ul>
+     *         <li>The property is non-nullable (see {@link Property#isNonNullable()}) and the value is {@code null}.
+     *         </li>
+     *         <li>If the property is not valid for the structure type this property container was created for.</li>
+     *     </ul>
      */
     @Override
     public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
@@ -377,6 +384,8 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         if (rawValue instanceof PropertyContainerSerializer.UndefinedPropertyValue undefinedPropertyValue)
         {
             final var newValue = undefinedPropertyValue.deserializeValue(property);
+            verifyNullableState(property, newValue.value());
+
             propertyMap.put(key, newValue);
             propertySet.reset();
             return newValue;
@@ -449,9 +458,13 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      * @return {@link UnsetPropertyValue#INSTANCE} if the value is {@code null}, otherwise the value wrapped in a
      * {@link ProvidedPropertyValue}.
      */
-    static <T> ProvidedPropertyValue<T> mapValue(Property<T> property, @Nullable T value)
+    static <T> ProvidedPropertyValue<T> mapValue0(Property<T> property, @Nullable T value)
     {
-        return new ProvidedPropertyValue<>(property.getType(), value);
+        verifyNullableState(property, value);
+
+        if (value == null && !property.isKeepOnNull())
+
+            return new ProvidedPropertyValue<>(property.getType(), value);
     }
 
     /**

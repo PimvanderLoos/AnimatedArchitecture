@@ -72,6 +72,15 @@ public class SetProperty extends StructureTargetCommand
     @Override
     protected void validateInput()
     {
+        if (property.isNonNullable() && newValue == null)
+        {
+            getCommandSender().sendError("commands.set_property.error.null_value");
+            throw new InvalidCommandInputException(
+                true,
+                String.format("Property '%s' cannot be set to null.", property.getNamespacedKey())
+            );
+        }
+
         if (newValue != null && !property.getType().isAssignableFrom(newValue.getClass()))
         {
             getCommandSender().sendError("commands.set_property.error.invalid_value_type");

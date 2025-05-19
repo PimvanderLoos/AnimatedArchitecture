@@ -7,30 +7,25 @@ import java.util.stream.Stream;
 
 class PropertyTestUtil
 {
-    static final Property<Integer> PROPERTY_UNSET = new Property<>(
-        "external",
-        "unset_property",
-        Integer.class,
-        5,
-        PropertyAccessLevel.USER_EDITABLE
-    );
+    static final Property<Integer> PROPERTY_UNSET = Property
+        .builder("external", "unset_property", Integer.class)
+        .withDefaultValue(5)
+        .nonNullable()
+        .isEditable()
+        .build();
 
     static final String PROPERTY_STRING_DEFAULT = "default";
-    static final Property<String> PROPERTY_STRING = new Property<>(
-        Constants.PLUGIN_NAME,
-        "string_property",
-        String.class,
-        PROPERTY_STRING_DEFAULT,
-        PropertyAccessLevel.USER_EDITABLE
-    );
+    static final Property<String> PROPERTY_STRING = Property
+        .builder(Constants.PLUGIN_NAME, "string_property", String.class)
+        .withDefaultValue(PROPERTY_STRING_DEFAULT)
+        .nonNullable()
+        .isEditable()
+        .build();
 
-    static final Property<Object> PROPERTY_NULLABLE = new Property<>(
-        Constants.PLUGIN_NAME,
-        "nullable_property",
-        Object.class,
-        null,
-        PropertyAccessLevel.USER_EDITABLE
-    );
+    static final Property<Object> PROPERTY_NULLABLE = Property
+        .builder(Constants.PLUGIN_NAME, "nullable_property", Object.class)
+        .isEditable()
+        .build();
 
     static final List<Property<?>> PROPERTIES = List.of(
         PROPERTY_STRING,
