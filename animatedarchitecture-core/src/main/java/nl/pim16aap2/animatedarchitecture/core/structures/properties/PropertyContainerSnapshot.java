@@ -55,6 +55,12 @@ public final class PropertyContainerSnapshot implements IPropertyHolderConst, IP
         return PropertyContainer.hasProperties(propertyMap, properties);
     }
 
+    @Override
+    public boolean canRemoveProperty(Property<?> property)
+    {
+        return false;
+    }
+
     /**
      * Gets the map of properties.
      *

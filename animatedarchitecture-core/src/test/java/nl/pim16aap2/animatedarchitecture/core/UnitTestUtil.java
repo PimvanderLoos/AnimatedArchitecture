@@ -328,7 +328,7 @@ public class UnitTestUtil
             ? Objects.requireNonNull(structure.getType().getProperties())
             : providedProperties;
 
-        final PropertyContainer propertyContainer = PropertyContainer.forProperties(properties);
+        final PropertyContainer propertyContainer = PropertyContainer.forProperties(properties, true);
 
         Mockito.doAnswer(invocation ->
         {

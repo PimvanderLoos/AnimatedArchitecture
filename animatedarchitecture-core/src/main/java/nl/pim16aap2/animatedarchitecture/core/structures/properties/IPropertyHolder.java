@@ -10,7 +10,9 @@ public interface IPropertyHolder extends IPropertyHolderConst
      * @param property
      *     The property to set the value for.
      * @param value
-     *     The value to set. May be {@code null} if the property is nullable.
+     *     The value to set.
+     *     <p>
+     *     If this is {@code null}, the property will be removed.
      * @param <T>
      *     The type of the property.
      * @return The previous value of the property, or {@code null} if the property had no value set.

@@ -7,8 +7,8 @@ import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.fastjson2.annotation.JSONField;
 import com.alibaba.fastjson2.writer.ObjectWriter;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
 import javax.annotation.Nullable;
@@ -73,15 +73,21 @@ public final class PropertyContainerSerializer
      *     The {@link JSONObject} to deserialize.
      * @param type
      *     The type of the value.
+     * @param removable
+     *     Whether the property is removable.
      * @param <T>
      *     The type of the value.
      * @return The deserialized {@link IPropertyValue}.
      */
-    static <T> IPropertyValue<T> deserializePropertyValue(JSONObject jsonObject, Class<T> type)
+    private static <T> IPropertyValue<T> deserializePropertyValue(
+        JSONObject jsonObject,
+        Class<T> type,
+        boolean removable)
     {
         return new PropertyContainer.ProvidedPropertyValue<>(
             type,
-            jsonObject.getObject("value", type)
+            jsonObject.getObject("value", type),
+            removable
         );
     }
 
@@ -113,7 +119,7 @@ public final class PropertyContainerSerializer
         {
             // If the key exists in the default map, deserialize the value and replace the entry.
             if (existingEntry != null)
-                return deserializePropertyValue(jsonObject, existingEntry.type());
+                return deserializePropertyValue(jsonObject, existingEntry.type(), existingEntry.isRemovable());
 
             // If the key does not exist in the default map,
             // we can conclude that the structure type does not support this property.
@@ -148,7 +154,7 @@ public final class PropertyContainerSerializer
         String key,
         JSONObject jsonObject)
     {
-        propertyMap.put(key, deserializePropertyValue(jsonObject, property.getType()));
+        propertyMap.put(key, deserializePropertyValue(jsonObject, property.getType(), true));
     }
 
     /**
@@ -176,7 +182,7 @@ public final class PropertyContainerSerializer
             structureType
         );
 
-        propertyMap.put(key, new UndefinedPropertyValue(key, jsonObject));
+        propertyMap.put(key, new UndefinedPropertyValue(key, jsonObject, true));
     }
 
     /**
@@ -204,7 +210,6 @@ public final class PropertyContainerSerializer
      * @return The deserialized {@link PropertyContainer}.
      */
     static PropertyContainer deserialize(
-        asdf, // TODO: Figure out some way to determine the 'hardcoded' state of each property.
         StructureType structureType,
         Map<String, JSONObject> deserializedMap)
     {
@@ -353,7 +358,7 @@ public final class PropertyContainerSerializer
                     propertyKey
                 ));
 
-            return deserializePropertyValue(serializedValue, property.getType());
+            return deserializePropertyValue(serializedValue, property.getType(), isRemovable);
         }
     }
 
