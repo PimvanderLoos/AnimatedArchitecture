@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 
 import java.util.Collection;
@@ -88,4 +89,19 @@ public interface IPropertyHolderConst
      * @return {@code true} if this property holder has all the given properties, {@code false} otherwise.
      */
     boolean hasProperties(Collection<Property<?>> properties);
+
+    /**
+     * Checks if a property can be removed from this property holder.
+     * <p>
+     * A property can not be removed under the following conditions:
+     * <ul>
+     *     <li>The property is required (e.g. defined by {@link StructureType#getProperties()}).</li>
+     *     <li>The property does not exist in this property holder.</li>
+     * </ul>
+     *
+     * @param property
+     *     The property to check.
+     * @return {@code true} if the property can be removed from this property holder, {@code false} otherwise.
+     */
+    boolean canRemoveProperty(Property<?> property);
 }

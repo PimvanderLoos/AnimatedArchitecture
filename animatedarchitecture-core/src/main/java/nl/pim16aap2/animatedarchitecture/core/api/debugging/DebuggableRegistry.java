@@ -39,6 +39,6 @@ public final class DebuggableRegistry
      */
     private void registerStaticDebuggables()
     {
-        registerDebuggable(Property.REGISTRY);
+        registerDebuggable(Property.getDebuggableRegistry());
     }
 }

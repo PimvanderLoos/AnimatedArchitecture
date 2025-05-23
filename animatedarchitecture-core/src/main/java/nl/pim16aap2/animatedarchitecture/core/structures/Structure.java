@@ -1138,6 +1138,13 @@ public final class Structure implements IStructureConst, IPropertyHolder
     }
 
     @Override
+    @Locked.Read("lock")
+    public boolean canRemoveProperty(Property<?> property)
+    {
+        return propertyContainer.canRemoveProperty(property);
+    }
+
+    @Override
     public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
     {
         assertWriteLockable();

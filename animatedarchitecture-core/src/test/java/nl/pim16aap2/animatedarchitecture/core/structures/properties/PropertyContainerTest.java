@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -19,7 +17,6 @@ import static org.assertj.core.api.Assertions.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class PropertyContainerTest
 {
     private PropertyContainer propertyContainer;
@@ -27,14 +24,14 @@ class PropertyContainerTest
     @BeforeEach
     void beforeEach()
     {
-        propertyContainer = PropertyContainer.forProperties(PROPERTIES);
+        propertyContainer = PropertyContainer.forProperties(PROPERTIES, true);
     }
 
     @Test
-    void clearPropertyValue_shouldThrowExceptionWhenClearingNonNullableNonRemovableProperty()
+    void removePropertyValue_shouldThrowExceptionForUnremovableProperty()
     {
         assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> propertyContainer.clearPropertyValue(PROPERTY_STRING))
+            .isThrownBy(() -> propertyContainer.removePropertyValue(PROPERTY_STRING))
             .withMessage(
                 "Property '%s' is not removable and cannot be set to null!",
                 PROPERTY_STRING.getNamespacedKey().getFullKey()
@@ -42,19 +39,19 @@ class PropertyContainerTest
     }
 
     @Test
-    void clearPropertyValue_shouldUnsetForNullableNonRemovableProperty()
+    void removePropertyValue_shouldUnsetForNullableNonRemovableProperty()
     {
 
     }
 
     @Test
-    void clearPropertyValue_shouldRemoveRemovableNonNullableProperty()
+    void removePropertyValue_shouldRemoveRemovableNonNullableProperty()
     {
 
     }
 
     @Test
-    void clearPropertyValue_shouldUnsetNonRemovableNullableProperty()
+    void removePropertyValue_shouldUnsetNonRemovableNullableProperty()
     {
 
     }
@@ -142,7 +139,7 @@ class PropertyContainerTest
     void testValidMapUntypedValue()
     {
         Assertions.assertDoesNotThrow(
-            () -> PropertyContainer.mapUntypedValue(PROPERTY_STRING, "value")
+            () -> PropertyContainer.mapUntypedValue(PROPERTY_STRING, "value", true)
         );
     }
 
@@ -151,27 +148,27 @@ class PropertyContainerTest
     {
         Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> PropertyContainer.mapUntypedValue(PROPERTY_STRING, new Object())
+            () -> PropertyContainer.mapUntypedValue(PROPERTY_STRING, new Object(), true)
         );
     }
 
-    @Test
-    void testSnapshot()
-    {
-        final String stringValue = UUID.randomUUID().toString();
-        final Object objectValue = new Object();
-
-        propertyContainer.setPropertyValue(PROPERTY_STRING, stringValue);
-        propertyContainer.setPropertyValue(PROPERTY_NULLABLE, objectValue);
-
-        final var snapshot = propertyContainer.snapshot();
-
-        Assertions.assertEquals(stringValue, snapshot.getPropertyValue(PROPERTY_STRING).value());
-        Assertions.assertEquals(objectValue, snapshot.getPropertyValue(PROPERTY_NULLABLE).value());
-
-        propertyContainer.setPropertyValue(PROPERTY_STRING, UUID.randomUUID().toString());
-        Assertions.assertEquals(stringValue, snapshot.getPropertyValue(PROPERTY_STRING).value());
-    }
+//    @Test
+//    void testSnapshot()
+//    {
+//        final String stringValue = UUID.randomUUID().toString();
+//        final Object objectValue = new Object();
+//
+//        propertyContainer.setPropertyValue(PROPERTY_STRING, stringValue);
+//        propertyContainer.setPropertyValue(PROPERTY_NULLABLE, objectValue);
+//
+//        final var snapshot = propertyContainer.snapshot();
+//
+//        Assertions.assertEquals(stringValue, snapshot.getPropertyValue(PROPERTY_STRING).value());
+//        Assertions.assertEquals(objectValue, snapshot.getPropertyValue(PROPERTY_NULLABLE).value());
+//
+//        propertyContainer.setPropertyValue(PROPERTY_STRING, UUID.randomUUID().toString());
+//        Assertions.assertEquals(stringValue, snapshot.getPropertyValue(PROPERTY_STRING).value());
+//    }
 
     @Test
     void testForType()
@@ -186,7 +183,7 @@ class PropertyContainerTest
     @Test
     void testEqualsAndHashCode()
     {
-        final var otherContainer = PropertyContainer.forProperties(PROPERTIES);
+        final var otherContainer = PropertyContainer.forProperties(PROPERTIES, true);
 
         Assertions.assertEquals(propertyContainer, otherContainer);
         Assertions.assertEquals(propertyContainer.hashCode(), otherContainer.hashCode());

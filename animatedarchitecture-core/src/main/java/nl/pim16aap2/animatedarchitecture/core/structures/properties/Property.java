@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -36,7 +37,7 @@ public final class Property<T> implements IKeyed
     /**
      * The registry of all registered properties.
      */
-    public static final Registry REGISTRY = new Registry();
+    private static final Registry REGISTRY = new Registry();
 
     /**
      * The namespace and key of the property.
@@ -70,7 +71,7 @@ public final class Property<T> implements IKeyed
      * @return The default value of the property.
      */
     @Getter
-    private final @Nullable T defaultValue;
+    private final T defaultValue;
 
     /**
      * The scopes in which this property is used.
@@ -82,16 +83,6 @@ public final class Property<T> implements IKeyed
     private final List<PropertyScope> propertyScopes;
 
     private final boolean canBeAddedByUser;
-
-    /**
-     * Determines whether the property to be non-nullable.
-     * <p>
-     * If this is enabled, attempting to update the value of this property to null will result in an exception.
-     * <p>
-     * Note that this cannot be enabled if the default value is null.
-     */
-    @Getter
-    private final boolean nonNullable;
 
     /**
      * A property for structures whose animation speed is variable.
@@ -109,7 +100,6 @@ public final class Property<T> implements IKeyed
     public static final Property<Integer> BLOCKS_TO_MOVE =
         builder("BLOCKS_TO_MOVE", Integer.class)
             .isEditable()
-            .nonNullable()
             .withDefaultValue(0)
             // Changing the blocks to move may affect things like animation range.
             .withPropertyScopes(PropertyScope.ANIMATION)
@@ -121,7 +111,6 @@ public final class Property<T> implements IKeyed
     public static final Property<Boolean> OPEN_STATUS =
         builder("OPEN_STATUS", Boolean.class)
             .isEditable()
-            .nonNullable()
             .withDefaultValue(false)
             .withPropertyScopes(PropertyScope.ANIMATION, PropertyScope.REDSTONE)
             .build();
@@ -132,7 +121,6 @@ public final class Property<T> implements IKeyed
     public static final Property<Integer> QUARTER_CIRCLES =
         builder("QUARTER_CIRCLES", Integer.class)
             .isEditable()
-            .nonNullable()
             .withDefaultValue(1)
             .isHidden() // Quarter circles are not yet fully supported.
             // Changing the quarter circles may affect things like animation range.
@@ -145,7 +133,6 @@ public final class Property<T> implements IKeyed
     public static final Property<RedstoneMode> REDSTONE_MODE =
         builder("REDSTONE_MODE", RedstoneMode.class)
             .isReadOnly()
-            .nonNullable()
             .withDefaultValue(RedstoneMode.DEFAULT)
             // Changing the redstone mode may affect the current redstone action.
             .withPropertyScopes(PropertyScope.REDSTONE)
@@ -157,7 +144,6 @@ public final class Property<T> implements IKeyed
     public static final Property<Vector3Di> ROTATION_POINT =
         builder("ROTATION_POINT", Vector3Di.class)
             .isEditable()
-            .nonNullable()
             .withDefaultValue(new Vector3Di(0, 0, 0))
             // Changing the rotation point may affect things like animation range.
             .withPropertyScopes(PropertyScope.ANIMATION)
@@ -166,26 +152,20 @@ public final class Property<T> implements IKeyed
     private Property(
         NamespacedKey namespacedKey,
         Class<T> type,
-        @Nullable T defaultValue,
+        T defaultValue,
         PropertyAccessLevel propertyAccessLevel,
         List<PropertyScope> scopes,
-        boolean canBeAddedByUser,
-        boolean nonNullable)
+        boolean canBeAddedByUser)
     {
         this.namespacedKey = namespacedKey;
         this.type = type;
         this.propertyAccessLevel = propertyAccessLevel;
-        this.defaultValue = defaultValue;
+        this.defaultValue = Objects.requireNonNull(defaultValue);
         this.propertyScopes = List.copyOf(scopes);
         this.canBeAddedByUser = canBeAddedByUser;
-        this.nonNullable = nonNullable;
 
-        if (defaultValue != null && !type.isInstance(defaultValue))
+        if (!type.isInstance(defaultValue))
             throw new IllegalArgumentException("Default value " + defaultValue + " is not of type " + type.getName());
-
-        if (nonNullable && defaultValue == null)
-            throw new IllegalArgumentException(
-                "Property " + namespacedKey + " is non-nullable, but the default value is null!");
 
         REGISTRY.register(this);
     }
@@ -244,6 +224,11 @@ public final class Property<T> implements IKeyed
         {
             throw new IllegalArgumentException("Provided incompatible value for property " + this, e);
         }
+    }
+
+    public static IDebuggable getDebuggableRegistry()
+    {
+        return REGISTRY;
     }
 
     /**
@@ -328,8 +313,6 @@ public final class Property<T> implements IKeyed
 
         private boolean canBeAddedByUser = false;
 
-        private boolean nonNullable = false;
-
         private PropertyBuilder(NamespacedKey namespacedKey, Class<T> type)
         {
             this.namespacedKey = namespacedKey;
@@ -346,11 +329,10 @@ public final class Property<T> implements IKeyed
             return new Property<>(
                 namespacedKey,
                 type,
-                defaultValue,
+                Objects.requireNonNull(defaultValue),
                 propertyAccessLevel,
                 propertyScopes,
-                canBeAddedByUser,
-                nonNullable
+                canBeAddedByUser
             );
         }
 
@@ -441,7 +423,7 @@ public final class Property<T> implements IKeyed
          */
         public PropertyBuilder<T> withDefaultValue(@Nullable T defaultValue)
         {
-            this.defaultValue = defaultValue;
+            this.defaultValue = Objects.requireNonNull(defaultValue);
             return this;
         }
 
@@ -460,23 +442,6 @@ public final class Property<T> implements IKeyed
         public PropertyBuilder<T> canBeAddedByUser()
         {
             this.canBeAddedByUser = true;
-            return this;
-        }
-
-        /**
-         * Sets the property to be non-nullable.
-         * <p>
-         * Attempting to set the value of this property to null will result in an exception.
-         * <p>
-         * Note that this cannot be set if the default value is null.
-         * <p>
-         * This defaults to {@code false}.
-         *
-         * @return The builder.
-         */
-        public PropertyBuilder<T> nonNullable()
-        {
-            this.nonNullable = true;
             return this;
         }
     }
