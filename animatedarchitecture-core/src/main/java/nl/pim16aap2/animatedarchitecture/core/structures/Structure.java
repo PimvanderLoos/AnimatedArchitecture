@@ -26,7 +26,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -1111,7 +1110,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     }
 
     @Override
-    public IPropertyContainerConst getPropertyContainerSnapshot()
+    public PropertyContainerSnapshot getPropertyContainerSnapshot()
     {
         return lazyPropertyContainerSnapshot.get();
     }

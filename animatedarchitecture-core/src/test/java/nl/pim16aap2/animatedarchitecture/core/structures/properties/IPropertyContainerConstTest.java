@@ -1,12 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import static nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyTestUtil.*;
@@ -20,7 +18,7 @@ class IPropertyContainerConstTest
         final var iterator = propertyContainer.iterator();
 
         final Map<String, @Nullable Object> results = HashMap.newHashMap(2);
-        iterator.forEachRemaining(entry -> results.put(entry.property().getFullKey(), entry.propertyValue()));
+        iterator.forEachRemaining(entry > results.put(entry.property().getFullKey(), entry.propertyValue()));
 
         Assertions.assertEquals(2, results.size());
         Assertions.assertEquals(PROPERTY_STRING_DEFAULT, results.get(PROPERTY_STRING.getFullKey()));

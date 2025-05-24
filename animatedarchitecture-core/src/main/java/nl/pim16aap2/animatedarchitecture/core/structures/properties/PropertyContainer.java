@@ -132,7 +132,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
             mapKey(property),
             (key, oldValue) ->
             {
-                final boolean required = oldValue == null || oldValue.isRemovable();
+                final boolean required = oldValue != null && oldValue.isRequired();
                 oldValueRef.set(oldValue);
                 return new ProvidedPropertyValue<>(property.getType(), value, required);
             }
@@ -160,7 +160,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
             mapKey(property),
             (key, oldValue) ->
             {
-                if (!oldValue.isRemovable())
+                if (oldValue.isRequired())
                     throw new IllegalArgumentException(
                         String.format("Property '%s' is cannot be removed!", property.getFullKey()));
 
@@ -247,7 +247,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     public boolean canRemoveProperty(Property<?> property)
     {
         final IPropertyValue<?> value = propertyMap.get(mapKey(property));
-        return value != null && value.isRemovable();
+        return value == null || !value.isRequired();
     }
 
     /**
@@ -300,14 +300,14 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      *
      * @param properties
      *     The properties to create the property container for.
-     * @param removable
-     *     Whether the properties are removable.
+     * @param required
+     *     Whether the properties are required.
      * @return A new property container for the given properties.
      */
     @VisibleForTesting
-    public static PropertyContainer forProperties(List<Property<?>> properties, boolean removable)
+    public static PropertyContainer forProperties(List<Property<?>> properties, boolean required)
     {
-        return new PropertyContainer(toPropertyMap(properties, removable));
+        return new PropertyContainer(toPropertyMap(properties, required));
     }
 
     /**
@@ -348,17 +348,17 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      *
      * @param properties
      *     The properties to create the map from.
-     * @param removable
-     *     Whether the properties are removable.
+     * @param required
+     *     Whether the properties are required.
      * @return A new property map with the default properties for the given structure type.
      */
-    static Map<String, IPropertyValue<?>> toPropertyMap(List<Property<?>> properties, boolean removable)
+    static Map<String, IPropertyValue<?>> toPropertyMap(List<Property<?>> properties, boolean required)
     {
         return properties
             .stream()
             .collect(Collectors.toMap(
                 PropertyContainer::mapKey,
-                property -> defaultMapValue(property, removable),
+                property -> defaultMapValue(property, required),
                 (prev, next) -> next,
                 HashMap::new)
             );
@@ -479,15 +479,15 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      *
      * @param property
      *     The property to get the default value for.
-     * @param removable
-     *     Whether the property is removable.
+     * @param required
+     *     Whether the property is required.
      * @param <T>
      *     The type of the property.
      * @return The default value for the property.
      */
-    static <T> ProvidedPropertyValue<T> defaultMapValue(Property<T> property, boolean removable)
+    static <T> ProvidedPropertyValue<T> defaultMapValue(Property<T> property, boolean required)
     {
-        return mapValue(property, property.getDefaultValue(), removable);
+        return mapValue(property, property.getDefaultValue(), required);
     }
 
     /**
@@ -499,14 +499,14 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      *     The property to map the value for.
      * @param value
      *     The value to convert.
-     * @param removable
-     *     Whether the property is removable.
+     * @param required
+     *     Whether the property is required.
      * @return {@link UnsetPropertyValue#INSTANCE} if the value is {@code null}, otherwise the value wrapped in a
      * {@link ProvidedPropertyValue}.
      */
-    static <T> ProvidedPropertyValue<T> mapValue(Property<T> property, T value, boolean removable)
+    static <T> ProvidedPropertyValue<T> mapValue(Property<T> property, T value, boolean required)
     {
-        return new ProvidedPropertyValue<>(property.getType(), value, removable);
+        return new ProvidedPropertyValue<>(property.getType(), value, required);
     }
 
     /**
@@ -732,7 +732,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      *     The type of the property value.
      * @param value
      *     The value of the property.
-     * @param isRemovable
+     * @param isRequired
      *     Whether the property is removable.
      *     <p>
      *     When set to {@code false}, the property cannot be removed from the property container and will throw an
@@ -745,7 +745,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         // is provided by the property, which we can get from the key.
         @JSONField(serialize = false) Class<T> type,
         T value,
-        @JSONField(serialize = false) boolean isRemovable)
+        @JSONField(serialize = false) boolean isRequired)
         implements IPropertyValue<T>
     {
         @JSONField(serialize = false)
@@ -770,7 +770,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         }
 
         @Override
-        public boolean isRemovable()
+        public boolean isRequired()
         {
             return true; // Essentially a no-op.
         }

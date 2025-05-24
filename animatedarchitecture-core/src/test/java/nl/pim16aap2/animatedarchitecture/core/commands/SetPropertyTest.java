@@ -70,6 +70,44 @@ class SetPropertyTest
     }
 
     @Test
+    void setProperty_shouldSucceedForValidInput()
+    {
+        // Setup
+        final Property<String> property = mock();
+        final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
+
+        // Execute & Verify
+        assertDoesNotThrow(() -> setProperty.setProperty(structure, property, "newValue"));
+        verify(commandSender).getPersonalizedLocalizer();
+    }
+
+    @Test
+    void setProperty_shouldThrowExceptionWhenTryingToRemoveNonRemovableProperty()
+    {
+        // Setup
+        final Property<String> property = mock();
+        final NamespacedKey namespacedKey = new NamespacedKey("test", "property");
+        final SetProperty setProperty = setPropertyWithDefaults(property, "newValue");
+
+        UnitTestUtil.initMessageable(commandSender);
+        UnitTestUtil.setStructureLocalization(structure);
+
+        when(property.getNamespacedKey()).thenReturn(namespacedKey);
+        when(structure.canRemoveProperty(property)).thenReturn(false);
+
+        // Execute & Verify
+        verify(commandSender).getPersonalizedLocalizer();
+        assertThatExceptionOfType(InvalidCommandInputException.class)
+            .isThrownBy(() -> setProperty.setProperty(structure, property, null))
+            .withMessage("Cannot remove property '%s' for structure type %s", namespacedKey, structure.getType())
+            .extracting(InvalidCommandInputException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
+        assertThatMessageable(commandSender)
+            .sentErrorMessage("commands.set_property.error.cannot_remove_property")
+            .withArgs(namespacedKey.getKey(), "StructureType");
+    }
+
+    @Test
     void validateInput_shouldSucceedForValidInputForUserEditableProperty()
     {
         // Setup
@@ -95,26 +133,6 @@ class SetPropertyTest
 
         // Execute & Verify
         assertDoesNotThrow(setProperty::validateInput);
-        verify(commandSender).getPersonalizedLocalizer();
-    }
-
-    @Test
-    void validateInput_shouldThrowExceptionForNullValueForNonNullableProperty()
-    {
-        // Setup
-        final Property<String> property = mock();
-        when(property.isNonNullable()).thenReturn(true);
-
-        final SetProperty setProperty = setPropertyWithDefaults(assistedFactoryMocker, property, null);
-
-        // Execute & Verify
-        assertThatExceptionOfType(InvalidCommandInputException.class)
-            .isThrownBy(setProperty::validateInput)
-            .withMessage("Property 'null' cannot be set to null.")
-            .extracting(CommandExecutionException::isUserInformed, InstanceOfAssertFactories.BOOLEAN)
-            .isTrue();
-
-        assertThatMessageable(commandSender).sentErrorMessage("commands.set_property.error.null_value");
         verify(commandSender).getPersonalizedLocalizer();
     }
 

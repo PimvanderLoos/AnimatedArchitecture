@@ -1,344 +1,284 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
 import com.alibaba.fastjson2.JSON;
-import lombok.extern.slf4j.Slf4j;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 import nl.altindag.log.LogCaptor;
+import nl.pim16aap2.animatedarchitecture.core.structures.RedstoneMode;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import nl.pim16aap2.testing.logging.WithLogCapture;
-import org.jetbrains.annotations.Nullable;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-@Slf4j
+import static nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSerializer.UndefinedPropertyValue;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 @WithLogCapture
 public class PropertyContainerSerializerTest
 {
-    private static final Property<Integer> PROPERTY_UNSET = Property
-        .builder("external", "unset_property", Integer.class)
+    private static final Property<Integer> OPTIONAL_PROPERTY = Property
+        .builder("external", "optional_property", Integer.class)
         .withDefaultValue(5)
-        .nonNullable()
         .isEditable()
         .build();
 
     @Mock
     private StructureType structureType;
+
     private PropertyContainer propertyContainer;
 
-    private Map<Property<?>, @Nullable Object> intermediateMap;
+    private Map<Property<?>, Object> requiredProperties;
+
+    private static final String SERIALIZED =
+        "{\"animatedarchitecture:animation_speed_multiplier\":{\"value\":1.5}," +
+            "\"animatedarchitecture:open_status\":{\"value\":true}," +
+            "\"animatedarchitecture:redstone_mode\":{\"value\":\"POWERED_OPEN\"}," +
+            "\"animatedarchitecture:rotation_point\":{\"value\":{\"x\":3,\"y\":1,\"z\":4}}," +
+            "\"external:optional_property\":{\"value\":-6}}";
 
     @BeforeEach
     void setUp()
     {
-        intermediateMap = createIntermediateMap(
+        requiredProperties = Map.of(
             Property.ANIMATION_SPEED_MULTIPLIER, 1.5D,
-            Property.OPEN_STATUS, null,
+            Property.OPEN_STATUS, true,
             Property.ROTATION_POINT, new Vector3Di(3, 1, 4),
-            Property.REDSTONE_MODE, null
+            Property.REDSTONE_MODE, RedstoneMode.DEFAULT
         );
 
-        propertyContainer = propertyContainerFromMap(intermediateMap);
+        final Map<Property<?>, Object> optionalProperties = Map.of(
+            OPTIONAL_PROPERTY, -6
+        );
 
-        Mockito.when(structureType.getProperties()).thenReturn(List.copyOf(intermediateMap.keySet()));
-        Mockito.when(structureType.getFullNameWithVersion()).thenReturn("test:structure:1");
+        propertyContainer = propertyContainerFromMap(requiredProperties, optionalProperties);
     }
 
     @Test
-    void testSerializationCycle()
+    void serialize_shouldReturnCorrectJson()
     {
+        // Execute
         final String serialized = PropertyContainerSerializer.serialize(propertyContainer);
 
-        Assertions.assertEquals(
-            propertyContainer,
-            PropertyContainerSerializer.deserialize(structureType, serialized)
-        );
+        // Verify
+        assertThat(serialized).isEqualTo(SERIALIZED);
     }
 
     @Test
-    void testSerializationCycleWithNonTypeDefinedProperties()
+    void serialize_shouldReturnCorrectJsonForStructureInput()
     {
-        propertyContainer.setPropertyValue(PROPERTY_UNSET, 7);
+        // Setup
+        final Structure structure = mock();
 
-        final String serialized = PropertyContainerSerializer.serialize(propertyContainer);
+        when(structure.getPropertyContainerSnapshot()).thenReturn(propertyContainer.snapshot());
 
-        Assertions.assertEquals(
-            propertyContainer,
-            PropertyContainerSerializer.deserialize(structureType, serialized)
-        );
-    }
-
-    @Test
-    void testSerializeStructure()
-    {
-        final Structure structure = Mockito.mock(Structure.class);
-        Mockito.when(structure.getType()).thenReturn(structureType);
-
-        final IPropertyContainerConst snapshot = propertyContainer.snapshot();
-        Mockito.when(structure.getPropertyContainerSnapshot()).thenReturn(snapshot);
-
+        // Execute
         final String serialized = PropertyContainerSerializer.serialize(structure);
-        Assertions.assertEquals(
-            propertyContainer,
-            PropertyContainerSerializer.deserialize(structureType, serialized)
-        );
+
+        // Verify
+        assertThat(serialized).isEqualTo(SERIALIZED);
     }
 
     @Test
-    void testUpdatePropertyMapEntry()
+    void serialize_shouldAvoidDoubleSerializationForUndefinedPropertyEntries()
     {
-        final Map<String, IPropertyValue<?>> entries = new HashMap<>(createPropertyMap(
-            Property.ANIMATION_SPEED_MULTIPLIER, 1.5D
-        ));
+        // Setup
+        final String propertyKey = "animatedarchitecture:" + "undefined_property_" + UUID.randomUUID();
+        final String valueJson = "{\"value\":5}";
+        final String inputJson = "{\"" + propertyKey + "\":" + valueJson + "}";
+        final JSONObject jsonObject = JSON.parseObject(valueJson);
 
-        // "ANIMATION_SPEED_MULTIPLIER" exists, so it should be updated.
-        Assertions.assertTrue(
-            PropertyContainerSerializer.updatePropertyMapEntry(
-                structureType,
-                entries,
-                Property.ANIMATION_SPEED_MULTIPLIER.getFullKey(),
-                JSON.parseObject("{\"value\": 2.5}")
-            )
-        );
+        final var undefinedPropertyValue = new UndefinedPropertyValue(propertyKey, jsonObject, false);
+        final PropertyContainer toSerialize = new PropertyContainer(Map.of(propertyKey, undefinedPropertyValue));
 
-        Assertions.assertEquals(
-            2.5D,
-            (double) entries.get(Property.ANIMATION_SPEED_MULTIPLIER.getFullKey()).value(),
-            0.0001D
-        );
+        // Execute
+        final String serialized = PropertyContainerSerializer.serialize(toSerialize);
 
-
-        // "OPEN_STATUS" does not exist, so it should not be updated.
-        Assertions.assertFalse(
-            PropertyContainerSerializer.updatePropertyMapEntry(
-                structureType,
-                entries,
-                Property.OPEN_STATUS.getFullKey(),
-                JSON.parseObject("{\"value\": 2.5}")
-            )
-        );
-        Assertions.assertFalse(entries.containsKey(Property.OPEN_STATUS.getFullKey()));
-
-        Assertions.assertEquals(1, entries.size());
+        // Verify
+        assertThat(serialized).isEqualTo(inputJson);
     }
 
     @Test
-    void testNonDefaultProperties()
+    void deserialize_shouldReturnCorrectPropertyContainer()
     {
-        final var mapWithUnsupportedProperty = new HashMap<>(intermediateMap);
-        mapWithUnsupportedProperty.put(PROPERTY_UNSET, 7);
+        // Setup
+        when(structureType.getProperties()).thenReturn(List.copyOf(requiredProperties.keySet()));
 
-        final PropertyContainer propertyContainerWithUnsupportedProperty =
-            propertyContainerFromMap(mapWithUnsupportedProperty);
+        // Execute
+        final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, SERIALIZED);
 
-        final String serialized = PropertyContainerSerializer.serialize(propertyContainerWithUnsupportedProperty);
-        final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
-
-        Assertions.assertTrue(deserialized.hasProperty(PROPERTY_UNSET));
-    }
-
-    // Test that for missing properties in the JSON String the following happens:
-    // 1) A 'warning' log message is logged about the default value being used.
-    // 2) The property is added to the property map with the default value.
-    @Test
-    void testMissingProperties(LogCaptor logCaptor)
-    {
-        logCaptor.setLogLevelToTrace();
-        final PropertyContainer propertyContainerWithMissingProperties = propertyContainerFromMap(
-            createIntermediateMap(
-                Property.ANIMATION_SPEED_MULTIPLIER, -1.5D,
-                Property.OPEN_STATUS, true
-            )
-        );
-
-        final String serialized = PropertyContainerSerializer.serialize(propertyContainerWithMissingProperties);
-
-        final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
-
-        //noinspection DataFlowIssue
-        Assertions.assertEquals(
-            -1.5D,
-            deserialized.getPropertyValue(Property.ANIMATION_SPEED_MULTIPLIER).value(),
-            0.0001D
-        );
-        Assertions.assertEquals(true, deserialized.getPropertyValue(Property.OPEN_STATUS).value());
-        Assertions.assertEquals(
-            Property.ROTATION_POINT.getDefaultValue(),
-            deserialized.getPropertyValue(Property.ROTATION_POINT).value()
-        );
-        Assertions.assertEquals(
-            Property.REDSTONE_MODE.getDefaultValue(),
-            deserialized.getPropertyValue(Property.REDSTONE_MODE).value()
-        );
-
-        final String logMessage = "Property '%s' was not supplied for structure type '%s', using default value '%s'.";
-
-        AssertionBuilder
-            .assertLogged(logCaptor)
-            .message(
-                logMessage,
-                PropertyContainer.mapKey(Property.REDSTONE_MODE),
-                structureType,
-                Property.REDSTONE_MODE.getDefaultValue())
-            .level(Level.FINER)
-            .assertLogged();
-
-        AssertionBuilder
-            .assertLogged(logCaptor)
-            .message(
-                logMessage,
-                PropertyContainer.mapKey(Property.ROTATION_POINT),
-                structureType,
-                Property.ROTATION_POINT.getDefaultValue())
-            .level(Level.FINER)
-            .assertLogged();
+        // Verify
+        assertThat(deserialized.getMap()).isEqualTo(propertyContainer.getMap());
     }
 
     @Test
-    void testUndefinedProperty()
+    void deserialize_shouldCreateUndefinedPropertyValueForNonExistingProperty()
     {
-        final String propertyKey = "animatedarchitecture:" + UUID.randomUUID();
+        // Setup
+        final String propertyKey = "animatedarchitecture:" + "undefined_property_" + UUID.randomUUID();
         final String serialized = "{\"" + propertyKey + "\":{\"value\":5}}";
 
-        // Use a mocked+random property key to ensure Property.fromName does not return a property.
-        final var property = mockProperty(propertyKey, Integer.class, 5);
+        // Execute
+        final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
 
-        final var deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
-        Assertions.assertTrue(deserialized.hasProperty(property));
-
-        final IPropertyValue<?> value0 = deserialized.getRawValue(propertyKey);
-        Assertions.assertNotNull(value0);
-        Assertions.assertInstanceOf(PropertyContainerSerializer.UndefinedPropertyValue.class, value0);
-        Assertions.assertNull(value0.value());
-
-        // Use the real 'getPropertyValue' method to ensure that the
-        // 'UndefinedPropertyValue' is converted to a 'ProvidedPropertyValue',
-        // now that the property is known.
-        final var value1 = deserialized.getPropertyValue(property);
-        Assertions.assertNotNull(value1);
-        Assertions.assertEquals(5, value1.value());
-        Assertions.assertInstanceOf(PropertyContainer.ProvidedPropertyValue.class, value1);
-
-        // Ensure that the raw value has been updated.
-        Assertions.assertEquals(value1, deserialized.getRawValue(propertyKey));
+        // Verify
+        //noinspection DataFlowIssue
+        assertThat(deserialized.getRawValue(propertyKey))
+            .asInstanceOf(InstanceOfAssertFactories.type(UndefinedPropertyValue.class))
+            .satisfies(
+                value -> assertThat(value.isSet()).isFalse(),
+                value -> assertThat(value.value()).isNull(),
+                value -> assertThat(value.type()).isEqualTo(Object.class)
+            );
     }
 
     @Test
-    void testDoubleSerialization()
+    void deserialize_shouldDeserializeDelayedUndefinedPropertyValue()
     {
-        Mockito.when(structureType.getProperties()).thenReturn(List.of());
+        // Setup
+        final String propertyKey = "undefined_property_" + UUID.randomUUID();
+        final String serialized = "{\"animatedarchitecture:" + propertyKey + "\":{\"value\":5}}";
 
-        final String propertyKey = "animatedarchitecture:" + UUID.randomUUID();
-        final String serialized = "{\"" + propertyKey + "\":{\"value\":11}}";
-        final var property = mockProperty(propertyKey, Integer.class, 13);
+        // Execute
+        final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
+        final Property<Integer> property = Property
+            .builder("animatedarchitecture", propertyKey, Integer.class)
+            .withDefaultValue(0)
+            .isEditable()
+            .build();
+        final IPropertyValue<?> value = deserialized.getPropertyValue(property);
 
-        var deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
-        for (int i = 0; i < 10; i++)
+        // Verify
+        assertThat(value)
+            .isInstanceOf(PropertyContainer.ProvidedPropertyValue.class)
+            .extracting(IPropertyValue::value)
+            .isEqualTo(5);
+    }
+
+    @Test
+    void deserialize_shouldLogMissingProperties(LogCaptor logCaptor)
+    {
+        logCaptor.setLogLevelToTrace();
+
+        // Setup
+        final String serialized = "{\"animatedarchitecture:animation_speed_multiplier\":{\"value\":1.5}}";
+
+        when(structureType.getProperties())
+            .thenReturn(List.of(Property.ANIMATION_SPEED_MULTIPLIER, Property.OPEN_STATUS));
+
+        // Execute
+        final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
+
+        // Verify
+        assertThat(deserialized.hasProperty(Property.ANIMATION_SPEED_MULTIPLIER)).isTrue();
+        assertThat(deserialized.hasProperty(Property.OPEN_STATUS)).isTrue();
+
+        AssertionBuilder
+            .assertLogged(logCaptor)
+            .atFiner()
+            .message(
+                "Property '%s' was not supplied for structure type '%s', using default value '%s'.",
+                PropertyContainer.mapKey(Property.OPEN_STATUS),
+                structureType,
+                Property.OPEN_STATUS.getDefaultValue())
+            .assertLogged();
+    }
+
+    @Test
+    void deserializeValue_shouldThrowExceptionForPropertyKeyMismatch()
+    {
+        // Setup
+        final String propertyKey = "animatedarchitecture:" + "undefined_property_" + UUID.randomUUID();
+        final String serialized = "{\"" + propertyKey + "\":{\"value\":5}}";
+        final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
+        final var value = Objects.requireNonNull((UndefinedPropertyValue) deserialized.getRawValue(propertyKey));
+
+        // Execute & Verify
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> value.deserializeValue(mock()))
+            .withMessageContaining("Property key mismatch: Expected '%s', got '%s'", propertyKey, null);
+    }
+
+    @Test
+    void deserialize_shouldThrowExceptionForInvalidJson()
+    {
+        // Setup
+        final String invalidJson = "asdfasdfasdf";
+
+        // Execute & Verify
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> PropertyContainerSerializer.deserialize(structureType, invalidJson))
+            .withMessageContaining("Could not deserialize PropertyContainer from JSON: '%s'", invalidJson);
+    }
+
+    @Nested
+    class UndefinedPropertyValueSerializerTest
+    {
+        @Mock
+        private JSONWriter jsonWriter;
+
+        private PropertyContainerSerializer.UndefinedPropertyValueSerializer undefinedPropertyValueSerializer;
+
+        private String propertyKey;
+
+        @BeforeEach
+        void setUp()
         {
-            final String reserialized = PropertyContainerSerializer.serialize(deserialized);
-            deserialized = PropertyContainerSerializer.deserialize(structureType, reserialized);
+            propertyKey = "animatedarchitecture:" + "undefined_property_" + UUID.randomUUID();
+            undefinedPropertyValueSerializer = new PropertyContainerSerializer.UndefinedPropertyValueSerializer();
         }
 
-        // The property was mocked and as such undefined.
-        // Therefore, the raw value should be an 'UndefinedPropertyValue'.
-        Assertions.assertInstanceOf(
-            PropertyContainerSerializer.UndefinedPropertyValue.class,
-            deserialized.getRawValue(propertyKey)
-        );
-
-        // When providing the property object, the value should be deserialized.
-        final var value = deserialized.getPropertyValue(property);
-        Assertions.assertInstanceOf(PropertyContainer.ProvidedPropertyValue.class, value);
-        Assertions.assertEquals(11, value.value());
-    }
-
-    /**
-     * Creates a new mocked property.
-     *
-     * @param key
-     *     The key of the property.
-     * @param type
-     *     The type of the property.
-     * @param defaultValue
-     *     The default value of the property.
-     * @param <T>
-     *     The type of the property.
-     * @return The mocked property.
-     */
-    private static <T> Property<T> mockProperty(String key, Class<T> type, T defaultValue)
-    {
-        final Property<T> property = Mockito.mock();
-        Mockito.doReturn(key).when(property).getFullKey();
-        Mockito.doReturn(type).when(property).getType();
-        Mockito.doReturn(defaultValue).when(property).getDefaultValue();
-        Mockito.doCallRealMethod().when(property).cast(Mockito.any());
-        return property;
-    }
-
-    /**
-     * Creates a new 'intermediate' map of properties and their values.
-     * <p>
-     * This map cannot be used directly to create a {@link PropertyContainer} but can be used by
-     * {@link #createPropertyMap(Map)} to create a map that can be used to create a {@link PropertyContainer}.
-     *
-     * @param input
-     *     The properties and their values. The properties and their values are expected to be interleaved.
-     *     <p>
-     *     Example: {@code Property.ANIMATION_SPEED_MULTIPLIER, 1.5D, Property.OPEN_STATUS, null}
-     * @return The intermediate map of properties and their values.
-     */
-    private static Map<Property<?>, @Nullable Object> createIntermediateMap(@Nullable Object... input)
-    {
-        if (input.length % 2 != 0)
-            throw new IllegalArgumentException("Input must be a multiple of 2.");
-
-        final Map<Property<?>, @Nullable Object> entries = LinkedHashMap.newLinkedHashMap(input.length / 2);
-
-        for (int i = 0; i < input.length; i += 2)
+        @AfterEach
+        void tearDown()
         {
-            final @Nullable Object key = input[i];
-
-            if (!(key instanceof Property<?> property))
-                throw new IllegalArgumentException(
-                    "Argument " + i + " must be a Property but was " + (key == null ? "null" : key.getClass()));
-
-            entries.put(property, input[i + 1]);
+            verifyNoMoreInteractions(jsonWriter);
         }
-        return entries;
-    }
 
-    /**
-     * Creates a new map of properties and their values from an array of properties and their values.
-     *
-     * @param input
-     *     The properties and their values. The properties and their values are expected to be interleaved.
-     *     <p>
-     *     Example: {@code Property.ANIMATION_SPEED_MULTIPLIER, 1.5D, Property.OPEN_STATUS, null}
-     * @return The map of property names and their property values.
-     */
-    private static Map<String, IPropertyValue<?>> createPropertyMap(@Nullable Object... input)
-    {
-        return createPropertyMap(createIntermediateMap(input));
+        @Test
+        void write_shouldNotReserializeUndefinedProperties()
+        {
+            // Setup
+            final String valueJson = "{\"value\":5}";
+            final var entry = new UndefinedPropertyValue(propertyKey, JSON.parseObject(valueJson), false);
+
+            // Execute
+            undefinedPropertyValueSerializer.write(jsonWriter, entry);
+
+            // Verify
+            verify(jsonWriter).write(entry.serializedValue());
+        }
+
+        @Test
+        void write_shouldThrowExceptionForNotUndefinedPropertyValue()
+        {
+            // Setup
+            final PropertyContainer.ProvidedPropertyValue<String> providedValue =
+                new PropertyContainer.ProvidedPropertyValue<>(String.class, "test", true);
+
+            // Execute & Verify
+            assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> undefinedPropertyValueSerializer.write(jsonWriter, providedValue))
+                .withMessage("Object '%s' is not an instance of UndefinedPropertyValue", providedValue);
+        }
     }
 
     /**
@@ -346,28 +286,52 @@ public class PropertyContainerSerializerTest
      *
      * @param input
      *     The intermediate map of properties and their values.
+     * @param required
+     *     Whether the properties are required or optional.
      * @return The map of property names and their property values.
      */
-    private static Map<String, IPropertyValue<?>> createPropertyMap(Map<Property<?>, @Nullable Object> input)
+    private static Map<String, IPropertyValue<?>> createPropertyMap(Map<Property<?>, Object> input, boolean required)
     {
         return input
             .entrySet()
             .stream()
-            .collect(Collectors.toUnmodifiableMap(
+            .collect(Collectors.toMap(
                 entry -> PropertyContainer.mapKey(entry.getKey()),
-                entry -> PropertyContainer.mapUntypedValue(entry.getKey(), entry.getValue())
+                entry -> PropertyContainer.mapUntypedValue(entry.getKey(), entry.getValue(), required)
             ));
     }
 
     /**
      * Creates a new {@link PropertyContainer} from a map of properties and their values.
      *
-     * @param map
-     *     The map of properties and their values.
+     * @param requiredProperties
+     *     The map of required properties and their values.
+     * @param optionalProperties
+     *     The map of optional properties and their values.
      * @return The new {@link PropertyContainer}.
      */
-    private static PropertyContainer propertyContainerFromMap(Map<Property<?>, @Nullable Object> map)
+    private static PropertyContainer propertyContainerFromMap(
+        Map<Property<?>, Object> requiredProperties,
+        Map<Property<?>, Object> optionalProperties)
     {
-        return new PropertyContainer(new LinkedHashMap<>(createPropertyMap(map)));
+        final LinkedHashMap<String, IPropertyValue<?>> mapped =
+            LinkedHashMap.newLinkedHashMap(requiredProperties.size() + optionalProperties.size());
+
+        mapped.putAll(createPropertyMap(requiredProperties, true));
+        mapped.putAll(createPropertyMap(optionalProperties, false));
+
+        // Sort the map by key to ensure consistent ordering to make the tests deterministic.
+        final LinkedHashMap<String, IPropertyValue<?>> sorted = mapped
+            .entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .collect(Collectors
+                .toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (x, y) -> y,
+                    LinkedHashMap::new
+                ));
+
+        return new PropertyContainer(sorted);
     }
 }
