@@ -929,6 +929,83 @@ public final class LogAssertionsUtil
             }
 
             /**
+             * Shorthand for {@link #level(Level)} with the level set to {@link Level#FINEST}.
+             *
+             * @return This builder.
+             */
+            @CheckReturnValue
+            public LogAssertionBuilder atFinest()
+            {
+                return this.level(Level.FINEST);
+            }
+
+            /**
+             * Shorthand for {@link #level(Level)} with the level set to {@link Level#FINER}.
+             *
+             * @return This builder.
+             */
+            @CheckReturnValue
+            public LogAssertionBuilder atFiner()
+            {
+                return this.level(Level.FINER);
+            }
+
+            /**
+             * Shorthand for {@link #level(Level)} with the level set to {@link Level#FINE}.
+             *
+             * @return This builder.
+             */
+            @CheckReturnValue
+            public LogAssertionBuilder atFine()
+            {
+                return this.level(Level.FINE);
+            }
+
+            /**
+             * Shorthand for {@link #level(Level)} with the level set to {@link Level#CONFIG}.
+             *
+             * @return This builder.
+             */
+            @CheckReturnValue
+            public LogAssertionBuilder atConfig()
+            {
+                return this.level(Level.CONFIG);
+            }
+
+            /**
+             * Shorthand for {@link #level(Level)} with the level set to {@link Level#INFO}.
+             *
+             * @return This builder.
+             */
+            @CheckReturnValue
+            public LogAssertionBuilder atInfo()
+            {
+                return this.level(Level.INFO);
+            }
+
+            /**
+             * Shorthand for {@link #level(Level)} with the level set to {@link Level#WARNING}.
+             *
+             * @return This builder.
+             */
+            @CheckReturnValue
+            public LogAssertionBuilder atWarning()
+            {
+                return this.level(Level.WARNING);
+            }
+
+            /**
+             * Shorthand for {@link #level(Level)} with the level set to {@link Level#SEVERE}.
+             *
+             * @return This builder.
+             */
+            @CheckReturnValue
+            public LogAssertionBuilder atSevere()
+            {
+                return this.level(Level.SEVERE);
+            }
+
+            /**
              * Runs the assertions on the log event as specified by this builder.
              */
             public void assertLogged()

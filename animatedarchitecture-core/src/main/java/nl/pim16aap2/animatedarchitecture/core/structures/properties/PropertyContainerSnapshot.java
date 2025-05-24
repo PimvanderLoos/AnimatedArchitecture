@@ -8,7 +8,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Spliterator;
@@ -31,7 +33,7 @@ public final class PropertyContainerSnapshot implements IPropertyHolderConst, IP
 
     PropertyContainerSnapshot(Map<String, IPropertyValue<?>> propertyMap)
     {
-        this.propertyMap = Map.copyOf(propertyMap);
+        this.propertyMap = Collections.unmodifiableMap(new LinkedHashMap<>(propertyMap));
         this.propertySet = PropertyContainer.getNewPropertySet(propertyMap);
     }
 

@@ -34,8 +34,8 @@ class PropertyTestUtil
     static Stream<IPropertyContainerConst> propertyContainerProvider()
     {
         return Stream.of(
-            PropertyContainer.forProperties(PROPERTIES, true),
-            new PropertyContainerSnapshot(PropertyContainer.toPropertyMap(PROPERTIES, true))
+            PropertyContainer.forProperties(PROPERTIES, false),
+            new PropertyContainerSnapshot(PropertyContainer.toPropertyMap(PROPERTIES, false))
         );
     }
 }

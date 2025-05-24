@@ -152,23 +152,23 @@ class PropertyContainerTest
         );
     }
 
-//    @Test
-//    void testSnapshot()
-//    {
-//        final String stringValue = UUID.randomUUID().toString();
-//        final Object objectValue = new Object();
-//
-//        propertyContainer.setPropertyValue(PROPERTY_STRING, stringValue);
-//        propertyContainer.setPropertyValue(PROPERTY_NULLABLE, objectValue);
-//
-//        final var snapshot = propertyContainer.snapshot();
-//
-//        Assertions.assertEquals(stringValue, snapshot.getPropertyValue(PROPERTY_STRING).value());
-//        Assertions.assertEquals(objectValue, snapshot.getPropertyValue(PROPERTY_NULLABLE).value());
-//
-//        propertyContainer.setPropertyValue(PROPERTY_STRING, UUID.randomUUID().toString());
-//        Assertions.assertEquals(stringValue, snapshot.getPropertyValue(PROPERTY_STRING).value());
-//    }
+    @Test
+    void testSnapshot()
+    {
+        final String stringValue = UUID.randomUUID().toString();
+        final Object objectValue = new Object();
+
+        propertyContainer.setPropertyValue(PROPERTY_STRING, stringValue);
+        propertyContainer.setPropertyValue(PROPERTY_NULLABLE, objectValue);
+
+        final var snapshot = propertyContainer.snapshot();
+
+        Assertions.assertEquals(stringValue, snapshot.getPropertyValue(PROPERTY_STRING).value());
+        Assertions.assertEquals(objectValue, snapshot.getPropertyValue(PROPERTY_NULLABLE).value());
+
+        propertyContainer.setPropertyValue(PROPERTY_STRING, UUID.randomUUID().toString());
+        Assertions.assertEquals(stringValue, snapshot.getPropertyValue(PROPERTY_STRING).value());
+    }
 
     @Test
     void testForType()

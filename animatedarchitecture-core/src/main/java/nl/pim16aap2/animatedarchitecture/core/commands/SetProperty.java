@@ -94,8 +94,24 @@ public class SetProperty extends StructureTargetCommand
         }
     }
 
-    private <T> void setProperty(Structure structure, Property<T> property, @Nullable Object object)
+    @VisibleForTesting
+    <T> void setProperty(Structure structure, Property<T> property, @Nullable Object object)
     {
+        if (object == null && !structure.canRemoveProperty(property))
+        {
+            getCommandSender().sendError(
+                "commands.set_property.error.cannot_remove_property",
+                arg -> arg.highlight(property.getNamespacedKey().getKey()),
+                arg -> arg.localizedHighlight(structure)
+            );
+            throw new InvalidCommandInputException(
+                true,
+                String.format(
+                    "Cannot remove property '%s' for structure type %s",
+                    property.getNamespacedKey(),
+                    structure.getType()
+                ));
+        }
         structure.setPropertyValue(property, property.cast(object));
     }
 

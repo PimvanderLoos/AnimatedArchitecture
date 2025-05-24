@@ -22,14 +22,14 @@ public sealed interface IPropertyValue<T>
     boolean isSet();
 
     /**
-     * Checks if the property is removable.
+     * Checks if the property is required.
      * <p>
-     * When set to {@code false}, the property cannot be removed from the property container and will throw an exception
+     * When set to {@code true}, the property cannot be removed from the property container and will throw an exception
      * if an attempt is made to do so.
      *
-     * @return {@code true} if the property is removable, {@code false} otherwise.
+     * @return {@code true} if the property is required, {@code false} otherwise.
      */
-    boolean isRemovable();
+    boolean isRequired();
 
     /**
      * Gets the value of this property.

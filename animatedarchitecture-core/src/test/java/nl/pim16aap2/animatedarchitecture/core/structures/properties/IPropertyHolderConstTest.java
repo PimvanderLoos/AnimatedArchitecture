@@ -1,82 +1,92 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.UUID;
+import java.util.List;
 
 import static nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyTestUtil.PROPERTY_STRING;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class IPropertyHolderConstTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    IPropertyHolderConst mock;
+    private IPropertyHolderConst propertyHolder;
 
     @Test
-    void testGetRequiredPropertyValueProvidedNonNull()
+    void getRequiredPropertyValue_shouldThrowNPEForUnsetProperty()
     {
-        final String value = UUID.randomUUID().toString();
-        final var providedPropertyValue = new PropertyContainer.ProvidedPropertyValue<>(String.class, value);
-        Mockito.doReturn(providedPropertyValue).when(mock).getPropertyValue(PROPERTY_STRING);
+        // Setup
+        doReturn(PropertyContainer.UnsetPropertyValue.INSTANCE)
+            .when(propertyHolder).getPropertyValue(PROPERTY_STRING);
 
-        Assertions.assertEquals(value, mock.getRequiredPropertyValue(PROPERTY_STRING));
+        // Execute & Verify
+        assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> propertyHolder.getRequiredPropertyValue(PROPERTY_STRING))
+            .withMessage("%s must not be null!", PROPERTY_STRING.getFullKey());
     }
 
     @Test
-    void testGetRequiredPropertyValueProvidedNull()
+    void getRequiredPropertyValue_shouldReturnValueForSetProperty()
     {
-        final var providedPropertyValue = new PropertyContainer.ProvidedPropertyValue<>(String.class, null);
-        Mockito.doReturn(providedPropertyValue).when(mock).getPropertyValue(PROPERTY_STRING);
+        // Setup
+        final String value = "testValue";
+        final var propertyValue = new PropertyContainer.ProvidedPropertyValue<>(String.class, value, true);
+        doReturn(propertyValue).when(propertyHolder).getPropertyValue(PROPERTY_STRING);
 
-        assertGetRequiredPropertyValueNPE(mock, PROPERTY_STRING);
-    }
+        // Execute
+        final var result = propertyHolder.getRequiredPropertyValue(PROPERTY_STRING);
 
-    // Generally, an undefined property should not be exposed outside the property container.
-    // However, if it is, it should be treated as if it were null.
-    @Test
-    void testGetRequiredPropertyValueUndefined()
-    {
-        final var propertyValue = new PropertyContainerSerializer.UndefinedPropertyValue(
-            PROPERTY_STRING.getFullKey(),
-            Mockito.mock()
-        );
-
-        Mockito.doReturn(propertyValue).when(mock).getPropertyValue(PROPERTY_STRING);
-        assertGetRequiredPropertyValueNPE(mock, PROPERTY_STRING);
+        // Verify
+        assertThat(result).isEqualTo(value);
     }
 
     @Test
-    void testGetRequiredPropertyValueNull()
+    void hasProperties_shouldCheckAllProperties()
     {
-        Mockito.doReturn(PropertyContainer.UnsetPropertyValue.INSTANCE).when(mock).getPropertyValue(PROPERTY_STRING);
-        assertGetRequiredPropertyValueNPE(mock, PROPERTY_STRING);
+        // Setup
+        final Property<String> property0 = mock();
+        final Property<String> property1 = mock();
+
+        // Execute
+        propertyHolder.hasProperties(property0, property1);
+
+        // Verify
+        verify(propertyHolder).hasProperties(List.of(property0, property1));
     }
 
-    /**
-     * Asserts that {@link IPropertyHolderConst#getRequiredPropertyValue(Property)} throws a
-     * {@link NullPointerException}.
-     *
-     * @param mock
-     *     The mock whose {@link IPropertyHolderConst#getRequiredPropertyValue(Property)} should be called.
-     * @param property
-     *     The property to pass to {@link IPropertyHolderConst#getRequiredPropertyValue(Property)}.
-     */
-    private static void assertGetRequiredPropertyValueNPE(IPropertyHolderConst mock, Property<String> property)
+    @Test
+    void hasProperties_shouldShortCircuitWithSingleProperty()
     {
-        try
-        {
-            final var value = mock.getRequiredPropertyValue(property);
-            Assertions.fail("Expected NullPointerException, but got value: " + value);
-        }
-        catch (NullPointerException ex)
-        {
-            Assertions.assertEquals(property.getFullKey() + " must not be null!", ex.getMessage());
-        }
+        // Setup
+        final var property = Property.builder("test", "single_property", String.class)
+            .withDefaultValue("default")
+            .isEditable()
+            .build();
+        doReturn(true).when(propertyHolder).hasProperty(property);
+
+        // Execute
+        final boolean result = propertyHolder.hasProperties(property);
+
+        // Verify
+        assertThat(result).isTrue();
+        verify(propertyHolder, never()).hasProperties(anyCollection());
+    }
+
+    @Test
+    void hasProperties_shouldShortCircuitWithoutAnyProperties()
+    {
+        // Execute
+        final boolean result = propertyHolder.hasProperties();
+
+        // Verify
+        assertThat(result).isTrue();
+        verify(propertyHolder, never()).hasProperties(anyCollection());
+        verify(propertyHolder, never()).hasProperty(any());
     }
 }
