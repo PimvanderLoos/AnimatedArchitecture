@@ -277,7 +277,7 @@ class PropertyContainerTest
             .isThrownBy(() -> propertyContainer.setUntypedPropertyValue(OPTIONAL_PROPERTY, invalidValue))
             .withMessage("Provided value '%s' is not of type '%s' for property '%s'.",
                 invalidValue,
-                String.class.getName(),
+                String.class,
                 OPTIONAL_PROPERTY.getFullKey()
             );
     }
