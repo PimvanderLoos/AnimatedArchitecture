@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.RedstoneMode;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -220,9 +221,16 @@ public final class Property<T> implements IKeyed
                 return null;
             return getType().cast(value);
         }
-        catch (ClassCastException e)
+        catch (ClassCastException exception)
         {
-            throw new IllegalArgumentException("Provided incompatible value for property " + this, e);
+            throw new IllegalArgumentException(
+                String.format(
+                    "Provided value '%s' is not of type '%s' for property '%s'.",
+                    value,
+                    getType().getName(),
+                    getNamespacedKey().getFullKey()),
+                exception
+            );
         }
     }
 
@@ -329,7 +337,7 @@ public final class Property<T> implements IKeyed
             return new Property<>(
                 namespacedKey,
                 type,
-                Objects.requireNonNull(defaultValue),
+                Util.requireNonNull(defaultValue, "Default Property value"),
                 propertyAccessLevel,
                 propertyScopes,
                 canBeAddedByUser
@@ -421,7 +429,7 @@ public final class Property<T> implements IKeyed
          *     The default value of the property.
          * @return The builder.
          */
-        public PropertyBuilder<T> withDefaultValue(@Nullable T defaultValue)
+        public PropertyBuilder<T> withDefaultValue(T defaultValue)
         {
             this.defaultValue = Objects.requireNonNull(defaultValue);
             return this;
@@ -486,14 +494,22 @@ public final class Property<T> implements IKeyed
             registeredProperties.compute(
                 property.getFullKey(), (key, value) ->
                 {
-                    if (value != null)
-                        log.atSevere().log(
-                            "Property with name '%s' has already been registered with value '%s'!" +
-                                " It will be replaced by property '%s'!",
+                    if (value != null && !value.equals(property))
+                    {
+                        throw new IllegalArgumentException(String.format(
+                            "Property with name '%s' has already been registered with value '%s'!",
                             key,
-                            value,
-                            property
-                        );
+                            value.getFullKey()
+                        ));
+                    }
+//                    if (value != null)
+//                        log.atSevere().log(
+//                            "Property with name '%s' has already been registered with value '%s'!" +
+//                                " It will be replaced by property '%s'!",
+//                            key,
+//                            value,
+//                            property
+//                        );
                     return property;
                 });
         }

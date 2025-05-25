@@ -1138,9 +1138,34 @@ public final class Structure implements IStructureConst, IPropertyHolder
 
     @Override
     @Locked.Read("lock")
+    public int propertyCount()
+    {
+        return propertyContainer.propertyCount();
+    }
+
+    @Override
+    @Locked.Read("lock")
     public boolean canRemoveProperty(Property<?> property)
     {
         return propertyContainer.canRemoveProperty(property);
+    }
+
+    @Override
+    public <T> IPropertyValue<T> removeProperty(Property<T> property)
+        throws IllegalArgumentException
+    {
+        assertWriteLockable();
+        return removeProperty0(property);
+    }
+
+    private <T> IPropertyValue<T> removeProperty0(Property<T> property)
+    {
+        return withWriteLock(false, () ->
+        {
+            final var ret = propertyContainer.removeProperty(property);
+            handlePropertyChange(property);
+            return ret;
+        });
     }
 
     @Override

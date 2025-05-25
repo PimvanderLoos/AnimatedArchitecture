@@ -89,6 +89,18 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     }
 
     /**
+     * Creates a new empty property container.
+     * <p>
+     * It is generally recommended to use {@link #forType(StructureType)} instead to create a property container with
+     * the default properties for a specific structure type. This ensures that the required properties for that
+     * structure type are correctly marked as required and have their default values set.
+     */
+    public PropertyContainer()
+    {
+        this(new HashMap<>());
+    }
+
+    /**
      * Creates a copy of the given property container.
      *
      * @param other
@@ -97,16 +109,19 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      */
     public static PropertyContainer of(IPropertyContainerConst other)
     {
-        if (other instanceof PropertyContainer propertyContainer)
-            return new PropertyContainer(new HashMap<>(propertyContainer.propertyMap));
-        else if (other instanceof PropertyContainerSnapshot snapshot)
-            return new PropertyContainer(new HashMap<>(snapshot.getPropertyMap()));
-        else
-            return new PropertyContainer(
-                other.stream().collect(
-                    Collectors.toMap(
-                        val -> mapKey(val.property()),
-                        PropertyValuePair::value)));
+        switch (other)
+        {
+            case PropertyContainer propertyContainer ->
+            {
+                // If the other is a PropertyContainer, we can just copy the map.
+                return new PropertyContainer(new HashMap<>(propertyContainer.propertyMap));
+            }
+            case PropertyContainerSnapshot snapshot ->
+            {
+                // If the other is a PropertyContainerSnapshot, we can copy the map from it.
+                return new PropertyContainer(new HashMap<>(snapshot.getPropertyMap()));
+            }
+        }
     }
 
     /**
@@ -125,7 +140,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         @Nullable T value)
     {
         if (value == null)
-            return Objects.requireNonNullElse(removePropertyValue(property), UnsetPropertyValue.INSTANCE);
+            return removeProperty0(property);
 
         final AtomicReference<@Nullable IPropertyValue<?>> oldValueRef = new AtomicReference<>();
         final IPropertyValue<?> newValue = propertyMap.compute(
@@ -153,39 +168,25 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         return oldValue == null ? UnsetPropertyValue.INSTANCE : oldValue;
     }
 
-    @VisibleForTesting
-    <T> IPropertyValue<?> removePropertyValue(Property<T> property)
+    private <T> IPropertyValue<?> removeProperty0(Property<T> property)
     {
+        final AtomicReference<@Nullable IPropertyValue<?>> oldValueRef = new AtomicReference<>();
         propertyMap.computeIfPresent(
             mapKey(property),
             (key, oldValue) ->
             {
                 if (oldValue.isRequired())
                     throw new IllegalArgumentException(
-                        String.format("Property '%s' is cannot be removed!", property.getFullKey()));
-
+                        String.format("Property '%s' cannot be removed!", property.getFullKey()));
+                oldValueRef.set(oldValue);
                 return null;
             }
         );
 
         propertySet.reset();
-
-        return UnsetPropertyValue.INSTANCE;
+        return Objects.requireNonNullElse(oldValueRef.get(), UnsetPropertyValue.INSTANCE);
     }
 
-    /**
-     * Sets the value of the given property.
-     *
-     * @param property
-     *     The property to set the value for.
-     * @param value
-     *     The value to set. May be {@code null} if the property is nullable.
-     * @param <T>
-     *     The type of the property.
-     * @throws IllegalArgumentException
-     *     If the value is null and the property cannot be removed (i.e. it is specified by
-     *     {@link StructureType#getProperties()}).
-     */
     @Override
     public <T> IPropertyValue<T> setPropertyValue(Property<T> property, @Nullable T value)
     {
@@ -198,10 +199,34 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         {
             throw new IllegalArgumentException(
                 String.format(
-                    "Old value '%s' for property '%s' is not of the correct type! It has now been replaced by '%s'.",
+                    "Old value '%s' for property '%s' is not of correct type '%s'! It has now been replaced by '%s'.",
                     prev,
                     property.getFullKey(),
+                    property.getType(),
                     value
+                ),
+                exception
+            );
+        }
+    }
+
+    @Override
+    public <T> IPropertyValue<T> removeProperty(Property<T> property)
+    {
+        final IPropertyValue<?> prev = removeProperty0(property);
+
+        try
+        {
+            return cast(property, prev);
+        }
+        catch (IllegalArgumentException exception)
+        {
+            throw new IllegalArgumentException(
+                String.format(
+                    "Old value '%s' for property '%s' is not of type '%s'! It has been removed regardless.",
+                    prev,
+                    property.getFullKey(),
+                    property.getType()
                 ),
                 exception
             );
@@ -216,12 +241,16 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      * @param property
      *     The property to set the value for.
      * @param value
-     *     The value to set. May be {@code null} if the property is nullable.
+     *     The value to set.
+     * @return The previous value of the property, or {@link UnsetPropertyValue#INSTANCE} if the property was not set.
+     *
      * @throws ClassCastException
      *     If the value cannot be cast to the type of the property.
      */
     public <T> IPropertyValue<?> setUntypedPropertyValue(Property<T> property, @Nullable Object value)
     {
+        if (value == null)
+            return setPropertyValue0(property, null);
         return setPropertyValue0(property, property.cast(value));
     }
 
@@ -336,7 +365,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      *     The structure type to get the default properties for.
      * @return A new (unmodifiable) property map with the default properties for the given structure type.
      */
-    static Map<String, IPropertyValue<?>> newDefaultPropertyMap(StructureType structureType)
+    private static Map<String, IPropertyValue<?>> newDefaultPropertyMap(StructureType structureType)
     {
         return Collections.unmodifiableMap(toPropertyMap(structureType.getProperties(), true));
     }
@@ -378,13 +407,14 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      * @throws IllegalArgumentException
      *     If the provided value is not of the correct type for the property.
      */
+    @VisibleForTesting
     static <T> IPropertyValue<T> cast(Property<T> property, IPropertyValue<?> value)
     {
         if (value instanceof PropertyContainerSerializer.UndefinedPropertyValue undefinedPropertyValue)
             return undefinedPropertyValue.deserializeValue(property);
 
         if (value instanceof UnsetPropertyValue)
-            // Safe to case because it always returns null.
+            // Safe to cast because it always returns null.
             //noinspection unchecked
             return (IPropertyValue<T>) UnsetPropertyValue.INSTANCE;
 
@@ -416,7 +446,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      *     The type of the property.
      * @return The value of the property.
      */
-    <T> IPropertyValue<T> getValue(Property<T> property)
+    private <T> IPropertyValue<T> getValue(Property<T> property)
     {
         final String key = mapKey(property);
         final IPropertyValue<?> rawValue = propertyMap.getOrDefault(key, UnsetPropertyValue.INSTANCE);
@@ -504,7 +534,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      * @return {@link UnsetPropertyValue#INSTANCE} if the value is {@code null}, otherwise the value wrapped in a
      * {@link ProvidedPropertyValue}.
      */
-    static <T> ProvidedPropertyValue<T> mapValue(Property<T> property, T value, boolean required)
+    private static <T> ProvidedPropertyValue<T> mapValue(Property<T> property, T value, boolean required)
     {
         return new ProvidedPropertyValue<>(property.getType(), value, required);
     }
@@ -571,36 +601,68 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     }
 
     /**
+     * Adds all properties from the given property container to this property container.
+     * <p>
+     * Existing properties will be overwritten.
+     * <p>
+     * A property will be marked as required only if it is already required in this property container.
+     *
+     * @param propertyContainer
+     *     The property container to add the properties from.
+     */
+    public void addAll(IPropertyContainerConst propertyContainer)
+    {
+        propertyContainer.forEach(this::addPropertyValuePair);
+    }
+
+    private <T> void addPropertyValuePair(PropertyValuePair<T> pair)
+    {
+        final Property<T> property = pair.property();
+        final IPropertyValue<T> value = pair.value();
+
+        propertyMap.compute(
+            mapKey(property),
+            (key, oldValue) ->
+            {
+                final boolean required = oldValue != null && oldValue.isRequired();
+                return mapValue(property, Objects.requireNonNull(value.value()), required);
+            }
+        );
+    }
+
+    @Override
+    public int propertyCount()
+    {
+        return propertyMap.size();
+    }
+
+    /**
      * Creates a new {@link PropertyContainer} from the given properties.
      *
      * @param properties
-     *     A group of interleaved property-value pairs.
-     *     <p>
-     *     The even indices must be non-null {@link Property}s.
-     *     <p>
-     *     The odd indices are the (nullable) values for the properties.
+     *     A group of interleaved property-value-isRequired triplets.
      * @return A new {@link PropertyContainer} with the given properties.
      *
      * @throws IllegalArgumentException
-     *     If the properties are not provided in pairs of 2.
+     *     If the properties are not provided in pairs of 3.
      *     <p>
      *     If an object at an even index is not a {@link Property}.
      * @throws NullPointerException
-     *     If a property is {@code null}.
+     *     If any value is {@code null}.
      * @throws ClassCastException
      *     If the value of a property cannot be cast to the type of the preceding property using
      *     {@link Property#cast(Object)}.
      */
-    public static PropertyContainer of(@Nullable Object @Nullable ... properties)
+    public static PropertyContainer ofAll(Object... properties)
     {
-        if (properties == null)
+        if (properties.length == 0)
             return new PropertyContainer(HashMap.newHashMap(0));
 
-        if (properties.length % 2 != 0)
-            throw new IllegalArgumentException("Properties must be provided in pairs of 2.");
+        if (properties.length % 3 != 0)
+            throw new IllegalArgumentException("Properties must be provided in pairs of (Property, value, isRequired)");
 
-        final PropertyContainer ret = new PropertyContainer(HashMap.newHashMap(properties.length / 2));
-        for (int idx = 0; idx < properties.length; idx += 2)
+        final PropertyContainer ret = new PropertyContainer(HashMap.newHashMap(properties.length / 3));
+        for (int idx = 0; idx < properties.length; idx += 3)
         {
             final Object untypedProperty = Util.requireNonNull(
                 properties[idx],
@@ -620,109 +682,104 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
                 );
             }
 
-            final @Nullable Object value = properties[idx + 1];
-            ret.setUntypedPropertyValue(property, value);
+            final Object value = Util.requireNonNull(
+                properties[idx + 1],
+                "Value at index " + (idx + 1) + " for property '" + property.getFullKey() + "'"
+            );
+            final boolean required = (boolean) Util.requireNonNull(
+                properties[idx + 2],
+                "Required flag at index " + (idx + 2) + " for property '" + property.getFullKey() + "'"
+            );
+
+            ret.propertyMap.put(
+                mapKey(property),
+                mapUntypedValue(property, value, required)
+            );
         }
+
+        ret.propertySet.reset();
 
         return ret;
     }
 
     /**
-     * Type-safe version of {@link #of(Object...)} for 1 property.
+     * Type-safe version of {@link #ofAll(Object...)} for 1 property.
      */
     public static <A> PropertyContainer of(
-        Property<A> property0, @Nullable A value0
+        Property<A> property0, A value0, boolean required0
     )
     {
-        return of(
-            property0, (Object) value0
+        return ofAll(
+            property0, value0, required0
         );
     }
 
     /**
-     * Type-safe version of {@link #of(Object...)} for 2 properties.
+     * Type-safe version of {@link #ofAll(Object...)} for 2 properties.
      */
     public static <A, B> PropertyContainer of(
-        Property<A> property0, @Nullable A value0,
-        Property<B> property1, @Nullable B value1
+        Property<A> property0, A value0, boolean required0,
+        Property<B> property1, B value1, boolean required1
     )
     {
-        return of(
-            property0, value0,
-            property1, (Object) value1
+        return ofAll(
+            property0, value0, required0,
+            property1, value1, required1
         );
     }
 
     /**
-     * Type-safe version of {@link #of(Object...)} for 3 properties.
+     * Type-safe version of {@link #ofAll(Object...)} for 3 properties.
      */
     public static <A, B, C> PropertyContainer of(
-        Property<A> property0, @Nullable A value0,
-        Property<B> property1, @Nullable B value1,
-        Property<C> property2, @Nullable C value2
+        Property<A> property0, A value0, boolean required0,
+        Property<B> property1, B value1, boolean required1,
+        Property<C> property2, C value2, boolean required2
     )
     {
-        return of(
-            property0, value0,
-            property1, value1,
-            property2, (Object) value2
+        return ofAll(
+            property0, value0, required0,
+            property1, value1, required1,
+            property2, value2, required2
         );
     }
 
     /**
-     * Type-safe version of {@link #of(Object...)} for 4 properties.
+     * Type-safe version of {@link #ofAll(Object...)} for 4 properties.
      */
     public static <A, B, C, D> PropertyContainer of(
-        Property<A> property0, @Nullable A value0,
-        Property<B> property1, @Nullable B value1,
-        Property<C> property2, @Nullable C value2,
-        Property<D> property3, @Nullable D value3
+        Property<A> property0, A value0, boolean required0,
+        Property<B> property1, B value1, boolean required1,
+        Property<C> property2, C value2, boolean required2,
+        Property<D> property3, D value3, boolean required3
     )
     {
-        return of(
-            property0, value0,
-            property1, value1,
-            property2, value2,
-            property3, (Object) value3
+        return ofAll(
+            property0, value0, required0,
+            property1, value1, required1,
+            property2, value2, required2,
+            property3, value3, required3
         );
     }
 
     /**
-     * Type-safe version of {@link #of(Object...)} for 5 properties.
+     * Type-safe version of {@link #ofAll(Object...)} for 5 properties.
      */
     public static <A, B, C, D, E> PropertyContainer of(
-        Property<A> property0, @Nullable A value0,
-        Property<B> property1, @Nullable B value1,
-        Property<C> property2, @Nullable C value2,
-        Property<D> property3, @Nullable D value3,
-        Property<E> property4, @Nullable E value4
+        Property<A> property0, A value0, boolean required0,
+        Property<B> property1, B value1, boolean required1,
+        Property<C> property2, C value2, boolean required2,
+        Property<D> property3, D value3, boolean required3,
+        Property<E> property4, E value4, boolean required4
     )
     {
-        return of(
-            property0, value0,
-            property1, value1,
-            property2, value2,
-            property3, value3,
-            property4, (Object) value4
+        return ofAll(
+            property0, value0, required0,
+            property1, value1, required1,
+            property2, value2, required2,
+            property3, value3, required3,
+            property4, value4, required4
         );
-    }
-
-    /**
-     * Adds all properties from the given property container to this property container.
-     * <p>
-     * Existing properties will be overwritten.
-     *
-     * @param propertyContainer
-     *     The property container to add the properties from.
-     */
-    public void addAll(IPropertyContainerConst propertyContainer)
-    {
-        for (final PropertyValuePair<?> propertyValuePair : propertyContainer)
-        {
-            final Property<?> property = propertyValuePair.property();
-            final IPropertyValue<?> value = propertyValuePair.value();
-            setUntypedPropertyValue(property, value.value());
-        }
     }
 
     /**
@@ -772,7 +829,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         @Override
         public boolean isRequired()
         {
-            return true; // Essentially a no-op.
+            return false; // Essentially a no-op.
         }
 
         @Override
