@@ -42,8 +42,8 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         final Structure actualStructure = constructStructure(
             type,
             creator.getUnregisteredUID(),
-            Property.OPEN_STATUS, isOpen,
-            Property.BLOCKS_TO_MOVE, blocksToMove
+            Property.OPEN_STATUS, isOpen, true,
+            Property.BLOCKS_TO_MOVE, blocksToMove, true
         );
 
         testCreation(creator, actualStructure,

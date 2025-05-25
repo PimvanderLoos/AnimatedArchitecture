@@ -7,8 +7,55 @@ import org.mockito.Mockito;
 
 import java.util.function.Supplier;
 
+import static org.assertj.core.api.Assertions.*;
+
 class LazyValueTest
 {
+    @Test
+    void isInitialized_shouldReturnFalseWhenNotInitialized()
+    {
+        // Setup
+        final Supplier<Integer> supplier = getIntegerSupplier(42);
+        final LazyValue<Integer> lazyValue = new LazyValue<>(supplier);
+
+        // Execute
+        final boolean isInitialized = lazyValue.isInitialized();
+
+        // Verify
+        assertThat(isInitialized).isFalse();
+    }
+
+    @Test
+    void isInitialized_shouldReturnTrueWhenInitialized()
+    {
+        // Setup
+        final Supplier<Integer> supplier = getIntegerSupplier(42);
+        final LazyValue<Integer> lazyValue = new LazyValue<>(supplier);
+
+        // Execute
+        lazyValue.get();
+        final boolean isInitialized = lazyValue.isInitialized();
+
+        // Verify
+        assertThat(isInitialized).isTrue();
+    }
+
+    @Test
+    void isInitialized_shouldReturnFalseAfterReset()
+    {
+        // Setup
+        final Supplier<Integer> supplier = getIntegerSupplier(42);
+        final LazyValue<Integer> lazyValue = new LazyValue<>(supplier);
+
+        // Execute
+        lazyValue.get();
+        lazyValue.reset();
+        final boolean isInitialized = lazyValue.isInitialized();
+
+        // Verify
+        assertThat(isInitialized).isFalse();
+    }
+
     @Test
     void testGet()
     {

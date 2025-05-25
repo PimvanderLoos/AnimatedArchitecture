@@ -88,4 +88,13 @@ public interface IPropertyHolderConst
      * @return {@code true} if this property holder has all the given properties, {@code false} otherwise.
      */
     boolean hasProperties(Collection<Property<?>> properties);
+
+    /**
+     * Gets the number of properties in this property container.
+     * <p>
+     * This is the number of entries in the property map.
+     *
+     * @return The number of properties in this property container.
+     */
+    int propertyCount();
 }

@@ -202,8 +202,8 @@ class GarageDoorTestUtil
                 .primeOwner(UnitTestUtil.createStructureOwner(1))
                 .ownersOfStructure(null)
                 .propertiesOfStructure(PropertyContainer.of(
-                    Property.OPEN_STATUS, false,
-                    Property.ROTATION_POINT, rotationPoint
+                    Property.OPEN_STATUS, false, true,
+                    Property.ROTATION_POINT, rotationPoint, true
                 ))
                 .build();
         }

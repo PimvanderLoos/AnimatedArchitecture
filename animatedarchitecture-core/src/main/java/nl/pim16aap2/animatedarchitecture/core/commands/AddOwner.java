@@ -103,7 +103,7 @@ public final class AddOwner extends StructureTargetCommand
 
         getCommandSender().sendError(
             "commands.add_owner.error.invalid_target_permission",
-            arg -> arg.highlight(targetPermissionLevel)
+            arg -> arg.highlight(targetPermissionLevel.getTranslationKey())
         );
 
         throw new InvalidCommandInputException(
