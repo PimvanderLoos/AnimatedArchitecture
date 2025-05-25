@@ -159,6 +159,7 @@ class PropertyContainerTest
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"new_value"})
+    @SuppressWarnings("ReturnValueIgnored")
     void setPropertyValue_shouldResetCachedProperties(@Nullable String value)
     {
         // Setup
