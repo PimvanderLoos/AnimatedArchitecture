@@ -290,7 +290,7 @@ public class CreatorTestsUtil
             .openDir(openDirection)
             .primeOwner(new StructureOwner(uid, PermissionLevel.CREATOR, playerData))
             .ownersOfStructure(null)
-            .propertiesOfStructure(PropertyContainer.of(properties))
+            .propertiesOfStructure(PropertyContainer.ofAll(properties))
             .build();
     }
 

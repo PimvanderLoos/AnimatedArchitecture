@@ -35,8 +35,8 @@ class CreatorBigDoorTest extends CreatorTestsUtil
         final Structure actualStructure = constructStructure(
             type,
             creator.getUnregisteredUID(),
-            Property.OPEN_STATUS, openStatus,
-            Property.ROTATION_POINT, rotationPoint
+            Property.OPEN_STATUS, openStatus, true,
+            Property.ROTATION_POINT, rotationPoint, true
         );
 
         testCreation(creator, actualStructure,

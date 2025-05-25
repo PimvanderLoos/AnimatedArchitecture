@@ -29,12 +29,13 @@ public final class PropertyContainerSnapshot implements IPropertyHolderConst, IP
 {
     @Getter(AccessLevel.PACKAGE)
     private final Map<String, IPropertyValue<?>> propertyMap;
+    @Getter(AccessLevel.PACKAGE)
     private final Set<PropertyValuePair<?>> propertySet;
 
     PropertyContainerSnapshot(Map<String, IPropertyValue<?>> propertyMap)
     {
         this.propertyMap = Collections.unmodifiableMap(new LinkedHashMap<>(propertyMap));
-        this.propertySet = PropertyContainer.getNewPropertySet(propertyMap);
+        this.propertySet = PropertyContainer.getNewPropertySet(this.propertyMap);
     }
 
     @Override
