@@ -15,6 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.List;
 import java.util.Map;
@@ -150,7 +151,8 @@ public final class Property<T> implements IKeyed
             .withPropertyScopes(PropertyScope.ANIMATION)
             .build();
 
-    private Property(
+    @VisibleForTesting
+    Property(
         NamespacedKey namespacedKey,
         Class<T> type,
         T defaultValue,
@@ -158,10 +160,10 @@ public final class Property<T> implements IKeyed
         List<PropertyScope> scopes,
         boolean canBeAddedByUser)
     {
-        this.namespacedKey = namespacedKey;
-        this.type = type;
-        this.propertyAccessLevel = propertyAccessLevel;
-        this.defaultValue = Objects.requireNonNull(defaultValue);
+        this.namespacedKey = Util.requireNonNull(namespacedKey, "NamespacedKey");
+        this.type = Util.requireNonNull(type, "Property type");
+        this.defaultValue = Util.requireNonNull(defaultValue, "Default Property value");
+        this.propertyAccessLevel = Util.requireNonNull(propertyAccessLevel, "Property access level");
         this.propertyScopes = List.copyOf(scopes);
         this.canBeAddedByUser = canBeAddedByUser;
 
@@ -177,7 +179,7 @@ public final class Property<T> implements IKeyed
      * <p>
      * When false, attempting to add this property to a structure via a command will result in an exception. It can only
      * be part of a structure if it is defined in the list of default properties of the structure type (see
-     * {@link StructureType#getProperties()} or by adding it programmatically.
+     * {@link StructureType#getProperties()}) or by adding it programmatically.
      *
      * @return {@code true} if the property can be added by the user, {@code false} otherwise.
      */
@@ -187,17 +189,27 @@ public final class Property<T> implements IKeyed
     }
 
     /**
-     * Gets the property with the given serialization name.
-     * <p>
-     * Shortcut for {@link Registry#fromName(String)} with {@link #REGISTRY}.
+     * Gets the property with the given
      *
      * @param propertyKey
-     *     The serialization name of the property.
-     * @return The property with the given serialization name, or null if no property with that name exists.
+     *     The key of the property.
+     * @return The property with the given key, or null if no property with that key exists.
      */
-    public static @Nullable Property<?> fromName(String propertyKey)
+    public static @Nullable Property<?> fromKey(NamespacedKey propertyKey)
     {
-        return REGISTRY.fromName(propertyKey);
+        return fromName(propertyKey.getFullKey());
+    }
+
+    /**
+     * Gets the property with the given name (see {@link Property#getFullKey()}).
+     *
+     * @param propertyName
+     *     The name of the property.
+     * @return The property with the given name, or null if no property with that name exists.
+     */
+    public static @Nullable Property<?> fromName(String propertyName)
+    {
+        return REGISTRY.fromName(propertyName);
     }
 
     /**
@@ -227,8 +239,8 @@ public final class Property<T> implements IKeyed
                 String.format(
                     "Provided value '%s' is not of type '%s' for property '%s'.",
                     value,
-                    getType().getName(),
-                    getNamespacedKey().getFullKey()),
+                    getType(),
+                    getFullKey()),
                 exception
             );
         }
@@ -441,7 +453,7 @@ public final class Property<T> implements IKeyed
          * <p>
          * When false, attempting to add this property to a structure via a command will result in an exception. It can
          * only be part of a structure if it is defined in the list of default properties of the structure type (see
-         * {@link StructureType#getProperties()} or by adding it programmatically.
+         * {@link StructureType#getProperties()}) or by adding it programmatically.
          * <p>
          * This defaults to {@code false}.
          *
@@ -449,7 +461,19 @@ public final class Property<T> implements IKeyed
          */
         public PropertyBuilder<T> canBeAddedByUser()
         {
-            this.canBeAddedByUser = true;
+            return canBeAddedByUser(true);
+        }
+
+        /**
+         * See {@link #canBeAddedByUser()} for more information.
+         *
+         * @param canBeAddedByUser
+         *     True if the property can be added by the user, false otherwise.
+         * @return The builder.
+         */
+        public PropertyBuilder<T> canBeAddedByUser(boolean canBeAddedByUser)
+        {
+            this.canBeAddedByUser = canBeAddedByUser;
             return this;
         }
     }
@@ -497,19 +521,11 @@ public final class Property<T> implements IKeyed
                     if (value != null && !value.equals(property))
                     {
                         throw new IllegalArgumentException(String.format(
-                            "Property with name '%s' has already been registered with value '%s'!",
-                            key,
-                            value.getFullKey()
+                            "Cannot register property '%s' because a property with that key already exists: %s",
+                            property,
+                            value
                         ));
                     }
-//                    if (value != null)
-//                        log.atSevere().log(
-//                            "Property with name '%s' has already been registered with value '%s'!" +
-//                                " It will be replaced by property '%s'!",
-//                            key,
-//                            value,
-//                            property
-//                        );
                     return property;
                 });
         }
