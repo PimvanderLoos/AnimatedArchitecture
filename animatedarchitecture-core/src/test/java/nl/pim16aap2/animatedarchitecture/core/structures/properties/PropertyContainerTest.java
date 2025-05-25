@@ -303,6 +303,7 @@ class PropertyContainerTest
     @Test
     void getPropertyValue_shouldDeserializeAndUpdateUndefinedProperty()
     {
+
         // Setup
         final String initialValue = "initial_value";
         final IPropertyValue<String> deserializedValue =
@@ -762,10 +763,10 @@ class PropertyContainerTest
         // Create a spy to verify the deserializeValue method is called
         final var undefinedPropertyValue = spy(new PropertyContainerSerializer.UndefinedPropertyValue(
             property.getFullKey(),
-            mock(),
+            null,
             true
         ));
-        when(undefinedPropertyValue.deserializeValue(property)).thenReturn(deserializedValue);
+        doReturn(deserializedValue).when(undefinedPropertyValue).deserializeValue(property);
         return undefinedPropertyValue;
     }
 
