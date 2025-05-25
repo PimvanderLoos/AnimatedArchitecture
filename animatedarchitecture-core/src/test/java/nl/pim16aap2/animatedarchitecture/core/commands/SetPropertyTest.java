@@ -82,6 +82,7 @@ class SetPropertyTest
     }
 
     @Test
+    @SuppressWarnings("DirectInvocationOnMock")
     void setProperty_shouldThrowExceptionWhenTryingToRemoveNonRemovableProperty()
     {
         // Setup
