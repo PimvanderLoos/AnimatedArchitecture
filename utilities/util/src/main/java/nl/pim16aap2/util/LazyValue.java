@@ -53,6 +53,16 @@ public final class LazyValue<T>
     }
 
     /**
+     * Checks whether the lazily initialized value has been initialized yet.
+     *
+     * @return True if the value has been initialized, false otherwise.
+     */
+    public boolean isInitialized()
+    {
+        return this.value != null;
+    }
+
+    /**
      * Resets the lazily initialized value (if it has been initialized yet).
      *
      * @return The previously-initialized value or null if it was not initialized yet.

@@ -58,9 +58,9 @@ public final class PropertyContainerSnapshot implements IPropertyHolderConst, IP
     }
 
     @Override
-    public boolean canRemoveProperty(Property<?> property)
+    public int propertyCount()
     {
-        return false;
+        return propertyMap.size();
     }
 
     /**

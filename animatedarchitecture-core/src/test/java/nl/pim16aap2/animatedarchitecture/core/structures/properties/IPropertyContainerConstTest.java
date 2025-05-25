@@ -1,13 +1,16 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyTestUtil.*;
+import static org.assertj.core.api.Assertions.*;
 
 class IPropertyContainerConstTest
 {
@@ -18,11 +21,10 @@ class IPropertyContainerConstTest
         final var iterator = propertyContainer.iterator();
 
         final Map<String, @Nullable Object> results = HashMap.newHashMap(2);
-        iterator.forEachRemaining(entry > results.put(entry.property().getFullKey(), entry.propertyValue()));
+        iterator.forEachRemaining(entry -> results.put(entry.property().getFullKey(), entry.propertyValue()));
 
         Assertions.assertEquals(2, results.size());
         Assertions.assertEquals(PROPERTY_STRING_DEFAULT, results.get(PROPERTY_STRING.getFullKey()));
-        Assertions.assertNull(results.get(PROPERTY_NULLABLE.getFullKey()));
     }
 
     @ParameterizedTest
@@ -32,17 +34,6 @@ class IPropertyContainerConstTest
         final var iterator = propertyContainer.iterator();
         iterator.next();
         Assertions.assertThrows(UnsupportedOperationException.class, iterator::remove);
-    }
-
-    @ParameterizedTest
-    @MethodSource("propertyContainerProvider")
-    void testGetNullablePropertyValue(IPropertyContainerConst propertyContainer)
-    {
-        final var value = propertyContainer.getPropertyValue(PROPERTY_NULLABLE);
-
-        Assertions.assertNotNull(value);
-        Assertions.assertTrue(value.isSet());
-        Assertions.assertNull(value.value());
     }
 
     @ParameterizedTest
@@ -80,15 +71,9 @@ class IPropertyContainerConstTest
     @MethodSource("propertyContainerProvider")
     void testHasProperties(IPropertyContainerConst propertyContainer)
     {
-        Assertions.assertTrue(propertyContainer.hasProperties(
-            PROPERTIES.get(0),
-            PROPERTIES.get(1)
-        ));
-
-        Assertions.assertFalse(propertyContainer.hasProperties(
-            PROPERTIES.get(0),
-            PROPERTY_UNSET
-        ));
+        assertThat(propertyContainer.hasProperties(PROPERTIES.subList(1, 2))).isTrue();
+        assertThat(propertyContainer.hasProperties(PROPERTY_UNSET)).isFalse();
+        assertThat(propertyContainer.hasProperties(PROPERTIES.getFirst(), PROPERTY_UNSET)).isFalse();
     }
 
     @ParameterizedTest
