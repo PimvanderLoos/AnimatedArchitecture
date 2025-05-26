@@ -20,7 +20,7 @@
         <dependency.annotations.version>26.0.2</dependency.annotations.version>
         <dependency.assertj.version>4.0.0-M1</dependency.assertj.version>
         <dependency.bytebuddy.version>1.17.5</dependency.bytebuddy.version>
-        <dependency.checkstyle.version>10.23.1</dependency.checkstyle.version>
+        <dependency.checkstyle.version>10.24.0</dependency.checkstyle.version>
         <dependency.dagger.version>2.56.2</dependency.dagger.version>
         <dependency.eclipse-annotations.version>2.3.100</dependency.eclipse-annotations.version>
         <dependency.errorprone.version>2.37.0</dependency.errorprone.version>
