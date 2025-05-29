@@ -8,6 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
+import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -70,11 +71,11 @@ class SetOpenDirectionDelayedTest
     {
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
 
-        DelayedCommandTest.initInputRequestFactory(
-            inputRequestFactory,
-            executor,
-            delayedCommandInputManager
-        );
+        //noinspection unchecked
+        inputRequestFactory = AssistedFactoryMocker
+            .injectMocksFromTestClass(DelayedCommandInputRequest.IFactory.class, this)
+            .injectParameter(delayedCommandInputManager)
+            .getFactory();
 
         structureRetriever = structureRetrieverFactory.of(structure);
 
