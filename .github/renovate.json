@@ -1,7 +1,7 @@
 {
   "extends": [
     "config:recommended",
-    "schedule:earlyMondays"
+    "schedule:monthly"
   ],
   "packageRules": [
     {
