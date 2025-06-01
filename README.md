@@ -146,7 +146,7 @@ You could also use `animatedarchitecture-core` if you wish to only use the API a
     <dependency>
         <groupId>com.github.PimvanderLoos.AnimatedArchitecture</groupId>
         <artifactId>spigot-core</artifactId>
-        <version>0.5</version>
+        <version>0.7.2</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -160,7 +160,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.github.PimvanderLoos.AnimatedArchitecture", "spigot-core", "0.5")
+    compileOnly("com.github.PimvanderLoos.AnimatedArchitecture", "spigot-core", "0.7.2")
 }
 ```
 
