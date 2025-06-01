@@ -58,3 +58,9 @@ jobs:
           folder: target/reports/apidocs
           target-folder: javadoc
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          directory: report-aggregate/target/site/jacoco-aggregate
+          token: ${{ secrets.CODECOV_TOKEN }}

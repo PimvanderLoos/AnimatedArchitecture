@@ -1,0 +1,61 @@
+codecov:
+  max_report_age: off
+
+comment:
+  layout: " header, diff, components, condensed_files, footer "
+  require_changes: false
+
+coverage:
+  ignore:
+    - animatedarchitecture-spigot/protection-hooks/**
+
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        informational: true
+      - type: patch
+        informational: true
+
+  individual_components:
+    - component_id: core
+      name: Core
+      paths:
+        - animatedarchitecture-core/**
+      statuses:
+        - type: project
+          target: auto
+          threshold: 2%
+        - type: patch
+          target: 80%
+
+    - component_id: utilities
+      name: Utilities
+      paths:
+        - utilities/**
+      statuses:
+        - type: project
+          target: auto
+          threshold: 1%
+        - type: patch
+          target: 75%
+
+    - component_id: spigot
+      name: Spigot Core
+      paths:
+        - animatedarchitecture-spigot/spigot-util/**
+
+    - component_id: spigot-util
+      name: Spigot Utilities
+      paths:
+        - animatedarchitecture-spigot/spigot-util/**
+
+    - component_id: spigot-versions
+      name: Spigot Version Adapters
+      paths:
+        - animatedarchitecture-spigot/spigot-v1_*/**
+
+    - component_id: structures
+      name: Structures
+      paths:
+        - structures/**
