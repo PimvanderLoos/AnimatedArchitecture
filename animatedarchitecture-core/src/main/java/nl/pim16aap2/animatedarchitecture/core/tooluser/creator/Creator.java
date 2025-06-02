@@ -215,7 +215,7 @@ public abstract class Creator extends ToolUser
         super(context, player);
 
         this.structureType = structureType;
-        this.propertyContainer = PropertyContainer.forType(structureType);
+        this.propertyContainer = new PropertyContainer();
 
         this.structureAnimationRequestBuilder = context.getStructureAnimationRequestBuilder();
         this.structureActivityManager = context.getStructureActivityManager();

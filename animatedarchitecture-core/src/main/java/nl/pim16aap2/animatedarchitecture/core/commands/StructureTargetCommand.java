@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Represents a command that relates to an existing structure.
@@ -38,6 +39,8 @@ import java.util.concurrent.TimeUnit;
 public abstract class StructureTargetCommand extends BaseCommand
 {
     private final boolean sendUpdatedInfo;
+
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     @ToString.Exclude
     private final @Nullable CommandFactory commandFactory;
@@ -58,9 +61,9 @@ public abstract class StructureTargetCommand extends BaseCommand
      * <p>
      * Even after the result has been set, it may still be null in case no doors were found.
      */
-    @Getter(onMethod_ = @Locked.Read)
-    @Setter(value = AccessLevel.PRIVATE, onMethod_ = @Locked.Write)
-    @GuardedBy("$lock")
+    @Getter(onMethod_ = @Locked.Read("lock"))
+    @Setter(value = AccessLevel.PRIVATE, onMethod_ = @Locked.Write("lock"))
+    @GuardedBy("lock")
     private @Nullable Structure retrieverResult;
 
     @Contract("_, _, _, _, true, null -> fail")
@@ -318,7 +321,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult, Structure)} when the database action
      * was cancelled.
      */
-    protected void handleDatabaseActionCancelled(@Nullable Structure retrieverResult)
+    protected void handleDatabaseActionCancelled(Structure retrieverResult)
     {
         getCommandSender().sendError("commands.base.error.action_cancelled");
     }
@@ -327,7 +330,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult, Structure)} when the database action
      * was successful.
      */
-    protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
+    protected void handleDatabaseActionSuccess(Structure retrieverResult)
     {
     }
 
@@ -335,7 +338,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      * Called by {@link #handleDatabaseActionResult(DatabaseManager.ActionResult, Structure)} when the database action
      * failed.
      */
-    protected void handleDatabaseActionFail(@Nullable Structure retrieverResult)
+    protected void handleDatabaseActionFail(Structure retrieverResult)
     {
         getCommandSender().sendError("constants.error.generic");
     }

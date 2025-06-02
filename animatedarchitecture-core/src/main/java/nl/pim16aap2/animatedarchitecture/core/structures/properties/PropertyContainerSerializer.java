@@ -7,14 +7,15 @@ import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.fastjson2.annotation.JSONField;
 import com.alibaba.fastjson2.writer.ObjectWriter;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Serializes and deserializes {@link PropertyContainer} instances to and from JSON.
@@ -73,15 +74,21 @@ public final class PropertyContainerSerializer
      *     The {@link JSONObject} to deserialize.
      * @param type
      *     The type of the value.
+     * @param required
+     *     Whether the property is required.
      * @param <T>
      *     The type of the value.
      * @return The deserialized {@link IPropertyValue}.
      */
-    static <T> IPropertyValue<T> deserializePropertyValue(JSONObject jsonObject, Class<T> type)
+    private static <T> IPropertyValue<T> deserializePropertyValue(
+        JSONObject jsonObject,
+        Class<T> type,
+        boolean required)
     {
         return new PropertyContainer.ProvidedPropertyValue<>(
             type,
-            jsonObject.getObject("value", type)
+            jsonObject.getObject("value", type),
+            required
         );
     }
 
@@ -103,7 +110,7 @@ public final class PropertyContainerSerializer
      *     The object is not deserialized if the key does not exist in the default map.
      * @return True if the key exists in the default map and the value was deserialized and updated, false otherwise.
      */
-    static boolean updatePropertyMapEntry(
+    private static boolean updatePropertyMapEntry(
         StructureType structureType,
         Map<String, IPropertyValue<?>> propertyMap,
         String key,
@@ -113,7 +120,7 @@ public final class PropertyContainerSerializer
         {
             // If the key exists in the default map, deserialize the value and replace the entry.
             if (existingEntry != null)
-                return deserializePropertyValue(jsonObject, existingEntry.type());
+                return deserializePropertyValue(jsonObject, existingEntry.type(), existingEntry.isRequired());
 
             // If the key does not exist in the default map,
             // we can conclude that the structure type does not support this property.
@@ -148,7 +155,7 @@ public final class PropertyContainerSerializer
         String key,
         JSONObject jsonObject)
     {
-        propertyMap.put(key, deserializePropertyValue(jsonObject, property.getType()));
+        propertyMap.put(key, deserializePropertyValue(jsonObject, property.getType(), false));
     }
 
     /**
@@ -176,7 +183,7 @@ public final class PropertyContainerSerializer
             structureType
         );
 
-        propertyMap.put(key, new UndefinedPropertyValue(key, jsonObject));
+        propertyMap.put(key, new UndefinedPropertyValue(key, jsonObject, false));
     }
 
     /**
@@ -203,7 +210,7 @@ public final class PropertyContainerSerializer
      *     serialized values of the properties. Only supported properties will be deserialized.
      * @return The deserialized {@link PropertyContainer}.
      */
-    static PropertyContainer deserialize(
+    private static PropertyContainer deserialize(
         StructureType structureType,
         Map<String, JSONObject> deserializedMap)
     {
@@ -279,7 +286,10 @@ public final class PropertyContainerSerializer
         }
         catch (Exception e)
         {
-            throw new IllegalArgumentException("Could not deserialize PropertyContainer from JSON: " + json, e);
+            throw new IllegalArgumentException(
+                String.format("Could not deserialize PropertyContainer from JSON: '%s'", json),
+                e
+            );
         }
     }
 
@@ -294,10 +304,16 @@ public final class PropertyContainerSerializer
      *     The key of the property.
      * @param serializedValue
      *     The serialized value of the property.
+     * @param isRequired
+     *     Whether the property is required.
+     *     <p>
+     *     When set to {@code true}, the property cannot be removed from the property container and will throw an
+     *     exception if an attempt is made to do so.
      */
     record UndefinedPropertyValue(
         @JSONField(serialize = false) String propertyKey,
-        @JSONField(serialize = false) JSONObject serializedValue)
+        @JSONField(serialize = false) JSONObject serializedValue,
+        @JSONField(serialize = false) boolean isRequired)
         implements IPropertyValue<Object>
     {
         @JSONField(serialize = false)
@@ -339,14 +355,14 @@ public final class PropertyContainerSerializer
         {
             final String mappedKey = PropertyContainer.mapKey(property);
 
-            if (!mappedKey.equals(propertyKey))
+            if (!Objects.equals(mappedKey, propertyKey))
                 throw new IllegalArgumentException(String.format(
                     "Property key mismatch: Expected '%s', got '%s'",
-                    mappedKey,
-                    propertyKey
+                    propertyKey,
+                    mappedKey
                 ));
 
-            return deserializePropertyValue(serializedValue, property.getType());
+            return deserializePropertyValue(serializedValue, property.getType(), isRequired);
         }
     }
 
@@ -361,7 +377,8 @@ public final class PropertyContainerSerializer
         public void write(JSONWriter jsonWriter, Object object, Object fieldName, Type fieldType, long features)
         {
             if (!(object instanceof UndefinedPropertyValue undefinedPropertyValue))
-                throw new IllegalArgumentException("Object is not an instance of UndefinedPropertyValue");
+                throw new IllegalArgumentException(
+                    String.format("Object '%s' is not an instance of UndefinedPropertyValue", object));
             jsonWriter.write(undefinedPropertyValue.serializedValue);
         }
     }

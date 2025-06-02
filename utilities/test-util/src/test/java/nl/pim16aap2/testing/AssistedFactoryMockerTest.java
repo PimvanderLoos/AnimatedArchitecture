@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.inject.Named;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +27,10 @@ class AssistedFactoryMockerTest
         throws NoSuchMethodException
     {
         final Parameter[] parameters = TestClassWithAnnotation.class
-            .getDeclaredConstructor(Object.class, int.class, String.class, List.class)
+            .getDeclaredConstructor(Object.class, int.class, String.class, List.class, Object.class)
             .getParameters();
 
-        final Parameter obj = parameters[0]; // @Assisted @Named("myObj") Object obj
+        final Parameter obj = parameters[0]; // @Assisted @Assisted("myObj") Object obj
         final Parameter idx = parameters[1]; // @Assisted int idx
 
         final Function<Assisted, @Nullable String> assistedMapper = Assisted::value;
@@ -52,7 +53,6 @@ class AssistedFactoryMockerTest
 
     @Test
     void testFullMock()
-        throws NoSuchMethodException
     {
         final AssistedFactoryMocker<TestClassWithAnnotation, TestClassWithAnnotation.IFactory> mocker =
             new AssistedFactoryMocker<>(TestClassWithAnnotation.class, TestClassWithAnnotation.IFactory.class);
@@ -82,11 +82,9 @@ class AssistedFactoryMockerTest
 
     @Test
     void injectParameters_shouldMapUntypedParameters()
-        throws NoSuchMethodException
     {
         // Setup
-        final var afm =
-            new AssistedFactoryMocker<>(TestClassWithAnnotation.class, TestClassWithAnnotation.IFactory.class);
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
         final List<String> lst = new ArrayList<>();
         lst.add("DEF");
 
@@ -102,11 +100,9 @@ class AssistedFactoryMockerTest
 
     @Test
     void injectParameters_shouldMapUntypedMockedParameters()
-        throws NoSuchMethodException
     {
         // Setup
-        final var afm =
-            new AssistedFactoryMocker<>(TestClassWithAnnotation.class, TestClassWithAnnotation.IFactory.class);
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
         final List<String> lst = mock();
 
         // Execute
@@ -121,14 +117,53 @@ class AssistedFactoryMockerTest
 
     @Test
     void injectParameters_shouldThrowExceptionForUnmappedType()
-        throws NoSuchMethodException
     {
         // Setup
-        final var afm =
-            new AssistedFactoryMocker<>(TestClassWithAnnotation.class, TestClassWithAnnotation.IFactory.class);
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
 
         // Execute & Verify
         assertThatThrownBy(() -> afm.injectParameters("ABC", new Object()))
+            .isExactlyInstanceOf(IllegalArgumentException.class)
+            .hasMessageStartingWith("Failed to find a matching parameter for ");
+    }
+
+    @Test
+    void injectParameter_withName_shouldMapToCorrectParameter()
+    {
+        // Setup
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
+        final Object obj = new Object();
+
+        // Execute
+        afm.injectParameter(Object.class, "namedObj", obj);
+        final var factory = afm.getFactory();
+        final var result = factory.create(new Object());
+
+        // Verify
+        //noinspection DataFlowIssue
+        assertThat(result.getNamedObj()).isSameAs(obj);
+    }
+
+    @Test
+    void injectParameter_withName_shouldThrowExceptionForNameMismatch()
+    {
+        // Setup
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
+
+        // Execute & Verify
+        assertThatThrownBy(() -> afm.injectParameter(Object.class, "wrongName", new Object()))
+            .isExactlyInstanceOf(IllegalArgumentException.class)
+            .hasMessageStartingWith("Failed to find a matching parameter for ");
+    }
+
+    @Test
+    void injectParameter_withoutName_shouldThrowExceptionForName()
+    {
+        // Setup
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
+
+        // Execute & Verify
+        assertThatThrownBy(() -> afm.injectParameter(Object.class, new Object()))
             .isExactlyInstanceOf(IllegalArgumentException.class)
             .hasMessageStartingWith("Failed to find a matching parameter for ");
     }
@@ -138,10 +173,9 @@ class AssistedFactoryMockerTest
         throws Exception
     {
         final var testObj = new TestClassWithMockAnnotatedFields();
-        try (var mocks = MockitoAnnotations.openMocks(testObj))
+        try (var ignored = MockitoAnnotations.openMocks(testObj))
         {
             final var afm = AssistedFactoryMocker.injectMocksFromTestClass(
-                TestClassWithAnnotation.class,
                 TestClassWithAnnotation.IFactory.class,
                 testObj
             );
@@ -151,6 +185,129 @@ class AssistedFactoryMockerTest
             assertThat(result.lst).isSameAs(testObj.lst);
             assertThat(result.obj).isNotSameAs(testObj.obj);
         }
+    }
+
+    @Test
+    void findTargetClass_shouldReturnClass()
+    {
+        assertThat(AssistedFactoryMocker.findTargetClass(TestClassWithAnnotation.IFactory.class))
+            .isEqualTo(TestClassWithAnnotation.class);
+    }
+
+    @Test
+    void findTargetClass_shouldThrowExceptionForInvalidClass()
+    {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> AssistedFactoryMocker.findTargetClass(Object.class))
+            .withCauseInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void injectParameter_withoutName_shouldInjectParameter()
+    {
+        // Setup
+        final var afm =
+            new AssistedFactoryMocker<>(TestClassWithAnnotation.class, TestClassWithAnnotation.IFactory.class);
+
+        final String testVal = "TestVal";
+
+        // Execute
+        final TestClassWithAnnotation.IFactory factory = afm.injectParameter(String.class, testVal).getFactory();
+        final var result = factory.create(new Object());
+
+        // Verify
+        assertThat(result.str).isEqualTo(testVal);
+    }
+
+    @Test
+    void getParameter_shouldReturnProvidedParameter()
+    {
+        // Setup
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
+        final List<String> lst = List.of("TestVal");
+
+        // Execute
+        afm.injectParameter(lst);
+
+        // Verify
+        assertThat(afm.getParameter(List.class)).isSameAs(lst);
+    }
+
+    @Test
+    void getParameter_shouldThrowExceptionForTypeMismatch()
+    {
+        // Setup
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
+        final List<String> lst = new ArrayList<>();
+        lst.add("TestVal");
+
+        // Execute
+        afm.injectParameter(lst);
+
+        // Verify
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> afm.getParameter(ArrayList.class))
+            .withMessageStartingWith("Could not find a mapping for a mocked object with type: ");
+    }
+
+    @Test
+    void getParameter_shouldReturnMockedValueForUnsetParameter()
+    {
+        // Setup & Execute
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
+
+        // Verify
+        assertThat(afm.getParameter(List.class)).isNotNull();
+    }
+
+    @Test
+    void getParameter_shouldThrowExceptionForTypeThatDoesNotExist()
+    {
+        // Setup
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
+
+        // Execute & Verify
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> afm.getParameter(Double.class))
+            .withMessageStartingWith("Could not find a mapping for a mocked object with type: ");
+    }
+
+    @Test
+    void getParameter_withName_shouldReturnNamedParameter()
+    {
+        // Setup
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
+        final Object obj = new Object();
+
+        // Execute
+        afm.injectParameter(Object.class, "namedObj", obj);
+
+        // Verify
+        assertThat(afm.getParameter(Object.class, "namedObj")).isSameAs(obj);
+    }
+
+    @Test
+    void getParameter_withName_shouldThrowExceptionWithoutNameForNamedParameter()
+    {
+        // Setup
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
+
+        // Execute & Verify
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> afm.getParameter(Object.class))
+            .withMessageStartingWith("Could not find a mapping for a mocked object with type: ");
+    }
+
+    @Test
+    void getParameter_withName_shouldThrowExceptionForNameMismatch()
+    {
+        // Setup
+        final var afm = new AssistedFactoryMocker<>(TestClassWithAnnotation.IFactory.class);
+
+        // Verify
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> afm.getParameter(Object.class, "wrongName"))
+            .withMessageStartingWith("Could not find a mapping for a mocked object with type: ");
     }
 
     @SuppressWarnings("NullAway")
@@ -177,19 +334,27 @@ class AssistedFactoryMockerTest
         private final String str;
         private final @Nullable Object obj2;
         private final @Nullable List<String> lst;
+        private final @Nullable Object namedObj;
 
         TestClassWithAnnotation(Object obj)
         {
-            this(obj, DEFAULT_IDX, "NULL", null);
+            this(obj, DEFAULT_IDX, "NULL", null, null);
         }
 
-        TestClassWithAnnotation(Object obj, int idx, String str, @Nullable Object obj2, @Nullable List<String> lst)
+        TestClassWithAnnotation(
+            Object obj,
+            int idx,
+            String str,
+            @Nullable Object obj2,
+            @Nullable List<String> lst,
+            @Nullable Object namedObj)
         {
             this.obj = obj;
             this.idx = idx;
             this.str = str;
             this.obj2 = obj2;
             this.lst = lst;
+            this.namedObj = namedObj;
         }
 
         @AssistedInject
@@ -197,9 +362,10 @@ class AssistedFactoryMockerTest
             @Assisted("myObj") Object obj,
             @Assisted int idx,
             String str,
-            @Nullable List<String> lst)
+            @Nullable List<String> lst,
+            @Named("namedObj") @Nullable Object namedObj)
         {
-            this(obj, idx, str, null, lst);
+            this(obj, idx, str, null, lst, namedObj);
         }
 
         /**

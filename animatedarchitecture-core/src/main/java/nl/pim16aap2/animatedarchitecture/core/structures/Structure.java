@@ -26,7 +26,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -1111,7 +1110,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     }
 
     @Override
-    public IPropertyContainerConst getPropertyContainerSnapshot()
+    public PropertyContainerSnapshot getPropertyContainerSnapshot()
     {
         return lazyPropertyContainerSnapshot.get();
     }
@@ -1135,6 +1134,38 @@ public final class Structure implements IStructureConst, IPropertyHolder
     public boolean hasProperties(Collection<Property<?>> properties)
     {
         return propertyContainer.hasProperties(properties);
+    }
+
+    @Override
+    @Locked.Read("lock")
+    public int propertyCount()
+    {
+        return propertyContainer.propertyCount();
+    }
+
+    @Override
+    @Locked.Read("lock")
+    public boolean canRemoveProperty(Property<?> property)
+    {
+        return propertyContainer.canRemoveProperty(property);
+    }
+
+    @Override
+    public <T> IPropertyValue<T> removeProperty(Property<T> property)
+        throws IllegalArgumentException
+    {
+        assertWriteLockable();
+        return removeProperty0(property);
+    }
+
+    private <T> IPropertyValue<T> removeProperty0(Property<T> property)
+    {
+        return withWriteLock(false, () ->
+        {
+            final var ret = propertyContainer.removeProperty(property);
+            handlePropertyChange(property);
+            return ret;
+        });
     }
 
     @Override

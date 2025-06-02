@@ -17,9 +17,19 @@ public sealed interface IPropertyValue<T>
     /**
      * Checks whether the value is set for this property.
      *
-     * @return True if the value is set, false otherwise.
+     * @return {@code true} if the value is set, {@code false} otherwise.
      */
     boolean isSet();
+
+    /**
+     * Checks if the property is required.
+     * <p>
+     * When set to {@code true}, the property cannot be removed from the property container and will throw an exception
+     * if an attempt is made to do so.
+     *
+     * @return {@code true} if the property is required, {@code false} otherwise.
+     */
+    boolean isRequired();
 
     /**
      * Gets the value of this property.
