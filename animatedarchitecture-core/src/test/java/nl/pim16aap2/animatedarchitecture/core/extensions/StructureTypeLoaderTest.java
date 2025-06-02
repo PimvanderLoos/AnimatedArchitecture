@@ -1,20 +1,71 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
+import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
+import nl.pim16aap2.testing.assertions.AssertionBuilder;
+import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.semver4j.Semver;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+@Timeout(1)
+@WithLogCapture
 class StructureTypeLoaderTest
 {
+    @Test
+    void logPreloadCheckResults_shouldLogResults(LogCaptor logCaptor)
+    {
+        // Setup
+        logCaptor.disableConsoleOutput();
+        logCaptor.setLogLevelToInfo();
+
+        final var infoPass = getDefaultStructureTypeInfo("type-pass");
+        final var infoAlreadyLoaded = getDefaultStructureTypeInfo("type-already-loaded");
+        final var infoApiVersionNotSupported = getDefaultStructureTypeInfo("type-api-version-not-supported");
+
+        final var map = Map.of(
+            StructureTypeLoader.PreloadCheckResult.PASS, List.of(infoPass),
+            StructureTypeLoader.PreloadCheckResult.ALREADY_LOADED, List.of(infoAlreadyLoaded),
+            StructureTypeLoader.PreloadCheckResult.API_VERSION_NOT_SUPPORTED, List.of(infoApiVersionNotSupported)
+        );
+
+        // Execute
+        StructureTypeLoader.logPreloadCheckResults(map);
+
+        // Verify
+        AssertionBuilder
+            .assertLogged(logCaptor)
+            .message("Loading structure type: %s", infoPass.getFullKey())
+            .atInfo()
+            .assertLogged();
+
+        AssertionBuilder
+            .assertLogged(logCaptor)
+            .message("Structure type '%s' is already loaded, skipping.", infoAlreadyLoaded.getFullKey())
+            .atInfo()
+            .assertLogged();
+
+        AssertionBuilder
+            .assertLogged(logCaptor)
+            .message(
+                "Current API version '%s' out of the supported range '%s' for structure type: '%s'",
+                StructureTypeLoader.CURRENT_EXTENSION_API_VERSION,
+                infoApiVersionNotSupported.getSupportedApiVersions(),
+                infoApiVersionNotSupported.getFullKey())
+            .atSevere()
+            .assertLogged();
+    }
+
     // This test kind of tests the library code, and only a subset of its functionality.
     // However, the test is still here to make sure that at least the functionality that
     // is officially supported by our extension API is working as expected, even if/when
@@ -153,6 +204,18 @@ class StructureTypeLoaderTest
         Assertions.assertEquals(
             StructureTypeLoader.StructureTypeInfoParseResult.NO_ATTRIBUTES,
             StructureTypeLoader.getStructureTypeInfo("EntryTitle", file, new Manifest()).parseResult()
+        );
+    }
+
+    private static StructureTypeInfo getDefaultStructureTypeInfo(String name)
+    {
+        return new StructureTypeInfo(
+            new NamespacedKey(Constants.PLUGIN_NAME, name),
+            1,
+            "com.example.MainClass",
+            Paths.get("/does/not/exist.jar"),
+            "1.2.3",
+            null
         );
     }
 }

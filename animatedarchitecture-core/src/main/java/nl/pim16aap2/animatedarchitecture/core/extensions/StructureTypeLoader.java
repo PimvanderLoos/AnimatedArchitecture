@@ -276,7 +276,7 @@ public final class StructureTypeLoader extends Restartable
      * @param structureTypeInfo
      *     The {@link StructureTypeInfo} that was checked.
      */
-    private void logPreloadCheckResult(PreloadCheckResult preloadCheck, StructureTypeInfo structureTypeInfo)
+    private static void logPreloadCheckResult(PreloadCheckResult preloadCheck, StructureTypeInfo structureTypeInfo)
     {
         switch (preloadCheck)
         {
@@ -296,12 +296,6 @@ public final class StructureTypeLoader extends Restartable
                 structureTypeInfo.getSupportedApiVersions(),
                 structureTypeInfo.getFullKey()
             );
-
-            default -> log.atSevere().log(
-                "Unknown preload check result '%s' for structure type '%s'.",
-                preloadCheck,
-                structureTypeInfo.getFullKey()
-            );
         }
     }
 
@@ -313,7 +307,8 @@ public final class StructureTypeLoader extends Restartable
      * @param preloadCheckListMap
      *     The map of preload check results to structure type infos.
      */
-    private void logPreloadCheckResults(Map<PreloadCheckResult, List<StructureTypeInfo>> preloadCheckListMap)
+    @VisibleForTesting
+    static void logPreloadCheckResults(Map<PreloadCheckResult, List<StructureTypeInfo>> preloadCheckListMap)
     {
         preloadCheckListMap.forEach((result, structureTypeInfos) ->
             structureTypeInfos.forEach(info -> logPreloadCheckResult(result, info)));
