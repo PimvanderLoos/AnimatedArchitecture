@@ -280,29 +280,28 @@ public final class StructureTypeLoader extends Restartable
     {
         switch (preloadCheck)
         {
-            case PASS:
-                log.atInfo().log("Loading structure type: %s", structureTypeInfo.getFullKey());
-                break;
+            case PASS -> log.atInfo().log(
+                "Loading structure type: %s",
+                structureTypeInfo.getFullKey()
+            );
 
-            case ALREADY_LOADED:
-                log.atInfo().log("Structure type '%s' is already loaded, skipping.", structureTypeInfo.getFullKey());
-                break;
+            case ALREADY_LOADED -> log.atInfo().log(
+                "Structure type '%s' is already loaded, skipping.",
+                structureTypeInfo.getFullKey()
+            );
 
-            case API_VERSION_NOT_SUPPORTED:
-                log.atSevere().log(
-                    "Current API version '%s' out of the supported range '%s' for structure type: '%s'",
-                    CURRENT_EXTENSION_API_VERSION,
-                    structureTypeInfo.getSupportedApiVersions(),
-                    structureTypeInfo.getFullKey()
-                );
-                break;
+            case API_VERSION_NOT_SUPPORTED -> log.atSevere().log(
+                "Current API version '%s' out of the supported range '%s' for structure type: '%s'",
+                CURRENT_EXTENSION_API_VERSION,
+                structureTypeInfo.getSupportedApiVersions(),
+                structureTypeInfo.getFullKey()
+            );
 
-            default:
-                log.atSevere().log(
-                    "Unknown preload check result '%s' for structure type '%s'.",
-                    preloadCheck,
-                    structureTypeInfo.getFullKey()
-                );
+            default -> log.atSevere().log(
+                "Unknown preload check result '%s' for structure type '%s'.",
+                preloadCheck,
+                structureTypeInfo.getFullKey()
+            );
         }
     }
 
