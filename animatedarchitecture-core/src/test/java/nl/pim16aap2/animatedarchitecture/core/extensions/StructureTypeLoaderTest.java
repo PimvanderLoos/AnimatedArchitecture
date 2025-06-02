@@ -1,15 +1,27 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import nl.pim16aap2.testing.logging.WithLogCapture;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.params.Parameter;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.semver4j.Semver;
 
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -17,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.*;
 
 @Timeout(1)
 @WithLogCapture
@@ -205,6 +220,83 @@ class StructureTypeLoaderTest
             StructureTypeLoader.StructureTypeInfoParseResult.NO_ATTRIBUTES,
             StructureTypeLoader.getStructureTypeInfo("EntryTitle", file, new Manifest()).parseResult()
         );
+    }
+
+    @Nested
+    @ParameterizedClass
+    @MethodSource("fileSystemConfigurationProvider")
+    class FileSystemTests
+    {
+        @Parameter
+        @SuppressWarnings("unused")
+        private Configuration configuration;
+
+        private FileSystem fs;
+
+        @BeforeEach
+        void init()
+        {
+            fs = Jimfs.newFileSystem(configuration);
+        }
+
+        @AfterEach
+        void cleanup()
+            throws IOException
+        {
+            fs.close();
+        }
+
+        @Test
+        void ensureDirectoryExists_shouldReturnFalseAndLogMessageIfDirectoryAlreadyExistsAsFile(LogCaptor logCaptor)
+            throws IOException
+        {
+            // Setup
+            logCaptor.disableConsoleOutput();
+            logCaptor.setLogLevelToInfo();
+
+            final String fileName = "file.txt";
+
+            final Path path = fs.getPath(fileName);
+            Files.createFile(path);
+
+            assertThat(path).exists().isRegularFile();
+
+            // Execute
+            final boolean result = StructureTypeLoader.ensureDirectoryExists(path);
+
+            // Verify
+            assertThat(result).isFalse();
+
+            AssertionBuilder
+                .assertLogged(logCaptor)
+                .atSevere()
+                .message("Failed to create directory: %s", path)
+                .assertLoggedExceptionOfType(FileAlreadyExistsException.class)
+                .hasMessage(fileName);
+        }
+
+        @Test
+        void ensureDirectoryExists_shouldCreateDirectoriesAndReturnTrueIfDirectoryDoesNotExist()
+        {
+            // Setup
+            final Path path = fs.getPath("test", "deep", "directory");
+
+            // Execute
+            final boolean result = StructureTypeLoader.ensureDirectoryExists(path);
+
+            // Verify
+            assertThat(result).isTrue();
+            assertThat(path).exists().isDirectory();
+        }
+
+        static Stream<Configuration> fileSystemConfigurationProvider()
+        {
+            return Stream.of(
+                Configuration.unix(),
+                Configuration.windows(),
+                Configuration.osX()
+            );
+        }
     }
 
     private static StructureTypeInfo getDefaultStructureTypeInfo(String name)

@@ -119,21 +119,24 @@ public final class StructureTypeLoader extends Restartable
     }
 
     /**
-     * Ensure that the {@link #extensionsDirectory} exists.
+     * Ensure that the given directory exists.
      *
-     * @return True if the {@link #extensionsDirectory} exists or could be created.
+     * @param directory
+     *     The directory to ensure exists.
+     * @return True if the given directory exists or could be created.
      */
-    private boolean ensureDirectoryExists()
+    @VisibleForTesting
+    static boolean ensureDirectoryExists(Path directory)
     {
         try
         {
-            if (!Files.isDirectory(extensionsDirectory))
-                Files.createDirectories(extensionsDirectory);
+            if (!Files.isDirectory(directory))
+                Files.createDirectories(directory);
             return true;
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to create directory: %s", extensionsDirectory);
+            log.atSevere().withCause(e).log("Failed to create directory: %s", directory);
         }
         return false;
     }
@@ -683,7 +686,7 @@ public final class StructureTypeLoader extends Restartable
     @Override
     public void initialize()
     {
-        if (!successfulInit && !(successfulInit = ensureDirectoryExists()))
+        if (!successfulInit && !(successfulInit = ensureDirectoryExists(extensionsDirectory)))
             return;
 
         extractEmbeddedStructureTypes(FileUtil.getJarFile(this.getClass()).toAbsolutePath());

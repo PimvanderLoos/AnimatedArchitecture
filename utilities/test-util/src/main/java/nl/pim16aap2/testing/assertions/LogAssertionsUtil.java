@@ -13,6 +13,7 @@ import nl.pim16aap2.testing.TestUtil;
 import nl.pim16aap2.testing.logging.WithLogCapture;
 import nl.pim16aap2.util.logging.floggerbackend.CustomLevel;
 import nl.pim16aap2.util.logging.floggerbackend.Log4j2LogEventUtil;
+import org.assertj.core.api.AbstractThrowableAssert;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -23,6 +24,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Represents a set of utility methods to assert logs.
@@ -181,7 +184,7 @@ public final class LogAssertionsUtil
             );
     }
 
-    private static void findLogEvent(LogAssertion logAssertion)
+    private static @Nullable Throwable findLogEvent(LogAssertion logAssertion)
     {
         final var logEvents = Objects.requireNonNull(logAssertion.logCaptor).getLogEvents();
 
@@ -199,7 +202,9 @@ public final class LogAssertionsUtil
                 logEvent.getFormattedMessage())
             );
 
-        if (stream.findAny().isEmpty())
+        final List<LogEvent> logEventsList = stream.toList();
+
+        if (logEventsList.isEmpty())
             Assertions.fail(String.format(
                 """
                     Could not find log event: %s
@@ -208,6 +213,18 @@ public final class LogAssertionsUtil
                 logAssertion,
                 formatLogEvents(logEvents, logEvents.size()))
             );
+
+        if (logEventsList.size() > 1)
+            Assertions.fail(String.format(
+                """
+                    Found multiple log events that match the criteria: %s
+                    %s
+                    """,
+                logAssertion,
+                formatLogEvents(logEvents, logEvents.size()))
+            );
+
+        return logEventsList.getFirst().getThrowable().orElse(null);
     }
 
     /**
@@ -218,16 +235,20 @@ public final class LogAssertionsUtil
      *
      * @param logAssertion
      *     The log assertion to check.
+     * @return The throwable that was logged, or null if no throwable was logged.
+     *
+     * @throws AssertionFailedError
+     *     If no log event was found that met the specified conditions.
      */
-    public static void assertLogged(LogAssertion logAssertion)
+    public static @Nullable Throwable assertLogged(LogAssertion logAssertion)
     {
         final var logCaptor = Objects.requireNonNull(logAssertion.logCaptor, "LogCaptor must be provided!");
 
         if (logAssertion.position == null)
         {
-            findLogEvent(logAssertion);
-            return;
+            return findLogEvent(logAssertion);
         }
+
         final int position = logAssertion.position;
 
         final var logEvents = logCaptor.getLogEvents();
@@ -253,6 +274,8 @@ public final class LogAssertionsUtil
                 logEvent.getLevel(),
                 logEventsContextSupplier
             );
+
+        return logEvent.getThrowable().orElse(null);
     }
 
     /**
@@ -1007,10 +1030,33 @@ public final class LogAssertionsUtil
 
             /**
              * Runs the assertions on the log event as specified by this builder.
+             *
+             * @throws AssertionFailedError
+             *     If no log event was found that met the specified conditions.
              */
             public void assertLogged()
             {
+                //noinspection ThrowableNotThrown
                 LogAssertionsUtil.assertLogged(this.build());
+            }
+
+            /**
+             * Asserts that a throwable was logged with the expected type.
+             *
+             * @param expectedType
+             *     The expected type of the throwable.
+             * @param <T>
+             *     The type of the throwable.
+             * @return The created ThrowableAssert for further assertions.
+             */
+            @SuppressWarnings("DataFlowIssue")
+            public <T extends Throwable> AbstractThrowableAssert<?, Throwable> assertLoggedExceptionOfType(
+                Class<? extends T> expectedType)
+            {
+                final @Nullable Throwable throwable = LogAssertionsUtil.assertLogged(this.build());
+                final AbstractThrowableAssert<?, Throwable> ret = assertThat(throwable);
+                ret.isInstanceOf(expectedType);
+                return ret;
             }
         }
     }
