@@ -2,87 +2,95 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
-import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
+import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class DelayedCommandInputRequestTest
 {
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    @Mock
     private CommandDefinition commandDefinition;
 
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    @Mock
     private ICommandSender commandSender;
 
     @Mock
     private IExecutor executor;
 
-    private DelayedCommandInputManager delayedCommandInputManager;
+    private DelayedCommandInputRequest.IFactory<DelayedInput> inputRequestFactory;
 
     @BeforeEach
     void init()
     {
+        final DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager(mock());
+
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
-        delayedCommandInputManager = new DelayedCommandInputManager(mock(DebuggableRegistry.class));
-        when(commandDefinition.getName()).thenReturn("MockedCommand");
+
+        //noinspection unchecked
+        inputRequestFactory = AssistedFactoryMocker
+            .injectMocksFromTestClass(DelayedCommandInputRequest.IFactory.class, this)
+            .injectParameter(delayedCommandInputManager)
+            .getFactory();
     }
 
     @Test
     void test()
     {
         final DelayedInput delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
-        final DelayedCommandInputRequest<?> inputRequest = new DelayedCommandInputRequest<>(
+        final String resultValue = "Result value";
+        final var inputRequest = inputRequestFactory.create(
             100,
             commandSender,
             commandDefinition,
-            input -> verifyInput(delayedInput, input),
+            input ->
+            {
+                verifyInput(delayedInput, input).join();
+                return CompletableFuture.completedFuture(resultValue);
+            },
             () -> "",
             DelayedInput.class,
-            executor,
-            delayedCommandInputManager
+            null
         );
 
         final CompletableFuture<?> first = inputRequest.getCommandOutput();
         final CompletableFuture<?> second = inputRequest.provide(delayedInput);
 
-        assertDoesNotThrow(() -> second.get(1, TimeUnit.SECONDS));
-        assertEquals(first, second);
+        second.join();
+
+        assertThat(first.isDone()).isTrue();
+        assertThat(first.join()).isEqualTo(second.join()).isEqualTo(resultValue);
     }
 
     @Test
     void testInvalidInput()
     {
         final DelayedInput delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
-        final DelayedCommandInputRequest<?> inputRequest = new DelayedCommandInputRequest<>(
+        final var inputRequest = inputRequestFactory.create(
             100,
             commandSender,
             commandDefinition,
             input -> verifyInput(delayedInput, input),
             () -> "",
             DelayedInput.class,
-            executor,
-            delayedCommandInputManager
+            null
         );
         UnitTestUtil.initMessageable(commandSender);
 
@@ -95,8 +103,7 @@ class DelayedCommandInputRequestTest
     @Test
     void testException()
     {
-        // Ensure that exceptions are properly propagated.
-        final DelayedCommandInputRequest<?> inputRequest = new DelayedCommandInputRequest<>(
+        final var inputRequest = inputRequestFactory.create(
             100,
             commandSender,
             commandDefinition,
@@ -106,8 +113,7 @@ class DelayedCommandInputRequestTest
             },
             () -> "",
             DelayedInput.class,
-            executor,
-            delayedCommandInputManager
+            null
         );
 
         final UUID uuid = UUID.randomUUID();
