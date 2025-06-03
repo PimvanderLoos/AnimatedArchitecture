@@ -13,6 +13,7 @@ import nl.pim16aap2.testing.TestUtil;
 import nl.pim16aap2.testing.logging.WithLogCapture;
 import nl.pim16aap2.util.logging.floggerbackend.CustomLevel;
 import nl.pim16aap2.util.logging.floggerbackend.Log4j2LogEventUtil;
+import org.assertj.core.api.AbstractThrowableAssert;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -24,6 +25,8 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
+import static org.assertj.core.api.Assertions.*;
+
 /**
  * Represents a set of utility methods to assert logs.
  * <p>
@@ -34,7 +37,7 @@ public final class LogAssertionsUtil
 {
     private LogAssertionsUtil()
     {
-        // Utility class
+        throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
     /**
@@ -181,7 +184,7 @@ public final class LogAssertionsUtil
             );
     }
 
-    private static void findLogEvent(LogAssertion logAssertion)
+    static @Nullable Throwable findLogEvent(LogAssertion logAssertion)
     {
         final var logEvents = Objects.requireNonNull(logAssertion.logCaptor).getLogEvents();
 
@@ -199,7 +202,9 @@ public final class LogAssertionsUtil
                 logEvent.getFormattedMessage())
             );
 
-        if (stream.findAny().isEmpty())
+        final List<LogEvent> logEventsList = stream.toList();
+
+        if (logEventsList.isEmpty())
             Assertions.fail(String.format(
                 """
                     Could not find log event: %s
@@ -208,6 +213,18 @@ public final class LogAssertionsUtil
                 logAssertion,
                 formatLogEvents(logEvents, logEvents.size()))
             );
+
+        if (logEventsList.size() > 1)
+            Assertions.fail(String.format(
+                """
+                    Found multiple log events that match the criteria: %s
+                    %s
+                    """,
+                logAssertion,
+                formatLogEvents(logEvents, logEvents.size()))
+            );
+
+        return logEventsList.getFirst().getThrowable().orElse(null);
     }
 
     /**
@@ -218,16 +235,20 @@ public final class LogAssertionsUtil
      *
      * @param logAssertion
      *     The log assertion to check.
+     * @return The throwable that was logged, or null if no throwable was logged.
+     *
+     * @throws AssertionFailedError
+     *     If no log event was found that met the specified conditions.
      */
-    public static void assertLogged(LogAssertion logAssertion)
+    public static @Nullable Throwable assertLogged(LogAssertion logAssertion)
     {
         final var logCaptor = Objects.requireNonNull(logAssertion.logCaptor, "LogCaptor must be provided!");
 
         if (logAssertion.position == null)
         {
-            findLogEvent(logAssertion);
-            return;
+            return findLogEvent(logAssertion);
         }
+
         final int position = logAssertion.position;
 
         final var logEvents = logCaptor.getLogEvents();
@@ -253,6 +274,8 @@ public final class LogAssertionsUtil
                 logEvent.getLevel(),
                 logEventsContextSupplier
             );
+
+        return logEvent.getThrowable().orElse(null);
     }
 
     /**
@@ -921,7 +944,7 @@ public final class LogAssertionsUtil
              * @return This builder.
              */
             @CheckReturnValue
-            public LogAssertionBuilder level(Level level)
+            public LogAssertionBuilder withJulLevel(Level level)
             {
                 this.level$value = withoutCustomLevels(Log4j2LogEventUtil.toLog4jLevel(level)).name();
                 this.level$set = true;
@@ -929,88 +952,111 @@ public final class LogAssertionsUtil
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#FINEST}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#FINEST}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atFinest()
             {
-                return this.level(Level.FINEST);
+                return this.withJulLevel(Level.FINEST);
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#FINER}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#FINER}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atFiner()
             {
-                return this.level(Level.FINER);
+                return this.withJulLevel(Level.FINER);
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#FINE}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#FINE}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atFine()
             {
-                return this.level(Level.FINE);
+                return this.withJulLevel(Level.FINE);
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#CONFIG}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#CONFIG}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atConfig()
             {
-                return this.level(Level.CONFIG);
+                return this.withJulLevel(Level.CONFIG);
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#INFO}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#INFO}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atInfo()
             {
-                return this.level(Level.INFO);
+                return this.withJulLevel(Level.INFO);
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#WARNING}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#WARNING}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atWarning()
             {
-                return this.level(Level.WARNING);
+                return this.withJulLevel(Level.WARNING);
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#SEVERE}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#SEVERE}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atSevere()
             {
-                return this.level(Level.SEVERE);
+                return this.withJulLevel(Level.SEVERE);
             }
 
             /**
              * Runs the assertions on the log event as specified by this builder.
+             *
+             * @throws AssertionFailedError
+             *     If no log event was found that met the specified conditions.
              */
             public void assertLogged()
             {
+                //noinspection ThrowableNotThrown
                 LogAssertionsUtil.assertLogged(this.build());
+            }
+
+            /**
+             * Asserts that a throwable was logged with the expected type.
+             *
+             * @param expectedType
+             *     The expected type of the throwable.
+             * @param <T>
+             *     The type of the throwable.
+             * @return The created ThrowableAssert for further assertions.
+             */
+            @SuppressWarnings("DataFlowIssue")
+            public <T extends Throwable> AbstractThrowableAssert<?, Throwable> assertLoggedExceptionOfType(
+                Class<? extends T> expectedType)
+            {
+                final @Nullable Throwable throwable = LogAssertionsUtil.assertLogged(this.build());
+                final AbstractThrowableAssert<?, Throwable> ret = assertThat(throwable);
+                ret.isInstanceOf(expectedType);
+                return ret;
             }
         }
     }

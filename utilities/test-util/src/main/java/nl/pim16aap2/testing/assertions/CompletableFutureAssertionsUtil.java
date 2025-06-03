@@ -37,7 +37,6 @@ public final class CompletableFutureAssertionsUtil
         private final CompletableFuture<?> future;
 
         private @Nullable String message = null;
-        private AssertionsUtil.StringMatchType matchType = AssertionsUtil.StringMatchType.EXACT;
         private long timeout = 1000;
 
         private ExceptionContextAssertionBuilder(CompletableFuture<?> future)
@@ -75,45 +74,6 @@ public final class CompletableFutureAssertionsUtil
             @Nullable Object @Nullable ... args)
         {
             this.message = String.format(format, args);
-            return this;
-        }
-
-        /**
-         * Set the expected message of the exception context.
-         *
-         * @param matchType
-         *     The way the message should be matched.
-         * @param format
-         *     The format of the expected message.
-         * @param args
-         *     The arguments to format the message with.
-         * @return This builder.
-         */
-        @FormatMethod
-        @CheckReturnValue
-        public ExceptionContextAssertionBuilder withMessage(
-            AssertionsUtil.StringMatchType matchType,
-            @FormatString String format,
-            @Nullable Object @Nullable ... args)
-        {
-            this.matchType = matchType;
-            this.message = String.format(format, args);
-            return this;
-        }
-
-        /**
-         * Set the way the message should be matched.
-         * <p>
-         * This defaults to {@link AssertionsUtil.StringMatchType#EXACT}.
-         *
-         * @param matchType
-         *     The way the message should be matched.
-         * @return This builder.
-         */
-        @CheckReturnValue
-        public ExceptionContextAssertionBuilder withStringMatchType(AssertionsUtil.StringMatchType matchType)
-        {
-            this.matchType = Objects.requireNonNull(matchType);
             return this;
         }
 
@@ -179,7 +139,7 @@ public final class CompletableFutureAssertionsUtil
         @Nullable var contextException = getNextContextualOperationException(baseException);
         while (contextException != null)
         {
-            if (builder.matchType.matches(contextException.getMessage(), builder.message))
+            if (Objects.equals(contextException.getMessage(), builder.message))
             {
                 return contextException;
             }

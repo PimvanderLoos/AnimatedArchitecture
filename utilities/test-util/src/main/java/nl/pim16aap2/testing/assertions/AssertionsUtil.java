@@ -1,15 +1,12 @@
 package nl.pim16aap2.testing.assertions;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.jetbrains.annotations.Nullable;
-import org.mockito.ArgumentMatcher;
+import org.assertj.core.api.InstanceOfAssertFactories;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Constructor;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * A utility class for general assertions.
@@ -30,171 +27,38 @@ public final class AssertionsUtil
     }
 
     /**
-     * Asserts that two strings are equal using a specific {@link StringMatchType}.
+     * Asserts that the given class has a single constructor that is private and throws an UnsupportedOperationException
+     * when called.
+     * <p>
+     * This is useful to ensure that utility classes cannot be instantiated.
      *
-     * @param expected
-     *     The expected string.
-     * @param actual
-     *     The actual string.
-     * @param matchType
-     *     The type of match to perform.
+     * @param clazz
+     *     The class to check.
+     * @throws AssertionError
+     *     if the class does not have the expected constructor.
      */
-    public static void assertStringEquals(String expected, String actual, StringMatchType matchType)
+    public static void assertSingletonConstructor(Class<?> clazz)
     {
-        matchType.assertMatches(expected, actual);
-    }
+        final var constructors = clazz.getDeclaredConstructors();
 
-    /**
-     * The different ways to match a string against another string.
-     */
-    public enum StringMatchType
-    {
-        /**
-         * The strings must be exactly the same.
-         */
-        EXACT
+        assertThat(constructors)
+            .as("Class " + clazz.getName() + " should have a single constructor.")
+            .singleElement(InstanceOfAssertFactories.type(Constructor.class))
+            .satisfies(constructor ->
             {
-                @Override
-                boolean matches(@Nullable String base, @Nullable String argument)
-                {
-                    if (base == null || argument == null)
-                        return base == null && argument == null;
-                    return base.equals(argument);
-                }
+                assertThat(constructor.getModifiers())
+                    .as("Constructor of " + clazz.getName() + " should be private.")
+                    .isEqualTo(java.lang.reflect.Modifier.PRIVATE);
+                assertThat(constructor.getParameterCount())
+                    .as("Constructor of " + clazz.getName() + " should have no parameters.")
+                    .isZero();
+            });
 
-                @Override
-                void assertMatches(@Nullable String expected, @Nullable String actual)
-                {
-                    if (!matches(actual, expected))
-                        fail(String.format("""
-                                Expected String did not match actual String:
-                                Expected string: "%s"
-                                Actual string:   "%s"
-                                """,
-                            expected,
-                            actual)
-                        );
-                }
-            },
+        final var constructor = constructors[0];
+        constructor.setAccessible(true);
 
-        /**
-         * The base string must contain the argument string.
-         */
-        CONTAINS
-            {
-                @Override
-                boolean matches(@Nullable String base, @Nullable String argument)
-                {
-                    if (base == null || argument == null)
-                        return base == null && argument == null;
-                    return base.contains(argument);
-                }
-
-                @Override
-                void assertMatches(@Nullable String expected, @Nullable String actual)
-                {
-                    if (!matches(actual, expected))
-                        fail(String.format("""
-                                Expected String did not match actual String:
-                                Expected string to contain: "%s"
-                                Actual string:              "%s"
-                                """,
-                            expected,
-                            actual)
-                        );
-                }
-            },
-
-        /**
-         * The base string must start with the argument string.
-         */
-        STARTS_WITH
-            {
-                @Override
-                boolean matches(@Nullable String base, @Nullable String argument)
-                {
-                    if (base == null || argument == null)
-                        return base == null && argument == null;
-                    return base.startsWith(argument);
-                }
-
-                @Override
-                void assertMatches(@Nullable String expected, @Nullable String actual)
-                {
-                    if (!matches(actual, expected))
-                        fail(String.format("""
-                                Expected String did not match actual String:
-                                Expected string to start with: "%s"
-                                Actual string:                 "%s"
-                                """,
-                            expected,
-                            actual)
-                        );
-                }
-            },
-
-        /**
-         * The base string must end with the argument string.
-         */
-        ENDS_WITH
-            {
-                @Override
-                boolean matches(@Nullable String base, @Nullable String argument)
-                {
-                    if (base == null || argument == null)
-                        return base == null && argument == null;
-                    return base.endsWith(argument);
-                }
-
-                @Override
-                void assertMatches(@Nullable String expected, @Nullable String actual)
-                {
-                    if (!matches(actual, expected))
-                        fail(String.format("""
-                                Expected String did not match actual String:
-                                Expected string to end with: "%s"
-                                Actual string:               "%s"
-                                """,
-                            expected,
-                            actual)
-                        );
-                }
-            };
-
-        /**
-         * Checks if the base string matches the argument string.
-         *
-         * @param base
-         *     The base string.
-         * @param argument
-         *     The argument string.
-         * @return Whether the base string matches the argument string.
-         */
-        abstract boolean matches(@Nullable String base, @Nullable String argument);
-
-        /**
-         * Asserts that the expected string matches the actual string.
-         *
-         * @param expected
-         *     The expected string.
-         * @param actual
-         *     The actual string.
-         */
-        abstract void assertMatches(@Nullable String expected, @Nullable String actual);
-    }
-
-    @AllArgsConstructor
-    @ToString
-    @EqualsAndHashCode
-    public static final class StringArgumentMatcher implements ArgumentMatcher<String>
-    {
-        private final String base;
-        private final StringMatchType matchType;
-
-        @Override
-        public boolean matches(String argument)
-        {
-            return matchType.matches(base, argument);
-        }
+        assertThatException()
+            .isThrownBy(constructor::newInstance)
+            .withRootCauseExactlyInstanceOf(UnsupportedOperationException.class);
     }
 }

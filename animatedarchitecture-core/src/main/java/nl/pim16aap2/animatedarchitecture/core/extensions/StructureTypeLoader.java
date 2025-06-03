@@ -119,21 +119,24 @@ public final class StructureTypeLoader extends Restartable
     }
 
     /**
-     * Ensure that the {@link #extensionsDirectory} exists.
+     * Ensure that the given directory exists.
      *
-     * @return True if the {@link #extensionsDirectory} exists or could be created.
+     * @param directory
+     *     The directory to ensure exists.
+     * @return True if the given directory exists or could be created.
      */
-    private boolean ensureDirectoryExists()
+    @VisibleForTesting
+    static boolean ensureDirectoryExists(Path directory)
     {
         try
         {
-            if (!Files.isDirectory(extensionsDirectory))
-                Files.createDirectories(extensionsDirectory);
+            if (!Files.isDirectory(directory))
+                Files.createDirectories(directory);
             return true;
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to create directory: %s", extensionsDirectory);
+            log.atSevere().withCause(e).log("Failed to create directory: %s", directory);
         }
         return false;
     }
@@ -276,33 +279,26 @@ public final class StructureTypeLoader extends Restartable
      * @param structureTypeInfo
      *     The {@link StructureTypeInfo} that was checked.
      */
-    private void logPreloadCheckResult(PreloadCheckResult preloadCheck, StructureTypeInfo structureTypeInfo)
+    private static void logPreloadCheckResult(PreloadCheckResult preloadCheck, StructureTypeInfo structureTypeInfo)
     {
         switch (preloadCheck)
         {
-            case PASS:
-                log.atInfo().log("Loading structure type: %s", structureTypeInfo.getFullKey());
-                break;
+            case PASS -> log.atInfo().log(
+                "Loading structure type: %s",
+                structureTypeInfo.getFullKey()
+            );
 
-            case ALREADY_LOADED:
-                log.atInfo().log("Structure type '%s' is already loaded, skipping.", structureTypeInfo.getFullKey());
-                break;
+            case ALREADY_LOADED -> log.atInfo().log(
+                "Structure type '%s' is already loaded, skipping.",
+                structureTypeInfo.getFullKey()
+            );
 
-            case API_VERSION_NOT_SUPPORTED:
-                log.atSevere().log(
-                    "Current API version '%s' out of the supported range '%s' for structure type: '%s'",
-                    CURRENT_EXTENSION_API_VERSION,
-                    structureTypeInfo.getSupportedApiVersions(),
-                    structureTypeInfo.getFullKey()
-                );
-                break;
-
-            default:
-                log.atSevere().log(
-                    "Unknown preload check result '%s' for structure type '%s'.",
-                    preloadCheck,
-                    structureTypeInfo.getFullKey()
-                );
+            case API_VERSION_NOT_SUPPORTED -> log.atSevere().log(
+                "Current API version '%s' out of the supported range '%s' for structure type: '%s'",
+                CURRENT_EXTENSION_API_VERSION,
+                structureTypeInfo.getSupportedApiVersions(),
+                structureTypeInfo.getFullKey()
+            );
         }
     }
 
@@ -314,7 +310,8 @@ public final class StructureTypeLoader extends Restartable
      * @param preloadCheckListMap
      *     The map of preload check results to structure type infos.
      */
-    private void logPreloadCheckResults(Map<PreloadCheckResult, List<StructureTypeInfo>> preloadCheckListMap)
+    @VisibleForTesting
+    static void logPreloadCheckResults(Map<PreloadCheckResult, List<StructureTypeInfo>> preloadCheckListMap)
     {
         preloadCheckListMap.forEach((result, structureTypeInfos) ->
             structureTypeInfos.forEach(info -> logPreloadCheckResult(result, info)));
@@ -689,7 +686,7 @@ public final class StructureTypeLoader extends Restartable
     @Override
     public void initialize()
     {
-        if (!successfulInit && !(successfulInit = ensureDirectoryExists()))
+        if (!successfulInit && !(successfulInit = ensureDirectoryExists(extensionsDirectory)))
             return;
 
         extractEmbeddedStructureTypes(FileUtil.getJarFile(this.getClass()).toAbsolutePath());

@@ -23,7 +23,7 @@
         <dependency.checkstyle.version>10.24.0</dependency.checkstyle.version>
         <dependency.dagger.version>2.56.2</dependency.dagger.version>
         <dependency.eclipse-annotations.version>2.3.100</dependency.eclipse-annotations.version>
-        <dependency.errorprone.version>2.37.0</dependency.errorprone.version>
+        <dependency.errorprone.version>2.38.0</dependency.errorprone.version>
         <dependency.failsafe.version>3.2.5</dependency.failsafe.version>
         <dependency.fastjson.version>2.0.57</dependency.fastjson.version>
         <dependency.fastutil.version>8.5.15</dependency.fastutil.version>
@@ -35,7 +35,7 @@
         <dependency.jcalculator.version>1.10</dependency.jcalculator.version>
         <dependency.jdbc-sqlite.version>3.49.1.0</dependency.jdbc-sqlite.version>
         <dependency.jimfs.version>1.3.0</dependency.jimfs.version>
-        <dependency.junit.version>5.12.2</dependency.junit.version>
+        <dependency.junit.version>5.13.0</dependency.junit.version>
         <dependency.log4j.version>2.24.3</dependency.log4j.version>
         <dependency.logcaptor.version>2.11.0</dependency.logcaptor.version>
         <dependency.lombok-plugin.version>1.18.20.0</dependency.lombok-plugin.version>

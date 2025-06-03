@@ -15,7 +15,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.testing.assertions.AssertionBuilder;
-import nl.pim16aap2.testing.assertions.AssertionsUtil;
 import nl.pim16aap2.testing.logging.WithLogCapture;
 import nl.pim16aap2.util.exceptions.ContextualOperationException;
 import org.junit.jupiter.api.Test;
@@ -29,6 +28,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -86,7 +86,7 @@ class BaseCommandTest
 
         AssertionBuilder
             .assertLogged(logCaptor)
-            .level(Level.SEVERE)
+            .withJulLevel(Level.SEVERE)
             .message("Failed to execute command: %s", command)
             .assertLogged();
     }
@@ -103,7 +103,7 @@ class BaseCommandTest
 
         AssertionBuilder
             .assertLogged(logCaptor)
-            .level(Level.FINE)
+            .withJulLevel(Level.FINE)
             .message("Failed to execute command: %s", command)
             .assertLogged();
     }
@@ -314,20 +314,15 @@ class BaseCommandTest
             .getStructure())
             .thenReturn(CompletableFuture.failedFuture(new RuntimeException("Test exception")));
 
-        Throwable cause = assertThrows(
-            Throwable.class,
-            () -> command.getStructure(structureRetriever, PermissionLevel.USER).get()
-        );
-        while (!(cause instanceof ContextualOperationException) && cause.getCause() != null)
-            cause = cause.getCause();
-
-        assertNotNull(cause);
-
-        AssertionsUtil.assertStringEquals(
-            "Get structure from retriever 'StructureRetriever.StructureObjectRetriever(",
-            cause.getMessage(),
-            AssertionsUtil.StringMatchType.STARTS_WITH
-        );
+        assertThatExceptionOfType(ExecutionException.class)
+            .isThrownBy(() -> command.getStructure(structureRetriever, PermissionLevel.USER).get())
+            .havingCause()
+            .isExactlyInstanceOf(ContextualOperationException.class)
+            .withMessageStartingWith("Get structure from retriever 'StructureRetriever.StructureObjectRetriever(")
+            .havingCause()
+            .isExactlyInstanceOf(RuntimeException.class)
+            .withMessageStartingWith("Test exception")
+            .withNoCause();
     }
 
     /**
