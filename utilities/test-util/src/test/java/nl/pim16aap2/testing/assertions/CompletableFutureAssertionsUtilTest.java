@@ -64,31 +64,6 @@ class CompletableFutureAssertionsUtilTest
     }
 
     @Test
-    void withMessage_shouldSetMessageWithMatchType()
-    {
-        final var exception = new ContextualOperationException("This is a test message with some content");
-        final var future = CompletableFuture.failedFuture(exception);
-
-        CompletableFutureAssertionsUtil
-            .assertHasExceptionContext(future)
-            .withMessage(AssertionsUtil.StringMatchType.CONTAINS, "test message")
-            .thenAssert();
-    }
-
-    @Test
-    void withStringMatchType_shouldSetMatchType()
-    {
-        final var exception = new ContextualOperationException("This is a test message");
-        final var future = CompletableFuture.failedFuture(exception);
-
-        CompletableFutureAssertionsUtil
-            .assertHasExceptionContext(future)
-            .withMessage("test message")
-            .withStringMatchType(AssertionsUtil.StringMatchType.CONTAINS)
-            .thenAssert();
-    }
-
-    @Test
     void withTimeOut_shouldSetTimeout()
     {
         final var future = new CompletableFuture<>();

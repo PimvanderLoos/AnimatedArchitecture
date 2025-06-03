@@ -127,7 +127,7 @@ class CompletableFutureExtensionsTest
 
         AssertionBuilder
             .assertLogged(logCaptor)
-            .level(Level.WARNING)
+            .withJulLevel(Level.WARNING)
             .message("Exception occurred in CompletableFuture!")
             .assertLogged();
     }

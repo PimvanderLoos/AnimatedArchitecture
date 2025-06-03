@@ -4,12 +4,10 @@ import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.opentest4j.AssertionFailedError;
 
 import javax.annotation.Nullable;
@@ -18,13 +16,91 @@ import java.util.List;
 import java.util.Optional;
 
 import static nl.pim16aap2.testing.assertions.LogAssertionsUtil.MessageComparisonMethod;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@SuppressWarnings("ThrowableNotThrown")
+@Timeout(1)
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class LogAssertionsUtilTest
 {
     @Mock
     private LogCaptor logCaptor;
+
+    @Test
+    void constructor_shouldBeSingletonConstructor()
+    {
+        AssertionsUtil.assertSingletonConstructor(LogAssertionsUtil.class);
+    }
+
+    @Test
+    void findLogEvent_shouldThrowExceptionIfNoLogEventFound()
+    {
+        // Setup
+        final LogAssertionsUtil.LogAssertion logAssertion = LogAssertionsUtil
+            .logAssertionBuilder(logCaptor)
+            .level("INFO")
+            .message("Test Message")
+            .build();
+
+        when(logCaptor.getLogEvents()).thenReturn(List.of());
+
+        // Execute & Verify
+        assertThatExceptionOfType(AssertionFailedError.class)
+            .isThrownBy(() -> LogAssertionsUtil.findLogEvent(logAssertion))
+            .withMessageContaining("Could not find log event:");
+    }
+
+    @Test
+    void findLogEvent_shouldThrowExceptionIfMultipleLogEventsFound()
+    {
+        // Setup
+        final LogAssertionsUtil.LogAssertion logAssertion = LogAssertionsUtil.logAssertionBuilder(logCaptor).build();
+
+        final LogEvent event1 = newLogEvent("INFO", "Test Message");
+        final LogEvent event2 = newLogEvent("INFO", "Test Message");
+
+        when(logCaptor.getLogEvents()).thenReturn(List.of(event1, event2));
+
+        // Execute & Verify
+        assertThatExceptionOfType(AssertionFailedError.class)
+            .isThrownBy(() -> LogAssertionsUtil.findLogEvent(logAssertion))
+            .withMessageContaining("Found multiple log events that match the criteria:");
+    }
+
+    @Test
+    void findLogEvent_shouldFindCorrectLogEvent()
+    {
+        // Setup
+        final String targetLevel = "INFO";
+        final String targetMessage = "Target Message";
+
+        final String alternativeLevel = "DEBUG";
+        final String alternativeMessage = "Alternative Message";
+
+        final Throwable targetThrowable = mock();
+
+        final LogEvent targetEvent = newLogEvent(targetLevel, targetMessage, targetThrowable);
+        final LogEvent altEvent0 = newLogEvent(alternativeLevel, alternativeMessage);
+        final LogEvent altEvent1 = newLogEvent(alternativeLevel, targetMessage);
+        final LogEvent altEvent2 = newLogEvent(targetLevel, alternativeMessage);
+
+        when(logCaptor
+            .getLogEvents())
+            .thenReturn(List.of(targetEvent, altEvent0, altEvent1, altEvent2));
+
+        LogAssertionsUtil.LogAssertion logAssertion = LogAssertionsUtil
+            .logAssertionBuilder(logCaptor)
+            .level(targetLevel)
+            .message(targetMessage)
+            .build();
+
+        // Execute
+        final @Nullable var result = LogAssertionsUtil.findLogEvent(logAssertion);
+
+        // Verify
+        assertThat(result).isEqualTo(targetThrowable);
+    }
 
     @Test
     void testAssertLoggedWithMessageAndPosition()
@@ -33,7 +109,7 @@ class LogAssertionsUtilTest
         final LogEvent event2 = newLogEvent("Test message 2");
         final LogEvent event3 = newLogEvent("Test message 3");
 
-        Mockito.when(logCaptor.getLogEvents()).thenReturn(List.of(event1, event2, event3));
+        when(logCaptor.getLogEvents()).thenReturn(List.of(event1, event2, event3));
 
         Assertions.assertDoesNotThrow(
             () -> LogAssertionsUtil.assertLogged(logCaptor, 1, "Test message 2"));
@@ -51,7 +127,7 @@ class LogAssertionsUtilTest
         final LogEvent event1 = newLogEvent("Test message 1");
         final LogEvent event2 = newLogEvent("Test message 2");
 
-        Mockito.when(logCaptor.getLogEvents()).thenReturn(List.of(event0, event1, event2));
+        when(logCaptor.getLogEvents()).thenReturn(List.of(event0, event1, event2));
 
         Assertions.assertDoesNotThrow(
             () -> LogAssertionsUtil.assertLogged(logCaptor, 0, "Test message 0"));
@@ -130,7 +206,7 @@ class LogAssertionsUtilTest
         final LogEvent event1 = newLogEvent("Test message 1");
         final LogEvent event2 = newLogEvent("Test message 2");
 
-        Mockito.when(logCaptor.getLogEvents()).thenReturn(List.of(event0, event1, event2));
+        when(logCaptor.getLogEvents()).thenReturn(List.of(event0, event1, event2));
 
         // Implicitly -1
         Assertions.assertDoesNotThrow(
@@ -162,7 +238,7 @@ class LogAssertionsUtilTest
         final String message = "Test message for comparison";
         final LogEvent event = newLogEvent(message);
 
-        Mockito.when(logCaptor.getLogEvents()).thenReturn(List.of(event));
+        when(logCaptor.getLogEvents()).thenReturn(List.of(event));
 
         Assertions.assertDoesNotThrow(
             () -> LogAssertionsUtil.assertLogged(logCaptor, 0, message, MessageComparisonMethod.EQUALS));
@@ -224,7 +300,7 @@ class LogAssertionsUtilTest
 
         final LogEvent event = newLogEvent("ERROR", "Exception occurred", nestedException);
 
-        Mockito.when(logCaptor.getLogEvents()).thenReturn(List.of(event));
+        when(logCaptor.getLogEvents()).thenReturn(List.of(event));
 
         Assertions.assertDoesNotThrow(() -> LogAssertionsUtil.assertThrowableLogged(
             logCaptor, -1, "Exception occurred",
@@ -260,13 +336,13 @@ class LogAssertionsUtilTest
         final LogEvent event1 = newLogEvent("Test message 1", IOException.class);
         final LogEvent event2 = newLogEvent("Test message 2", RuntimeException.class);
 
-        Mockito.when(logCaptor.getLogEvents()).thenReturn(List.of(event0, event1, event2));
+        when(logCaptor.getLogEvents()).thenReturn(List.of(event0, event1, event2));
         Assertions.assertEquals(2, LogAssertionsUtil.getThrowingLogEvents(logCaptor).size());
 
-        Mockito.when(logCaptor.getLogEvents()).thenReturn(List.of(event0, event1));
+        when(logCaptor.getLogEvents()).thenReturn(List.of(event0, event1));
         Assertions.assertEquals(1, LogAssertionsUtil.getThrowingLogEvents(logCaptor).size());
 
-        Mockito.when(logCaptor.getLogEvents()).thenReturn(List.of(event0));
+        when(logCaptor.getLogEvents()).thenReturn(List.of(event0));
         Assertions.assertEquals(0, LogAssertionsUtil.getThrowingLogEvents(logCaptor).size());
     }
 
@@ -277,16 +353,22 @@ class LogAssertionsUtilTest
 
     private LogEvent newLogEvent(@Nullable String level, String message, Class<? extends Throwable> throwableType)
     {
-        return newLogEvent(level, message, Mockito.mock(throwableType));
+        return newLogEvent(level, message, mock(throwableType));
     }
 
     private LogEvent newLogEvent(@Nullable String level, String message, @Nullable Throwable throwable)
     {
-        final var ret = Mockito.mock(LogEvent.class);
-        Mockito.when(ret.getLevel()).thenReturn(level);
-        Mockito.when(ret.getMessage()).thenReturn(message);
-        Mockito.when(ret.getThrowable()).thenReturn(Optional.ofNullable(throwable));
+        final var ret = mock(LogEvent.class);
+        lenient().when(ret.getLevel()).thenReturn(level);
+        lenient().when(ret.getMessage()).thenReturn(message);
+        lenient().when(ret.getFormattedMessage()).thenReturn(message);
+        lenient().when(ret.getThrowable()).thenReturn(Optional.ofNullable(throwable));
         return ret;
+    }
+
+    private LogEvent newLogEvent(@Nullable String level, String message)
+    {
+        return newLogEvent(level, message, (Throwable) null);
     }
 
     private LogEvent newLogEvent(String message)

@@ -37,7 +37,7 @@ public final class LogAssertionsUtil
 {
     private LogAssertionsUtil()
     {
-        // Utility class
+        throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
     /**
@@ -184,7 +184,7 @@ public final class LogAssertionsUtil
             );
     }
 
-    private static @Nullable Throwable findLogEvent(LogAssertion logAssertion)
+    static @Nullable Throwable findLogEvent(LogAssertion logAssertion)
     {
         final var logEvents = Objects.requireNonNull(logAssertion.logCaptor).getLogEvents();
 
@@ -944,7 +944,7 @@ public final class LogAssertionsUtil
              * @return This builder.
              */
             @CheckReturnValue
-            public LogAssertionBuilder level(Level level)
+            public LogAssertionBuilder withJulLevel(Level level)
             {
                 this.level$value = withoutCustomLevels(Log4j2LogEventUtil.toLog4jLevel(level)).name();
                 this.level$set = true;
@@ -952,80 +952,80 @@ public final class LogAssertionsUtil
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#FINEST}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#FINEST}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atFinest()
             {
-                return this.level(Level.FINEST);
+                return this.withJulLevel(Level.FINEST);
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#FINER}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#FINER}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atFiner()
             {
-                return this.level(Level.FINER);
+                return this.withJulLevel(Level.FINER);
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#FINE}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#FINE}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atFine()
             {
-                return this.level(Level.FINE);
+                return this.withJulLevel(Level.FINE);
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#CONFIG}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#CONFIG}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atConfig()
             {
-                return this.level(Level.CONFIG);
+                return this.withJulLevel(Level.CONFIG);
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#INFO}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#INFO}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atInfo()
             {
-                return this.level(Level.INFO);
+                return this.withJulLevel(Level.INFO);
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#WARNING}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#WARNING}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atWarning()
             {
-                return this.level(Level.WARNING);
+                return this.withJulLevel(Level.WARNING);
             }
 
             /**
-             * Shorthand for {@link #level(Level)} with the level set to {@link Level#SEVERE}.
+             * Shorthand for {@link #withJulLevel(Level)} with the level set to {@link Level#SEVERE}.
              *
              * @return This builder.
              */
             @CheckReturnValue
             public LogAssertionBuilder atSevere()
             {
-                return this.level(Level.SEVERE);
+                return this.withJulLevel(Level.SEVERE);
             }
 
             /**
