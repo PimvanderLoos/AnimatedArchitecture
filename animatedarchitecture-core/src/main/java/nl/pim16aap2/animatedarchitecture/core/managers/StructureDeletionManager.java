@@ -4,6 +4,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -30,7 +31,7 @@ public class StructureDeletionManager implements IDebuggable
     @Override
     public @Nullable String getDebugInformation()
     {
-        return "StructureDeletionManager: Registered listeners: " + deletionListeners;
+        return "Registered deletion listeners: " + StringUtil.formatCollection(deletionListeners);
     }
 
     /**

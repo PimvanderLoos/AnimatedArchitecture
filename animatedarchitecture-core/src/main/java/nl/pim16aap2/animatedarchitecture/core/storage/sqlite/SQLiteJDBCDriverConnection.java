@@ -1393,8 +1393,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Override
     public String getDebugInformation()
     {
-        return "Database state: " + databaseState.name() +
-            "\nDatabase file: " + dataSourceInfo;
+        return String.format("""
+                Database state: %s
+                Database file:  %s
+                """,
+            databaseState.name(),
+            dataSourceInfo
+        );
     }
 
     /**

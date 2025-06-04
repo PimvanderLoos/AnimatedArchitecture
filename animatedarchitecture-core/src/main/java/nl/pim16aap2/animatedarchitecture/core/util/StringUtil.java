@@ -55,7 +55,7 @@ public final class StringUtil
     {
         return String.format("""
                 ExecutorService:
-                - Type:          %s
+                - Executor Type: %s
                 - Is shutdown:   %s
                 - Is terminated: %s
                 """,

@@ -177,8 +177,14 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
     @Override
     public String getDebugInformation()
     {
-        return "Accepting new entries: " + acceptNewEntries +
-            "\ncacheExpiry: " + cacheExpiry +
-            "\ncacheSize: " + structureCache.getSize();
+        return String.format("""
+                Accepting new entries: %s
+                Cache expiry: %s
+                Cache size:   %d
+                """,
+            acceptNewEntries,
+            cacheExpiry,
+            structureCache.getSize()
+        );
     }
 }
