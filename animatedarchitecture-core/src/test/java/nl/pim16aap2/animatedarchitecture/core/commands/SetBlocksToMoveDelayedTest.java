@@ -41,7 +41,6 @@ class SetBlocksToMoveDelayedTest
     @Mock
     private IExecutor executor;
 
-    @Mock
     private DelayedCommandInputRequest.IFactory<Integer> inputRequestFactory;
 
     @InjectMocks

@@ -42,7 +42,6 @@ class RemoveOwnerDelayedTest
     @Mock
     private IExecutor executor;
 
-    @Mock
     private DelayedCommandInputRequest.IFactory<IPlayer> inputRequestFactory;
 
     @InjectMocks

@@ -39,7 +39,6 @@ class SetOpenDirectionDelayedTest
     @Mock
     private IExecutor executor;
 
-    @Mock
     private DelayedCommandInputRequest.IFactory<MovementDirection> inputRequestFactory;
 
     @InjectMocks
