@@ -61,6 +61,22 @@ class PropertyContainerTest
     }
 
     @Test
+    void addPropertyValuePair_shouldThrowExceptionForNullValue()
+    {
+        // Setup
+        final var value = mock(PropertyContainer.ProvidedPropertyValue.class);
+        when(value.type()).thenReturn(String.class);
+
+        final PropertyValuePair<?> pair = PropertyValuePair.of(UNSET_PROPERTY, value);
+
+        // Execute & Verify
+        assertThatExceptionOfType(RuntimeException.class)
+            .isThrownBy(() -> propertyContainer.addPropertyValuePair(pair))
+            .withMessage("Failed to add property '%s' with value 'null'!", UNSET_PROPERTY.getFullKey())
+            .withRootCauseExactlyInstanceOf(NullPointerException.class);
+    }
+
+    @Test
     void removeProperty_shouldRemoveExistingProperty()
     {
         // Execute

@@ -300,24 +300,55 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         // TODO: Use the type version to upgrade structures if necessary.
         // final int typeVersion = structureRS.getInt("typeVersion");
 
-        final String rawProperties = structureRS.getString("properties");
-        final PropertyContainer properties = PropertyContainerSerializer.deserialize(structureType, rawProperties);
+        final PropertyContainer properties;
+        try
+        {
+            final String rawProperties = structureRS.getString("properties");
+            properties = PropertyContainerSerializer.deserialize(structureType, rawProperties);
+        }
+        catch (Exception exception)
+        {
+            throw new RuntimeException(
+                String.format(
+                    "Failed to deserialize properties for structure with UID: '%d' of type: '%s'",
+                    structureUID,
+                    structureType.getFullKey()),
+                exception
+            );
+        }
 
-        final Map<UUID, StructureOwner> ownersOfStructure = getOwnersOfStructure(structureUID);
-        final Structure structure =
-            structureBuilder
-                .builder(structureType)
-                .uid(AssignedUIDSqlite.getAssignedUID(structureUID))
-                .name(name)
-                .cuboid(new Cuboid(min, max))
-                .powerBlock(powerBlock)
-                .world(world)
-                .isLocked(isLocked)
-                .openDir(animationDirection.get())
-                .primeOwner(primeOwner)
-                .ownersOfStructure(ownersOfStructure)
-                .propertiesOfStructure(properties)
-                .build();
+        final Structure structure;
+        try
+        {
+            final Map<UUID, StructureOwner> ownersOfStructure = getOwnersOfStructure(structureUID);
+            structure =
+                structureBuilder
+                    .builder(structureType)
+                    .uid(AssignedUIDSqlite.getAssignedUID(structureUID))
+                    .name(name)
+                    .cuboid(new Cuboid(min, max))
+                    .powerBlock(powerBlock)
+                    .world(world)
+                    .isLocked(isLocked)
+                    .openDir(animationDirection.get())
+                    .primeOwner(primeOwner)
+                    .ownersOfStructure(ownersOfStructure)
+                    .propertiesOfStructure(properties)
+                    .build();
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(String.format("""
+                    Failed to construct structure:
+                    - UID:            %d
+                    - Structure Type: %s
+                    - Properties:     %s
+                    """,
+                structureUID,
+                structureType.getFullKey(),
+                properties
+            ), e);
+        }
 
         final Optional<Structure> registered = structureRegistry.putIfAbsent(structure);
         // If the UID was not already registered, we return the now-registered structure we just created.
