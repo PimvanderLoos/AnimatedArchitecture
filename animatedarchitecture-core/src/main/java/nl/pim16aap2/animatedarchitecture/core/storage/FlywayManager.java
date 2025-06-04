@@ -10,7 +10,7 @@ import org.flywaydb.core.api.MigrationInfo;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -78,23 +78,20 @@ public final class FlywayManager implements IDebuggable
         return String.format(
             """
                 Migration performed: %s
-                Migrations Applied (%d): %s
-                Migrations Pending (%d): %s
-                Current Migration: %s
+                Current Migration:
+                - %s
+                Migrations Pending: %s
+                Migrations Applied: %s
                 """,
             isMigrationPerformed.get() ? "Yes" : "No",
-            flyway.info().applied().length,
-            formatMigrations(flyway.info().applied()),
-            flyway.info().pending().length,
-            formatMigrations(flyway.info().pending()),
-            formatMigrations(flyway.info().current())
+            formatMigration(flyway.info().current()),
+            StringUtil.formatCollection(List.of(flyway.info().pending()), this::formatMigration),
+            StringUtil.formatCollection(List.of(flyway.info().applied()), this::formatMigration)
         );
     }
 
-    private String formatMigrations(MigrationInfo... all)
+    private String formatMigration(MigrationInfo migration)
     {
-        return Arrays.stream(all)
-            .map(migration -> String.format("%s: %s", migration.getVersion(), migration.getDescription()))
-            .collect(StringUtil.stringCollector());
+        return String.format("%s: %s", migration.getVersion(), migration.getDescription());
     }
 }

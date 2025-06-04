@@ -6,7 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockHo
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockHookFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
-import nl.pim16aap2.util.SafeStringBuilder;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -69,8 +69,7 @@ public final class AnimatedBlockHookManager implements IDebuggable
     @Override
     public String getDebugInformation()
     {
-        final SafeStringBuilder sb = new SafeStringBuilder("Registered animated block hook factories:\n");
-        factories.forEach(factory -> sb.append("- ").append(factory.getClass().getName()).append('\n'));
-        return sb.toString();
+        return "Registered animated block hook factories: " +
+            StringUtil.formatCollection(factories, factory -> factory.getClass().getName());
     }
 }
