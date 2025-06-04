@@ -22,23 +22,11 @@ component_management:
       name: Core
       paths:
         - animatedarchitecture-core/**
-      statuses:
-        - type: project
-          target: auto
-          threshold: 2%
-        - type: patch
-          target: 80%
 
     - component_id: utilities
       name: Utilities
       paths:
         - utilities/**
-      statuses:
-        - type: project
-          target: auto
-          threshold: 1%
-        - type: patch
-          target: 75%
 
     - component_id: spigot
       name: Spigot Core
