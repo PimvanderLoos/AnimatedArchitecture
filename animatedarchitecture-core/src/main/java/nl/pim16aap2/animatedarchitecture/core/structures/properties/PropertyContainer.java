@@ -615,7 +615,8 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         propertyContainer.forEach(this::addPropertyValuePair);
     }
 
-    private <T> void addPropertyValuePair(PropertyValuePair<T> pair)
+    @VisibleForTesting
+    <T> void addPropertyValuePair(PropertyValuePair<T> pair)
     {
         final Property<T> property = pair.property();
         final IPropertyValue<T> value = pair.value();
@@ -625,7 +626,20 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
             (key, oldValue) ->
             {
                 final boolean required = oldValue != null && oldValue.isRequired();
-                return mapValue(property, Objects.requireNonNull(value.value()), required);
+                try
+                {
+                    return mapValue(property, Objects.requireNonNull(value.value()), required);
+                }
+                catch (Exception exception)
+                {
+                    throw new RuntimeException(
+                        String.format(
+                            "Failed to add property '%s' with value '%s'!",
+                            property.getFullKey(),
+                            value.value()),
+                        exception
+                    );
+                }
             }
         );
     }
@@ -805,6 +819,12 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         @JSONField(serialize = false) boolean isRequired)
         implements IPropertyValue<T>
     {
+        ProvidedPropertyValue
+        {
+            Objects.requireNonNull(type, "Type cannot be null");
+            Objects.requireNonNull(value, "Value cannot be null");
+        }
+
         @JSONField(serialize = false)
         @Override
         public boolean isSet()
