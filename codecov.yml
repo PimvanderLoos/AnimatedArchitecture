@@ -2,12 +2,16 @@ codecov:
   max_report_age: off
 
 comment:
-  layout: " header, diff, components, condensed_files, footer "
+  layout: " header, reach, diff, components, condensed_files, footer "
   require_changes: false
 
 coverage:
   ignore:
     - animatedarchitecture-spigot/protection-hooks/**
+  status:
+    patch:
+      default:
+        informational: true
 
 component_management:
   default_rules:
