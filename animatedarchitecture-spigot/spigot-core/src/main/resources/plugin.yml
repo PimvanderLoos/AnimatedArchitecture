@@ -10,5 +10,3 @@ libraries:
   - com.alibaba:fastjson:${dependency.fastjson.version}
   - net.bytebuddy:byte-buddy:${dependency.bytebuddy.version}
   - org.flywaydb:flyway-core:${dependency.flyway.version}
-  - org.spongepowered:configurate-core:${dependency.configurate.version}
-  - org.spongepowered:configurate-yaml:${dependency.configurate.version}
