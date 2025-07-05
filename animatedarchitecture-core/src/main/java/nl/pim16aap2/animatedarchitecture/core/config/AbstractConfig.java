@@ -8,11 +8,12 @@ import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
+import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import javax.inject.Named;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -28,6 +29,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @CustomLog
 public abstract class AbstractConfig implements IConfig
 {
+    private static final String PATH_VERSION = "version";
+    private static final int INITIAL_VERSION = 0;
+
     private final Path configPath;
 
     @ToString.Exclude
@@ -53,6 +57,43 @@ public abstract class AbstractConfig implements IConfig
     }
 
     /**
+     * Parses the configuration file and applies any necessary transformations.
+     * <p>
+     * If the configuration file does not exist, it will be created with default values.
+     */
+    protected final void parseConfig()
+    {
+        try
+        {
+            Files.deleteIfExists(configPath);
+            final var root = configLoader.load();
+            final var result = applyTransformations(root);
+            configLoader.save(result);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Failed to parse configuration file: " + configPath, e);
+        }
+    }
+
+    /**
+     * Gets the header for the configuration file.
+     *
+     * @return The header text for the configuration file.
+     */
+    protected String getHeader()
+    {
+        return """
+            Animated Architecture configuration file.
+            
+            For most options, you can apply your changes using "/animatedarchitecture restart".
+            When an option requires a restart, it will be mentioned in the description.
+            
+            For more information, visit: https://github.com/PimvanderLoos/AnimatedArchitecture
+            """;
+    }
+
+    /**
      * Adds one or more configuration sections to the configuration.
      *
      * @param sections
@@ -67,6 +108,11 @@ public abstract class AbstractConfig implements IConfig
     {
         return YamlConfigurationLoader.builder()
             .path(configPath)
+            .indent(4)
+            .nodeStyle(NodeStyle.BLOCK)
+            .commentsEnabled(true)
+            .defaultOptions(ConfigurationOptions.defaults()
+                .header(getHeader()))
             .build();
     }
 
@@ -74,7 +120,39 @@ public abstract class AbstractConfig implements IConfig
     {
         final var rootPath = root.path();
         final var builder = ConfigurationTransformation.builder();
-        sections.forEach(section -> builder.addAction(rootPath, section.getInitialTransform()));
+        builder.addAction(rootPath, (path, value) ->
+        {
+            var newNode = CommentedConfigurationNode.root()
+                .act(node ->
+                {
+                    sections.forEach(section ->
+                    {
+                        try
+                        {
+                            node.node(section.getSectionTitle()).set(section.buildInitialLimitsNode());
+                        }
+                        catch (Exception exception)
+                        {
+                            throw new RuntimeException(
+                                String.format(
+                                    "failed to build initial limits node for section: %s",
+                                    section.getSectionTitle()),
+                                exception
+                            );
+                        }
+                    });
+
+                    node.node(PATH_VERSION)
+                        .comment("""
+                            The version of the configuration file.
+                            
+                            DO NOT EDIT THIS MANUALLY!
+                            """)
+                        .set(INITIAL_VERSION);
+                });
+            value.set(newNode);
+            return null;
+        });
         return builder.build();
     }
 
@@ -93,7 +171,8 @@ public abstract class AbstractConfig implements IConfig
     private ConfigurationTransformation.Versioned createVersionedTransformation(CommentedConfigurationNode root)
     {
         final var builder = ConfigurationTransformation.versionedBuilder()
-            .addVersion(0, getInitialTransformations(root));
+            .versionKey(PATH_VERSION)
+            .addVersion(INITIAL_VERSION, getInitialTransformations(root));
 
         addTransformations(builder);
 
@@ -115,38 +194,5 @@ public abstract class AbstractConfig implements IConfig
             log.atInfo().log("Updated config schema from %d to %d", startVersion, endVersion);
 
         return root;
-    }
-
-    private void printConfig()
-        throws IOException
-    {
-        final StringBuilder sb = new StringBuilder();
-        Files.lines(configPath).forEach(line -> sb.append(line).append(System.lineSeparator()));
-        log.atInfo().log(
-            "Configuration file contents:\n--------------------------%s\n--------------------------",
-            sb.toString()
-        );
-    }
-
-    /**
-     * Parses the configuration file and applies any necessary transformations.
-     * <p>
-     * If the configuration file does not exist, it will be created with default values.
-     */
-    protected final void parseConfig()
-    {
-        try
-        {
-            Files.deleteIfExists(configPath);
-            final var root = configLoader.load();
-            final var result = applyTransformations(root);
-            configLoader.save(result);
-            printConfig();
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Failed to parse configuration file: " + configPath, e);
-        }
-        Runtime.getRuntime().halt(0);
     }
 }

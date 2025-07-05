@@ -21,7 +21,7 @@
         <dependency.assertj.version>4.0.0-M1</dependency.assertj.version>
         <dependency.bytebuddy.version>1.17.6</dependency.bytebuddy.version>
         <dependency.checkstyle.version>10.26.1</dependency.checkstyle.version>
-        <dependency.configurate.version>4.2.0</dependency.configurate.version>
+        <dependency.configurate.version>feature~yaml-improvements-c31b5df773-1</dependency.configurate.version>
         <dependency.dagger.version>2.56.2</dependency.dagger.version>
         <dependency.eclipse-annotations.version>2.3.100</dependency.eclipse-annotations.version>
         <dependency.errorprone.version>2.38.0</dependency.errorprone.version>
@@ -142,6 +142,21 @@
             <artifactId>dagger-compiler</artifactId>
             <version>${dependency.dagger.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.PimvanderLoos.Configurate</groupId>
+            <artifactId>configurate-core</artifactId>
+            <version>${dependency.configurate.version}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.github.PimvanderLoos.Configurate</groupId>
+            <artifactId>configurate-yaml</artifactId>
+            <version>${dependency.configurate.version}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -452,6 +467,10 @@
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.auto</shadedPattern>
                             </relocation>
                             <relocation>
+                                <pattern>com.google.auto</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.auto</shadedPattern>
+                            </relocation>
+                            <relocation>
                                 <pattern>com.mojang.brigadier</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.brigadier</shadedPattern>
                             </relocation>
@@ -486,6 +505,18 @@
                             <relocation>
                                 <pattern>org.semver4j</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.semver4j</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>org.spongepowered.configurate</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.configurate</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.github.PimvanderLoos.Configurate</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.configurate</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>org.jspecify</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.jspecify</shadedPattern>
                             </relocation>
                         </relocations>
                     </configuration>

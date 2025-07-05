@@ -124,8 +124,8 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
             """;
 
         super.addSections(
-            new LimitsSection()
-//            new CachingSectionSpigot()
+            new LimitsSection(),
+            new CachingSectionSpigot()
         );
 
         restartableHolder.registerRestartable(this);
