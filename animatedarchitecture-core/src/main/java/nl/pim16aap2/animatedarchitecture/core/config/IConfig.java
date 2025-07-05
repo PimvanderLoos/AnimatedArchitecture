@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.core.api;
+package nl.pim16aap2.animatedarchitecture.core.config;
 
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;

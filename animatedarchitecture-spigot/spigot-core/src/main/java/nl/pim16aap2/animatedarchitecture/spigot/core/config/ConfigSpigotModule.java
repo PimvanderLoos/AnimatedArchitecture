@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 import dagger.Binds;
 import dagger.Module;
 import jakarta.inject.Singleton;
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerConfig;
 
 @Module
