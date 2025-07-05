@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
 import lombok.Getter;
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 
 import java.util.OptionalInt;
 import java.util.function.Function;
