@@ -14,3 +14,5 @@ libraries:
   - com.google.flogger:flogger-log4j2-backend:${dependency.flogger.version}
   - com.google.dagger:dagger:${dependency.dagger.version}
   - nl.pim16aap2.jcalculator:jcalculator:${dependency.jcalculator.version}
+  - org.spongepowered:configurate-core:${dependency.configurate.version}
+  - org.spongepowered:configurate-yaml:${dependency.configurate.version}
