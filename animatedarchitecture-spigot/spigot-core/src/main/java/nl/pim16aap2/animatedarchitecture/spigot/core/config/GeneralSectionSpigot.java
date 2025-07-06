@@ -84,10 +84,6 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
                 List of blacklisted materials. Materials on this list can not be animated.
                 
                 Use the same list of materials as for the power blocks.
-                For example, you would blacklist bedrock by adding the following line:
-                  - BEDROCK
-                
-                A list of options can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
                 """);
     }
 
