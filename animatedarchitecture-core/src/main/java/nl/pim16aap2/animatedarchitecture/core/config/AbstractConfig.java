@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.config;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dagger.Lazy;
 import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
@@ -9,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationOptions;
+import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
@@ -17,8 +19,10 @@ import javax.inject.Named;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
 
 /**
  * The base configuration class for Animated Architecture.
@@ -43,7 +47,8 @@ public abstract class AbstractConfig implements IConfig
 
     private final YamlConfigurationLoader configLoader;
 
-    private final List<IConfigSection> sections = new CopyOnWriteArrayList<>();
+    @GuardedBy("this")
+    private final Map<String, IConfigSection> sections = new LinkedHashMap<>();
 
     protected AbstractConfig(
         @Named("pluginBaseDirectory") Path baseDir,
@@ -62,13 +67,14 @@ public abstract class AbstractConfig implements IConfig
      * <p>
      * If the configuration file does not exist, it will be created with default values.
      */
-    protected final void parseConfig()
+    protected synchronized final void parseConfig()
     {
         try
         {
             Files.deleteIfExists(configPath);
             final var root = configLoader.load();
             final var result = applyTransformations(root);
+            populateStructuresSection(result);
             configLoader.save(result);
             printConfig();
             Thread.sleep(1000L);
@@ -77,7 +83,6 @@ public abstract class AbstractConfig implements IConfig
         {
             throw new RuntimeException("Failed to parse configuration file: " + configPath, e);
         }
-        Runtime.getRuntime().halt(0);
     }
 
     /**
@@ -103,9 +108,37 @@ public abstract class AbstractConfig implements IConfig
      * @param sections
      *     The configuration sections to add.
      */
-    protected void addSections(IConfigSection... sections)
+    protected synchronized void addSections(IConfigSection... sections)
     {
-        this.sections.addAll(List.of(sections));
+        this.sections.putAll(
+            Arrays.stream(sections)
+                .collect(
+                    LinkedHashMap::new,
+                    (map, section) -> map.put(section.getSectionTitle(), section),
+                    Map::putAll
+                )
+        );
+    }
+
+    @GuardedBy("this")
+    private void populateStructuresSection(CommentedConfigurationNode root)
+        throws SerializationException
+    {
+        final IConfigSection foundSection = sections.get(StructuresSection.SECTION_TITLE);
+        if (foundSection == null)
+        {
+            log.atWarning().log("No structures section found in the configuration. ");
+            return;
+        }
+
+        if (!(foundSection instanceof StructuresSection structuresSection))
+        {
+            throw new IllegalStateException(
+                "The structures section is not an instance of StructuresSection: " + foundSection.getClass()
+            );
+        }
+
+        structuresSection.populateStructures(root, lazyStructureTypeManager.get().getRegisteredStructureTypes());
     }
 
     private YamlConfigurationLoader initConfig()
@@ -120,16 +153,19 @@ public abstract class AbstractConfig implements IConfig
             .build();
     }
 
+    @GuardedBy("this")
     private ConfigurationTransformation getInitialTransformations(CommentedConfigurationNode root)
     {
         final var rootPath = root.path();
         final var builder = ConfigurationTransformation.builder();
+        final List<IConfigSection> configSections = List.copyOf(sections.values());
+
         builder.addAction(rootPath, (path, value) ->
         {
             var newNode = CommentedConfigurationNode.root()
                 .act(node ->
                 {
-                    sections.forEach(section ->
+                    configSections.forEach(section ->
                     {
                         try
                         {
@@ -168,7 +204,7 @@ public abstract class AbstractConfig implements IConfig
      * @param builder
      *     The builder to add transformations to.
      */
-    protected void addTransformations(ConfigurationTransformation.VersionedBuilder builder)
+    protected void addTransformations(@SuppressWarnings("unused") ConfigurationTransformation.VersionedBuilder builder)
     {
     }
 

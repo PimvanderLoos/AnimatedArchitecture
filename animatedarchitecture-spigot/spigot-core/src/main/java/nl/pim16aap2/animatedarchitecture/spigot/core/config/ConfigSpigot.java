@@ -19,8 +19,6 @@ import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.config.LimitsSection;
 import nl.pim16aap2.animatedarchitecture.core.config.LocaleSection;
 import nl.pim16aap2.animatedarchitecture.core.config.LoggingSection;
-import nl.pim16aap2.animatedarchitecture.core.config.ProtectionHooksSection;
-import nl.pim16aap2.animatedarchitecture.core.config.StructuresSection;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.ConfigEntry;
@@ -132,8 +130,8 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
             new GeneralSectionSpigot(),
             new AnimationsSection(),
             new LimitsSection(),
-            new ProtectionHooksSection(),
-            new StructuresSection(),
+//            new ProtectionHooksSection(),
+            new StructuresSectionSpigot(),
             new LocaleSection(),
             new CachingSectionSpigot(),
             new LoggingSection()
@@ -146,8 +144,8 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
     @Override
     public void initialize()
     {
-        plugin.reloadConfig();
-        super.parseConfig();
+//        plugin.reloadConfig();
+//        super.parseConfig();
 //        rewriteConfig(true);
     }
 
@@ -159,6 +157,12 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
         structurePrices.clear();
         structureTypeGuiMaterials.clear();
         structureAnimationTimeMultipliers.clear();
+    }
+
+    public void rewriteConfig(boolean printResults)
+    {
+        super.parseConfig();
+        Runtime.getRuntime().halt(0);
     }
 
 //    /**
