@@ -26,6 +26,36 @@ public interface IConfigSection
         throws SerializationException;
 
     /**
+     * Gets the subsection for this configuration section.
+     *
+     * @param root
+     *     The root configuration node to get the subsection from.
+     * @return the subsection node for this configuration section
+     *
+     * @throws IllegalStateException
+     *     if the section does not exist.
+     */
+    default CommentedConfigurationNode getSection(CommentedConfigurationNode root)
+    {
+        final CommentedConfigurationNode node = root.node(getSectionTitle());
+        if (node.virtual())
+            throw new IllegalStateException("Configuration section '" + getSectionTitle() + "' does not exist.");
+        return node;
+    }
+
+    /**
+     * Populates the dynamic data for this configuration section.
+     * <p>
+     * This method will not overwrite existing data in the node; it will only add new data if any is missing.
+     *
+     * @param root
+     *     The root configuration node to populate with dynamic data.
+     */
+    default void populateDynamicData(CommentedConfigurationNode root)
+    {
+    }
+
+    /**
      * Returns the title of the configuration section.
      *
      * @return the title of the section
