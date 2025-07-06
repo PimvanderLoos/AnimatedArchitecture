@@ -1,8 +1,14 @@
 package nl.pim16aap2.animatedarchitecture.core.config;
 
+import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+/**
+ * Represents a configuration section for global limits in Animated Architecture.
+ * <p>
+ * These settings are used to define the global values for the {@link Limit}s.
+ */
 public class LimitsSection implements IConfigSection
 {
     public static final String SECTION_TITLE = "limits";

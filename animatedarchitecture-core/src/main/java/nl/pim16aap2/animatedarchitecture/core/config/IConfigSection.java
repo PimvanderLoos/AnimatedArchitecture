@@ -2,7 +2,6 @@ package nl.pim16aap2.animatedarchitecture.core.config;
 
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
-import org.spongepowered.configurate.transformation.TransformAction;
 
 /**
  * Represents a section in the configuration.
@@ -12,26 +11,24 @@ import org.spongepowered.configurate.transformation.TransformAction;
  */
 public interface IConfigSection
 {
+    /**
+     * Builds the initial limits node for this configuration section.
+     * <p>
+     * This method is responsible for creating the initial configuration node for this section, including any default
+     * values and comments.
+     *
+     * @return the initial limits node for this section
+     *
+     * @throws SerializationException
+     *     if an error occurs during serialization
+     */
     CommentedConfigurationNode buildInitialLimitsNode()
         throws SerializationException;
 
-    String getSectionTitle();
-
     /**
-     * Gets the initial transform action for this section.
-     * <p>
-     * This action should be used to create the initial state of the section.
+     * Returns the title of the configuration section.
      *
-     * @return The initial transform action for this section.
+     * @return the title of the section
      */
-    default TransformAction getInitialTransform()
-    {
-        System.out.println("Getting initial transform for section: " + getSectionTitle());
-        return (path, value) ->
-        {
-            System.out.println("Applying initial transform for section: " + getSectionTitle());
-            value.node(getSectionTitle()).set(buildInitialLimitsNode());
-            return null;
-        };
-    }
+    String getSectionTitle();
 }

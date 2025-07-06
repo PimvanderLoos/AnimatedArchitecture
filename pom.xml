@@ -511,7 +511,7 @@
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.configurate</shadedPattern>
                             </relocation>
                             <relocation>
-                                <pattern>com.github.PimvanderLoos.Configurate</pattern>
+                                <pattern>com.github.PimvanderLoos.configurate</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.configurate</shadedPattern>
                             </relocation>
                             <relocation>

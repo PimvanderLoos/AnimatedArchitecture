@@ -14,8 +14,13 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.config.AbstractConfig;
+import nl.pim16aap2.animatedarchitecture.core.config.AnimationsSection;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.config.LimitsSection;
+import nl.pim16aap2.animatedarchitecture.core.config.LocaleSection;
+import nl.pim16aap2.animatedarchitecture.core.config.LoggingSection;
+import nl.pim16aap2.animatedarchitecture.core.config.ProtectionHooksSection;
+import nl.pim16aap2.animatedarchitecture.core.config.StructuresSection;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.ConfigEntry;
@@ -124,8 +129,14 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
             """;
 
         super.addSections(
+            new GeneralSectionSpigot(),
+            new AnimationsSection(),
             new LimitsSection(),
-            new CachingSectionSpigot()
+            new ProtectionHooksSection(),
+            new StructuresSection(),
+            new LocaleSection(),
+            new CachingSectionSpigot(),
+            new LoggingSection()
         );
 
         restartableHolder.registerRestartable(this);
