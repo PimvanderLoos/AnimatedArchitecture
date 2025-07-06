@@ -28,7 +28,7 @@ public enum Limit
     /**
      * The maximum distance a power block can be from a structure.
      */
-    POWERBLOCK_DISTANCE("powerblock_distance", IConfig::maxPowerBlockDistance),
+    POWERBLOCK_DISTANCE("powerblock_distance", IConfig::maxPowerblockDistance),
 
     /**
      * The maximum distance a structure can move measured in blocks.

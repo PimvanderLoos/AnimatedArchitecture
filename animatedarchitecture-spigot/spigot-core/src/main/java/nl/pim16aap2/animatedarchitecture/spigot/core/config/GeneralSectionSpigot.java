@@ -125,13 +125,13 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
     }
 
     @Override
-    protected Result getResult(ConfigurationNode sectionNode)
+    protected Result getResult(ConfigurationNode sectionNode, boolean silent)
         throws SerializationException
     {
         return new Result(
             getAllowRedstone(sectionNode),
-            getPowerBlockTypes(sectionNode),
-            getMaterialBlackList(sectionNode),
+            getPowerBlockTypes(sectionNode, silent),
+            getMaterialBlackList(sectionNode, silent),
             getResourcePackEnabled(sectionNode),
             getCommandAliases(sectionNode)
         );
@@ -142,16 +142,16 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
         return sectionNode.node(PATH_ALLOW_REDSTONE).getBoolean(DEFAULT_ALLOW_REDSTONE);
     }
 
-    private Set<Material> getPowerBlockTypes(ConfigurationNode sectionNode)
+    private Set<Material> getPowerBlockTypes(ConfigurationNode sectionNode, boolean silent)
         throws SerializationException
     {
-        return POWER_BLOCK_TYPE_PARSER.parse(sectionNode.node(PATH_POWER_BLOCK_TYPES).getList(String.class));
+        return POWER_BLOCK_TYPE_PARSER.parse(sectionNode.node(PATH_POWER_BLOCK_TYPES).getList(String.class), silent);
     }
 
-    private Set<Material> getMaterialBlackList(ConfigurationNode sectionNode)
+    private Set<Material> getMaterialBlackList(ConfigurationNode sectionNode, boolean silent)
         throws SerializationException
     {
-        return MATERIAL_BLACKLIST_PARSER.parse(sectionNode.node(PATH_MATERIAL_BLACKLIST).getList(String.class));
+        return MATERIAL_BLACKLIST_PARSER.parse(sectionNode.node(PATH_MATERIAL_BLACKLIST).getList(String.class), silent);
     }
 
     private boolean getResourcePackEnabled(ConfigurationNode sectionNode)
@@ -172,7 +172,7 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
      *     Whether structures should respond to redstone signals.
      * @param powerBlockTypes
      *     The types of blocks that can be used as power blocks for structures.
-     * @param materialBlackList
+     * @param materialBlacklist
      *     The list of materials that are blacklisted and cannot be animated.
      * @param resourcePackEnabled
      *     Whether the resource pack should be enabled.
@@ -182,8 +182,20 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
     public record Result(
         boolean allowRedstone,
         Set<Material> powerBlockTypes,
-        Set<Material> materialBlackList,
+        Set<Material> materialBlacklist,
         boolean resourcePackEnabled,
         List<String> commandAliases
-    ) implements IConfigSectionResult {}
+    ) implements IConfigSectionResult
+    {
+        /**
+         * The default result used when no data is available.
+         */
+        public static final Result DEFAULT = new Result(
+            GeneralSection.DEFAULT_ALLOW_REDSTONE,
+            Set.of(DEFAULT_POWER_BLOCK_MATERIAL),
+            Set.of(),
+            DEFAULT_RESOURCE_PACK_ENABLED,
+            List.of(DEFAULT_COMMAND_ALIASES)
+        );
+    }
 }

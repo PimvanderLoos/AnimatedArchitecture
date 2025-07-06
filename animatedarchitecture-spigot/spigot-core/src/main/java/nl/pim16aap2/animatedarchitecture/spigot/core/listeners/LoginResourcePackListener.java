@@ -50,7 +50,7 @@ public class LoginResourcePackListener extends AbstractListener
         ConfigSpigot config,
         JavaPlugin plugin)
     {
-        super(holder, plugin, config::isResourcePackEnabled);
+        super(holder, plugin, config::resourcePackEnabled);
 
         this.resourcePackDetails = ResourcePackDetails.getForVersion(serverVersion);
         this.localizer = localizer;

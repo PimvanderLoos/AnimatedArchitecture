@@ -81,14 +81,17 @@ public class ProtectionHooksSectionSpigot extends ProtectionHooksSection<Protect
     }
 
     @Override
-    protected Result getResult(ConfigurationNode sectionNode)
+    protected Result getResult(ConfigurationNode sectionNode, boolean silent)
     {
         return new Result(
-            Collections.unmodifiableSet(getEnabledProtectionHooks(sectionNode))
+            Collections.unmodifiableSet(getEnabledProtectionHooks(sectionNode, silent))
         );
     }
 
-    private Set<IProtectionHookSpigotSpecification> getEnabledProtectionHooks(ConfigurationNode sectionNode)
+    private Set<IProtectionHookSpigotSpecification> getEnabledProtectionHooks(
+        ConfigurationNode sectionNode,
+        boolean silent
+    )
     {
         final Map<String, IProtectionHookSpigotSpecification> registeredHooks =
             protectionHookManager.get().getRegisteredHookDefinitions();
@@ -103,9 +106,13 @@ public class ProtectionHooksSectionSpigot extends ProtectionHooksSection<Protect
                 final var hook = registeredHooks.get((String) hookName);
                 if (hook == null)
                 {
-                    log.atWarning().log(
-                        "Protection hook '%s' is enabled in the configuration, but it is not registered!",
-                        hookName);
+                    if (!silent)
+                    {
+                        log.atWarning().log(
+                            "Protection hook '%s' is enabled in the configuration, but it is not registered!",
+                            hookName
+                        );
+                    }
                     return;
                 }
                 enabledHooks.add(hook);
@@ -114,7 +121,24 @@ public class ProtectionHooksSectionSpigot extends ProtectionHooksSection<Protect
         return enabledHooks;
     }
 
+    /**
+     * Represents the result of the ProtectionHooksSectionSpigot configuration.
+     *
+     * @param enabledHooks
+     *     Set of enabled protection hooks.
+     */
     public record Result(
         Set<IProtectionHookSpigotSpecification> enabledHooks
-    ) implements IConfigSectionResult {}
+    ) implements IConfigSectionResult
+    {
+        /**
+         * The default result used when no data is available.
+         */
+        public static final Result DEFAULT = new Result(Set.of());
+
+        public boolean isHookEnabled(IProtectionHookSpigotSpecification spec)
+        {
+            return enabledHooks().contains(spec);
+        }
+    }
 }

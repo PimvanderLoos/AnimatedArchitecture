@@ -16,6 +16,8 @@ public class StructureSubSectionSpigot extends StructureSubSection
 {
     public static final String PATH_GUI_MATERIAL = "gui_material";
 
+    public static final Material DEFAULT_GUI_MATERIAL = Material.WARPED_DOOR;
+
     public StructureSubSectionSpigot(StructureType structureType)
     {
         super(structureType);
@@ -54,7 +56,7 @@ public class StructureSubSectionSpigot extends StructureSubSection
             case "animatedarchitecture:revolvingdoor" -> Material.MUSIC_DISC_PIGSTEP;
             case "animatedarchitecture:slidingdoor" -> Material.PISTON;
             case "animatedarchitecture:windmill" -> Material.SUNFLOWER;
-            default -> Material.BARRIER;
+            default -> DEFAULT_GUI_MATERIAL;
         };
     }
 }

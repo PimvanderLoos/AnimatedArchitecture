@@ -7,6 +7,7 @@ import lombok.extern.flogger.Flogger;
 import org.bukkit.Material;
 import org.jspecify.annotations.Nullable;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -37,7 +38,7 @@ public class MaterialParser
      *     The name of the material to parse.
      * @return The parsed material object, or null if the material could not be parsed.
      */
-    public Set<Material> parse(@Nullable List<String> names)
+    public Set<Material> parse(@Nullable List<String> names, boolean silent)
     {
         if (names == null || names.isEmpty())
         {
@@ -46,9 +47,9 @@ public class MaterialParser
         }
 
         return names.stream()
-            .map(this::parseMaterial)
+            .map(name -> parseMaterial(name, silent))
             .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+            .collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
     }
 
     private @Nullable Material getFirstDefaultMaterial()
@@ -56,7 +57,7 @@ public class MaterialParser
         return defaultMaterials.stream().findFirst().orElse(null);
     }
 
-    private Material returnDefaultMaterial(@Nullable String name)
+    private Material returnDefaultMaterial(@Nullable String name, boolean silent)
     {
         final Material defaultMaterial = getFirstDefaultMaterial();
         log.atFine().log(
@@ -81,45 +82,49 @@ public class MaterialParser
      *     The name of the material to parse.
      * @return The parsed material object, or the default material if the name is null or empty.
      */
-    public Material parse(@Nullable String name)
+    public Material parse(@Nullable String name, boolean silent)
     {
         if (name == null || name.isEmpty())
         {
-            return returnDefaultMaterial(name);
+            return returnDefaultMaterial(name, silent);
         }
 
-        final var material = parseMaterial(name);
+        final var material = parseMaterial(name, silent);
         if (material == null)
         {
-            return returnDefaultMaterial(name);
+            return returnDefaultMaterial(name, silent);
         }
 
         return material;
     }
 
-    private @Nullable Material parseMaterial(String name)
+    private @Nullable Material parseMaterial(String name, boolean silent)
     {
         final var material = Material.getMaterial(name);
         if (material == null)
         {
-            handleInvalidMaterial(name);
+            handleInvalidMaterial(name, silent);
             return null;
         }
 
         if (isSolid != null && isSolid != material.isSolid())
         {
-            handleInvalidMaterial(name);
+            handleInvalidMaterial(name, silent);
             return null;
         }
 
         return material;
     }
 
-    private void handleInvalidMaterial(String name)
+    private void handleInvalidMaterial(String name, boolean silent)
     {
         switch (onInvalid)
         {
-            case WARN_AND_SKIP -> log.atSevere().log("[%s] Invalid material: %s. Skipping.", context, name);
+            case WARN_AND_SKIP ->
+            {
+                if (!silent)
+                    log.atSevere().log("[%s] Invalid material: %s. Skipping.", context, name);
+            }
             case FAIL -> throw new IllegalArgumentException("[%s] Invalid material: %s".formatted(context, name));
             case SKIP ->
             {

@@ -34,12 +34,14 @@ public abstract class ConfigSection<T extends IConfigSectionResult>
      *
      * @param sectionNode
      *     The configuration node for this section.
+     * @param silent
+     *     When true, the method will not log any informational/status messages when parsing the results.
      * @return the result of this configuration section
      *
      * @throws SerializationException
      *     If an error occurs during serialization.
      */
-    protected abstract T getResult(ConfigurationNode sectionNode)
+    protected abstract T getResult(ConfigurationNode sectionNode, boolean silent)
         throws SerializationException;
 
     /**
@@ -54,8 +56,10 @@ public abstract class ConfigSection<T extends IConfigSectionResult>
      *
      * @param root
      *     The root configuration node to read the data from.
+     * @param silent
+     *     When true, the method will not log any informational/status messages when parsing the results.
      */
-    public final void applyResults(ConfigurationNode root)
+    public final void applyResults(ConfigurationNode root, boolean silent)
         throws SerializationException
     {
         final Consumer<T> consumer = getResultConsumer();
@@ -63,7 +67,7 @@ public abstract class ConfigSection<T extends IConfigSectionResult>
             return;
 
         final ConfigurationNode sectionNode = root.node(getSectionTitle());
-        final T result = getResult(sectionNode);
+        final T result = getResult(sectionNode, silent);
         consumer.accept(result);
     }
 

@@ -50,7 +50,7 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
         PowerBlockManager powerBlockManager,
         DebuggableRegistry debuggableRegistry)
     {
-        super(holder, plugin, config::isRedstoneEnabled);
+        super(holder, plugin, config::allowRedstone);
         this.executor = executor;
         this.config = config;
         this.powerBlockManager = powerBlockManager;

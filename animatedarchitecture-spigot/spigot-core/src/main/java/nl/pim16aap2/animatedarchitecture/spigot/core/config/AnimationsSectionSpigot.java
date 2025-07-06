@@ -22,7 +22,7 @@ public class AnimationsSectionSpigot extends AnimationsSection<AnimationsSection
     private final @Nullable Consumer<Result> resultConsumer;
 
     @Override
-    protected Result getResult(ConfigurationNode sectionNode)
+    protected Result getResult(ConfigurationNode sectionNode, boolean silent)
     {
         return new Result(
             getLoadChunksForToggle(sectionNode),
@@ -53,5 +53,14 @@ public class AnimationsSectionSpigot extends AnimationsSection<AnimationsSection
     public record Result(
         boolean loadChunksForToggle,
         boolean skipAnimationsByDefault
-    ) implements IConfigSectionResult {}
+    ) implements IConfigSectionResult
+    {
+        /**
+         * The default result used when no data is available.
+         */
+        public static final Result DEFAULT = new Result(
+            AnimationsSection.DEFAULT_LOAD_CHUNKS_FOR_TOGGLE,
+            AnimationsSection.DEFAULT_SKIP_ANIMATIONS_BY_DEFAULT
+        );
+    }
 }
