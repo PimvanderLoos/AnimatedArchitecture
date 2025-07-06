@@ -9,8 +9,11 @@ import java.util.Comparator;
 
 /**
  * Represents a section in the configuration with per-structure type settings.
+ *
+ * @param <T>
+ *     the type of result this section produces.
  */
-public abstract class StructuresSection implements IConfigSection
+public abstract class StructuresSection<T extends IConfigSectionResult> extends ConfigSection<T>
 {
     public static final String SECTION_TITLE = "structures";
 

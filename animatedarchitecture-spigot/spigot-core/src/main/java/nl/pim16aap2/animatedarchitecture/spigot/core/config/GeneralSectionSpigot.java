@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.config.GeneralSection;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfigSectionResult;
 import org.bukkit.Material;
@@ -18,8 +18,7 @@ import java.util.function.Consumer;
  * Represents a section in the configuration file that governs general settings for Spigot.
  */
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
-public class GeneralSectionSpigot extends GeneralSection
+public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Result>
 {
     public static final String PATH_POWER_BLOCK_TYPES = "power_block_types";
     public static final String PATH_MATERIAL_BLACKLIST = "material_blacklist";
@@ -46,17 +45,8 @@ public class GeneralSectionSpigot extends GeneralSection
         .context("Material blacklist")
         .build();
 
-    private final @Nullable Consumer<Result> resultApplier;
-
-    @Override
-    public void applyResults(CommentedConfigurationNode root)
-        throws SerializationException
-    {
-        if (resultApplier == null)
-            return;
-
-        resultApplier.accept(buildResult(root));
-    }
+    @Getter
+    private final @Nullable Consumer<Result> resultConsumer;
 
     @Override
     public CommentedConfigurationNode buildInitialLimitsNode()
@@ -138,45 +128,45 @@ public class GeneralSectionSpigot extends GeneralSection
                 """);
     }
 
-    private boolean getAllowRedstone(ConfigurationNode node)
-    {
-        return node.node(PATH_ALLOW_REDSTONE).getBoolean(DEFAULT_ALLOW_REDSTONE);
-    }
-
-    private Set<Material> getPowerBlockTypes(ConfigurationNode node)
+    @Override
+    protected Result getResult(ConfigurationNode sectionNode)
         throws SerializationException
     {
-        return POWER_BLOCK_TYPE_PARSER.parse(node.node(PATH_POWER_BLOCK_TYPES).getList(String.class));
-    }
-
-    private Set<Material> getMaterialBlackList(ConfigurationNode node)
-        throws SerializationException
-    {
-        return MATERIAL_BLACKLIST_PARSER.parse(node.node(PATH_MATERIAL_BLACKLIST).getList(String.class));
-    }
-
-    private boolean getResourcePackEnabled(ConfigurationNode node)
-    {
-        return node.node(PATH_RESOURCE_PACK_ENABLED).getBoolean(DEFAULT_RESOURCE_PACK_ENABLED);
-    }
-
-    private List<String> getCommandAliases(ConfigurationNode node)
-        throws SerializationException
-    {
-        return node.node(PATH_COMMAND_ALIASES).getList(String.class, List.of(DEFAULT_COMMAND_ALIASES));
-    }
-
-    private Result buildResult(CommentedConfigurationNode root)
-        throws SerializationException
-    {
-        final var node = getSection(root);
         return new Result(
-            getAllowRedstone(node),
-            getPowerBlockTypes(node),
-            getMaterialBlackList(node),
-            getResourcePackEnabled(node),
-            getCommandAliases(node)
+            getAllowRedstone(sectionNode),
+            getPowerBlockTypes(sectionNode),
+            getMaterialBlackList(sectionNode),
+            getResourcePackEnabled(sectionNode),
+            getCommandAliases(sectionNode)
         );
+    }
+
+    private boolean getAllowRedstone(ConfigurationNode sectionNode)
+    {
+        return sectionNode.node(PATH_ALLOW_REDSTONE).getBoolean(DEFAULT_ALLOW_REDSTONE);
+    }
+
+    private Set<Material> getPowerBlockTypes(ConfigurationNode sectionNode)
+        throws SerializationException
+    {
+        return POWER_BLOCK_TYPE_PARSER.parse(sectionNode.node(PATH_POWER_BLOCK_TYPES).getList(String.class));
+    }
+
+    private Set<Material> getMaterialBlackList(ConfigurationNode sectionNode)
+        throws SerializationException
+    {
+        return MATERIAL_BLACKLIST_PARSER.parse(sectionNode.node(PATH_MATERIAL_BLACKLIST).getList(String.class));
+    }
+
+    private boolean getResourcePackEnabled(ConfigurationNode sectionNode)
+    {
+        return sectionNode.node(PATH_RESOURCE_PACK_ENABLED).getBoolean(DEFAULT_RESOURCE_PACK_ENABLED);
+    }
+
+    private List<String> getCommandAliases(ConfigurationNode sectionNode)
+        throws SerializationException
+    {
+        return sectionNode.node(PATH_COMMAND_ALIASES).getList(String.class, List.of(DEFAULT_COMMAND_ALIASES));
     }
 
     /**

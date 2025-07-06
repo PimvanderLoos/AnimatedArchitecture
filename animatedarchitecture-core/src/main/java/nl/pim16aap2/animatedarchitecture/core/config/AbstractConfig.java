@@ -38,7 +38,7 @@ public abstract class AbstractConfig implements IConfig
     private final YamlConfigurationLoader configLoader;
 
     @GuardedBy("this")
-    private final List<IConfigSection> sections = new ArrayList<>();
+    private final List<ConfigSection> sections = new ArrayList<>();
 
     protected AbstractConfig(
         @Named("pluginBaseDirectory") Path baseDir
@@ -120,7 +120,7 @@ public abstract class AbstractConfig implements IConfig
      * @param sections
      *     The configuration sections to add.
      */
-    protected synchronized void addSections(IConfigSection... sections)
+    protected synchronized void addSections(ConfigSection... sections)
     {
         this.sections.addAll(List.of(sections));
     }
@@ -130,7 +130,7 @@ public abstract class AbstractConfig implements IConfig
      *
      * @return A list of configuration sections.
      */
-    protected synchronized List<IConfigSection> getSections()
+    protected synchronized List<ConfigSection> getSections()
     {
         return List.copyOf(this.sections);
     }
@@ -158,7 +158,7 @@ public abstract class AbstractConfig implements IConfig
     {
         final var rootPath = root.path();
         final var builder = ConfigurationTransformation.builder();
-        final List<IConfigSection> configSections = getSections();
+        final List<ConfigSection> configSections = getSections();
 
         builder.addAction(rootPath, (path, value) ->
         {

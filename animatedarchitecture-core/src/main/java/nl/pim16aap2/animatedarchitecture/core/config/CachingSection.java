@@ -3,11 +3,19 @@ package nl.pim16aap2.animatedarchitecture.core.config;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
-public class CachingSection implements IConfigSection
+/**
+ * Represents a section in the configuration file that governs caching settings.
+ *
+ * @param <T>
+ *     the type of result this section produces.
+ */
+public abstract class CachingSection<T extends IConfigSectionResult> extends ConfigSection<T>
 {
     public static final String SECTION_TITLE = "caching";
 
     public static final String PATH_CACHE_TIMEOUT = "cache_timeout";
+
+    public static final int DEFAULT_CACHE_TIMEOUT = 120;
 
     @Override
     public String getSectionTitle()
@@ -33,7 +41,7 @@ public class CachingSection implements IConfigSection
             .act(node ->
                 node.node(PATH_CACHE_TIMEOUT)
                     .comment("Amount of time (in minutes) to cache power block positions in a chunk.")
-                    .set(120)
+                    .set(DEFAULT_CACHE_TIMEOUT)
             );
     }
 }

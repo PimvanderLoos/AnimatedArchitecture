@@ -5,8 +5,11 @@ import org.spongepowered.configurate.serialize.SerializationException;
 
 /**
  * Represents a section in the configuration file that governs the general settings.
+ *
+ * @param <T>
+ *     the type of result this section produces.
  */
-public class GeneralSection implements IConfigSection
+public abstract class GeneralSection<T extends IConfigSectionResult> extends ConfigSection<T>
 {
     public static final String SECTION_TITLE = "general";
 
