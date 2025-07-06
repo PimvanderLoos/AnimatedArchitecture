@@ -80,7 +80,7 @@ public abstract class StructuresSection<T extends IConfigSectionResult> extends 
 
     private void writeConfigurationOptionToNode(
         CommentedConfigurationNode node,
-        StructureTypeConfigurationOption option)
+        StructureTypeConfigurationOption<?> option)
     {
         try
         {
@@ -105,7 +105,7 @@ public abstract class StructuresSection<T extends IConfigSectionResult> extends 
 
     private void writeConfigurationOptionsToNode(
         CommentedConfigurationNode node,
-        Collection<StructureTypeConfigurationOption> options)
+        Collection<StructureTypeConfigurationOption<?>> options)
     {
         options.forEach(option -> writeConfigurationOptionToNode(node, option));
     }
