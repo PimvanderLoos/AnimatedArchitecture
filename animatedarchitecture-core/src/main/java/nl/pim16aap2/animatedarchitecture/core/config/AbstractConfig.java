@@ -9,6 +9,7 @@ import lombok.ToString;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationOptions;
+import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
@@ -54,7 +55,7 @@ public abstract class AbstractConfig implements IConfig
      * If the configuration file does not exist, it will be created with default values.
      */
     @CheckReturnValue
-    protected synchronized final CommentedConfigurationNode parseConfig()
+    protected synchronized final void parseConfig()
     {
         try
         {
@@ -64,13 +65,37 @@ public abstract class AbstractConfig implements IConfig
             populateDynamicData(result);
             configLoader.save(result);
             printConfig();
-            Thread.sleep(1000L);
-            return result;
+            applyResults(root);
         }
         catch (Exception e)
         {
             throw new RuntimeException("Failed to parse configuration file: " + configPath, e);
         }
+    }
+
+    /**
+     * Applies the results of the config.
+     *
+     * @param root
+     *     The root node to read the results from.
+     */
+    @GuardedBy("this")
+    private void applyResults(CommentedConfigurationNode root)
+    {
+        this.sections.forEach(section ->
+        {
+            try
+            {
+                section.applyResults(root);
+            }
+            catch (SerializationException exception)
+            {
+                throw new RuntimeException(
+                    "Failed to apply results for section: %s".formatted(section.getSectionTitle()),
+                    exception
+                );
+            }
+        });
     }
 
     /**

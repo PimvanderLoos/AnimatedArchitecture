@@ -1,9 +1,24 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import nl.pim16aap2.animatedarchitecture.core.config.GeneralSection;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfigSectionResult;
+import org.bukkit.Material;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+
+/**
+ * Represents a section in the configuration file that governs general settings for Spigot.
+ */
+@AllArgsConstructor
+@NoArgsConstructor(force = true)
 public class GeneralSectionSpigot extends GeneralSection
 {
     public static final String PATH_POWER_BLOCK_TYPES = "power_block_types";
@@ -11,7 +26,8 @@ public class GeneralSectionSpigot extends GeneralSection
     public static final String PATH_RESOURCE_PACK_ENABLED = "resource_pack_enabled";
     public static final String PATH_COMMAND_ALIASES = "command_aliases";
 
-    public static final String[] DEFAULT_POWER_BLOCK_TYPES = new String[]{"GOLD_BLOCK"};
+    public static final Material DEFAULT_POWER_BLOCK_MATERIAL = Material.GOLD_BLOCK;
+    public static final String[] DEFAULT_POWER_BLOCK_TYPES = new String[]{DEFAULT_POWER_BLOCK_MATERIAL.name()};
     public static final String[] DEFAULT_MATERIAL_BLACKLIST = new String[0];
     public static final boolean DEFAULT_RESOURCE_PACK_ENABLED = true;
     public static final String[] DEFAULT_COMMAND_ALIASES = new String[]{
@@ -19,6 +35,28 @@ public class GeneralSectionSpigot extends GeneralSection
         "AnimatedArchitecture",
         "aa"
     };
+
+    private static final MaterialParser POWER_BLOCK_TYPE_PARSER = MaterialParser.builder()
+        .context("Powerblock types")
+        .defaultMaterial(DEFAULT_POWER_BLOCK_MATERIAL)
+        .isSolid(true)
+        .build();
+
+    private static final MaterialParser MATERIAL_BLACKLIST_PARSER = MaterialParser.builder()
+        .context("Material blacklist")
+        .build();
+
+    private final @Nullable Consumer<Result> resultApplier;
+
+    @Override
+    public void applyResults(CommentedConfigurationNode root)
+        throws SerializationException
+    {
+        if (resultApplier == null)
+            return;
+
+        resultApplier.accept(buildResult(root));
+    }
 
     @Override
     public CommentedConfigurationNode buildInitialLimitsNode()
@@ -99,4 +137,67 @@ public class GeneralSectionSpigot extends GeneralSection
                 Changing this will require a server restart to take effect.
                 """);
     }
+
+    private boolean getAllowRedstone(ConfigurationNode node)
+    {
+        return node.node(PATH_ALLOW_REDSTONE).getBoolean(DEFAULT_ALLOW_REDSTONE);
+    }
+
+    private Set<Material> getPowerBlockTypes(ConfigurationNode node)
+        throws SerializationException
+    {
+        return POWER_BLOCK_TYPE_PARSER.parse(node.node(PATH_POWER_BLOCK_TYPES).getList(String.class));
+    }
+
+    private Set<Material> getMaterialBlackList(ConfigurationNode node)
+        throws SerializationException
+    {
+        return MATERIAL_BLACKLIST_PARSER.parse(node.node(PATH_MATERIAL_BLACKLIST).getList(String.class));
+    }
+
+    private boolean getResourcePackEnabled(ConfigurationNode node)
+    {
+        return node.node(PATH_RESOURCE_PACK_ENABLED).getBoolean(DEFAULT_RESOURCE_PACK_ENABLED);
+    }
+
+    private List<String> getCommandAliases(ConfigurationNode node)
+        throws SerializationException
+    {
+        return node.node(PATH_COMMAND_ALIASES).getList(String.class, List.of(DEFAULT_COMMAND_ALIASES));
+    }
+
+    private Result buildResult(CommentedConfigurationNode root)
+        throws SerializationException
+    {
+        final var node = getSection(root);
+        return new Result(
+            getAllowRedstone(node),
+            getPowerBlockTypes(node),
+            getMaterialBlackList(node),
+            getResourcePackEnabled(node),
+            getCommandAliases(node)
+        );
+    }
+
+    /**
+     * Represents the result of the General section configuration.
+     *
+     * @param allowRedstone
+     *     Whether structures should respond to redstone signals.
+     * @param powerBlockTypes
+     *     The types of blocks that can be used as power blocks for structures.
+     * @param materialBlackList
+     *     The list of materials that are blacklisted and cannot be animated.
+     * @param resourcePackEnabled
+     *     Whether the resource pack should be enabled.
+     * @param commandAliases
+     *     The list of command aliases for the plugin commands.
+     */
+    public record Result(
+        boolean allowRedstone,
+        Set<Material> powerBlockTypes,
+        Set<Material> materialBlackList,
+        boolean resourcePackEnabled,
+        List<String> commandAliases
+    ) implements IConfigSectionResult {}
 }

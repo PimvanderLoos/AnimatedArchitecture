@@ -3,6 +3,9 @@ package nl.pim16aap2.animatedarchitecture.core.config;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+/**
+ * Represents a section in the configuration file that governs the general settings.
+ */
 public class GeneralSection implements IConfigSection
 {
     public static final String SECTION_TITLE = "general";
