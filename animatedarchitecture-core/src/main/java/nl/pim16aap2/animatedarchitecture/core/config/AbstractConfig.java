@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.config;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dagger.Lazy;
 import lombok.CustomLog;
@@ -16,10 +17,8 @@ import javax.inject.Named;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The base configuration class for Animated Architecture.
@@ -39,7 +38,7 @@ public abstract class AbstractConfig implements IConfig
     private final YamlConfigurationLoader configLoader;
 
     @GuardedBy("this")
-    private final Map<String, IConfigSection> sections = new LinkedHashMap<>();
+    private final List<IConfigSection> sections = new ArrayList<>();
 
     protected AbstractConfig(
         @Named("pluginBaseDirectory") Path baseDir
@@ -54,7 +53,8 @@ public abstract class AbstractConfig implements IConfig
      * <p>
      * If the configuration file does not exist, it will be created with default values.
      */
-    protected synchronized final void parseConfig()
+    @CheckReturnValue
+    protected synchronized final CommentedConfigurationNode parseConfig()
     {
         try
         {
@@ -65,6 +65,7 @@ public abstract class AbstractConfig implements IConfig
             configLoader.save(result);
             printConfig();
             Thread.sleep(1000L);
+            return result;
         }
         catch (Exception e)
         {
@@ -97,20 +98,23 @@ public abstract class AbstractConfig implements IConfig
      */
     protected synchronized void addSections(IConfigSection... sections)
     {
-        this.sections.putAll(
-            Arrays.stream(sections)
-                .collect(
-                    LinkedHashMap::new,
-                    (map, section) -> map.put(section.getSectionTitle(), section),
-                    Map::putAll
-                )
-        );
+        this.sections.addAll(List.of(sections));
+    }
+
+    /**
+     * Gets the list of configuration sections.
+     *
+     * @return A list of configuration sections.
+     */
+    protected synchronized List<IConfigSection> getSections()
+    {
+        return List.copyOf(this.sections);
     }
 
     @GuardedBy("this")
     private void populateDynamicData(CommentedConfigurationNode root)
     {
-        sections.values().forEach(section -> section.populateDynamicData(root));
+        sections.forEach(section -> section.populateDynamicData(root));
     }
 
     private YamlConfigurationLoader initConfig()
@@ -130,7 +134,7 @@ public abstract class AbstractConfig implements IConfig
     {
         final var rootPath = root.path();
         final var builder = ConfigurationTransformation.builder();
-        final List<IConfigSection> configSections = List.copyOf(sections.values());
+        final List<IConfigSection> configSections = getSections();
 
         builder.addAction(rootPath, (path, value) ->
         {

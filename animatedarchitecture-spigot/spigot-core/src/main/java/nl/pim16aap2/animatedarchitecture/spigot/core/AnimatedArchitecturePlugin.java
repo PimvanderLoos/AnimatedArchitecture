@@ -176,7 +176,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
 
         // Rewrite the config after everything has been loaded to ensure all
         // extensions/addons have their hooks in.
-        ((ConfigSpigot) animatedArchitectureSpigotPlatform.getAnimatedArchitectureConfig()).rewriteConfig(false);
+        ((ConfigSpigot) animatedArchitectureSpigotPlatform.getAnimatedArchitectureConfig()).reloadConfig();
         updateLogger();
 
         if (firstInit)

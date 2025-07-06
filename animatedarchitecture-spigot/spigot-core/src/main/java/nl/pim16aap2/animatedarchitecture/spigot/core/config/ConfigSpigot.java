@@ -26,6 +26,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerConfig;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigotSpecification;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.spongepowered.configurate.CommentedConfigurationNode;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -70,9 +71,9 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
     @ToString.Exclude
     private final List<ConfigEntry<?>> configEntries = new ArrayList<>();
 
-    private final Map<StructureType, String> structurePrices;
-    private final Map<StructureType, Double> structureAnimationTimeMultipliers;
-    private final Map<StructureType, Material> structureTypeGuiMaterials;
+    private final Map<StructureType, String> structurePrices = new HashMap<>();
+    private final Map<StructureType, Double> structureAnimationTimeMultipliers = new HashMap<>();
+    private final Map<StructureType, Material> structureTypeGuiMaterials = new HashMap<>();
     @ToString.Exclude
     private final String header;
 
@@ -115,16 +116,6 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
         super(baseDir);
 
         this.plugin = plugin;
-        structurePrices = new HashMap<>();
-        structureAnimationTimeMultipliers = new HashMap<>();
-        structureTypeGuiMaterials = new HashMap<>();
-
-        header = """
-            # Config file for AnimatedArchitecture. Don't forget to make a backup before making changes!
-            #
-            # For most options, you can apply your changes using "/animatedarchitecture restart".
-            # When an option requires a restart, it will be mentioned in the description.
-            """;
 
         super.addSections(
             new GeneralSectionSpigot(),
@@ -141,12 +132,16 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
         debuggableRegistry.registerDebuggable(this);
     }
 
+    public void reloadConfig()
+    {
+        shutDown();
+        initialize();
+    }
+
     @Override
     public void initialize()
     {
-//        plugin.reloadConfig();
-//        super.parseConfig();
-//        rewriteConfig(true);
+        final CommentedConfigurationNode result = super.parseConfig();
     }
 
     @Override
@@ -159,11 +154,11 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
         structureAnimationTimeMultipliers.clear();
     }
 
-    public void rewriteConfig(boolean printResults)
+    private void parseResult(CommentedConfigurationNode node)
     {
-        super.parseConfig();
-        Runtime.getRuntime().halt(0);
+        final var sections = getSections();
     }
+
 
 //    /**
 //     * Read the current config file and rewrite the file.
