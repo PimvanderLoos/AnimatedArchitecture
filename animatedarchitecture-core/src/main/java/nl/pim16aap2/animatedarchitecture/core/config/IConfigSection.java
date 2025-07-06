@@ -56,6 +56,17 @@ public interface IConfigSection
     }
 
     /**
+     * Applies the results of this section.
+     *
+     * @param root
+     *     The root configuration node to read the data from.
+     */
+    default void applyResults(CommentedConfigurationNode root)
+        throws SerializationException
+    {
+    }
+
+    /**
      * Returns the title of the configuration section.
      *
      * @return the title of the section
