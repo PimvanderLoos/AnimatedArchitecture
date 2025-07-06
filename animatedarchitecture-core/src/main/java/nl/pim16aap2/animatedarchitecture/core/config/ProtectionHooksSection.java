@@ -1,5 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.config;
 
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
+
 /**
  * Represents a section in the configuration for protection hooks.
  * <p>
@@ -8,4 +11,18 @@ package nl.pim16aap2.animatedarchitecture.core.config;
  */
 public class ProtectionHooksSection implements IConfigSection
 {
+    public static final String SECTION_TITLE = "protection_hooks";
+
+    @Override
+    public CommentedConfigurationNode buildInitialLimitsNode()
+        throws SerializationException
+    {
+        throw new UnsupportedOperationException("Protection hooks section is not implemented yet.");
+    }
+
+    @Override
+    public String getSectionTitle()
+    {
+        return SECTION_TITLE;
+    }
 }
