@@ -2,23 +2,38 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 
 import dagger.Lazy;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfigSectionResult;
 import nl.pim16aap2.animatedarchitecture.core.config.ProtectionHooksSection;
 import nl.pim16aap2.animatedarchitecture.spigot.core.hooks.ProtectionHookManagerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigotSpecification;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Represents a section in the configuration for protection hooks specific to the Spigot implementation.
  */
+@Flogger
 @AllArgsConstructor
-public class ProtectionHooksSectionSpigot extends ProtectionHooksSection
+@NoArgsConstructor(force = true)
+public class ProtectionHooksSectionSpigot extends ProtectionHooksSection<ProtectionHooksSectionSpigot.Result>
 {
     public static final String PATH_PROTECTION_HOOK_ENABLED = "enabled";
 
     private final Lazy<ProtectionHookManagerSpigot> protectionHookManager;
+
+    @Getter
+    private final @Nullable Consumer<Result> resultConsumer;
 
     private void writeProtectionHookToNode(
         CommentedConfigurationNode hooksNode,
@@ -64,4 +79,42 @@ public class ProtectionHooksSectionSpigot extends ProtectionHooksSection
         getSection(root).act(node ->
             writeProtectionHooksToNode(node, protectionHookManager.get().getRegisteredHookDefinitions()));
     }
+
+    @Override
+    protected Result getResult(ConfigurationNode sectionNode)
+    {
+        return new Result(
+            Collections.unmodifiableSet(getEnabledProtectionHooks(sectionNode))
+        );
+    }
+
+    private Set<IProtectionHookSpigotSpecification> getEnabledProtectionHooks(ConfigurationNode sectionNode)
+    {
+        final Map<String, IProtectionHookSpigotSpecification> registeredHooks =
+            protectionHookManager.get().getRegisteredHookDefinitions();
+
+        final Set<IProtectionHookSpigotSpecification> enabledHooks = new HashSet<>();
+
+        sectionNode.childrenMap()
+            .forEach((hookName, hookNode) ->
+            {
+                if (!hookNode.node(PATH_PROTECTION_HOOK_ENABLED).getBoolean(false))
+                    return;
+                final var hook = registeredHooks.get((String) hookName);
+                if (hook == null)
+                {
+                    log.atWarning().log(
+                        "Protection hook '%s' is enabled in the configuration, but it is not registered!",
+                        hookName);
+                    return;
+                }
+                enabledHooks.add(hook);
+            });
+
+        return enabledHooks;
+    }
+
+    public record Result(
+        Set<IProtectionHookSpigotSpecification> enabledHooks
+    ) implements IConfigSectionResult {}
 }

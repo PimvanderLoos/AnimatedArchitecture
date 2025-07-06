@@ -3,21 +3,26 @@ package nl.pim16aap2.animatedarchitecture.core.config;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.logging.Level;
+
 /**
  * Represents a configuration section for logging settings in Animated Architecture.
  * <p>
  * This section allows the user to configure console logging, log level, and debug mode.
+ *
+ * @param <T>
+ *     the type of result this section produces.
  */
-public class LoggingSection implements IConfigSection
+public abstract class LoggingSection<T extends IConfigSectionResult> extends ConfigSection<T>
 {
     public static final String SECTION_TITLE = "logging";
 
-    public static final String PATH_CONSOLE_LOGGING = "console_logging";
     public static final String PATH_LOG_LEVEL = "log_level";
+    public static final String PATH_CONSOLE_LOGGING = "console_logging";
     public static final String PATH_DEBUG = "debug";
 
+    public static final Level DEFAULT_LOG_LEVEL = Level.INFO;
     public static final boolean DEFAULT_CONSOLE_LOGGING = true;
-    public static final String DEFAULT_LOG_LEVEL = "WARNING";
     public static final boolean DEFAULT_DEBUG = false;
 
     @Override
@@ -39,7 +44,7 @@ public class LoggingSection implements IConfigSection
     private void addInitialLogLevel(CommentedConfigurationNode node)
         throws SerializationException
     {
-        node.set(DEFAULT_LOG_LEVEL)
+        node.set(DEFAULT_LOG_LEVEL.getName())
             .comment("""
                 The log level to use. Note that levels lower than INFO aren't shown in the console by default,
                 regardless of this setting. They are still written to this plugin's log file, though.

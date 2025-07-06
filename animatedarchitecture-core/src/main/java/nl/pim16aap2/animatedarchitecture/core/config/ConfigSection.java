@@ -1,7 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.core.config;
 
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
+
+import java.util.function.Consumer;
 
 /**
  * Represents a section in the configuration.
@@ -9,7 +13,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
  * This interface defines the contract for configuration sections, which are used to define specific parts of the
  * configuration with their own initial transform actions.
  */
-public interface IConfigSection
+public abstract class ConfigSection<T extends IConfigSectionResult>
 {
     /**
      * Builds the initial limits node for this configuration section.
@@ -22,8 +26,46 @@ public interface IConfigSection
      * @throws SerializationException
      *     if an error occurs during serialization
      */
-    CommentedConfigurationNode buildInitialLimitsNode()
+    public abstract CommentedConfigurationNode buildInitialLimitsNode()
         throws SerializationException;
+
+    /**
+     * Gets the result of this configuration section.
+     *
+     * @param sectionNode
+     *     The configuration node for this section.
+     * @return the result of this configuration section
+     *
+     * @throws SerializationException
+     *     If an error occurs during serialization.
+     */
+    protected abstract T getResult(ConfigurationNode sectionNode)
+        throws SerializationException;
+
+    /**
+     * Gets the consumer that will handle the result of this configuration section.
+     *
+     * @return the consumer that will handle the result, or null if no consumer is defined.
+     */
+    protected abstract @Nullable Consumer<T> getResultConsumer();
+
+    /**
+     * Applies the results of this section.
+     *
+     * @param root
+     *     The root configuration node to read the data from.
+     */
+    public final void applyResults(ConfigurationNode root)
+        throws SerializationException
+    {
+        final Consumer<T> consumer = getResultConsumer();
+        if (consumer == null)
+            return;
+
+        final ConfigurationNode sectionNode = root.node(getSectionTitle());
+        final T result = getResult(sectionNode);
+        consumer.accept(result);
+    }
 
     /**
      * Gets the subsection for this configuration section.
@@ -35,7 +77,7 @@ public interface IConfigSection
      * @throws IllegalStateException
      *     if the section does not exist.
      */
-    default CommentedConfigurationNode getSection(CommentedConfigurationNode root)
+    public CommentedConfigurationNode getSection(CommentedConfigurationNode root)
     {
         final CommentedConfigurationNode node = root.node(getSectionTitle());
         if (node.virtual())
@@ -51,18 +93,7 @@ public interface IConfigSection
      * @param root
      *     The root configuration node to populate with dynamic data.
      */
-    default void populateDynamicData(CommentedConfigurationNode root)
-    {
-    }
-
-    /**
-     * Applies the results of this section.
-     *
-     * @param root
-     *     The root configuration node to read the data from.
-     */
-    default void applyResults(CommentedConfigurationNode root)
-        throws SerializationException
+    public void populateDynamicData(CommentedConfigurationNode root)
     {
     }
 
@@ -71,5 +102,5 @@ public interface IConfigSection
      *
      * @return the title of the section
      */
-    String getSectionTitle();
+    public abstract String getSectionTitle();
 }
