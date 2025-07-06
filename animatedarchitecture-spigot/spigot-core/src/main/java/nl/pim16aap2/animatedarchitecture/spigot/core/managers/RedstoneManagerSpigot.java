@@ -41,7 +41,7 @@ public final class RedstoneManagerSpigot implements IRedstoneManager
     @Override
     public RedstoneStatus isBlockPowered(IWorld world, Vector3Di position)
     {
-        if (!config.isRedstoneEnabled())
+        if (!config.allowRedstone())
             return RedstoneStatus.DISABLED;
 
         final World bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(world), "bukkitWorld");

@@ -147,7 +147,7 @@ public final class CommandManager
 
     private void initCommands(BukkitCommandManager<ICommandSender> manager)
     {
-        final String[] commandNames = config.getCommandAliases().toArray(new String[0]);
+        final String[] commandNames = config.commandAliases().toArray(new String[0]);
         if (commandNames.length == 0)
             throw new IllegalArgumentException("No command aliases specified!");
 

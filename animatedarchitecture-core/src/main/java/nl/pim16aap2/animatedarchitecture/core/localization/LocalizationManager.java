@@ -45,7 +45,6 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         this.baseName = baseName;
         this.config = config;
         localizer = new Localizer(baseDir, baseName, deleteBundleOnStart);
-        localizer.setDefaultLocale(config.locale());
         baseGenerator = new LocalizationGenerator(baseDir, baseName);
     }
 

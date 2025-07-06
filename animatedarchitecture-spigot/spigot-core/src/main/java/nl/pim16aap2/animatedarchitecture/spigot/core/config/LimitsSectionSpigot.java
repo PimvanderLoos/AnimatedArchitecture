@@ -8,6 +8,8 @@ import nl.pim16aap2.animatedarchitecture.core.util.Limit;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.function.Consumer;
 
 /**
@@ -22,7 +24,7 @@ public class LimitsSectionSpigot extends LimitsSection<LimitsSectionSpigot.Resul
     private final @Nullable Consumer<Result> resultConsumer;
 
     @Override
-    protected Result getResult(ConfigurationNode sectionNode)
+    protected Result getResult(ConfigurationNode sectionNode, boolean silent)
     {
         return new Result(
             getMaxStructureCount(sectionNode),
@@ -73,10 +75,49 @@ public class LimitsSectionSpigot extends LimitsSection<LimitsSectionSpigot.Resul
      *     The maximum speed at which blocks can move in an animation.
      */
     public record Result(
-        int maxStructureCount,
-        int maxBlocksToMove,
-        int maxStructureSize,
-        int maxPowerblockDistance,
-        double maxBlockSpeed
-    ) implements IConfigSectionResult {}
+        OptionalInt maxStructureCount,
+        OptionalInt maxBlocksToMove,
+        OptionalInt maxStructureSize,
+        OptionalInt maxPowerblockDistance,
+        OptionalDouble maxBlockSpeed
+    ) implements IConfigSectionResult
+    {
+        /**
+         * The default result used when no data is available.
+         */
+        public static final Result DEFAULT = new Result(
+            DEFAULT_MAX_STRUCTURE_COUNT,
+            DEFAULT_MAX_BLOCKS_TO_MOVE,
+            DEFAULT_MAX_STRUCTURE_SIZE,
+            DEFAULT_MAX_POWERBLOCK_DISTANCE,
+            DEFAULT_MAX_BLOCK_SPEED
+        );
+
+        public Result(
+            int maxStructureCount,
+            int maxBlocksToMove,
+            int maxStructureSize,
+            int maxPowerblockDistance,
+            double maxBlockSpeed
+        )
+        {
+            this(
+                getOptionalLimit(maxStructureCount),
+                getOptionalLimit(maxBlocksToMove),
+                getOptionalLimit(maxStructureSize),
+                getOptionalLimit(maxPowerblockDistance),
+                getOptionalLimit(maxBlockSpeed)
+            );
+        }
+
+        private static OptionalInt getOptionalLimit(int limit)
+        {
+            return limit > 0 ? OptionalInt.of(limit) : OptionalInt.empty();
+        }
+
+        private static OptionalDouble getOptionalLimit(double limit)
+        {
+            return limit > 0.0001 ? OptionalDouble.of(limit) : OptionalDouble.empty();
+        }
+    }
 }

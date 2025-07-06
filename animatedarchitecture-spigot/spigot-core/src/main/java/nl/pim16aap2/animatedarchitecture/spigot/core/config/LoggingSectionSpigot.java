@@ -25,12 +25,11 @@ public class LoggingSectionSpigot extends LoggingSection<LoggingSectionSpigot.Re
     private final @Nullable Consumer<Result> resultConsumer;
 
     @Override
-    protected Result getResult(ConfigurationNode sectionNode)
+    protected Result getResult(ConfigurationNode sectionNode, boolean silent)
         throws SerializationException
     {
         return new Result(
             getLevel(sectionNode),
-            getConsoleLogging(sectionNode),
             getDebug(sectionNode)
         );
     }
@@ -42,19 +41,30 @@ public class LoggingSectionSpigot extends LoggingSection<LoggingSectionSpigot.Re
         return Objects.requireNonNullElse(Util.parseLogLevelStrict(logLevelName), DEFAULT_LOG_LEVEL);
     }
 
-    private boolean getConsoleLogging(ConfigurationNode sectionNode)
-    {
-        return sectionNode.node(PATH_CONSOLE_LOGGING).getBoolean(DEFAULT_CONSOLE_LOGGING);
-    }
-
     private boolean getDebug(ConfigurationNode sectionNode)
     {
         return sectionNode.node(PATH_DEBUG).getBoolean(DEFAULT_DEBUG);
     }
 
+    /**
+     * Represents the result of the logging configuration section.
+     *
+     * @param logLevel
+     *     the logging level to be used.
+     * @param debug
+     *     Some debug information that should not be used in production.
+     */
     public record Result(
-        Level level,
-        boolean consoleLogging,
+        Level logLevel,
         boolean debug
-    ) implements IConfigSectionResult {}
+    ) implements IConfigSectionResult
+    {
+        /**
+         * The default result used when no data is available.
+         */
+        public static final Result DEFAULT = new Result(
+            LoggingSection.DEFAULT_LOG_LEVEL,
+            LoggingSection.DEFAULT_DEBUG
+        );
+    }
 }

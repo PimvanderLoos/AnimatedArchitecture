@@ -418,7 +418,10 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Override
     public double getMinimumAnimationTime()
     {
-        return getAnimationCycleDistance() / config.maxBlockSpeed();
+        if (config.maxBlockSpeed().isEmpty())
+            return 0.0D;
+
+        return getAnimationCycleDistance() / config.maxBlockSpeed().getAsDouble();
     }
 
     /**
@@ -431,7 +434,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     public double getBaseAnimationTime()
     {
         return getAnimationCycleDistance() /
-            Math.min(getDefaultAnimationSpeed(), config.maxBlockSpeed());
+            Math.min(getDefaultAnimationSpeed(), config.maxBlockSpeed().orElse(Double.MAX_VALUE));
     }
 
     /**
@@ -476,7 +479,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     private boolean shouldIgnoreRedstone()
     {
-        return uid < 1 || !config.isRedstoneEnabled();
+        return uid < 1 || !config.allowRedstone();
     }
 
     private boolean isChunkLoaded(IVector3D position)

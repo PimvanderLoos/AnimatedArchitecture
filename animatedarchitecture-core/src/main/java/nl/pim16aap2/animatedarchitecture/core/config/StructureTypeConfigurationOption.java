@@ -25,14 +25,14 @@ public record StructureTypeConfigurationOption<T>(
     /**
      * The configuration option for the speed multiplier of a structure type.
      */
-    public static StructureTypeConfigurationOption<Double> SPEED_MULTIPLIER =
-        new StructureTypeConfigurationOption<>("speed_multiplier", 1.0, Double.class);
+    public static StructureTypeConfigurationOption<Double> ANIMATION_SPEED_MULTIPLIER =
+        new StructureTypeConfigurationOption<>("animation_speed_multiplier", 1.0, Double.class);
 
     /**
      * The configuration option for the price formula of a structure type.
      */
-    public static StructureTypeConfigurationOption<String> PRICE =
-        new StructureTypeConfigurationOption<>("price", "0", String.class);
+    public static StructureTypeConfigurationOption<String> PRICE_FORMULA =
+        new StructureTypeConfigurationOption<>("price_formula", "0", String.class);
 
     /**
      * Creates a new {@link StructureTypeConfigurationOption} without a comment.

@@ -250,8 +250,8 @@ public final class PowerBlockManager extends Restartable implements StructureDel
          */
         private final TimedCache<Long, CompletableFuture<PowerBlockChunk>> powerBlockChunks =
             TimedCache.<Long, CompletableFuture<PowerBlockChunk>>builder()
-                .timeOut(Duration.ofMinutes(config.cacheTimeout()))
-                .cleanup(Duration.ofMinutes(Math.max(1, config.cacheTimeout())))
+                .timeOut(Duration.ofMinutes(config.powerblockCacheTimeout()))
+                .cleanup(Duration.ofMinutes(Math.max(1, config.powerblockCacheTimeout())))
                 .softReference(true)
                 .refresh(true)
                 .build();

@@ -124,15 +124,15 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     /**
-     * Tries to get a flat price from the config for a {@link StructureType}. Useful in case the price is set to zero,
-     * so the plugin won't have to parse the formula every time if it is disabled.
+     * Tries to get a flat priceFormula from the config for a {@link StructureType}. Useful in case the priceFormula is
+     * set to zero, so the plugin won't have to parse the formula every time if it is disabled.
      *
      * @param type
      *     The {@link StructureType}.
      */
     private void getFlatPrice(StructureType type)
     {
-        MathUtil.parseDouble(config.getPrice(type)).ifPresent(price -> flatPrices.put(type, price));
+        MathUtil.parseDouble(config.priceFormula(type)).ifPresent(price -> flatPrices.put(type, price));
     }
 
     @Override
@@ -164,13 +164,13 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     /**
-     * Evaluates the price formula given a specific blockCount using {@link JCalculator}
+     * Evaluates the priceFormula formula given a specific blockCount using {@link JCalculator}
      *
      * @param formula
-     *     The formula of the price.
+     *     The formula of the priceFormula.
      * @param blockCount
      *     The number of blocks in the structure.
-     * @return The price of the structure given the formula and the blockCount variable.
+     * @return The priceFormula of the structure given the formula and the blockCount variable.
      */
     private double evaluateFormula(String formula, int blockCount)
     {
@@ -181,7 +181,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         catch (Exception e)
         {
             log.atError().withCause(e).log(
-                "Failed to determine structure creation price! Please contact pim16aap2! "
+                "Failed to determine structure creation priceFormula! Please contact pim16aap2! "
                     + "Include this: '%s' and stacktrace:",
                 formula
             );
@@ -196,7 +196,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
             return OptionalDouble.empty();
 
         // TODO: Store flat prices as OptionalDoubles.
-        final double price = flatPrices.getOrDefault(type, evaluateFormula(config.getPrice(type), blockCount));
+        final double price = flatPrices.getOrDefault(type, evaluateFormula(config.priceFormula(type), blockCount));
 
         return price <= 0 ? OptionalDouble.empty() : OptionalDouble.of(price);
     }

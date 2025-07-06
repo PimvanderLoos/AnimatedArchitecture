@@ -42,8 +42,7 @@ public class CachingSectionSpigot extends CachingSection<CachingSectionSpigot.Re
     }
 
     @Override
-    protected Result getResult(ConfigurationNode sectionNode)
-        throws SerializationException
+    protected Result getResult(ConfigurationNode sectionNode, boolean silent)
     {
         return new Result(
             getCacheTimeout(sectionNode),
@@ -53,7 +52,7 @@ public class CachingSectionSpigot extends CachingSection<CachingSectionSpigot.Re
 
     private int getCacheTimeout(ConfigurationNode sectionNode)
     {
-        return sectionNode.node(PATH_CACHE_TIMEOUT).getInt(DEFAULT_CACHE_TIMEOUT);
+        return sectionNode.node(PATH_POWERBLOCK_CACHE_TIMEOUT).getInt(DEFAULT_POWERBLOCK_CACHE_TIMEOUT);
     }
 
     private int getHeadCacheTimeout(ConfigurationNode sectionNode)
@@ -64,13 +63,22 @@ public class CachingSectionSpigot extends CachingSection<CachingSectionSpigot.Re
     /**
      * Represents the result of the caching configuration section.
      *
-     * @param cacheTimeout
-     *     The timeout for structure caching in minutes.
+     * @param powerblockCacheTimeout
+     *     The timeout for caching powerblocks (in minutes).
      * @param headCacheTimeout
-     *     The timeout for player head caching in minutes.
+     *     The timeout for player head caching (in minutes).
      */
     public record Result(
-        int cacheTimeout,
+        int powerblockCacheTimeout,
         int headCacheTimeout
-    ) implements IConfigSectionResult {}
+    ) implements IConfigSectionResult
+    {
+        /**
+         * The default result used when no data is available.
+         */
+        public static final Result DEFAULT = new Result(
+            CachingSection.DEFAULT_POWERBLOCK_CACHE_TIMEOUT,
+            CachingSectionSpigot.DEFAULT_HEAD_CACHE_TIMEOUT
+        );
+    }
 }

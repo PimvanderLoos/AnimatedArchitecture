@@ -13,9 +13,9 @@ public abstract class CachingSection<T extends IConfigSectionResult> extends Con
 {
     public static final String SECTION_TITLE = "caching";
 
-    public static final String PATH_CACHE_TIMEOUT = "cache_timeout";
+    public static final String PATH_POWERBLOCK_CACHE_TIMEOUT = "powerblock_cache_timeout";
 
-    public static final int DEFAULT_CACHE_TIMEOUT = 120;
+    public static final int DEFAULT_POWERBLOCK_CACHE_TIMEOUT = 120;
 
     @Override
     public String getSectionTitle()
@@ -39,9 +39,14 @@ public abstract class CachingSection<T extends IConfigSectionResult> extends Con
                    0 = infinite cache (not recommended either!)
                 """)
             .act(node ->
-                node.node(PATH_CACHE_TIMEOUT)
-                    .comment("Amount of time (in minutes) to cache power block positions in a chunk.")
-                    .set(DEFAULT_CACHE_TIMEOUT)
+                node.node(PATH_POWERBLOCK_CACHE_TIMEOUT)
+                    .comment("""
+                        Amount of time (in minutes) to cache power block positions in a chunk.
+                        
+                        Higher values will result in higher memory usage, but will reduce the number of slower requests
+                        made to the database.
+                        """)
+                    .set(DEFAULT_POWERBLOCK_CACHE_TIMEOUT)
             );
     }
 }

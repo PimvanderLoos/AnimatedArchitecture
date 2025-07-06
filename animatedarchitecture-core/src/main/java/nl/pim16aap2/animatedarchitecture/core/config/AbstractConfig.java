@@ -1,6 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.core.config;
 
-import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dagger.Lazy;
 import lombok.CustomLog;
@@ -15,8 +14,6 @@ import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import javax.inject.Named;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +36,9 @@ public abstract class AbstractConfig implements IConfig
     private final YamlConfigurationLoader configLoader;
 
     @GuardedBy("this")
-    private final List<ConfigSection> sections = new ArrayList<>();
+    private final List<ConfigSection<?>> sections = new ArrayList<>();
 
-    protected AbstractConfig(
-        @Named("pluginBaseDirectory") Path baseDir
-    )
+    protected AbstractConfig(@Named("pluginBaseDirectory") Path baseDir)
     {
         this.configPath = baseDir.resolve("config.yaml");
         this.configLoader = initConfig();
@@ -53,19 +48,19 @@ public abstract class AbstractConfig implements IConfig
      * Parses the configuration file and applies any necessary transformations.
      * <p>
      * If the configuration file does not exist, it will be created with default values.
+     *
+     * @param silent
+     *     When true, the method will not log any informational/status messages when parsing the results.
      */
-    @CheckReturnValue
-    protected synchronized final void parseConfig()
+    protected synchronized final void parseConfig(boolean silent)
     {
         try
         {
-            Files.deleteIfExists(configPath);
             final var root = configLoader.load();
             final var result = applyTransformations(root);
             populateDynamicData(result);
             configLoader.save(result);
-            printConfig();
-            applyResults(root);
+            applyResults(root, silent);
         }
         catch (Exception e)
         {
@@ -78,15 +73,17 @@ public abstract class AbstractConfig implements IConfig
      *
      * @param root
      *     The root node to read the results from.
+     * @param silent
+     *     When true, the method will not log any informational/status messages when parsing the results.
      */
     @GuardedBy("this")
-    private void applyResults(CommentedConfigurationNode root)
+    private void applyResults(CommentedConfigurationNode root, boolean silent)
     {
         this.sections.forEach(section ->
         {
             try
             {
-                section.applyResults(root);
+                section.applyResults(root, silent);
             }
             catch (SerializationException exception)
             {
@@ -121,7 +118,7 @@ public abstract class AbstractConfig implements IConfig
      * @param sections
      *     The configuration sections to add.
      */
-    protected synchronized void addSections(ConfigSection... sections)
+    protected synchronized void addSections(ConfigSection<?>... sections)
     {
         this.sections.addAll(List.of(sections));
     }
@@ -131,7 +128,7 @@ public abstract class AbstractConfig implements IConfig
      *
      * @return A list of configuration sections.
      */
-    protected synchronized List<ConfigSection> getSections()
+    protected synchronized List<ConfigSection<?>> getSections()
     {
         return List.copyOf(this.sections);
     }
@@ -159,7 +156,7 @@ public abstract class AbstractConfig implements IConfig
     {
         final var rootPath = root.path();
         final var builder = ConfigurationTransformation.builder();
-        final List<ConfigSection> configSections = getSections();
+        final List<ConfigSection<?>> configSections = getSections();
 
         builder.addAction(rootPath, (path, value) ->
         {
@@ -235,16 +232,5 @@ public abstract class AbstractConfig implements IConfig
             log.atInfo().log("Updated config schema from %d to %d", startVersion, endVersion);
 
         return root;
-    }
-
-    private void printConfig()
-        throws IOException
-    {
-        final StringBuilder sb = new StringBuilder();
-        Files.lines(configPath).forEach(line -> sb.append(line).append(System.lineSeparator()));
-        log.atInfo().log(
-            "Configuration file contents:\n--------------------------\n%s\n--------------------------",
-            sb.toString()
-        );
     }
 }

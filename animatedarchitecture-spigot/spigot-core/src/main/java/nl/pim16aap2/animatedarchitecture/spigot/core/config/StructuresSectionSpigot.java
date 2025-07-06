@@ -66,10 +66,10 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
     }
 
     @Override
-    protected Result getResult(ConfigurationNode sectionNode)
+    protected Result getResult(ConfigurationNode sectionNode, boolean silent)
     {
         return new Result(
-            Collections.unmodifiableMap(getStructureResults(sectionNode)),
+            Collections.unmodifiableMap(getStructureResults(sectionNode, silent)),
             getFlagMovementFormula(sectionNode)
         );
     }
@@ -83,7 +83,7 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
             .getString(StructureSubSectionFlagSpigot.OPTION_MOVEMENT_FORMULA.defaultValue());
     }
 
-    private Map<StructureType, StructureResult> getStructureResults(ConfigurationNode sectionNode)
+    private Map<StructureType, StructureResult> getStructureResults(ConfigurationNode sectionNode, boolean silent)
     {
         return lazyStructureTypeManager.get().getRegisteredStructureTypes()
             .stream()
@@ -94,7 +94,11 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
                     {
                         try
                         {
-                            return getStructureResult(sectionNode.node(structureType.getFullKey()), structureType);
+                            return getStructureResult(
+                                sectionNode.node(structureType.getFullKey()),
+                                structureType,
+                                silent
+                            );
                         }
                         catch (SerializationException exception)
                         {
@@ -110,30 +114,33 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
             );
     }
 
-    private StructureResult getStructureResult(ConfigurationNode structureNode, StructureType structureType)
+    private StructureResult getStructureResult(
+        ConfigurationNode structureNode,
+        StructureType structureType,
+        boolean silent
+    )
         throws SerializationException
     {
         if (structureNode.virtual())
         {
-            log.atWarning().log(
-                "Structure '%s' is not configured in the configuration file.",
-                structureType.getFullKey()
-            );
+            if (!silent)
+            {
+                log.atWarning().log(
+                    "Structure '%s' is not configured in the configuration file.",
+                    structureType.getFullKey()
+                );
+            }
 
-            return new StructureResult(
-                StructureTypeConfigurationOption.SPEED_MULTIPLIER.defaultValue(),
-                StructureTypeConfigurationOption.PRICE.defaultValue(),
-                StructureSubSectionSpigot.getDefaultGuiMaterial(structureType)
-            );
+            return StructureResult.DEFAULT;
         }
 
         final double speedMultiplier =
-            getConfigurationOption(structureNode, StructureTypeConfigurationOption.SPEED_MULTIPLIER);
+            getConfigurationOption(structureNode, StructureTypeConfigurationOption.ANIMATION_SPEED_MULTIPLIER);
 
         final String price =
-            getConfigurationOption(structureNode, StructureTypeConfigurationOption.PRICE);
+            getConfigurationOption(structureNode, StructureTypeConfigurationOption.PRICE_FORMULA);
 
-        final Material guiMaterial = parseMaterial(structureNode, structureType);
+        final Material guiMaterial = parseMaterial(structureNode, structureType, silent);
 
         return new StructureResult(
             speedMultiplier,
@@ -142,7 +149,7 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
         );
     }
 
-    private Material parseMaterial(ConfigurationNode structureNode, StructureType structureType)
+    private Material parseMaterial(ConfigurationNode structureNode, StructureType structureType, boolean silent)
         throws SerializationException
     {
         final Material defaultMaterial =
@@ -154,7 +161,7 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
         return MaterialParser.builder()
             .defaultMaterial(defaultMaterial)
             .build()
-            .parse(guiMaterialName);
+            .parse(guiMaterialName, silent);
     }
 
     private <T> T getConfigurationOption(
@@ -177,21 +184,71 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
     public record Result(
         Map<StructureType, StructureResult> structureResults,
         String flagMovementFormula
-    ) implements IConfigSectionResult {}
+    ) implements IConfigSectionResult
+    {
+        /**
+         * The default result used when no data is available.
+         */
+        public static final Result DEFAULT = new Result(
+            Map.of(),
+            StructureSubSectionFlagSpigot.OPTION_MOVEMENT_FORMULA.defaultValue()
+        );
+
+        /**
+         * Retrieves the {@link StructureResult} for a specific structure type.
+         *
+         * @param structureType
+         *     The structure type for which to retrieve the result.
+         * @return The {@link StructureResult} for the specified structure type, or {@link StructureResult#DEFAULT}
+         * result if not found.
+         */
+        public StructureResult of(StructureType structureType)
+        {
+            return structureResults.getOrDefault(structureType, StructureResult.DEFAULT);
+        }
+
+        @SuppressWarnings("unused") // It's used by Lombok's @Delegate annotation
+        public String priceFormula(StructureType type)
+        {
+            return of(type).priceFormula();
+        }
+
+        @SuppressWarnings("unused") // It's used by Lombok's @Delegate annotation
+        public double getAnimationTimeMultiplier(StructureType type)
+        {
+            return Math.max(0.0001D, of(type).animationSpeedMultiplier());
+        }
+
+        @SuppressWarnings("unused") // It's used by Lombok's @Delegate annotation
+        public Material getGuiMaterial(StructureType type)
+        {
+            return of(type).guiMaterial();
+        }
+    }
 
     /**
      * Represents the result of a specific structure configuration.
      *
-     * @param speedMultiplier
+     * @param animationSpeedMultiplier
      *     The speed multiplier for the structure.
-     * @param price
-     *     The price formula for the structure, as a string.
+     * @param priceFormula
+     *     The priceFormula formula for the structure, as a string.
      * @param guiMaterial
      *     The material used in the GUI for this structure.
      */
     public record StructureResult(
-        double speedMultiplier,
-        String price,
+        double animationSpeedMultiplier,
+        String priceFormula,
         Material guiMaterial
-    ) {}
+    )
+    {
+        /**
+         * The default structure result, used when no specific configuration is provided.
+         */
+        public static final StructureResult DEFAULT = new StructureResult(
+            StructureTypeConfigurationOption.ANIMATION_SPEED_MULTIPLIER.defaultValue(),
+            StructureTypeConfigurationOption.PRICE_FORMULA.defaultValue(),
+            StructureSubSectionSpigot.DEFAULT_GUI_MATERIAL
+        );
+    }
 }

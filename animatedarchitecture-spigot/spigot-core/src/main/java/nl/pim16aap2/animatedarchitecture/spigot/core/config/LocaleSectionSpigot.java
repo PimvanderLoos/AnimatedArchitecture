@@ -22,7 +22,7 @@ public class LocaleSectionSpigot extends LocaleSection<LocaleSectionSpigot.Resul
     private final @Nullable Consumer<Result> resultConsumer;
 
     @Override
-    protected Result getResult(ConfigurationNode sectionNode)
+    protected Result getResult(ConfigurationNode sectionNode, boolean silent)
     {
         return new Result(
             getLocale(sectionNode),
@@ -52,5 +52,14 @@ public class LocaleSectionSpigot extends LocaleSection<LocaleSectionSpigot.Resul
     public record Result(
         Locale locale,
         boolean allowClientLocale
-    ) implements IConfigSectionResult {}
+    ) implements IConfigSectionResult
+    {
+        /**
+         * The default result used when no data is available.
+         */
+        public static final Result DEFAULT = new Result(
+            DEFAULT_LOCALE,
+            DEFAULT_ALLOW_CLIENT_LOCALE
+        );
+    }
 }

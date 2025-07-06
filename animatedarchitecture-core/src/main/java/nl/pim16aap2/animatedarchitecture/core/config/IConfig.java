@@ -4,6 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
 import java.util.Locale;
+import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.logging.Level;
 
@@ -20,7 +21,7 @@ public interface IConfig extends IRestartable
     /**
      * @return True if redstone is enabled.
      */
-    boolean isRedstoneEnabled();
+    boolean allowRedstone();
 
     /**
      * The amount of time a user gets to specify which structure they meant in case of structureID collisions.
@@ -39,13 +40,6 @@ public interface IConfig extends IRestartable
      * @return The movement formula of a flag.
      */
     String flagMovementFormula();
-
-    /**
-     * Gets the number of ticks a structure should wait before it can be activated again.
-     *
-     * @return The number of ticks a structure should wait before it can be activated again.
-     */
-    int coolDown();
 
     /**
      * The default locale to use.
@@ -75,7 +69,7 @@ public interface IConfig extends IRestartable
      *
      * @return The amount of time power blocks should be kept in cache.
      */
-    int cacheTimeout();
+    int powerblockCacheTimeout();
 
     /**
      * Gets the global maximum number of structures a player can own.
@@ -89,7 +83,7 @@ public interface IConfig extends IRestartable
      *
      * @return The global maximum distance (in blocks) a powerblock can be from the structure.
      */
-    OptionalInt maxPowerBlockDistance();
+    OptionalInt maxPowerblockDistance();
 
     /**
      * Gets the global maximum number of blocks a structure can move for applicable types (e.g. sliding door).
@@ -97,6 +91,11 @@ public interface IConfig extends IRestartable
      * @return The global maximum number of blocks a structure can move for applicable types (e.g. sliding door).
      */
     OptionalInt maxBlocksToMove();
+
+    /**
+     * @return The global maximum speed of a block.
+     */
+    OptionalDouble maxBlockSpeed();
 
     /**
      * @return True if we should try to load any unloaded chunks for a toggle.
@@ -110,7 +109,7 @@ public interface IConfig extends IRestartable
      *     The structure type.
      * @return The formula for the structure type.
      */
-    String getPrice(StructureType type);
+    String priceFormula(StructureType type);
 
     /**
      * Gets the animation time multiplier for a specific type of structure.
@@ -120,11 +119,6 @@ public interface IConfig extends IRestartable
      * @return The animation time multiplier for the structure type.
      */
     double getAnimationTimeMultiplier(StructureType type);
-
-    /**
-     * @return The global maximum speed of a block.
-     */
-    double maxBlockSpeed();
 
     /**
      * Whether to skip all animations by default. If true, toggling a structure will simply teleport the blocks to their
@@ -141,11 +135,4 @@ public interface IConfig extends IRestartable
      * @return The log level.
      */
     Level logLevel();
-
-    /**
-     * Checks if errors should be logged to the console.
-     *
-     * @return True if errors should be logged to the console.
-     */
-    boolean consoleLogging();
 }

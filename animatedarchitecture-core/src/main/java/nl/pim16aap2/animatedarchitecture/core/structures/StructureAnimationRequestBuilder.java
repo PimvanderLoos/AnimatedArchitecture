@@ -209,7 +209,7 @@ public class StructureAnimationRequestBuilder
 
         private void verify()
         {
-            if (structureActionCause == StructureActionCause.REDSTONE && !config.isRedstoneEnabled())
+            if (structureActionCause == StructureActionCause.REDSTONE && !config.allowRedstone())
                 throw new IllegalStateException("Trying to execute redstone toggle while redstone is disabled!");
             if (structureActionCause == StructureActionCause.PLAYER && responsible == null)
                 throw new IllegalStateException("Trying to execute player toggle without a responsible player!");

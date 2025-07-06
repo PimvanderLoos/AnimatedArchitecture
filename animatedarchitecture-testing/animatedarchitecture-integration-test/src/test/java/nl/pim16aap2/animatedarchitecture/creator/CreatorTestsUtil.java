@@ -215,7 +215,7 @@ public class CreatorTestsUtil
 
         when(config.maxStructureSize()).thenReturn(OptionalInt.empty());
         when(config.maxStructureCount()).thenReturn(OptionalInt.empty());
-        when(config.maxPowerBlockDistance()).thenReturn(OptionalInt.empty());
+        when(config.maxPowerblockDistance()).thenReturn(OptionalInt.empty());
         when(config.maxBlocksToMove()).thenReturn(OptionalInt.empty());
     }
 
