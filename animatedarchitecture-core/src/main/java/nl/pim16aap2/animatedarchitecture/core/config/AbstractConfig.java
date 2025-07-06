@@ -8,7 +8,6 @@ import lombok.ToString;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationOptions;
-import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
@@ -62,8 +61,7 @@ public abstract class AbstractConfig implements IConfig
             Files.deleteIfExists(configPath);
             final var root = configLoader.load();
             final var result = applyTransformations(root);
-            populateStructuresSection(result);
-            populateProtectionHooksSection(result);
+            populateDynamicData(result);
             configLoader.save(result);
             printConfig();
             Thread.sleep(1000L);
@@ -110,45 +108,9 @@ public abstract class AbstractConfig implements IConfig
     }
 
     @GuardedBy("this")
-    private void populateStructuresSection(CommentedConfigurationNode root)
-        throws SerializationException
+    private void populateDynamicData(CommentedConfigurationNode root)
     {
-        final IConfigSection foundSection = sections.get(StructuresSection.SECTION_TITLE);
-        if (foundSection == null)
-        {
-            log.atWarning().log("No structures section found in the configuration. ");
-            return;
-        }
-
-        if (!(foundSection instanceof StructuresSection structuresSection))
-        {
-            throw new IllegalStateException(
-                "The structures section is not an instance of StructuresSection: " + foundSection.getClass()
-            );
-        }
-
-        structuresSection.populateStructures(root);
-    }
-
-    @GuardedBy("this")
-    private void populateProtectionHooksSection(CommentedConfigurationNode root)
-        throws SerializationException
-    {
-        final IConfigSection foundSection = sections.get(ProtectionHooksSection.SECTION_TITLE);
-        if (foundSection == null)
-        {
-            log.atWarning().log("No protection hooks section found in the configuration. ");
-            return;
-        }
-
-        if (!(foundSection instanceof ProtectionHooksSection protectionHooksSection))
-        {
-            throw new IllegalStateException(
-                "The protection hooks section is not an instance of ProtectionHooksSection: " + foundSection.getClass()
-            );
-        }
-
-        protectionHooksSection.populateProtectionHooks(root);
+        sections.values().forEach(section -> section.populateDynamicData(root));
     }
 
     private YamlConfigurationLoader initConfig()

@@ -15,9 +15,9 @@ public class GeneralSectionSpigot extends GeneralSection
     public static final String[] DEFAULT_MATERIAL_BLACKLIST = new String[0];
     public static final boolean DEFAULT_RESOURCE_PACK_ENABLED = true;
     public static final String[] DEFAULT_COMMAND_ALIASES = new String[]{
-        "aa",
+        "animatedarchitecture",
         "AnimatedArchitecture",
-        "animatedarchitecture"
+        "aa"
     };
 
     @Override

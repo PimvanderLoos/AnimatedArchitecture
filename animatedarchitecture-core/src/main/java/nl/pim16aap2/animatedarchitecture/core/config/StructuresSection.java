@@ -75,27 +75,6 @@ public abstract class StructuresSection implements IConfigSection
      */
     protected abstract IStructureSubSection createSubSection(StructureType structureType);
 
-    /**
-     * Gets the subsection for the structures section in the configuration.
-     * <p>
-     * If the subsection does not exist, it will be created.
-     *
-     * @param root
-     *     The root configuration node to get the structures subsection from.
-     * @return The structures subsection node.
-     *
-     * @throws SerializationException
-     *     If there is an error during serialization.
-     */
-    private CommentedConfigurationNode getStructuresSubSection(CommentedConfigurationNode root)
-        throws SerializationException
-    {
-        final CommentedConfigurationNode node = root.node(getSectionTitle());
-        if (node.virtual())
-            return buildInitialLimitsNode();
-        return node;
-    }
-
     private void writeConfigurationOptionToNode(
         CommentedConfigurationNode node,
         StructureTypeConfigurationOption option)
@@ -150,10 +129,10 @@ public abstract class StructuresSection implements IConfigSection
      * @param root
      *     The root configuration node to populate.
      */
-    public final void populateStructures(CommentedConfigurationNode root)
-        throws SerializationException
+    @Override
+    public final void populateDynamicData(CommentedConfigurationNode root)
     {
-        final var node = getStructuresSubSection(root);
+        final var node = getSection(root);
         getRegisteredStructureTypes().stream()
             .map(this::createSubSection)
             .sorted(Comparator.comparing(IStructureSubSection::getSectionTitle))

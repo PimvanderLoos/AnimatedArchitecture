@@ -39,28 +39,29 @@ public class ProtectionHooksSectionSpigot extends ProtectionHooksSection
         CommentedConfigurationNode hooksNode,
         Map<String, IProtectionHookSpigotSpecification> hooks)
     {
-        hooks.keySet().stream().sorted().forEach(hookName ->
-        {
-            try
+        hooks.keySet()
+            .stream()
+            .sorted()
+            .forEach(hookName ->
             {
-                writeProtectionHookToNode(hooksNode, hookName);
-            }
-            catch (SerializationException exception)
-            {
-                throw new RuntimeException(
-                    String.format("Failed to write protection hook '%s' to configuration node.", hookName),
-                    exception
-                );
-            }
-        });
+                try
+                {
+                    writeProtectionHookToNode(hooksNode, hookName);
+                }
+                catch (SerializationException exception)
+                {
+                    throw new RuntimeException(
+                        String.format("Failed to write protection hook '%s' to configuration node.", hookName),
+                        exception
+                    );
+                }
+            });
     }
 
     @Override
-    public void populateProtectionHooks(CommentedConfigurationNode root)
-        throws SerializationException
+    public void populateDynamicData(CommentedConfigurationNode root)
     {
-        final var hooksNode = getProtectionHooksSubSection(root);
-        hooksNode.act(node ->
+        getSection(root).act(node ->
             writeProtectionHooksToNode(node, protectionHookManager.get().getRegisteredHookDefinitions()));
     }
 }
