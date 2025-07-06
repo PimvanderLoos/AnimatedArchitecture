@@ -9,12 +9,15 @@ import org.jspecify.annotations.Nullable;
  *     The name of the option, used as the key in the configuration.
  * @param defaultValue
  *     The default value for this option, can be null.
+ * @param type
+ *     The type of the value for this option, used for validation and conversion.
  * @param comment
  *     The comment for this option, can be null.
  */
-public record StructureTypeConfigurationOption(
+public record StructureTypeConfigurationOption<T>(
     String name,
-    Object defaultValue,
+    T defaultValue,
+    Class<T> type,
     @Nullable
     String comment
 )
@@ -22,14 +25,14 @@ public record StructureTypeConfigurationOption(
     /**
      * The configuration option for the speed multiplier of a structure type.
      */
-    public static StructureTypeConfigurationOption SPEED_MULTIPLIER =
-        new StructureTypeConfigurationOption("speed_multiplier", 1.0);
+    public static StructureTypeConfigurationOption<Double> SPEED_MULTIPLIER =
+        new StructureTypeConfigurationOption<>("speed_multiplier", 1.0, Double.class);
 
     /**
      * The configuration option for the price formula of a structure type.
      */
-    public static StructureTypeConfigurationOption PRICE =
-        new StructureTypeConfigurationOption("price", "0");
+    public static StructureTypeConfigurationOption<String> PRICE =
+        new StructureTypeConfigurationOption<>("price", "0", String.class);
 
     /**
      * Creates a new {@link StructureTypeConfigurationOption} without a comment.
@@ -38,9 +41,11 @@ public record StructureTypeConfigurationOption(
      *     The name of the option, used as the key in the configuration.
      * @param defaultValue
      *     The default value for this option.
+     * @param type
+     *     The type of the value for this option, used for validation and conversion.
      */
-    public StructureTypeConfigurationOption(String name, Object defaultValue)
+    public StructureTypeConfigurationOption(String name, T defaultValue, Class<T> type)
     {
-        this(name, defaultValue, null);
+        this(name, defaultValue, type, null);
     }
 }

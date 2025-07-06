@@ -23,7 +23,7 @@ public interface IStructureSubSection
      *
      * @return a list of configuration options for this structure type.
      */
-    List<StructureTypeConfigurationOption> getConfigurationOptions();
+    List<StructureTypeConfigurationOption<?>> getConfigurationOptions();
 
     /**
      * Returns the title of the section.
