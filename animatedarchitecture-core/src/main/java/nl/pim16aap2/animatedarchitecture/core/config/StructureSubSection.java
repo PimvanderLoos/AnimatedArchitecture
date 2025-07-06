@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class StructureSubSection implements IStructureSubSection
 {
-    public static final List<StructureTypeConfigurationOption> DEFAULT_CONFIGURATION_OPTIONS = List.of(
+    public static final List<StructureTypeConfigurationOption<?>> DEFAULT_CONFIGURATION_OPTIONS = List.of(
         StructureTypeConfigurationOption.SPEED_MULTIPLIER,
         StructureTypeConfigurationOption.PRICE
     );
@@ -34,12 +34,12 @@ public class StructureSubSection implements IStructureSubSection
      *     The list of configuration options to append to.
      */
     protected void appendConfigurationOptions(
-        @SuppressWarnings("unused") List<StructureTypeConfigurationOption> options)
+        @SuppressWarnings("unused") List<StructureTypeConfigurationOption<?>> options)
     {
     }
 
     @Override
-    public final List<StructureTypeConfigurationOption> getConfigurationOptions()
+    public final List<StructureTypeConfigurationOption<?>> getConfigurationOptions()
     {
         final var options = new ArrayList<>(DEFAULT_CONFIGURATION_OPTIONS);
         appendConfigurationOptions(options);

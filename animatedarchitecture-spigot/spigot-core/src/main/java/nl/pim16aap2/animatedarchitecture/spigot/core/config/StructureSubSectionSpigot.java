@@ -22,16 +22,17 @@ public class StructureSubSectionSpigot extends StructureSubSection
     }
 
     @Override
-    protected void appendConfigurationOptions(List<StructureTypeConfigurationOption> options)
+    protected void appendConfigurationOptions(List<StructureTypeConfigurationOption<?>> options)
     {
         options.add(getGuiMaterialOption());
     }
 
-    private StructureTypeConfigurationOption getGuiMaterialOption()
+    private StructureTypeConfigurationOption<?> getGuiMaterialOption()
     {
-        return new StructureTypeConfigurationOption(
+        return new StructureTypeConfigurationOption<>(
             PATH_GUI_MATERIAL,
-            getDefaultGuiMaterial().name()
+            getDefaultGuiMaterial().name(),
+            String.class
         );
     }
 

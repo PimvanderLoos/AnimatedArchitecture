@@ -13,25 +13,27 @@ import java.util.List;
  */
 public class StructureSubSectionFlagSpigot extends StructureSubSectionSpigot implements IStructureSubSectionFlag
 {
-    public static final StructureTypeConfigurationOption OPTION_MOVEMENT_FORMULA = new StructureTypeConfigurationOption(
-        "movement_formula",
-        "min(0.07 * radius, 3) * sin(radius / 1.7 + height / 12 + counter / 12)",
-        """
-            The movement formula of the blocks for flags. The formula is evaluated for each block
-            for each step in the animation.
-            
-            You can find a list of supported operators in the formula here:
-            https://github.com/PimvanderLoos/JCalculator
-            
-            The formula can use the following variables:
-              'radius':  The distance of the block to the pole it is connected to.
-              'counter': The number of steps that have passed in the animation.
-              'length':  The total length of the flag.
-              'height':  The height of the block for which the formula is used. The bottom row has a height of 0.
-            
-            The return value of the formula is the horizontal displacement of a single block in the flag.
+    public static final StructureTypeConfigurationOption<String> OPTION_MOVEMENT_FORMULA =
+        new StructureTypeConfigurationOption<>(
+            "movement_formula",
+            "min(0.07 * radius, 3) * sin(radius / 1.7 + height / 12 + counter / 12)",
+            String.class,
             """
-    );
+                The movement formula of the blocks for flags. The formula is evaluated for each block
+                for each step in the animation.
+                
+                You can find a list of supported operators in the formula here:
+                https://github.com/PimvanderLoos/JCalculator
+                
+                The formula can use the following variables:
+                  'radius':  The distance of the block to the pole it is connected to.
+                  'counter': The number of steps that have passed in the animation.
+                  'length':  The total length of the flag.
+                  'height':  The height of the block for which the formula is used. The bottom row has a height of 0.
+                
+                The return value of the formula is the horizontal displacement of a single block in the flag.
+                """
+        );
 
     /**
      * Creates a new {@link IStructureSubSectionFlag} with the given structure type.
@@ -50,7 +52,7 @@ public class StructureSubSectionFlagSpigot extends StructureSubSectionSpigot imp
     }
 
     @Override
-    protected void appendConfigurationOptions(List<StructureTypeConfigurationOption> options)
+    protected void appendConfigurationOptions(List<StructureTypeConfigurationOption<?>> options)
     {
         super.appendConfigurationOptions(options);
         options.add(OPTION_MOVEMENT_FORMULA);
