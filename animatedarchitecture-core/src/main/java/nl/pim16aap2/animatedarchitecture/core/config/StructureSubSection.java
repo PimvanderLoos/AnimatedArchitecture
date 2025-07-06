@@ -15,8 +15,8 @@ import java.util.List;
 public class StructureSubSection implements IStructureSubSection
 {
     public static final List<StructureTypeConfigurationOption<?>> DEFAULT_CONFIGURATION_OPTIONS = List.of(
-        StructureTypeConfigurationOption.SPEED_MULTIPLIER,
-        StructureTypeConfigurationOption.PRICE
+        StructureTypeConfigurationOption.ANIMATION_SPEED_MULTIPLIER,
+        StructureTypeConfigurationOption.PRICE_FORMULA
     );
 
     @Getter

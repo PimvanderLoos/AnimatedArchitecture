@@ -18,11 +18,9 @@ public abstract class LoggingSection<T extends IConfigSectionResult> extends Con
     public static final String SECTION_TITLE = "logging";
 
     public static final String PATH_LOG_LEVEL = "log_level";
-    public static final String PATH_CONSOLE_LOGGING = "console_logging";
     public static final String PATH_DEBUG = "debug";
 
     public static final Level DEFAULT_LOG_LEVEL = Level.INFO;
-    public static final boolean DEFAULT_CONSOLE_LOGGING = true;
     public static final boolean DEFAULT_DEBUG = false;
 
     @Override
@@ -36,7 +34,6 @@ public abstract class LoggingSection<T extends IConfigSectionResult> extends Con
             .act(node ->
             {
                 addInitialLogLevel(node.node(PATH_LOG_LEVEL));
-                addInitialConsoleLogging(node.node(PATH_CONSOLE_LOGGING));
                 addInitialDebug(node.node(PATH_DEBUG));
             });
     }
@@ -56,26 +53,12 @@ public abstract class LoggingSection<T extends IConfigSectionResult> extends Con
                 """);
     }
 
-    private void addInitialConsoleLogging(CommentedConfigurationNode node)
-        throws SerializationException
-    {
-        node.set(DEFAULT_CONSOLE_LOGGING)
-            .comment("""
-                Write errors and exceptions to console.
-                
-                If disabled, they will only be written to the AnimatedArchitecture log.
-                
-                If enabled, they will be written to both the console and the AnimatedArchitecture log.
-                """);
-    }
-
     private void addInitialDebug(CommentedConfigurationNode node)
         throws SerializationException
     {
         node.set(DEFAULT_DEBUG)
             .comment("Don't use this. Just leave it on false.");
     }
-
 
     @Override
     public String getSectionTitle()

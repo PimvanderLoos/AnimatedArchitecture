@@ -7,12 +7,12 @@ import it.unimi.dsi.fastutil.longs.LongLists;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -125,7 +125,11 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarning().log(
+                "Failed to retrieve structures from power block location '%s' in '%s': Could not load power blocks.",
+                loc,
+                worldName
+            );
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
         return mapUidsToStructures(powerBlockWorld.getPowerBlocksAtLocation(loc));
@@ -145,7 +149,11 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarning().log(
+                "Failed to retrieve structures in chunk for location '%s' in '%s': Could not load power blocks.",
+                loc,
+                worldName
+            );
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
         return mapUidsToStructures(powerBlockWorld.getPowerBlocksInChunk(loc));
@@ -175,7 +183,10 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarning().log(
+                "Failed to check if world '%s' is an AnimatedArchitecture world: Could not load power blocks.",
+                worldName
+            );
             return false;
         }
         return powerBlockWorld.isAnimatedArchitectureWorld();
@@ -194,7 +205,10 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarning().log(
+                "Failed to invalidate power blocks for world: '%s': Could not load powerblocks.",
+                worldName
+            );
             return;
         }
         powerBlockWorld.invalidatePosition(pos);
@@ -214,7 +228,10 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarning().log(
+                "Failed to invalidate power blocks for world: '%s': Could not load powerblocks.",
+                worldName
+            );
             return;
         }
         powerBlockWorld.invalidatePosition(new Vector3Di(chunk.x(), 64, chunk.y()));
@@ -250,8 +267,8 @@ public final class PowerBlockManager extends Restartable implements StructureDel
          */
         private final TimedCache<Long, CompletableFuture<PowerBlockChunk>> powerBlockChunks =
             TimedCache.<Long, CompletableFuture<PowerBlockChunk>>builder()
-                .timeOut(Duration.ofMinutes(config.cacheTimeout()))
-                .cleanup(Duration.ofMinutes(Math.max(1, config.cacheTimeout())))
+                .timeOut(Duration.ofMinutes(config.powerblockCacheTimeout()))
+                .cleanup(Duration.ofMinutes(Math.max(1, config.powerblockCacheTimeout())))
                 .softReference(true)
                 .refresh(true)
                 .build();
