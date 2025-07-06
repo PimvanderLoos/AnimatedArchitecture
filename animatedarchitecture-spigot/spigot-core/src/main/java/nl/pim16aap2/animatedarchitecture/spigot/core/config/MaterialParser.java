@@ -51,6 +51,52 @@ public class MaterialParser
             .collect(Collectors.toSet());
     }
 
+    private @Nullable Material getFirstDefaultMaterial()
+    {
+        return defaultMaterials.stream().findFirst().orElse(null);
+    }
+
+    private Material returnDefaultMaterial(@Nullable String name)
+    {
+        final Material defaultMaterial = getFirstDefaultMaterial();
+        log.atFine().log(
+            "[%s] Failed to parse material '%s'. Using default material: %s",
+            context,
+            name,
+            defaultMaterial
+        );
+
+        if (defaultMaterial == null)
+        {
+            throw new IllegalStateException("No default material configured for context: " + context);
+        }
+
+        return defaultMaterial;
+    }
+
+    /**
+     * Parses a material name to a {@link Material} object.
+     *
+     * @param name
+     *     The name of the material to parse.
+     * @return The parsed material object, or the default material if the name is null or empty.
+     */
+    public Material parse(@Nullable String name)
+    {
+        if (name == null || name.isEmpty())
+        {
+            return returnDefaultMaterial(name);
+        }
+
+        final var material = parseMaterial(name);
+        if (material == null)
+        {
+            return returnDefaultMaterial(name);
+        }
+
+        return material;
+    }
+
     private @Nullable Material parseMaterial(String name)
     {
         final var material = Material.getMaterial(name);

@@ -24,21 +24,26 @@ public class StructureSubSectionSpigot extends StructureSubSection
     @Override
     protected void appendConfigurationOptions(List<StructureTypeConfigurationOption<?>> options)
     {
-        options.add(getGuiMaterialOption());
+        options.add(getGuiMaterialOption(getStructureType()));
     }
 
-    private StructureTypeConfigurationOption<?> getGuiMaterialOption()
+    private static StructureTypeConfigurationOption<String> getGuiMaterialOption(StructureType structureType)
+    {
+        return getGuiMaterialOption(getDefaultGuiMaterial(structureType));
+    }
+
+    static StructureTypeConfigurationOption<String> getGuiMaterialOption(Material guiMaterial)
     {
         return new StructureTypeConfigurationOption<>(
             PATH_GUI_MATERIAL,
-            getDefaultGuiMaterial().name(),
+            guiMaterial.name(),
             String.class
         );
     }
 
-    private Material getDefaultGuiMaterial()
+    static Material getDefaultGuiMaterial(StructureType structureType)
     {
-        return switch (getStructureType().getFullKey())
+        return switch (structureType.getFullKey())
         {
             case "animatedarchitecture:bigdoor" -> Material.OAK_DOOR;
             case "animatedarchitecture:clock" -> Material.CLOCK;

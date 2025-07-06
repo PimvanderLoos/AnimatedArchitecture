@@ -121,17 +121,14 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
         this.plugin = plugin;
 
         super.addSections(
-            new GeneralSectionSpigot(result -> this.generalSectionResult = result),
-            new AnimationsSectionSpigot(result -> this.animationsSectionResult = result),
-            new LimitsSectionSpigot(result -> this.limitsSectionResult = result),
-            new ProtectionHooksSectionSpigot(
-                lazyProtectionHookManager,
-                result -> this.protectionHooksSectionResult = result
-            ),
-            new StructuresSectionSpigot(lazyStructureTypeManager, result -> this.structuresSectionResult = result),
-            new LocaleSectionSpigot(result -> this.localeSectionResult = result),
-            new CachingSectionSpigot(result -> this.cachingSectionResult = result),
-            new LoggingSectionSpigot(result -> this.loggingSectionResult = result)
+            new GeneralSectionSpigot(this::setGeneralSectionResult),
+            new AnimationsSectionSpigot(this::setAnimationsSectionResult),
+            new LimitsSectionSpigot(this::setLimitsSectionResult),
+            new ProtectionHooksSectionSpigot(lazyProtectionHookManager, this::setProtectionHooksSectionResult),
+            new StructuresSectionSpigot(lazyStructureTypeManager, this::setStructureSectionsResult),
+            new LocaleSectionSpigot(this::setLocaleSectionResult),
+            new CachingSectionSpigot(this::setCachingSectionResult),
+            new LoggingSectionSpigot(this::setLoggingSectionResult)
         );
 
         restartableHolder.registerRestartable(this);
@@ -167,6 +164,46 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
         structurePrices.clear();
         structureTypeGuiMaterials.clear();
         structureAnimationTimeMultipliers.clear();
+    }
+
+    private void setGeneralSectionResult(GeneralSectionSpigot.@Nullable Result result)
+    {
+        this.generalSectionResult = result;
+    }
+
+    private void setAnimationsSectionResult(AnimationsSectionSpigot.@Nullable Result result)
+    {
+        this.animationsSectionResult = result;
+    }
+
+    private void setLimitsSectionResult(LimitsSectionSpigot.@Nullable Result result)
+    {
+        this.limitsSectionResult = result;
+    }
+
+    private void setProtectionHooksSectionResult(ProtectionHooksSectionSpigot.@Nullable Result result)
+    {
+        this.protectionHooksSectionResult = result;
+    }
+
+    private void setStructureSectionsResult(StructuresSectionSpigot.@Nullable Result result)
+    {
+        this.structuresSectionResult = result;
+    }
+
+    private void setLocaleSectionResult(LocaleSectionSpigot.@Nullable Result result)
+    {
+        this.localeSectionResult = result;
+    }
+
+    private void setCachingSectionResult(CachingSectionSpigot.@Nullable Result result)
+    {
+        this.cachingSectionResult = result;
+    }
+
+    private void setLoggingSectionResult(LoggingSectionSpigot.@Nullable Result result)
+    {
+        this.loggingSectionResult = result;
     }
 
 
