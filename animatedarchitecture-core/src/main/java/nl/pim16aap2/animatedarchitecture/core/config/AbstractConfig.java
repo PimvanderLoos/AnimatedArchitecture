@@ -14,6 +14,7 @@ import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import javax.inject.Named;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -69,11 +70,14 @@ public abstract class AbstractConfig implements IConfig
             final var root = configLoader.load();
             final var result = applyTransformations(root);
             configLoader.save(result);
+            printConfig();
+            Thread.sleep(1000L);
         }
         catch (Exception e)
         {
             throw new RuntimeException("Failed to parse configuration file: " + configPath, e);
         }
+        Runtime.getRuntime().halt(0);
     }
 
     /**
@@ -108,7 +112,7 @@ public abstract class AbstractConfig implements IConfig
     {
         return YamlConfigurationLoader.builder()
             .path(configPath)
-            .indent(4)
+            .indent(2)
             .nodeStyle(NodeStyle.BLOCK)
             .commentsEnabled(true)
             .defaultOptions(ConfigurationOptions.defaults()
@@ -194,5 +198,16 @@ public abstract class AbstractConfig implements IConfig
             log.atInfo().log("Updated config schema from %d to %d", startVersion, endVersion);
 
         return root;
+    }
+
+    private void printConfig()
+        throws IOException
+    {
+        final StringBuilder sb = new StringBuilder();
+        Files.lines(configPath).forEach(line -> sb.append(line).append(System.lineSeparator()));
+        log.atInfo().log(
+            "Configuration file contents:\n--------------------------\n%s\n--------------------------",
+            sb.toString()
+        );
     }
 }

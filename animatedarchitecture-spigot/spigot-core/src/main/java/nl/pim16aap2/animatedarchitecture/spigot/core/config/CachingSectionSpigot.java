@@ -8,6 +8,8 @@ public class CachingSectionSpigot extends CachingSection
 {
     public static final String PATH_HEAD_CACHE_TIMEOUT = "head_cache_timeout";
 
+    public static final int DEFAULT_HEAD_CACHE_TIMEOUT = 120;
+
     @Override
     public CommentedConfigurationNode buildInitialLimitsNode()
         throws SerializationException
@@ -17,7 +19,7 @@ public class CachingSectionSpigot extends CachingSection
             .act(node -> node
                 .node(PATH_HEAD_CACHE_TIMEOUT)
                 .comment("Amount of time (in minutes) to cache player heads.")
-                .set(120)
+                .set(DEFAULT_HEAD_CACHE_TIMEOUT)
             );
     }
 }
