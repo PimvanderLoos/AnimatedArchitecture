@@ -1,8 +1,20 @@
 package nl.pim16aap2.animatedarchitecture.core.config;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.function.Consumer;
+
+/**
+ * Represents a section in the configuration file that governs animation options.
+ */
+@AllArgsConstructor
+@NoArgsConstructor(force = true)
 public class AnimationsSection implements IConfigSection
 {
     public static final String SECTION_TITLE = "animations";
@@ -12,6 +24,26 @@ public class AnimationsSection implements IConfigSection
 
     public static final boolean DEFAULT_LOAD_CHUNKS_FOR_TOGGLE = true;
     public static final boolean DEFAULT_SKIP_ANIMATIONS_BY_DEFAULT = false;
+
+    private final @Nullable Consumer<Result> resultConsumer;
+
+    private Result buildResult(CommentedConfigurationNode root)
+    {
+        final var node = getSection(root);
+        return new Result(
+            getLoadChunksForToggle(node),
+            getSkipAnimationsByDefault(node)
+        );
+    }
+
+    @Override
+    public void applyResults(CommentedConfigurationNode root)
+    {
+        if (resultConsumer == null)
+            return;
+
+        resultConsumer.accept(buildResult(root));
+    }
 
     @Override
     public CommentedConfigurationNode buildInitialLimitsNode()
@@ -62,9 +94,35 @@ public class AnimationsSection implements IConfigSection
                 """);
     }
 
+    private boolean getLoadChunksForToggle(ConfigurationNode node)
+    {
+        return node.node(PATH_LOAD_CHUNKS_FOR_TOGGLE).getBoolean(DEFAULT_LOAD_CHUNKS_FOR_TOGGLE);
+    }
+
+    private boolean getSkipAnimationsByDefault(ConfigurationNode node)
+    {
+        return node.node(PATH_SKIP_ANIMATIONS_BY_DEFAULT).getBoolean(DEFAULT_SKIP_ANIMATIONS_BY_DEFAULT);
+    }
+
     @Override
     public String getSectionTitle()
     {
         return SECTION_TITLE;
     }
+
+    /**
+     * Represents the result of this section after it was parsed.
+     *
+     * @param loadChunksForToggle
+     *     Whether to load chunks when toggling a structure.
+     * @param skipAnimationsByDefault
+     *     Whether to skip animations by default.
+     *     <p>
+     *     This can be overridden by {@link StructureAnimationRequestBuilder.IBuilder#skipAnimation(boolean)}.
+     */
+    public record Result(
+        boolean loadChunksForToggle,
+        boolean skipAnimationsByDefault
+    ) implements IConfigSectionResult
+    {}
 }

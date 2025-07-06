@@ -22,7 +22,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerConfig;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigotSpecification;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.jspecify.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -73,8 +73,6 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
     private final Map<StructureType, String> structurePrices = new HashMap<>();
     private final Map<StructureType, Double> structureAnimationTimeMultipliers = new HashMap<>();
     private final Map<StructureType, Material> structureTypeGuiMaterials = new HashMap<>();
-    @ToString.Exclude
-    private final String header;
 
     private final List<String> commandAliases = new ArrayList<>(DEFAULT_COMMAND_ALIASES);
 
@@ -97,6 +95,9 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
     private boolean debug = false;
     private String flagMovementFormula = "";
 
+    private volatile AnimationsSection.@Nullable Result animationSectionResult;
+    private volatile GeneralSectionSpigot.@Nullable Result generalSectionResult;
+
     /**
      * Constructs a new {@link ConfigSpigot}.
      *
@@ -117,8 +118,8 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
         this.plugin = plugin;
 
         super.addSections(
-            new GeneralSectionSpigot(),
-            new AnimationsSection(),
+            new GeneralSectionSpigot(result -> this.generalSectionResult = result),
+            new AnimationsSection(result -> this.animationSectionResult = result),
             new LimitsSection(),
             new ProtectionHooksSectionSpigot(lazyProtectionHookManager),
             new StructuresSectionSpigot(lazyStructureTypeManager),
@@ -131,31 +132,29 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
         debuggableRegistry.registerDebuggable(this);
     }
 
-    public void reloadConfig()
+    public synchronized void reloadConfig()
     {
         shutDown();
         initialize();
     }
 
     @Override
-    public void initialize()
+    public synchronized void initialize()
     {
-        final CommentedConfigurationNode result = super.parseConfig();
+        super.parseConfig();
+
+        System.out.println("general result: " + generalSectionResult);
+        System.out.println("animation result: " + animationSectionResult);
     }
 
     @Override
-    public void shutDown()
+    public synchronized void shutDown()
     {
         configEntries.clear();
         powerBlockTypes.clear();
         structurePrices.clear();
         structureTypeGuiMaterials.clear();
         structureAnimationTimeMultipliers.clear();
-    }
-
-    private void parseResult(CommentedConfigurationNode node)
-    {
-        final var sections = getSections();
     }
 
 
