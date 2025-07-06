@@ -5,8 +5,6 @@ import dagger.Lazy;
 import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
-import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationOptions;
@@ -39,26 +37,16 @@ public abstract class AbstractConfig implements IConfig
 
     private final Path configPath;
 
-    @ToString.Exclude
-    private final Lazy<StructureTypeManager> lazyStructureTypeManager;
-
-    @ToString.Exclude
-    private final Lazy<IProtectionHookManager> lazyProtectionHookManager;
-
     private final YamlConfigurationLoader configLoader;
 
     @GuardedBy("this")
     private final Map<String, IConfigSection> sections = new LinkedHashMap<>();
 
     protected AbstractConfig(
-        @Named("pluginBaseDirectory") Path baseDir,
-        Lazy<StructureTypeManager> structureTypeManager,
-        Lazy<IProtectionHookManager> protectionHookManager
+        @Named("pluginBaseDirectory") Path baseDir
     )
     {
         this.configPath = baseDir.resolve("config.yaml");
-        this.lazyStructureTypeManager = structureTypeManager;
-        this.lazyProtectionHookManager = protectionHookManager;
         this.configLoader = initConfig();
     }
 
@@ -75,6 +63,7 @@ public abstract class AbstractConfig implements IConfig
             final var root = configLoader.load();
             final var result = applyTransformations(root);
             populateStructuresSection(result);
+            populateProtectionHooksSection(result);
             configLoader.save(result);
             printConfig();
             Thread.sleep(1000L);
@@ -138,7 +127,28 @@ public abstract class AbstractConfig implements IConfig
             );
         }
 
-        structuresSection.populateStructures(root, lazyStructureTypeManager.get().getRegisteredStructureTypes());
+        structuresSection.populateStructures(root);
+    }
+
+    @GuardedBy("this")
+    private void populateProtectionHooksSection(CommentedConfigurationNode root)
+        throws SerializationException
+    {
+        final IConfigSection foundSection = sections.get(ProtectionHooksSection.SECTION_TITLE);
+        if (foundSection == null)
+        {
+            log.atWarning().log("No protection hooks section found in the configuration. ");
+            return;
+        }
+
+        if (!(foundSection instanceof ProtectionHooksSection protectionHooksSection))
+        {
+            throw new IllegalStateException(
+                "The protection hooks section is not an instance of ProtectionHooksSection: " + foundSection.getClass()
+            );
+        }
+
+        protectionHooksSection.populateProtectionHooks(root);
     }
 
     private YamlConfigurationLoader initConfig()

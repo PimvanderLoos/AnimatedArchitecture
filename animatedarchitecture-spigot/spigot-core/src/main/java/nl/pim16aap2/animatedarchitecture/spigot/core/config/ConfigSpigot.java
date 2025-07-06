@@ -9,7 +9,6 @@ import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
@@ -22,6 +21,7 @@ import nl.pim16aap2.animatedarchitecture.core.config.LoggingSection;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.ConfigEntry;
+import nl.pim16aap2.animatedarchitecture.spigot.core.hooks.ProtectionHookManagerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerConfig;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigotSpecification;
 import org.bukkit.Material;
@@ -107,12 +107,12 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
     public ConfigSpigot(
         RestartableHolder restartableHolder,
         JavaPlugin plugin,
-        Lazy<StructureTypeManager> structureTypeManager,
-        Lazy<IProtectionHookManager> protectionHookManager,
+        Lazy<StructureTypeManager> lazyStructureTypeManager,
+        Lazy<ProtectionHookManagerSpigot> lazyProtectionHookManager,
         @Named("pluginBaseDirectory") Path baseDir,
         DebuggableRegistry debuggableRegistry)
     {
-        super(baseDir, structureTypeManager, protectionHookManager);
+        super(baseDir);
 
         this.plugin = plugin;
         structurePrices = new HashMap<>();
@@ -130,8 +130,8 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
             new GeneralSectionSpigot(),
             new AnimationsSection(),
             new LimitsSection(),
-//            new ProtectionHooksSection(),
-            new StructuresSectionSpigot(),
+            new ProtectionHooksSectionSpigot(lazyProtectionHookManager),
+            new StructuresSectionSpigot(lazyStructureTypeManager),
             new LocaleSection(),
             new CachingSectionSpigot(),
             new LoggingSection()

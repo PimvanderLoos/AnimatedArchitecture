@@ -138,20 +138,23 @@ public abstract class StructuresSection implements IConfigSection
     }
 
     /**
+     * Gets the registered structure types.
+     *
+     * @return A collection of registered structure types.
+     */
+    protected abstract Collection<StructureType> getRegisteredStructureTypes();
+
+    /**
      * Populates the structures section with the registered structure types.
      *
      * @param root
      *     The root configuration node to populate.
-     * @param registeredStructureTypes
-     *     The set of registered structure types to populate the section with.
      */
-    public final void populateStructures(
-        CommentedConfigurationNode root,
-        Collection<StructureType> registeredStructureTypes)
+    public final void populateStructures(CommentedConfigurationNode root)
         throws SerializationException
     {
         final var node = getStructuresSubSection(root);
-        registeredStructureTypes.stream()
+        getRegisteredStructureTypes().stream()
             .map(this::createSubSection)
             .sorted(Comparator.comparing(IStructureSubSection::getSectionTitle))
             .forEach(section -> this.writeSubSectionToNode(node, section));
