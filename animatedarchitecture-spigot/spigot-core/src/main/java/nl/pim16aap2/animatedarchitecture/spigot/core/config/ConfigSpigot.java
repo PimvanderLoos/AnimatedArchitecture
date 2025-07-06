@@ -13,11 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.config.AbstractConfig;
-import nl.pim16aap2.animatedarchitecture.core.config.AnimationsSection;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
-import nl.pim16aap2.animatedarchitecture.core.config.LimitsSection;
-import nl.pim16aap2.animatedarchitecture.core.config.LocaleSection;
-import nl.pim16aap2.animatedarchitecture.core.config.LoggingSection;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.ConfigEntry;
@@ -96,8 +92,14 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
     private boolean debug = false;
     private String flagMovementFormula = "";
 
-    private volatile AnimationsSection.@Nullable Result animationSectionResult;
     private volatile GeneralSectionSpigot.@Nullable Result generalSectionResult;
+    private volatile AnimationsSectionSpigot.@Nullable Result animationsSectionResult;
+    private volatile LimitsSectionSpigot.@Nullable Result limitsSectionResult;
+    private volatile ProtectionHooksSectionSpigot.@Nullable Result protectionHooksSectionResult;
+    private volatile StructuresSectionSpigot.@Nullable Result structuresSectionResult;
+    private volatile LocaleSectionSpigot.@Nullable Result localeSectionResult;
+    private volatile CachingSectionSpigot.@Nullable Result cachingSectionResult;
+    private volatile LoggingSectionSpigot.@Nullable Result loggingSectionResult;
 
     /**
      * Constructs a new {@link ConfigSpigot}.
@@ -120,13 +122,16 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
 
         super.addSections(
             new GeneralSectionSpigot(result -> this.generalSectionResult = result),
-            new AnimationsSection(result -> this.animationSectionResult = result),
-            new LimitsSection(),
-            new ProtectionHooksSectionSpigot(lazyProtectionHookManager),
-            new StructuresSectionSpigot(lazyStructureTypeManager),
-            new LocaleSection(),
-            new CachingSectionSpigot(),
-            new LoggingSection()
+            new AnimationsSectionSpigot(result -> this.animationsSectionResult = result),
+            new LimitsSectionSpigot(result -> this.limitsSectionResult = result),
+            new ProtectionHooksSectionSpigot(
+                lazyProtectionHookManager,
+                result -> this.protectionHooksSectionResult = result
+            ),
+            new StructuresSectionSpigot(lazyStructureTypeManager, result -> this.structuresSectionResult = result),
+            new LocaleSectionSpigot(result -> this.localeSectionResult = result),
+            new CachingSectionSpigot(result -> this.cachingSectionResult = result),
+            new LoggingSectionSpigot(result -> this.loggingSectionResult = result)
         );
 
         restartableHolder.registerRestartable(this);
@@ -145,7 +150,13 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
         super.parseConfig();
 
         System.out.println("general result: " + generalSectionResult);
-        System.out.println("animation result: " + animationSectionResult);
+        System.out.println("animation result: " + animationsSectionResult);
+        System.out.println("limits result: " + limitsSectionResult);
+        System.out.println("protection hooks result: " + protectionHooksSectionResult);
+        System.out.println("structures result: " + structuresSectionResult);
+        System.out.println("locale result: " + localeSectionResult);
+        System.out.println("caching result: " + cachingSectionResult);
+        System.out.println("logging result: " + loggingSectionResult);
     }
 
     @Override

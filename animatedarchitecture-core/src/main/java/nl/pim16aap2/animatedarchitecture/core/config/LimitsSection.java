@@ -8,8 +8,11 @@ import org.spongepowered.configurate.serialize.SerializationException;
  * Represents a configuration section for global limits in Animated Architecture.
  * <p>
  * These settings are used to define the global values for the {@link Limit}s.
+ *
+ * @param <T>
+ *     the type of result this section produces.
  */
-public class LimitsSection implements IConfigSection
+public abstract class LimitsSection<T extends IConfigSectionResult> extends ConfigSection<T>
 {
     public static final String SECTION_TITLE = "limits";
 

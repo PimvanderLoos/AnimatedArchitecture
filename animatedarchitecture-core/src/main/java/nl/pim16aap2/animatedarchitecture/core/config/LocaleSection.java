@@ -3,20 +3,25 @@ package nl.pim16aap2.animatedarchitecture.core.config;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.Locale;
+
 /**
  * Represents a configuration section for locale settings in Animated Architecture.
  * <p>
  * This section allows the user to configure the locale used by the plugin and whether clients are allowed to use their
  * own locale settings.
+ *
+ * @param <T>
+ *     the type of result this section produces.
  */
-public class LocaleSection implements IConfigSection
+public abstract class LocaleSection<T extends IConfigSectionResult> extends ConfigSection<T>
 {
     public static final String SECTION_TITLE = "locale";
 
     public static final String PATH_LOCALE = "locale";
     public static final String PATH_ALLOW_CLIENT_LOCALE = "allow_client_locale";
 
-    public static final String DEFAULT_LOCALE = "en_US";
+    public static final Locale DEFAULT_LOCALE = Locale.US;
     public static final boolean DEFAULT_ALLOW_CLIENT_LOCALE = true;
 
     @Override
@@ -35,7 +40,7 @@ public class LocaleSection implements IConfigSection
     private void addInitialLocale(CommentedConfigurationNode node)
         throws SerializationException
     {
-        node.set(DEFAULT_LOCALE)
+        node.set(DEFAULT_LOCALE.toString())
             .comment("""
                 Determines which locale to use. Defaults to root.
                 

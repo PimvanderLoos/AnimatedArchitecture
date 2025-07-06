@@ -8,8 +8,11 @@ import org.spongepowered.configurate.serialize.SerializationException;
  * <p>
  * This section is used to configure hooks for various protection plugins, allowing the plugin to interact with them for
  * structure protection and other related features.
+ *
+ * @param <T>
+ *     the type of result this section produces.
  */
-public abstract class ProtectionHooksSection implements IConfigSection
+public abstract class ProtectionHooksSection<T extends IConfigSectionResult> extends ConfigSection<T>
 {
     public static final String SECTION_TITLE = "protection_hooks";
 
