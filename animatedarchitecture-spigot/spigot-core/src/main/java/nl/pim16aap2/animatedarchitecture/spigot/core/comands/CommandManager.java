@@ -33,7 +33,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.core.config.IConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
@@ -51,7 +51,7 @@ import static net.kyori.adventure.text.Component.text;
 public final class CommandManager
 {
     private final JavaPlugin plugin;
-    private final ConfigSpigot config;
+    private final IConfigSpigot config;
     private final ILocalizer localizer;
     private final IPermissionsManager permissionsManager;
     private final StructureTypeManager structureTypeManager;
@@ -69,7 +69,7 @@ public final class CommandManager
     @Inject
     CommandManager(
         JavaPlugin plugin,
-        ConfigSpigot config,
+        IConfigSpigot config,
         ILocalizer localizer,
         IPermissionsManager permissionsManager,
         StructureTypeManager structureTypeManager,

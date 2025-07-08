@@ -135,4 +135,9 @@ public interface IConfig extends IRestartable
      * @return The log level.
      */
     Level logLevel();
+
+    /**
+     * Reloads the configuration file.
+     */
+    void reloadConfig();
 }

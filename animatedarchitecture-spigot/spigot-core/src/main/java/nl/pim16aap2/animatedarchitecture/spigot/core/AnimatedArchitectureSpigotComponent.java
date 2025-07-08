@@ -44,8 +44,8 @@ import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateChecker;
 import nl.pim16aap2.animatedarchitecture.core.util.versioning.BuildDataReader;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.AnimatedBlockDisplayModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.comands.CommandManager;
-import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigotModule;
+import nl.pim16aap2.animatedarchitecture.spigot.core.config.IConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.gui.GuiFactory;
 import nl.pim16aap2.animatedarchitecture.spigot.core.gui.GuiFactorySpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.hooks.ProtectionHookManagerModule;
@@ -151,7 +151,7 @@ interface AnimatedArchitectureSpigotComponent
 
     StructureAnimationRequestBuilder structureAnimationRequestBuilder();
 
-    ConfigSpigot getConfig();
+    IConfigSpigot getConfig();
 
     RedstoneListener getRedstoneListener();
 

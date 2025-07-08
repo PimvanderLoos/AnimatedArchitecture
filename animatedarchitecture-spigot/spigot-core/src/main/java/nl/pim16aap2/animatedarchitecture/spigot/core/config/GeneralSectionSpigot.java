@@ -20,13 +20,13 @@ import java.util.function.Consumer;
 @AllArgsConstructor
 public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Result>
 {
-    public static final String PATH_POWER_BLOCK_TYPES = "power_block_types";
+    public static final String PATH_POWERBLOCK_TYPES = "powerblock_types";
     public static final String PATH_MATERIAL_BLACKLIST = "material_blacklist";
     public static final String PATH_RESOURCE_PACK_ENABLED = "resource_pack_enabled";
     public static final String PATH_COMMAND_ALIASES = "command_aliases";
 
-    public static final Material DEFAULT_POWER_BLOCK_MATERIAL = Material.GOLD_BLOCK;
-    public static final String[] DEFAULT_POWER_BLOCK_TYPES = new String[]{DEFAULT_POWER_BLOCK_MATERIAL.name()};
+    public static final Material DEFAULT_POWERBLOCK_MATERIAL = Material.GOLD_BLOCK;
+    public static final String[] DEFAULT_POWERBLOCK_TYPES = new String[]{DEFAULT_POWERBLOCK_MATERIAL.name()};
     public static final String[] DEFAULT_MATERIAL_BLACKLIST = new String[0];
     public static final boolean DEFAULT_RESOURCE_PACK_ENABLED = true;
     public static final String[] DEFAULT_COMMAND_ALIASES = new String[]{
@@ -37,7 +37,7 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
 
     private static final MaterialParser POWER_BLOCK_TYPE_PARSER = MaterialParser.builder()
         .context("Powerblock types")
-        .defaultMaterial(DEFAULT_POWER_BLOCK_MATERIAL)
+        .defaultMaterial(DEFAULT_POWERBLOCK_MATERIAL)
         .isSolid(true)
         .build();
 
@@ -56,7 +56,7 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
             .buildInitialLimitsNode()
             .act(node ->
             {
-                addInitialPowerBlockTypes(node.node(PATH_POWER_BLOCK_TYPES));
+                addInitialPowerBlockTypes(node.node(PATH_POWERBLOCK_TYPES));
                 addInitialMaterialBlacklist(node.node(PATH_MATERIAL_BLACKLIST));
                 addInitialResourcePackEnabled(node.node(PATH_RESOURCE_PACK_ENABLED));
                 addInitialCommandAliases(node.node(PATH_COMMAND_ALIASES));
@@ -66,7 +66,7 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
     private void addInitialPowerBlockTypes(CommentedConfigurationNode node)
         throws SerializationException
     {
-        node.set(DEFAULT_POWER_BLOCK_TYPES)
+        node.set(DEFAULT_POWERBLOCK_TYPES)
             .comment("""
                 Choose the type of the power block that is used to open structures using redstone.
                 This is the block that will open the structure attached to it when it receives a redstone signal.
@@ -145,7 +145,7 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
     private Set<Material> getPowerBlockTypes(ConfigurationNode sectionNode, boolean silent)
         throws SerializationException
     {
-        return POWER_BLOCK_TYPE_PARSER.parse(sectionNode.node(PATH_POWER_BLOCK_TYPES).getList(String.class), silent);
+        return POWER_BLOCK_TYPE_PARSER.parse(sectionNode.node(PATH_POWERBLOCK_TYPES).getList(String.class), silent);
     }
 
     private Set<Material> getMaterialBlackList(ConfigurationNode sectionNode, boolean silent)
@@ -170,7 +170,7 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
      *
      * @param allowRedstone
      *     Whether structures should respond to redstone signals.
-     * @param powerBlockTypes
+     * @param powerblockTypes
      *     The types of blocks that can be used as power blocks for structures.
      * @param materialBlacklist
      *     The list of materials that are blacklisted and cannot be animated.
@@ -181,7 +181,7 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
      */
     public record Result(
         boolean allowRedstone,
-        Set<Material> powerBlockTypes,
+        Set<Material> powerblockTypes,
         Set<Material> materialBlacklist,
         boolean resourcePackEnabled,
         List<String> commandAliases
@@ -192,7 +192,7 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
          */
         public static final Result DEFAULT = new Result(
             GeneralSection.DEFAULT_ALLOW_REDSTONE,
-            Set.of(DEFAULT_POWER_BLOCK_MATERIAL),
+            Set.of(DEFAULT_POWERBLOCK_MATERIAL),
             Set.of(),
             DEFAULT_RESOURCE_PACK_ENABLED,
             List.of(DEFAULT_COMMAND_ALIASES)

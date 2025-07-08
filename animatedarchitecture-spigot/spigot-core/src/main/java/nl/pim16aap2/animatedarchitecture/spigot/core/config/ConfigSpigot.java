@@ -8,15 +8,12 @@ import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import lombok.ToString;
 import lombok.experimental.Delegate;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.config.AbstractConfig;
-import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.hooks.ProtectionHookManagerSpigot;
-import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerConfig;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -30,7 +27,7 @@ import java.util.Collection;
 @ToString(callSuper = true)
 @Singleton
 @CustomLog
-public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebuggable, IBlockAnalyzerConfig
+final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebuggable
 {
     @ToString.Exclude
     private final JavaPlugin plugin;
@@ -113,6 +110,7 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
     /**
      * Reloads the configuration.
      */
+    @Override
     public void reloadConfig()
     {
         initialize();
@@ -135,7 +133,7 @@ public final class ConfigSpigot extends AbstractConfig implements IConfig, IDebu
             return;
         }
 
-        logMaterialsList("Power Block Types", powerBlockTypes());
+        logMaterialsList("Power Block Types", powerblockTypes());
         logMaterialsList("Blacklisted Materials", materialBlacklist());
     }
 
