@@ -146,6 +146,7 @@ public abstract class AbstractConfig implements IConfig
             .nodeStyle(NodeStyle.BLOCK)
             .commentsEnabled(true)
             .defaultOptions(ConfigurationOptions.defaults()
+                .implicitInitialization(true)
                 .header(getHeader()))
             .build();
     }

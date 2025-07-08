@@ -70,7 +70,7 @@ public abstract class StructuresSection<T extends IConfigSectionResult> extends 
     {
         return CommentedConfigurationNode.root()
             .comment(getSectionComment())
-            .set("[]");
+            .raw("{}");
     }
 
     /**
@@ -96,7 +96,7 @@ public abstract class StructuresSection<T extends IConfigSectionResult> extends 
 
             optionNode
                 .comment(option.comment())
-                .set(option.defaultValue());
+                .set(option.type(), option.defaultValue());
         }
         catch (SerializationException exception)
         {
