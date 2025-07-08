@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.core.config.IConfigSpigot;
 import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -47,7 +47,7 @@ public class LoginResourcePackListener extends AbstractListener
         @Named("serverVersion") Semver serverVersion,
         ILocalizer localizer,
         RestartableHolder holder,
-        ConfigSpigot config,
+        IConfigSpigot config,
         JavaPlugin plugin)
     {
         super(holder, plugin, config::resourcePackEnabled);

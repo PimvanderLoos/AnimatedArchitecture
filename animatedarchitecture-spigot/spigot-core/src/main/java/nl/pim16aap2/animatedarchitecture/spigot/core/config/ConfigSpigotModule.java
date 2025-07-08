@@ -16,5 +16,9 @@ public interface ConfigSpigotModule
 
     @Binds
     @Singleton
-    IBlockAnalyzerConfig getBlockAnalyzerConfig(ConfigSpigot config);
+    IConfigSpigot getSpigotConfig(ConfigSpigot config);
+
+    @Binds
+    @Singleton
+    IBlockAnalyzerConfig getBlockAnalyzerConfig(IConfigSpigot config);
 }
