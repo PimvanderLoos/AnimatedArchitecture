@@ -50,7 +50,9 @@ public abstract class AnimationsSection<T extends IConfigSectionResult> extends 
                 a bunch of entities no one can see anyway.
                 
                 When disabled, structures will not be toggled if more than 1 chunk needs to be loaded.
-                """);
+                
+                Default: %b
+                """.formatted(DEFAULT_LOAD_CHUNKS_FOR_TOGGLE));
     }
 
     private void addInitialSkipAnimationsByDefault(CommentedConfigurationNode node)
@@ -65,7 +67,9 @@ public abstract class AnimationsSection<T extends IConfigSectionResult> extends 
                 
                 This only determines the default value, which can be overridden when explicitly enabled
                 in the toggle request.
-                """);
+                
+                Default: %b
+                """.formatted(DEFAULT_SKIP_ANIMATIONS_BY_DEFAULT));
     }
 
 

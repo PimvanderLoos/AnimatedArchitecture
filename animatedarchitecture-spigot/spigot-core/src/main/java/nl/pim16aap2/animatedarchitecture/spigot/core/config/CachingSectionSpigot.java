@@ -34,10 +34,22 @@ public class CachingSectionSpigot extends CachingSection<CachingSectionSpigot.Re
     {
         return super
             .buildInitialLimitsNode()
-            .act(node -> node
-                .node(PATH_HEAD_CACHE_TIMEOUT)
-                .comment("Amount of time (in minutes) to cache player heads.")
-                .set(DEFAULT_HEAD_CACHE_TIMEOUT)
+            .act(node ->
+                addInitialHeadCacheTimeout(node.node(PATH_HEAD_CACHE_TIMEOUT))
+            );
+    }
+
+    private void addInitialHeadCacheTimeout(CommentedConfigurationNode node)
+        throws SerializationException
+    {
+        node.set(DEFAULT_HEAD_CACHE_TIMEOUT)
+            .comment("""
+                Amount of time (in minutes) to cache player heads.
+                
+                This is used to avoid fetching player heads from the server every time they are needed.
+                
+                Default: %d
+                """.formatted(DEFAULT_HEAD_CACHE_TIMEOUT)
             );
     }
 
