@@ -27,6 +27,8 @@ public abstract class ProtectionHooksSection<T extends IConfigSectionResult> ext
                 If the plugins aren't installed, these options do nothing.
                 
                 When enabled, structures cannot be toggled or created in areas not owned by the owner of that structure.
+                
+                All hooks are enabled by default.
                 """)
             .set("[]");
     }

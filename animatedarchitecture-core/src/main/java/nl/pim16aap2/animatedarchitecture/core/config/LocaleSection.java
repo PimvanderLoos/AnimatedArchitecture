@@ -50,7 +50,9 @@ public abstract class LocaleSection<T extends IConfigSectionResult> extends Conf
                 For example, to use the Dutch locale, you would set this to 'nl_NL'.
                 
                 Any strings that are not translated for the chosen locale will default to the root locale (English).
-                """);
+                
+                Default: %s
+                """.formatted(DEFAULT_LOCALE));
     }
 
     private void addInitialAllowClientLocale(CommentedConfigurationNode node)
@@ -61,7 +63,9 @@ public abstract class LocaleSection<T extends IConfigSectionResult> extends Conf
                 When enabled, the plugin will allow players to use a different locale than the server.
                 
                 This is useful for servers with players from different countries.
-                """);
+                
+                Default: %b
+                """.formatted(DEFAULT_ALLOW_CLIENT_LOCALE));
     }
 
     @Override

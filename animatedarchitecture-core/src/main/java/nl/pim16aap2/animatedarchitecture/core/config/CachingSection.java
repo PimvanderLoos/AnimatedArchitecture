@@ -39,14 +39,21 @@ public abstract class CachingSection<T extends IConfigSectionResult> extends Con
                    0 = infinite cache (not recommended either!)
                 """)
             .act(node ->
-                node.node(PATH_POWERBLOCK_CACHE_TIMEOUT)
-                    .comment("""
-                        Amount of time (in minutes) to cache power block positions in a chunk.
-                        
-                        Higher values will result in higher memory usage, but will reduce the number of slower requests
-                        made to the database.
-                        """)
-                    .set(DEFAULT_POWERBLOCK_CACHE_TIMEOUT)
+                addInitialPowerblockCacheTimeout(node.node(PATH_POWERBLOCK_CACHE_TIMEOUT))
             );
+    }
+
+    private void addInitialPowerblockCacheTimeout(CommentedConfigurationNode node)
+        throws SerializationException
+    {
+        node.set(DEFAULT_POWERBLOCK_CACHE_TIMEOUT)
+            .comment("""
+                Amount of time (in minutes) to cache power block positions in a chunk.
+                
+                Higher values will result in higher memory usage, but will reduce the number of slower requests
+                made to the database.
+                
+                Default: %d
+                """.formatted(DEFAULT_POWERBLOCK_CACHE_TIMEOUT));
     }
 }

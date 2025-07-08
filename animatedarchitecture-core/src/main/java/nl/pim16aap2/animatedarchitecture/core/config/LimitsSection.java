@@ -66,7 +66,9 @@ public abstract class LimitsSection<T extends IConfigSectionResult> extends Conf
                 
                 You can use permissions if you need more finely grained control using this node:
                 'animatedarchitecture.user.limit.structure_count.x', where 'x' can be any positive value.
-                """);
+                
+                Default: %d
+                """.formatted(DEFAULT_MAX_STRUCTURE_COUNT));
     }
 
     private void addInitialMaxStructureSize(CommentedConfigurationNode node)
@@ -79,7 +81,9 @@ public abstract class LimitsSection<T extends IConfigSectionResult> extends Conf
                 
                 You can use permissions if you need more finely grained control using this node:
                 'animatedarchitecture.user.limit.structure_size.x', where 'x' can be any positive value.
-                """);
+                
+                Default: %d
+                """.formatted(DEFAULT_MAX_STRUCTURE_SIZE));
     }
 
     private void addInitialMaxBlocksToMove(CommentedConfigurationNode node)
@@ -91,7 +95,9 @@ public abstract class LimitsSection<T extends IConfigSectionResult> extends Conf
                 
                 You can use permissions if you need more finely grained control using this node:
                 'animatedarchitecture.user.limit.blocks_to_move.x', where 'x' can be any positive value.
-                """);
+                
+                Default: %d
+                """.formatted(DEFAULT_MAX_BLOCKS_TO_MOVE));
     }
 
     private void addInitialMaxPowerblockDistance(CommentedConfigurationNode node)
@@ -108,7 +114,9 @@ public abstract class LimitsSection<T extends IConfigSectionResult> extends Conf
                 
                 You can use permissions if you need more finely grained control using this node:
                 'animatedarchitecture.user.limit.powerblock_distance.x', where 'x' can be any positive value.
-                """);
+                
+                Default: %d
+                """.formatted(DEFAULT_MAX_POWERBLOCK_DISTANCE));
     }
 
     private void addInitialMaxBlockSpeed(CommentedConfigurationNode node)
@@ -123,6 +131,8 @@ public abstract class LimitsSection<T extends IConfigSectionResult> extends Conf
                 Higher values may result in choppy/glitchy animations.
                 
                 This limit cannot be overridden by permissions.
-                """);
+                
+                Default: %.4f
+                """.formatted(DEFAULT_MAX_BLOCK_SPEED));
     }
 }

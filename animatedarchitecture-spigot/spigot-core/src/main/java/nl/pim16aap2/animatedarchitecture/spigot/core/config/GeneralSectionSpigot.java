@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.config.GeneralSection;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfigSectionResult;
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.bukkit.Material;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
@@ -73,7 +74,9 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
                 Multiple types are allowed.
                 
                 A list of options can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
-                """);
+                
+                Default: %s
+                """.formatted(formatDefaultCollection(DEFAULT_POWERBLOCK_TYPES)));
     }
 
     private void addInitialMaterialBlacklist(CommentedConfigurationNode node)
@@ -84,7 +87,9 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
                 List of blacklisted materials. Materials on this list can not be animated.
                 
                 Use the same list of materials as for the power blocks.
-                """);
+                
+                Default: %s
+                """.formatted(formatDefaultCollection(DEFAULT_MATERIAL_BLACKLIST)));
     }
 
     private void addInitialResourcePackEnabled(CommentedConfigurationNode node)
@@ -102,7 +107,9 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
                 On 1.20, enabling this will cause conflicts with other resource packs, and you will have to merge them
                 manually and disable this option.
                 On 1.21 and later, you can enable this without any issues.
-                """);
+                
+                Default: %b
+                """.formatted(DEFAULT_RESOURCE_PACK_ENABLED));
     }
 
     private void addInitialCommandAliases(CommentedConfigurationNode node)
@@ -121,7 +128,9 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
                 Aliases are case-sensitive, can not contain spaces, and should not have a leading slash.
                 
                 Changing this will require a server restart to take effect.
-                """);
+                
+                Default: %s
+                """.formatted(formatDefaultCollection(DEFAULT_COMMAND_ALIASES)));
     }
 
     @Override
@@ -163,6 +172,13 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
         throws SerializationException
     {
         return sectionNode.node(PATH_COMMAND_ALIASES).getList(String.class, List.of(DEFAULT_COMMAND_ALIASES));
+    }
+
+    private static String formatDefaultCollection(String... values)
+    {
+        return values.length == 0
+            ? "[]"
+            : StringUtil.formatCollection(List.of(values), Object::toString, 0, false);
     }
 
     /**

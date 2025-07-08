@@ -13,10 +13,13 @@ import java.util.List;
  */
 public class StructureSubSectionFlagSpigot extends StructureSubSectionSpigot implements IStructureSubSectionFlag
 {
+    private static final String DEFAULT_MOVEMENT_FORMULA =
+        "min(0.07 * radius, 3) * sin(radius / 1.7 + height / 12 + counter / 12)";
+
     public static final StructureTypeConfigurationOption<String> OPTION_MOVEMENT_FORMULA =
         new StructureTypeConfigurationOption<>(
             "movement_formula",
-            "min(0.07 * radius, 3) * sin(radius / 1.7 + height / 12 + counter / 12)",
+            DEFAULT_MOVEMENT_FORMULA,
             String.class,
             """
                 The movement formula of the blocks for flags. The formula is evaluated for each block
@@ -32,7 +35,9 @@ public class StructureSubSectionFlagSpigot extends StructureSubSectionSpigot imp
                   'height':  The height of the block for which the formula is used. The bottom row has a height of 0.
                 
                 The return value of the formula is the horizontal displacement of a single block in the flag.
-                """
+                
+                Default: %s
+                """.formatted(DEFAULT_MOVEMENT_FORMULA)
         );
 
     /**

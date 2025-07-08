@@ -31,6 +31,8 @@ public abstract class StructuresSection<T extends IConfigSectionResult> extends 
           Note that the maximum speed of the animated blocks is limited by 'maxBlockSpeed', so there is a limit to
           how fast you can make the structures.
         
+          Default: 1.0
+        
         Price:
           When an economy hook is present, you can set the price of creation here for each type of structure.
           You can use the word "blockCount" (without quotation marks, case-sensitive) as a variable that will be
@@ -44,6 +46,8 @@ public abstract class StructuresSection<T extends IConfigSectionResult> extends 
           You must always put the formula or simple value or whatever in quotation marks!
         
           If no economy hook is present, the price will be ignored and the structure can be created for free.
+        
+          Default: '0'
         """;
 
     /**

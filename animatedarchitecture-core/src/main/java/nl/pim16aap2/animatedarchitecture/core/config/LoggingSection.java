@@ -49,8 +49,8 @@ public abstract class LoggingSection<T extends IConfigSectionResult> extends Con
                 Supported levels are:
                     OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL.
                 
-                This will default to INFO in case an invalid option is provided.
-                """);
+                Default: %s
+                """.formatted(DEFAULT_LOG_LEVEL));
     }
 
     private void addInitialDebug(CommentedConfigurationNode node)

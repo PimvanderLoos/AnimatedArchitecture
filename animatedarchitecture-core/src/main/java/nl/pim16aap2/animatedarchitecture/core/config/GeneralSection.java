@@ -40,7 +40,9 @@ public abstract class GeneralSection<T extends IConfigSectionResult> extends Con
                 powerblock changes. The specific action depends on the structure type and settings.
                 
                 When disabled, structures will ignore all redstone signals.
-                """);
+                
+                Default: %b
+                """.formatted(DEFAULT_ALLOW_REDSTONE));
     }
 
     @Override
