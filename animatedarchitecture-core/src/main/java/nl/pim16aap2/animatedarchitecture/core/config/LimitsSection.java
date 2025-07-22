@@ -132,7 +132,7 @@ public abstract class LimitsSection<T extends IConfigSectionResult> extends Conf
                 
                 This limit cannot be overridden by permissions.
                 
-                Default: %.4f
+                Default: %.1f
                 """.formatted(DEFAULT_MAX_BLOCK_SPEED));
     }
 }

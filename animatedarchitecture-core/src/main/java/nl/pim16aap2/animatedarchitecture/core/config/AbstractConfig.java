@@ -161,7 +161,7 @@ public abstract class AbstractConfig implements IConfig
 
         builder.addAction(rootPath, (path, value) ->
         {
-            var newNode = CommentedConfigurationNode.root()
+            var newNode = configLoader.createNode()
                 .act(node ->
                 {
                     configSections.forEach(section ->
