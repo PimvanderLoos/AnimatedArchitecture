@@ -70,7 +70,7 @@ public abstract class StructuresSection<T extends IConfigSectionResult> extends 
     {
         return CommentedConfigurationNode.root()
             .comment(getSectionComment())
-            .raw("{}");
+            .act(structuresNode -> structuresNode.appendListNode().set(0));
     }
 
     /**
