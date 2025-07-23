@@ -194,6 +194,11 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
             StructureSubSectionFlagSpigot.OPTION_MOVEMENT_FORMULA.defaultValue()
         );
 
+        public Result
+        {
+            structureResults = Map.copyOf(structureResults);
+        }
+
         /**
          * Retrieves the {@link StructureResult} for a specific structure type.
          *

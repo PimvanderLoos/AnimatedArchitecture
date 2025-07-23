@@ -127,7 +127,8 @@ public abstract class LimitsSection<T extends IConfigSectionResult> extends Conf
                 Global maximum speed of blocks in blocks per second.
                 
                 Determines the global speed limit of animated blocks measured in blocks/second.
-                Animated objects will slow down when necessary to avoid any of their animated blocks exceeding this limit
+                Animated objects will slow down when necessary to avoid any of their animated
+                blocks exceeding this limit
                 Higher values may result in choppy/glitchy animations.
                 
                 This limit cannot be overridden by permissions.

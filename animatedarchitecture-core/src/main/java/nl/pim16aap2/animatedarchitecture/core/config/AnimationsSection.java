@@ -72,12 +72,9 @@ public abstract class AnimationsSection<T extends IConfigSectionResult> extends 
                 """.formatted(DEFAULT_SKIP_ANIMATIONS_BY_DEFAULT));
     }
 
-
     @Override
     public String getSectionTitle()
     {
         return SECTION_TITLE;
     }
-
-
 }

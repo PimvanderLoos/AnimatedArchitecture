@@ -159,5 +159,11 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
             DEFAULT_RESOURCE_PACK_ENABLED,
             List.of(DEFAULT_COMMAND_ALIASES)
         );
+
+        public Result
+        {
+            materialBlacklist = Set.copyOf(materialBlacklist);
+            commandAliases = List.copyOf(commandAliases);
+        }
     }
 }
