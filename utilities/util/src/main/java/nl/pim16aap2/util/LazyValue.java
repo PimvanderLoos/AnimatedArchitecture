@@ -38,6 +38,7 @@ public final class LazyValue<T> implements Lazy<T>
      *
      * @return The lazily initialized object.
      */
+    @Override
     public T get()
     {
         @Nullable T tmp = value;

@@ -160,7 +160,7 @@ public abstract class AbstractConfig implements IConfig
 
         builder.addAction(rootPath, (path, value) ->
         {
-            var newNode = configLoader.createNode()
+            final CommentedConfigurationNode newNode = configLoader.createNode()
                 .act(node ->
                 {
                     configSections.forEach(section ->
@@ -206,6 +206,7 @@ public abstract class AbstractConfig implements IConfig
     {
     }
 
+    @GuardedBy("this")
     private ConfigurationTransformation.Versioned createVersionedTransformation(CommentedConfigurationNode root)
     {
         final var builder = ConfigurationTransformation.versionedBuilder()
@@ -217,6 +218,7 @@ public abstract class AbstractConfig implements IConfig
         return builder.build();
     }
 
+    @GuardedBy("this")
     private CommentedConfigurationNode applyTransformations(CommentedConfigurationNode root)
         throws ConfigurateException
     {

@@ -136,8 +136,13 @@ public class ProtectionHooksSectionSpigot extends ProtectionHooksSection<Protect
          */
         public static final Result DEFAULT = new Result(Set.of());
 
+        public Result
+        {
+            enabledHooks = Set.copyOf(enabledHooks);
+        }
+
         @SuppressWarnings("unused") // Used by Lombok's @Delegate
-        public boolean isHookEnabled(IProtectionHookSpigotSpecification spec)
+        public boolean isHookEnabled(@Nullable IProtectionHookSpigotSpecification spec)
         {
             return enabledHooks().contains(spec);
         }

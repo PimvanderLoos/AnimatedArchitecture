@@ -98,5 +98,10 @@ public class RedstoneSectionSpigot extends RedstoneSection<RedstoneSectionSpigot
             DEFAULT_ALLOW_REDSTONE,
             Set.of(DEFAULT_POWERBLOCK_MATERIAL)
         );
+
+        public Result
+        {
+            powerblockTypes = Set.copyOf(powerblockTypes);
+        }
     }
 }

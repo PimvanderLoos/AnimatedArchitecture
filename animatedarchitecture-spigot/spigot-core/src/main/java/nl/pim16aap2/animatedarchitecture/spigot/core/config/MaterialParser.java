@@ -13,6 +13,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a parser for materials from strings.
+ */
 @Flogger
 @Builder
 public class MaterialParser
@@ -24,9 +27,6 @@ public class MaterialParser
 
     @Singular
     private Set<Material> defaultMaterials;
-
-    @Builder.Default
-    private Action onDuplicate = Action.SKIP;
 
     @Builder.Default
     private Action onInvalid = Action.WARN_AND_SKIP;
@@ -57,7 +57,7 @@ public class MaterialParser
         return defaultMaterials.stream().findFirst().orElse(null);
     }
 
-    private Material returnDefaultMaterial(@Nullable String name, boolean silent)
+    private Material returnDefaultMaterial(@Nullable String name)
     {
         final Material defaultMaterial = getFirstDefaultMaterial();
         log.atFine().log(
@@ -86,13 +86,13 @@ public class MaterialParser
     {
         if (name == null || name.isEmpty())
         {
-            return returnDefaultMaterial(name, silent);
+            return returnDefaultMaterial(name);
         }
 
         final var material = parseMaterial(name, silent);
         if (material == null)
         {
-            return returnDefaultMaterial(name, silent);
+            return returnDefaultMaterial(name);
         }
 
         return material;
