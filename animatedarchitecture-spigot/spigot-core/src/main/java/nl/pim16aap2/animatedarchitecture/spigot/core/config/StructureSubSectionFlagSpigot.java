@@ -36,7 +36,7 @@ public class StructureSubSectionFlagSpigot extends StructureSubSectionSpigot imp
                 
                 The return value of the formula is the horizontal displacement of a single block in the flag.
                 
-                Default: %s
+                Default:        %s
                 """.formatted(DEFAULT_MOVEMENT_FORMULA)
         );
 
