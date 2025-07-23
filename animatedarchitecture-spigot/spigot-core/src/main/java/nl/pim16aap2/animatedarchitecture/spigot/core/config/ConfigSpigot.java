@@ -1,13 +1,15 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 
 import dagger.Lazy;
+import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.Delegate;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
-import lombok.CustomLog;
-import lombok.ToString;
-import lombok.experimental.Delegate;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
@@ -27,6 +29,7 @@ import java.util.Collection;
 @ToString(callSuper = true)
 @Singleton
 @CustomLog
+@Setter(AccessLevel.PRIVATE)
 final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebuggable
 {
     @ToString.Exclude
@@ -37,6 +40,10 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
     @Delegate
     private volatile GeneralSectionSpigot.Result generalSectionResult =
         GeneralSectionSpigot.Result.DEFAULT;
+
+    @Delegate
+    private volatile RedstoneSectionSpigot.Result redstoneSectionResult =
+        RedstoneSectionSpigot.Result.DEFAULT;
 
     @Delegate
     private volatile AnimationsSectionSpigot.Result animationsSectionResult =
@@ -87,10 +94,11 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
 
         super.addSections(
             new GeneralSectionSpigot(this::setGeneralSectionResult),
+            new RedstoneSectionSpigot(this::setRedstoneSectionResult),
             new AnimationsSectionSpigot(this::setAnimationsSectionResult),
             new LimitsSectionSpigot(this::setLimitsSectionResult),
             new ProtectionHooksSectionSpigot(lazyProtectionHookManager, this::setProtectionHooksSectionResult),
-            new StructuresSectionSpigot(lazyStructureTypeManager, this::setStructureSectionsResult),
+            new StructuresSectionSpigot(lazyStructureTypeManager, this::setStructuresSectionResult),
             new LocaleSectionSpigot(this::setLocaleSectionResult),
             new CachingSectionSpigot(this::setCachingSectionResult),
             new LoggingSectionSpigot(this::setLoggingSectionResult)
@@ -147,46 +155,6 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
 
         log.atInfo().log("%s:", title);
         materials.forEach(material -> log.atInfo().log(" - %s", material.name()));
-    }
-
-    private void setGeneralSectionResult(GeneralSectionSpigot.Result result)
-    {
-        this.generalSectionResult = result;
-    }
-
-    private void setAnimationsSectionResult(AnimationsSectionSpigot.Result result)
-    {
-        this.animationsSectionResult = result;
-    }
-
-    private void setLimitsSectionResult(LimitsSectionSpigot.Result result)
-    {
-        this.limitsSectionResult = result;
-    }
-
-    private void setProtectionHooksSectionResult(ProtectionHooksSectionSpigot.Result result)
-    {
-        this.protectionHooksSectionResult = result;
-    }
-
-    private void setStructureSectionsResult(StructuresSectionSpigot.Result result)
-    {
-        this.structuresSectionResult = result;
-    }
-
-    private void setLocaleSectionResult(LocaleSectionSpigot.Result result)
-    {
-        this.localeSectionResult = result;
-    }
-
-    private void setCachingSectionResult(CachingSectionSpigot.Result result)
-    {
-        this.cachingSectionResult = result;
-    }
-
-    private void setLoggingSectionResult(LoggingSectionSpigot.Result result)
-    {
-        this.loggingSectionResult = result;
     }
 
     @Override
