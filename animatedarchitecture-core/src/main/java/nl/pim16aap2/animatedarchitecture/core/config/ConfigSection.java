@@ -1,10 +1,12 @@
 package nl.pim16aap2.animatedarchitecture.core.config;
 
+import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -50,6 +52,20 @@ public abstract class ConfigSection<T extends IConfigSectionResult>
      * @return the consumer that will handle the result, or null if no consumer is defined.
      */
     protected abstract @Nullable Consumer<T> getResultConsumer();
+
+    /**
+     * Formats a default collection of values as a string.
+     *
+     * @param values
+     *     The values to format as a collection.
+     * @return A string representation of the collection, or "[]" if no values are provided.
+     */
+    protected String formatDefaultCollection(String... values)
+    {
+        return values.length == 0
+            ? "[]"
+            : StringUtil.formatCollection(List.of(values), Object::toString, 0, false);
+    }
 
     /**
      * Applies the results of this section.
