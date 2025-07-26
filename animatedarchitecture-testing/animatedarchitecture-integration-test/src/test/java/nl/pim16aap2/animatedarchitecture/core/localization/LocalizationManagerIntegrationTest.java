@@ -1,17 +1,14 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
-import org.junit.jupiter.api.AfterEach;
+import nl.pim16aap2.testing.annotations.FileSystemTest;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -21,42 +18,25 @@ import java.util.zip.ZipOutputStream;
 import static nl.pim16aap2.animatedarchitecture.core.localization.LocalizationTestingUtilities.writeEntry;
 import static nl.pim16aap2.animatedarchitecture.core.localization.LocalizationTestingUtilities.writeToFile;
 
+@ExtendWith(MockitoExtension.class)
 class LocalizationManagerIntegrationTest
 {
-    private FileSystem fs;
-    private Path directoryOutput;
-
-    @BeforeEach
-    void init()
-        throws IOException
-    {
-        fs = Jimfs.newFileSystem(Configuration.unix());
-        directoryOutput = Files.createDirectory(fs.getPath("/output"));
-    }
-
-    @AfterEach
-    void cleanup()
-        throws IOException
-    {
-        fs.close();
-    }
-
-    @Test
-    void testAvoidPatching()
+    @FileSystemTest
+    void testAvoidPatching(Path rootDir)
         throws IOException
     {
         final String baseName = "Translation";
         final IConfig config = Mockito.mock(IConfig.class);
         Mockito.when(config.locale()).thenReturn(Locale.ROOT);
 
-        final Path outputBundle = directoryOutput.resolve(baseName + ".bundle");
+        final Path outputBundle = rootDir.resolve(baseName + ".bundle");
         final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(outputBundle));
         writeEntry(outputStream, baseName + ".properties", List.of("key0=value0", "key1=value1", "key2=value2"));
         outputStream.close();
 
         final LocalizationManager localizationManager = new LocalizationManager(
             Mockito.mock(RestartableHolder.class),
-            directoryOutput,
+            rootDir,
             baseName,
             config,
             false
@@ -70,8 +50,8 @@ class LocalizationManagerIntegrationTest
         Assertions.assertFalse(localizationManager.isPatched());
     }
 
-    @Test
-    void testPatching()
+    @FileSystemTest
+    void testPatching(Path rootDir)
         throws IOException
     {
         final String baseName = "Translation";
@@ -88,7 +68,7 @@ class LocalizationManagerIntegrationTest
         );
         final List<String> patchItems = List.of("key0=", "key3=remapped", "key6=value6");
 
-        final Path outputBundle = directoryOutput.resolve(baseName + ".bundle");
+        final Path outputBundle = rootDir.resolve(baseName + ".bundle");
 
         final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(outputBundle));
         writeEntry(outputStream, baseName + ".properties", baseItems);
@@ -96,7 +76,7 @@ class LocalizationManagerIntegrationTest
 
         final LocalizationManager localizationManager = new LocalizationManager(
             Mockito.mock(RestartableHolder.class),
-            directoryOutput,
+            rootDir,
             baseName,
             config,
             false
@@ -109,7 +89,7 @@ class LocalizationManagerIntegrationTest
             localizationManager.getLocalizer().getMessage("key6")
         );
 
-        writeToFile(directoryOutput.resolve(baseName + ".properties"), patchItems);
+        writeToFile(rootDir.resolve(baseName + ".properties"), patchItems);
 
         // Restarting the manager will apply all patches.
         localizationManager.shutDown();

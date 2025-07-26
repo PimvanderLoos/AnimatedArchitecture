@@ -1,44 +1,26 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
-import org.junit.jupiter.api.AfterEach;
+import nl.pim16aap2.testing.annotations.FileSystemTest;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+@ExtendWith(MockitoExtension.class)
 class LocalizationPatcherIntegrationTest
 {
-    private FileSystem fs;
-    private Path directoryOutput;
-
-    @BeforeEach
-    void init()
+    @FileSystemTest
+    void testUpdateRootKeys(Path rootDirectory)
         throws IOException
     {
-        fs = Jimfs.newFileSystem(Configuration.unix());
-        directoryOutput = Files.createDirectory(fs.getPath("/output"));
-    }
+        final Path directoryOutput = Files.createDirectories(rootDirectory.resolve("output"));
 
-    @AfterEach
-    void cleanup()
-        throws IOException
-    {
-        fs.close();
-    }
-
-    @Test
-    void testUpdateRootKeys()
-        throws IOException
-    {
         final Path file0 = FileUtil.ensureFileExists(directoryOutput.resolve("patch.properties"));
         FileUtil.appendToFile(file0, List.of("key0=aaa", "key3=baa", "key1=aba", "key2=aab"));
 
@@ -59,10 +41,12 @@ class LocalizationPatcherIntegrationTest
         );
     }
 
-    @Test
-    void testGetPatches()
+    @FileSystemTest
+    void testGetPatches(Path rootDirectory)
         throws IOException
     {
+        final Path directoryOutput = Files.createDirectories(rootDirectory.resolve("output"));
+
         final Path file = FileUtil.ensureFileExists(directoryOutput.resolve("patch.properties"));
         FileUtil.appendToFile(file, List.of("key0=", "key1= ", "key2=aab", "key3=baa"));
 

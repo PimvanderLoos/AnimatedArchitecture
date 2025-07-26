@@ -1,14 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import org.junit.jupiter.api.AfterEach;
+import nl.pim16aap2.testing.annotations.FileSystemTest;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -16,29 +13,20 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.zip.ZipOutputStream;
 
-
+@ExtendWith(MockitoExtension.class)
 class LocalizerIntegrationTest
 {
     private static final Locale LOCALE_DUTCH = new Locale.Builder().setLanguage("nl").setRegion("NL").build();
     private static final String BASE_NAME = "Translation";
 
-    private FileSystem fs;
     private Path directory;
     private Path bundle;
 
-    private void initFileSystem()
+    void init(FileSystem fs)
         throws IOException
     {
-        fs = Jimfs.newFileSystem(Configuration.unix());
         directory = Files.createDirectories(fs.getPath("./test_output/translations"));
         bundle = directory.resolve(BASE_NAME + ".bundle");
-    }
-
-    @BeforeEach
-    void init()
-        throws IOException
-    {
-        initFileSystem();
 
         final ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(bundle));
         String baseFileContents = """
@@ -67,16 +55,11 @@ class LocalizerIntegrationTest
         zipOutputStream.close();
     }
 
-    @AfterEach
-    void cleanup()
+    @FileSystemTest
+    void testGetMessage(FileSystem fs)
         throws IOException
     {
-        fs.close();
-    }
-
-    @Test
-    void testGetMessage()
-    {
+        init(fs);
         final Localizer localizer = new Localizer(directory, BASE_NAME, false);
         localizer.allowClientLocales(true);
         Assertions.assertEquals("waarde0", localizer.getMessage("key0", LOCALE_DUTCH));
@@ -86,10 +69,12 @@ class LocalizerIntegrationTest
         Assertions.assertEquals("value2", localizer.getMessage("key2", LOCALE_DUTCH, input));
     }
 
-    @Test
-    void testAppendingMessages()
-        throws IOException, URISyntaxException
+    @FileSystemTest
+    void testAppendingMessages(FileSystem fs)
+        throws Exception
     {
+        init(fs);
+
         final Localizer localizer = new Localizer(directory, BASE_NAME, false);
         // Just ensure that it's loaded properly.
         Assertions.assertEquals("value0", localizer.getMessage("key0"));

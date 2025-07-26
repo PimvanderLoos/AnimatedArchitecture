@@ -1,21 +1,14 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
+import nl.pim16aap2.testing.annotations.FileSystemTest;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
 import nl.pim16aap2.testing.assertions.AssertionBuilder;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.junit.jupiter.params.Parameter;
-import org.junit.jupiter.params.ParameterizedClass;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.semver4j.Semver;
 
 import java.io.IOException;
@@ -29,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -222,81 +214,50 @@ class StructureTypeLoaderTest
         );
     }
 
-    @Nested
-    @ParameterizedClass
-    @MethodSource("fileSystemConfigurationProvider")
-    class FileSystemTests
+    @FileSystemTest
+    void ensureDirectoryExists_shouldReturnFalseAndLogMessageIfDirectoryAlreadyExistsAsFile(
+        LogCaptor logCaptor,
+        FileSystem fs
+    )
+        throws IOException
     {
-        @Parameter
-        @SuppressWarnings("unused")
-        private Configuration configuration;
+        // Setup
+        logCaptor.disableConsoleOutput();
+        logCaptor.setLogLevelToInfo();
 
-        private FileSystem fs;
+        final String fileName = "file.txt";
 
-        @BeforeEach
-        void init()
-        {
-            fs = Jimfs.newFileSystem(configuration);
-        }
+        final Path path = fs.getPath(fileName);
+        Files.createFile(path);
 
-        @AfterEach
-        void cleanup()
-            throws IOException
-        {
-            fs.close();
-        }
+        assertThat(path).exists().isRegularFile();
 
-        @Test
-        void ensureDirectoryExists_shouldReturnFalseAndLogMessageIfDirectoryAlreadyExistsAsFile(LogCaptor logCaptor)
-            throws IOException
-        {
-            // Setup
-            logCaptor.disableConsoleOutput();
-            logCaptor.setLogLevelToInfo();
+        // Execute
+        final boolean result = StructureTypeLoader.ensureDirectoryExists(path);
 
-            final String fileName = "file.txt";
+        // Verify
+        assertThat(result).isFalse();
 
-            final Path path = fs.getPath(fileName);
-            Files.createFile(path);
+        AssertionBuilder
+            .assertLogged(logCaptor)
+            .atSevere()
+            .message("Failed to create directory: %s", path)
+            .assertLoggedExceptionOfType(FileAlreadyExistsException.class)
+            .hasMessage(fileName);
+    }
 
-            assertThat(path).exists().isRegularFile();
+    @FileSystemTest
+    void ensureDirectoryExists_shouldCreateDirectoriesAndReturnTrueIfDirectoryDoesNotExist(FileSystem fs)
+    {
+        // Setup
+        final Path path = fs.getPath("test", "deep", "directory");
 
-            // Execute
-            final boolean result = StructureTypeLoader.ensureDirectoryExists(path);
+        // Execute
+        final boolean result = StructureTypeLoader.ensureDirectoryExists(path);
 
-            // Verify
-            assertThat(result).isFalse();
-
-            AssertionBuilder
-                .assertLogged(logCaptor)
-                .atSevere()
-                .message("Failed to create directory: %s", path)
-                .assertLoggedExceptionOfType(FileAlreadyExistsException.class)
-                .hasMessage(fileName);
-        }
-
-        @Test
-        void ensureDirectoryExists_shouldCreateDirectoriesAndReturnTrueIfDirectoryDoesNotExist()
-        {
-            // Setup
-            final Path path = fs.getPath("test", "deep", "directory");
-
-            // Execute
-            final boolean result = StructureTypeLoader.ensureDirectoryExists(path);
-
-            // Verify
-            assertThat(result).isTrue();
-            assertThat(path).exists().isDirectory();
-        }
-
-        static Stream<Configuration> fileSystemConfigurationProvider()
-        {
-            return Stream.of(
-                Configuration.unix(),
-                Configuration.windows(),
-                Configuration.osX()
-            );
-        }
+        // Verify
+        assertThat(result).isTrue();
+        assertThat(path).exists().isDirectory();
     }
 
     private static StructureTypeInfo getDefaultStructureTypeInfo(String name)

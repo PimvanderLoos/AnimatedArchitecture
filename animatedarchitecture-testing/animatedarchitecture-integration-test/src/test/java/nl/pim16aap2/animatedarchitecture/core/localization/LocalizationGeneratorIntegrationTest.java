@@ -1,11 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import org.junit.jupiter.api.AfterEach;
+import nl.pim16aap2.testing.annotations.FileSystemTest;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -19,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
+@ExtendWith(MockitoExtension.class)
 class LocalizationGeneratorIntegrationTest
 {
     private static final String BASE_NAME = "Translation";
@@ -56,31 +55,13 @@ class LocalizationGeneratorIntegrationTest
             "YWJsZQEAClNvdXJjZUZpbGUBACRMb2NhbGl6YXRpb25HZW5lcmF0b3JEdW1teUNsYXNzLmphdmEAIQAHAAIAAAAAA" +
             "AEAAQAFAAYAAQAJAAAAHQABAAEAAAAFKrcAAbEAAAABAAoAAAAGAAEAAAABAAEACwAAAAIADA==");
 
-
-    private FileSystem fs;
-    private Path directoryOutput;
-
-    @BeforeEach
-    void init()
-        throws IOException
-    {
-        fs = Jimfs.newFileSystem(Configuration.unix());
-        directoryOutput = Files.createDirectory(fs.getPath("/output"));
-    }
-
-    @AfterEach
-    void cleanup()
-        throws IOException
-    {
-        fs.close();
-    }
-
-    @Test
-    void testAddResources()
+    @FileSystemTest
+    void testAddResources(Path rootDirectory)
         throws IOException, URISyntaxException
     {
-        final Path directoryA = Files.createDirectory(fs.getPath("/input_a"));
-        final Path directoryB = Files.createDirectory(fs.getPath("/input_b"));
+        final Path directoryOutput = Files.createDirectory(rootDirectory.resolve("output"));
+        final Path directoryA = Files.createDirectory(rootDirectory.resolve("input_a"));
+        final Path directoryB = Files.createDirectory(rootDirectory.resolve("input_b"));
 
         final Path inputPathA0 = directoryA.resolve(BASE_NAME_A + ".properties");
         final Path inputPathA1 = directoryA.resolve(BASE_NAME_A + "_en_US.properties");
@@ -105,23 +86,26 @@ class LocalizationGeneratorIntegrationTest
         }
     }
 
-    @Test
-    void testAddResourcesFromJar()
+    @FileSystemTest
+    void testAddResourcesFromJar(Path rootDirectory)
         throws IOException, URISyntaxException
     {
-        final Path jarFile = Files.createFile(Files.createDirectory(fs.getPath("/input")).resolve("test.jar"));
+        final Path directoryOutput = Files.createDirectory(rootDirectory.resolve("output"));
+        final Path directoryInput = Files.createDirectory(rootDirectory.resolve("input"));
+        final Path jarFile = Files.createFile(directoryInput.resolve("test.jar"));
         createJar(jarFile).close();
 
         final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResourcesFromZip(jarFile, null);
 
-        verifyJarOutput();
+        verifyJarOutput(directoryOutput);
     }
 
-    @Test
-    void testGetRootKeys()
+    @FileSystemTest
+    void testGetRootKeys(Path rootDirectory)
         throws IOException
     {
+        final Path directoryOutput = Files.createDirectory(rootDirectory.resolve("output"));
         final Path outputFile = Files.createFile(directoryOutput.resolve(BASE_NAME + ".bundle"));
         {
             final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(outputFile));
@@ -144,10 +128,11 @@ class LocalizationGeneratorIntegrationTest
         )));
     }
 
-    @Test
-    void testApplyPatches()
+    @FileSystemTest
+    void testApplyPatches(Path rootDirectory)
         throws IOException, URISyntaxException
     {
+        final Path directoryOutput = Files.createDirectory(rootDirectory.resolve("output"));
         final Path jarFile = Files.createFile(directoryOutput.resolve(BASE_NAME + ".bundle"));
         final Map<String, String> patches = new LinkedHashMap<>();
         patches.put("a_key0", "a_key0= ");
@@ -184,11 +169,13 @@ class LocalizationGeneratorIntegrationTest
         Assertions.assertEquals(List.of("a_key0= ", "a_key10=a_a_a_a"), linesEnUS);
     }
 
-    @Test
-    void testAddResourcesFromClass()
+    @FileSystemTest
+    void testAddResourcesFromClass(Path rootDirectory)
         throws IOException, ClassNotFoundException, URISyntaxException
     {
-        final Path jarFile = Files.createFile(Files.createDirectory(fs.getPath("/input")).resolve("test.jar"));
+        final Path directoryOutput = Files.createDirectory(rootDirectory.resolve("output"));
+        final Path directoryInput = Files.createDirectory(rootDirectory.resolve("input"));
+        final Path jarFile = Files.createFile(directoryInput.resolve("test.jar"));
         final ZipOutputStream outputStream = createJar(jarFile);
         LocalizationTestingUtilities.writeEntry(
             outputStream,
@@ -205,16 +192,17 @@ class LocalizationGeneratorIntegrationTest
         final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResourcesFromClass(dummyClass, null);
 
-        verifyJarOutput();
+        verifyJarOutput(directoryOutput);
     }
 
     /**
      * Verifies that the files generated by the {@link LocalizationGenerator} based on the jar created with
      * {@link #createJar(Path)} are correct.
      *
-     * @throws IOException
+     * @param directoryOutput
+     *     The output directory where the jar file is located.
      */
-    private void verifyJarOutput()
+    private void verifyJarOutput(Path directoryOutput)
         throws IOException, URISyntaxException
     {
         try (
@@ -243,8 +231,6 @@ class LocalizationGeneratorIntegrationTest
      *     An (existing) jar file.
      * @return The {@link ZipOutputStream} with the jar file. This can be used to append more data. Don't forget to
      * close this.
-     *
-     * @throws IOException
      */
     private ZipOutputStream createJar(Path jarFile)
         throws IOException
