@@ -67,5 +67,12 @@
             <version>${dependency.logcaptor.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <version>${dependency.jimfs.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
