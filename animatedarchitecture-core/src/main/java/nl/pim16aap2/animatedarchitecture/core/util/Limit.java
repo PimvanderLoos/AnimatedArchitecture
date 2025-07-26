@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
 import lombok.Getter;
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -28,7 +28,7 @@ public enum Limit
     /**
      * The maximum distance a power block can be from a structure.
      */
-    POWERBLOCK_DISTANCE("powerblock_distance", IConfig::maxPowerBlockDistance),
+    POWERBLOCK_DISTANCE("powerblock_distance", IConfig::maxPowerblockDistance),
 
     /**
      * The maximum distance a structure can move measured in blocks.
