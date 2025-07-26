@@ -32,8 +32,8 @@ import nl.pim16aap2.animatedarchitecture.structures.drawbridge.StructureTypeDraw
 import nl.pim16aap2.animatedarchitecture.structures.portcullis.StructureTypePortcullis;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorld;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorldFactory;
+import nl.pim16aap2.testing.annotations.WithLogCapture;
 import nl.pim16aap2.testing.assertions.LogAssertionsUtil;
-import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

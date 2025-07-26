@@ -1,41 +1,23 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import org.junit.jupiter.api.AfterEach;
+import nl.pim16aap2.testing.annotations.FileSystemTest;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 
-
+@ExtendWith(MockitoExtension.class)
 class LocalizationUtilIntegrationTest
 {
-    private FileSystem fs;
-
-    @BeforeEach
-    void init()
-    {
-        fs = Jimfs.newFileSystem(Configuration.unix());
-    }
-
-    @AfterEach
-    void cleanup()
+    @FileSystemTest
+    void testGetLocalesInDirectory(Path rootDir)
         throws IOException
     {
-        fs.close();
-    }
-
-    @Test
-    void testGetLocalesInDirectory()
-        throws IOException
-    {
-        final Path zipFile = fs.getPath("./test.jar");
+        final Path zipFile = rootDir.resolve("test.jar");
         final String base = "translation";
         LocalizationTestingUtilities.addFilesToZip(
             zipFile,

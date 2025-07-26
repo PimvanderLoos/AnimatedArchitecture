@@ -1,6 +1,7 @@
-package nl.pim16aap2.testing.logging;
+package nl.pim16aap2.testing.annotations;
 
 
+import nl.pim16aap2.testing.extensions.LogCaptorExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.annotation.ElementType;

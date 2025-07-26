@@ -1,23 +1,20 @@
 package nl.pim16aap2.animatedarchitecture.core.audio;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.testing.annotations.FileSystemTest;
 import org.jetbrains.annotations.Nullable;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@ExtendWith(MockitoExtension.class)
 class AudioConfigIOTest
 {
     private static final String JSON =
@@ -63,30 +60,14 @@ class AudioConfigIOTest
 
     private static final AudioSet SET_GARAGE_DOOR = new AudioSet(null, null);
 
-    private FileSystem fs;
-
-    @BeforeEach
-    void init()
-    {
-        fs = Jimfs.newFileSystem(Configuration.unix());
-    }
-
-    @AfterEach
-    void cleanup()
-        throws IOException
-    {
-        fs.close();
-    }
-
-    @Test
-    void readConfig()
+    @FileSystemTest
+    void readConfig(Path rootDir)
         throws Exception
     {
-        final Path baseDir = fs.getPath("/");
-        final Path file = baseDir.resolve("audio_config.json");
+        final Path file = rootDir.resolve("audio_config.json");
         Files.writeString(file, JSON, StandardOpenOption.CREATE_NEW);
 
-        final Map<String, @Nullable AudioSet> read = new AudioConfigIO(baseDir).readConfig();
+        final Map<String, @Nullable AudioSet> read = new AudioConfigIO(rootDir).readConfig();
 
         Assertions.assertEquals(4, read.size());
 
@@ -98,19 +79,18 @@ class AudioConfigIOTest
         Assertions.assertNull(read.get("flag"));
     }
 
-    @Test
-    void writeConfig()
+    @FileSystemTest
+    void writeConfig(Path rootDir)
         throws Exception
     {
-        final Path baseDir = fs.getPath("/");
-        final Path file = baseDir.resolve("audio_config.json");
+        final Path file = rootDir.resolve("audio_config.json");
 
         final Map<StructureType, @Nullable AudioSet> map = new LinkedHashMap<>();
         map.put(newDoorType("slidingdoor"), SET_SLIDING_DOOR);
         map.put(newDoorType("flag"), null);
         map.put(newDoorType("garagedoor"), new AudioSet(null, null));
 
-        new AudioConfigIO(baseDir).writeConfig(map, SET_DEFAULT);
+        new AudioConfigIO(rootDir).writeConfig(map, SET_DEFAULT);
 
         final String contents = Files.readString(file);
         Assertions.assertEquals(JSON, contents);
