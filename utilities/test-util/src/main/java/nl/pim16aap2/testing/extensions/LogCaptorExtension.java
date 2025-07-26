@@ -1,4 +1,4 @@
-package nl.pim16aap2.testing.logging;
+package nl.pim16aap2.testing.extensions;
 
 import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
@@ -36,6 +36,9 @@ import org.junit.jupiter.api.extension.ParameterResolver;
  * <p>
  * By default, captured logs are not written to the console. If you want to see the logs in the console, you can use
  * {@link LogCaptor#enableConsoleOutput()}. Note that this will need to be done in each test.
+ * <p>
+ * You can use {@link nl.pim16aap2.testing.assertions.AssertionBuilder#assertLogged(nl.altindag.log.LogCaptor)} to build
+ * assertions on the logs.
  */
 public class LogCaptorExtension
     implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback, AfterEachCallback, ParameterResolver
