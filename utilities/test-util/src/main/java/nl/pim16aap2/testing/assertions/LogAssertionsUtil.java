@@ -10,7 +10,7 @@ import lombok.ToString;
 import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
 import nl.pim16aap2.testing.TestUtil;
-import nl.pim16aap2.testing.logging.WithLogCapture;
+import nl.pim16aap2.testing.annotations.WithLogCapture;
 import nl.pim16aap2.util.logging.floggerbackend.CustomLevel;
 import nl.pim16aap2.util.logging.floggerbackend.Log4j2LogEventUtil;
 import org.assertj.core.api.AbstractThrowableAssert;

@@ -1,6 +1,7 @@
 package nl.pim16aap2.testing.logging;
 
 import nl.altindag.log.LogCaptor;
+import nl.pim16aap2.testing.annotations.WithLogCapture;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;

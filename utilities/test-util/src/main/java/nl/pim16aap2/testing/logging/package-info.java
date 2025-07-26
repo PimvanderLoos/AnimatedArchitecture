@@ -1,7 +1,7 @@
 /**
  * This package contains a set of classes and utilities to capture and test logs in JUnit tests.
  * <p>
- * To use this package, you should use the {@link nl.pim16aap2.testing.logging.WithLogCapture} annotation on your test
+ * To use this package, you should use the {@link nl.pim16aap2.testing.annotations.WithLogCapture} annotation on your test
  * class. This will capture all logs during the test and make them available for assertions.
  * <p>
  * Example code:

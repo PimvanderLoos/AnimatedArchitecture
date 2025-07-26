@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
 import nl.altindag.log.LogCaptor;
+import nl.pim16aap2.testing.annotations.WithLogCapture;
 import nl.pim16aap2.testing.assertions.AssertionBuilder;
-import nl.pim16aap2.testing.logging.WithLogCapture;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
