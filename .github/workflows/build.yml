@@ -64,3 +64,4 @@ jobs:
         with:
           directory: report-aggregate/target/site/jacoco-aggregate
           token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
