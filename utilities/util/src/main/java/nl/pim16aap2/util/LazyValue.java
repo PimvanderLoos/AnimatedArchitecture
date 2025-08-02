@@ -109,6 +109,6 @@ public final class LazyValue<T> implements Lazy<T>
     @Override
     public String toString()
     {
-        return "LazyInit(obj=" + value + ")";
+        return "LazyInit(obj=" + get() + ")";
     }
 }

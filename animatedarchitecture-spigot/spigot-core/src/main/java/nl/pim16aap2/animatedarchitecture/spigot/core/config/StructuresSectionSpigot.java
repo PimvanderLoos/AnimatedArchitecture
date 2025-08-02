@@ -219,13 +219,13 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
         }
 
         @SuppressWarnings("unused") // It's used by Lombok's @Delegate annotation
-        public double getAnimationTimeMultiplier(StructureType type)
+        public double animationTimeMultiplier(StructureType type)
         {
             return Math.max(0.0001D, of(type).animationSpeedMultiplier());
         }
 
         @SuppressWarnings("unused") // It's used by Lombok's @Delegate annotation
-        public Material getGuiMaterial(StructureType type)
+        public Material guiMaterial(StructureType type)
         {
             return of(type).guiMaterial();
         }

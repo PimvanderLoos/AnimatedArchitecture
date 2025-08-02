@@ -317,7 +317,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * <p>
      * The animation time is calculated using this structure's {@link #getBaseAnimationTime()}, its
      * {@link #getMinimumAnimationTime()}, and the multiplier for this type as described by
-     * {@link IConfig#getAnimationTimeMultiplier(StructureType)}.
+     * {@link IConfig#animationTimeMultiplier(StructureType)}.
      * <p>
      * If the target is not null, the returned value will simply be the maximum value of the target and
      * {@link #getBaseAnimationTime()}. Note that the time multiplier is ignored in this case.
@@ -331,7 +331,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     {
         final double realTarget = (target != null) ?
             target :
-            config.getAnimationTimeMultiplier(getType()) * getBaseAnimationTime();
+            config.animationTimeMultiplier(getType()) * getBaseAnimationTime();
         return calculateAnimationTime(realTarget);
     }
 

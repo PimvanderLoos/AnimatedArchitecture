@@ -131,13 +131,13 @@ public abstract class AbstractProtectionHookSpecification implements IProtection
      */
     public static final List<IProtectionHookSpigotSpecification> DEFAULT_HOOK_DEFINITIONS =
         List.of(
-            TOWNY,
-            PLOT_SQUARED,
-            WORLD_GUARD,
+            GRIEF_DEFENDER,
             GRIEF_PREVENTION,
             LANDS,
+            PLOT_SQUARED,
             RED_PROTECT,
-            GRIEF_DEFENDER
+            TOWNY,
+            WORLD_GUARD
         );
 
     private final String name;

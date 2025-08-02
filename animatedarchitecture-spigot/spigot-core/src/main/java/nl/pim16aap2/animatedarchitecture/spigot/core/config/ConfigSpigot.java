@@ -17,7 +17,6 @@ import nl.pim16aap2.animatedarchitecture.core.config.AbstractConfig;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.hooks.ProtectionHookManagerSpigot;
 import org.bukkit.Material;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -32,8 +31,7 @@ import java.util.Collection;
 @Setter(AccessLevel.PRIVATE)
 final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebuggable
 {
-    @ToString.Exclude
-    private final JavaPlugin plugin;
+    static final int CONFIG_VERSION = 0;
 
     private volatile boolean skipPrintInfo = true;
 
@@ -73,24 +71,15 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
     private volatile LoggingSectionSpigot.Result loggingSectionResult =
         LoggingSectionSpigot.Result.DEFAULT;
 
-    /**
-     * Constructs a new {@link ConfigSpigot}.
-     *
-     * @param plugin
-     *     The Spigot core.
-     */
     @Inject
     public ConfigSpigot(
         RestartableHolder restartableHolder,
-        JavaPlugin plugin,
         Lazy<StructureTypeManager> lazyStructureTypeManager,
         Lazy<ProtectionHookManagerSpigot> lazyProtectionHookManager,
         @Named("pluginBaseDirectory") Path baseDir,
         DebuggableRegistry debuggableRegistry)
     {
         super(baseDir);
-
-        this.plugin = plugin;
 
         super.addSections(
             new GeneralSectionSpigot(this::setGeneralSectionResult),
@@ -141,7 +130,7 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
             return;
         }
 
-        logMaterialsList("Power Block Types", powerblockTypes());
+        logMaterialsList("Powerblock Types", powerblockTypes());
         logMaterialsList("Blacklisted Materials", materialBlacklist());
     }
 
@@ -161,5 +150,11 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
     public String getDebugInformation()
     {
         return "Config: " + this;
+    }
+
+    @Override
+    protected int initialVersion()
+    {
+        return CONFIG_VERSION;
     }
 }

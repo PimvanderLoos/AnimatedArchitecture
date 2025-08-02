@@ -37,7 +37,7 @@ public interface IConfigSpigot extends IConfig, IBlockAnalyzerConfig
      *     The structure type for which to get the GUI material.
      * @return The material used for the GUI of the specified structure type.
      */
-    Material getGuiMaterial(StructureType type);
+    Material guiMaterial(StructureType type);
 
     /**
      * Gets the list of command aliases.
@@ -62,5 +62,5 @@ public interface IConfigSpigot extends IConfig, IBlockAnalyzerConfig
      *     The specification of the protection hook to check.
      * @return true if the hook is enabled, false otherwise.
      */
-    boolean isHookEnabled(@Nullable IProtectionHookSpigotSpecification spec);
+    boolean isProtectionHookEnabled(@Nullable IProtectionHookSpigotSpecification spec);
 }

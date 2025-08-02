@@ -118,7 +118,7 @@ public interface IConfig extends IRestartable
      *     The structure type.
      * @return The animation time multiplier for the structure type.
      */
-    double getAnimationTimeMultiplier(StructureType type);
+    double animationTimeMultiplier(StructureType type);
 
     /**
      * Whether to skip all animations by default. If true, toggling a structure will simply teleport the blocks to their

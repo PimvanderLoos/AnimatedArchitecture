@@ -180,7 +180,7 @@ public final class ProtectionHookManagerSpigot
             return;
         }
 
-        if (!config.get().isHookEnabled(spec))
+        if (!config.get().isProtectionHookEnabled(spec))
         {
             log.atDebug().log("Not loading hook for plugin '%s' because it is disabled in the config.", pluginName);
             return;

@@ -4,7 +4,9 @@ import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dagger.Lazy;
 import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationOptions;
@@ -26,11 +28,12 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 @CustomLog
+@Accessors(fluent = true)
 public abstract class AbstractConfig implements IConfig
 {
     private static final String PATH_VERSION = "version";
-    private static final int INITIAL_VERSION = 0;
 
+    @Getter
     private final Path configPath;
 
     private final YamlConfigurationLoader configLoader;
@@ -43,6 +46,13 @@ public abstract class AbstractConfig implements IConfig
         this.configPath = baseDir.resolve("config.yaml");
         this.configLoader = initConfig();
     }
+
+    /**
+     * Gets the initial version of the configuration file.
+     *
+     * @return The initial version of the configuration file.
+     */
+    protected abstract int initialVersion();
 
     /**
      * Parses the configuration file and applies any necessary transformations.
@@ -187,7 +197,7 @@ public abstract class AbstractConfig implements IConfig
                             
                             DO NOT EDIT THIS MANUALLY!
                             """)
-                        .set(INITIAL_VERSION);
+                        .set(initialVersion());
                 });
             value.set(newNode);
             return null;
@@ -212,7 +222,7 @@ public abstract class AbstractConfig implements IConfig
     {
         final var builder = ConfigurationTransformation.versionedBuilder()
             .versionKey(PATH_VERSION)
-            .addVersion(INITIAL_VERSION, getInitialTransformations(root));
+            .addVersion(initialVersion(), getInitialTransformations(root));
 
         addTransformations(builder);
 

@@ -142,7 +142,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         {
             final StaticGuiElement guiElement = new StaticGuiElement(
                 'e',
-                new ItemStack(config.getGuiMaterial(structure.structure().getType())),
+                new ItemStack(config.guiMaterial(structure.structure().getType())),
                 click ->
                 {
                     selectedStructure = structure.structure();

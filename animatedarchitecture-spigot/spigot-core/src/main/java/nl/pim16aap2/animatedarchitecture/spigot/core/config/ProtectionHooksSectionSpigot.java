@@ -142,7 +142,7 @@ public class ProtectionHooksSectionSpigot extends ProtectionHooksSection<Protect
         }
 
         @SuppressWarnings("unused") // Used by Lombok's @Delegate
-        public boolean isHookEnabled(@Nullable IProtectionHookSpigotSpecification spec)
+        public boolean isProtectionHookEnabled(@Nullable IProtectionHookSpigotSpecification spec)
         {
             return enabledHooks().contains(spec);
         }
