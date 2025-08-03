@@ -1,7 +1,7 @@
 package nl.pim16aap2.testing.assertions;
 
 import nl.altindag.log.model.LogEvent;
-import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.api.ThrowableAssert;
 import org.jspecify.annotations.NullMarked;
 
@@ -12,7 +12,7 @@ import org.jspecify.annotations.NullMarked;
  * throwable, verifying the type of the throwable, and more.
  */
 @NullMarked
-public class LogEventAssert extends AbstractAssert<LogEventAssert, LogEvent>
+public class LogEventAssert extends AbstractObjectAssert<LogEventAssert, LogEvent>
 {
     LogEventAssert(LogEvent actual)
     {

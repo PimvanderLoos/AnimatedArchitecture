@@ -4,6 +4,7 @@ import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
 import org.apache.logging.log4j.Level;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.AbstractObjectAssert;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -19,7 +20,7 @@ import static nl.pim16aap2.testing.assertions.LogAssertionsUtil.formatLogEvents;
  * {@link AbstractAssert} from AssertJ to provide fluent assertions.
  */
 @NullMarked
-public class LogCaptorAssert extends AbstractAssert<LogCaptorAssert, LogCaptor>
+public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCaptor>
 {
     LogCaptorAssert(LogCaptor actual)
     {
