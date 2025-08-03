@@ -2,8 +2,11 @@ package nl.pim16aap2.testing.assertions;
 
 import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
+import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.assertj.core.api.InstanceOfAssertFactory;
+import org.assertj.core.api.ListAssert;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,12 +15,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
+import static nl.pim16aap2.testing.assertions.LogEventsAssert.assertThatLogEvents;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -25,30 +30,44 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class LogEventsAssertTest
 {
+    private static final Function<LogEventsAssert, List<LogEvent>> ACTUAL_EXTRACTOR = AbstractAssert::actual;
+    private static final Function<LogEventAssert, LogEvent> LOG_EVENT_EXTRACTOR = LogEventAssert::actual;
+    @SuppressWarnings("rawtypes")
+    private static final InstanceOfAssertFactory<List, ListAssert<LogEvent>> INSTANCE_OF_LOG_EVENT_LIST =
+        InstanceOfAssertFactories.list(LogEvent.class);
+
     @Mock
     private LogCaptor logCaptor;
 
-    private final LogEvent eventA = createMockLogEvent("Message A", null, "LoggerA");
-    private final LogEvent eventB = createMockLogEvent("Message B", new IOException("B"), "LoggerB");
-    private final LogEvent eventC = createMockLogEvent("Another Message C",
+    /**
+     * Log event with message 'Message A', no throwable, and logger name 'LoggerA'.
+     */
+    private final LogEvent eventA = createLogEvent("Message A", null, "LoggerA");
+
+    /**
+     * Log event with message 'Message B', an IOException, and logger name 'LoggerB'.
+     */
+    private final LogEvent eventB = createLogEvent("Message B", new IOException("B"), "LoggerB");
+
+    /**
+     * Log event with message 'Another Message C', an UncheckedIOException, and logger name 'LoggerC'.
+     */
+    private final LogEvent eventC = createLogEvent("Another Message C",
         new UncheckedIOException(new IOException("C")),
         "LoggerC");
 
+    /**
+     * List of all default log events used in tests.
+     */
     private final List<LogEvent> allEvents = List.of(eventA, eventB, eventC);
-
-    @BeforeEach
-    void setUp()
-    {
-        lenient().when(logCaptor.getLogEvents()).thenReturn(allEvents);
-    }
 
     @Test
     void failWithMessage_shouldAppendFormattedLogEvents()
     {
         // setup
-        final LogEvent testEvent = createMockLogEvent("My Test Message", null, "TestLogger");
+        final LogEvent testEvent = createLogEvent("My Test Message", null, "TestLogger");
         when(logCaptor.getLogEvents()).thenReturn(List.of(testEvent));
-        final LogEventsAssert logEventsAssert = new LogEventsAssert(List.of(), logCaptor);
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(), logCaptor);
 
         // execute & verify
         assertThatExceptionOfType(AssertionError.class)
@@ -57,506 +76,1146 @@ class LogEventsAssertTest
             .withMessageContaining("[INFO] `My Test Message` from Logger TestLogger");
     }
 
+
     @Test
     void filteredByMessage_shouldFilterByCustomPredicate()
     {
         // setup
         final BiPredicate<String, String> matcher = String::startsWith;
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
 
-        // execute & verify
-        logEventsAssert.filteredByMessage(matcher, "Message").hasSize(2)
-            .extracting(LogEvent::getMessage).containsExactly("Message A", "Message B");
-        logEventsAssert.filteredByMessage(matcher, "Another").hasSize(1)
-            .extracting(LogEvent::getMessage).containsExactly("Another Message C");
+        // execute
+        final LogEventsAssert messageFiltered = logEventsAssert.filteredByMessage(matcher, "Message");
+        final LogEventsAssert anotherFiltered = logEventsAssert.filteredByMessage(matcher, "Another");
+
+        // verify
+        assertThat(messageFiltered)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(2)
+            .containsExactly(eventA, eventB);
+        assertThat(anotherFiltered)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventC);
+    }
+
+
+    @Test
+    void hasAnyWithMessage_shouldSucceedWithMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.hasAnyWithMessage(String::contains, "Message");
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(3);
     }
 
     @Test
-    void hasAnyWithMessage_shouldVerifyAtLeastOneMatch()
+    void hasAnyWithMessage_shouldFailWhenNoMatches()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
 
         // execute & verify
-        logEventsAssert.hasAnyWithMessage(String::contains, "Message").hasSize(3);
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.hasAnyWithMessage(String::contains, "NonExistent"));
+            .isThrownBy(() -> logEventsAssert.hasAnyWithMessage(String::contains, "NonExistent"))
+            .withMessageContaining(
+                "Expected at least one log event with a message matching 'NonExistent' but found none"
+            );
+    }
+
+
+    @Test
+    void singleWithMessage_shouldReturnSingleMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventAssert result = logEventsAssert.singleWithMessage(String::startsWith, "Another");
+
+        // verify
+        assertThat(result)
+            .extracting(LOG_EVENT_EXTRACTOR)
+            .isSameAs(eventC);
     }
 
     @Test
-    void singleWithMessage_shouldVerifyExactlyOneMatch()
+    void singleWithMessage_shouldFailWhenNoMatches()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
 
         // execute & verify
-        logEventsAssert.singleWithMessage(String::startsWith, "Another")
-            .satisfies(event -> assertThat(event.getMessage()).isEqualTo("Another Message C"));
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.singleWithMessage(String::contains, "Message"));
+            .isThrownBy(() -> logEventsAssert.singleWithMessage(String::contains, "NonExistent"))
+            .withMessageContaining("Expected exactly one log event with a message matching 'NonExistent' but found 0");
     }
 
     @Test
-    void filteredByMessagesContaining_shouldFilterCorrectly()
+    void singleWithMessage_shouldFailWhenMultipleMatches()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
 
         // execute & verify
-        logEventsAssert.filteredByMessagesContaining("Message").hasSize(3);
-        logEventsAssert.filteredByMessagesContaining("A").hasSize(2)
-            .extracting(LogEvent::getMessage).containsExactlyInAnyOrder("Message A", "Another Message C");
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithMessage(String::contains, "Message"))
+            .withMessageContaining("Expected exactly one log event with a message matching 'Message' but found 3");
+    }
+
+
+    @Test
+    void filteredByMessagesContaining_shouldFilterForMatchingMessages()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert messageFiltered = logEventsAssert.filteredByMessagesContaining("Message");
+        final LogEventsAssert aFiltered = logEventsAssert.filteredByMessagesContaining("A");
+
+        // verify
+        assertThat(messageFiltered)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(3);
+        assertThat(aFiltered)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(eventA, eventC);
+    }
+
+
+    @Test
+    void hasAnyWithMessageContaining_shouldSucceedWithMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.hasAnyWithMessageContaining("Message");
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(3);
     }
 
     @Test
-    void filteredByExactMessages_shouldFilterCorrectly()
+    void hasAnyWithMessageContaining_shouldFailWhenNoMatches()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
 
         // execute & verify
-        logEventsAssert.filteredByExactMessages("Message A").singleElement()
-            .satisfies(event -> assertThat(event.getMessage()).isEqualTo("Message A"));
-        logEventsAssert.filteredByExactMessages("NonExistent").isEmpty();
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.hasAnyWithMessageContaining("NonExistent"))
+            .withMessageContaining(
+                "Expected at least one log event with a message containing 'NonExistent' but found none"
+            );
     }
+
+
+    @Test
+    void singleMessageContaining_shouldReturnSingleWithMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventAssert result = logEventsAssert.singleWithMessageContaining("Another");
+
+        // verify
+        assertThat(result)
+            .extracting(LOG_EVENT_EXTRACTOR)
+            .isSameAs(eventC);
+    }
+
+    @Test
+    void singleWithMessageContaining_shouldFailWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithMessageContaining("NonExistent"))
+            .withMessageContaining(
+                "Expected exactly one log event with a message containing 'NonExistent' but found 0"
+            );
+    }
+
+    @Test
+    void singleWithMessageContaining_shouldFailWhenMultipleMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithMessageContaining("Message"))
+            .withMessageContaining("Expected exactly one log event with a message containing 'Message' but found 3");
+    }
+
+
+    @Test
+    void filteredByMessagesExactly_shouldFilterByExactMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert exactMatch = logEventsAssert.filteredByMessagesExactly("Message A");
+
+        // verify
+        assertThat(exactMatch)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventA);
+    }
+
+    @Test
+    void filteredByMessagesExactly_shouldReturnEmptyWhenNoMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert noMatch = logEventsAssert.filteredByMessagesExactly("NonExistent");
+
+        // verify
+        assertThat(noMatch)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .isEmpty();
+    }
+
+
+    @Test
+    void hasAnyWithMessageExactly_shouldSucceedWithMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.hasAnyWithMessageExactly("Message A");
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventA);
+    }
+
+    @Test
+    void hasAnyWithMessageExactly_shouldFailWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.hasAnyWithMessageExactly("NonExistent"))
+            .withMessageContaining("Expected at least one log event with exact message 'NonExistent' but found none");
+    }
+
+
+    @Test
+    void singleMessageExactly_shouldReturnSingleWithMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventAssert result = logEventsAssert.singleWithMessageExactly("Message A");
+
+        // verify
+        assertThat(result)
+            .extracting(LOG_EVENT_EXTRACTOR)
+            .isSameAs(eventA);
+    }
+
+    @Test
+    void singleWithMessageExactly_shouldFailWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithMessageExactly("NonExistent"))
+            .withMessageContaining("Expected exactly one log event with exact message 'NonExistent' but found 0");
+    }
+
+    @Test
+    void singleWithMessageExactly_shouldFailWhenMultipleMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventA, eventA), logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithMessageExactly("Message A"))
+            .withMessageContaining("Expected exactly one log event with exact message 'Message A' but found 2");
+    }
+
 
     @Test
     void filteredByMessagesStartingWith_shouldFilterCorrectly()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert messageStarting = logEventsAssert.filteredByMessagesStartingWith("Message");
+        final LogEventsAssert anotherStarting = logEventsAssert.filteredByMessagesStartingWith("Another");
+
+        // verify
+        assertThat(messageStarting)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(2)
+            .containsExactly(eventA, eventB);
+        assertThat(anotherStarting)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventC);
+    }
+
+
+    @Test
+    void hasAnyWithMessageStartingWith_shouldSucceedWithMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.hasAnyWithMessageStartingWith("Message");
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(2);
+    }
+
+    @Test
+    void hasAnyWithMessageStartingWith_shouldFailWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
 
         // execute & verify
-        logEventsAssert.filteredByMessagesStartingWith("Message").hasSize(2);
-        logEventsAssert.filteredByMessagesStartingWith("Another").hasSize(1);
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.hasAnyWithMessageStartingWith("NonExistent"))
+            .withMessageContaining(
+                "Expected at least one log event with a message starting with 'NonExistent' but found none"
+            );
     }
+
+
+    @Test
+    void singleMessageStartingWith_shouldReturnSingleWithMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventAssert result = logEventsAssert.singleWithMessageStartingWith("Another");
+
+        // verify
+        assertThat(result)
+            .extracting(LOG_EVENT_EXTRACTOR)
+            .isSameAs(eventC);
+    }
+
+    @Test
+    void singleWithMessageStartingWith_shouldFailWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithMessageStartingWith("NonExistent"))
+            .withMessageContaining(
+                "Expected exactly one log event with a message starting with 'NonExistent' but found 0"
+            );
+    }
+
+    @Test
+    void singleWithMessageStartingWith_shouldFailWhenMultipleMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithMessageStartingWith("Message"))
+            .withMessageContaining("Expected exactly one log event with a message starting with 'Message' but found 2");
+    }
+
 
     @Test
     void filteredByMessagesEndingWith_shouldFilterCorrectly()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
 
-        // execute & verify
-        logEventsAssert.filteredByMessagesEndingWith("A").singleElement()
-            .satisfies(event -> assertThat(event.getMessage()).isEqualTo("Message A"));
-        logEventsAssert.filteredByMessagesEndingWith("C").singleElement()
-            .satisfies(event -> assertThat(event.getMessage()).isEqualTo("Another Message C"));
+        // execute
+        final LogEventsAssert endingWithA = logEventsAssert.filteredByMessagesEndingWith("A");
+        final LogEventsAssert endingWithC = logEventsAssert.filteredByMessagesEndingWith("C");
+
+        // verify
+        assertThat(endingWithA)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventA);
+        assertThat(endingWithC)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventC);
+    }
+
+
+    @Test
+    void hasAnyWithMessageEndingWith_shouldSucceedWithMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.hasAnyWithMessageEndingWith("A");
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1);
     }
 
     @Test
-    void filteredByMessagesMatching_shouldFilterByRegex()
+    void hasAnyWithMessageEndingWith_shouldFailWhenNoMatches()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
 
         // execute & verify
-        logEventsAssert.filteredByMessagesMatching("Message [A-Z]").hasSize(2);
-        logEventsAssert.filteredByMessagesMatching(".* C").hasSize(1);
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.hasAnyWithMessageEndingWith("NonExistent"))
+            .withMessageContaining(
+                "Expected at least one log event with a message ending with 'NonExistent' but found none"
+            );
+    }
+
+
+    @Test
+    void singleMessageEndingWith_shouldReturnSingleWithMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventAssert result = logEventsAssert.singleWithMessageEndingWith("A");
+
+        // verify
+        assertThat(result)
+            .extracting(LOG_EVENT_EXTRACTOR)
+            .isSameAs(eventA);
     }
 
     @Test
-    void filteredByThrowableOfType_shouldFilterCorrectly()
+    void singleWithMessageEndingWith_shouldFailWhenNoMatches()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
 
         // execute & verify
-        logEventsAssert.filteredByThrowableOfType(IOException.class).hasSize(1)
-            .extracting(LogEvent::getMessage).containsExactly("Message B");
-        logEventsAssert.filteredByThrowableOfType(UncheckedIOException.class).hasSize(1)
-            .extracting(LogEvent::getMessage).containsExactly("Another Message C");
-        logEventsAssert.filteredByThrowableOfType(RuntimeException.class).hasSize(1)
-            .extracting(LogEvent::getMessage).containsExactly("Another Message C");
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithMessageEndingWith("NonExistent"))
+            .withMessageContaining(
+                "Expected exactly one log event with a message ending with 'NonExistent' but found 0"
+            );
     }
 
     @Test
-    void filteredByThrowableExactlyOfType_shouldFilterCorrectly()
+    void singleWithMessageEndingWith_shouldFailWhenMultipleMatches()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventA, eventA), logCaptor);
 
         // execute & verify
-        logEventsAssert.filteredByThrowableExactlyOfType(IOException.class).hasSize(1)
-            .extracting(LogEvent::getMessage).containsExactly("Message B");
-        logEventsAssert.filteredByThrowableExactlyOfType(UncheckedIOException.class).hasSize(1)
-            .extracting(LogEvent::getMessage).containsExactly("Another Message C");
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithMessageEndingWith("A"))
+            .withMessageContaining("Expected exactly one log event with a message ending with 'A' but found 2");
+    }
+
+
+    @Test
+    void filteredByMessagesMatching_shouldFilterBySimpleRegex()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert messagePattern = logEventsAssert.filteredByMessagesMatching("Message [A-Z]");
+        final LogEventsAssert endingWithC = logEventsAssert.filteredByMessagesMatching(".* C");
+
+        // verify
+        assertThat(messagePattern)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(2)
+            .containsExactly(eventA, eventB);
+        assertThat(endingWithC)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventC);
     }
 
     @Test
-    void filteredByHasThrowable_shouldReturnEventsWithThrowables()
+    void filteredByMessagesMatching_shouldFilterByComplexRegex()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
 
-        // execute & verify
-        logEventsAssert.filteredByHasThrowable().hasSize(2)
-            .extracting(LogEvent::getMessage).containsExactlyInAnyOrder("Message B", "Another Message C");
+        // execute
+        final LogEventsAssert complex = logEventsAssert.filteredByMessagesMatching("^Message\\s[AB]$");
+
+        // verify
+        assertThat(complex)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(eventA, eventB);
+    }
+
+
+    @Test
+    void hasAnyWithMessageMatching_shouldSucceedWithMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.hasAnyWithMessageMatching("Message.*");
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(2);
     }
 
     @Test
-    void filteredByWithoutThrowable_shouldReturnEventsWithoutThrowables()
+    void hasAnyWithMessageMatching_shouldFailWhenNoMatches()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
 
         // execute & verify
-        logEventsAssert.filteredByWithoutThrowable().hasSize(1)
-            .extracting(LogEvent::getMessage).containsExactly("Message A");
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.hasAnyWithMessageMatching("NonExistent.*"))
+            .withMessageContaining(
+                "Expected at least one log event with a message matching 'NonExistent.*' but found none"
+            );
     }
+
+
+    @Test
+    void singleMessageMatching_shouldReturnSingleWithMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventAssert result = logEventsAssert.singleWithMessageMatching("Another.*");
+
+        // verify
+        assertThat(result)
+            .extracting(LOG_EVENT_EXTRACTOR)
+            .isSameAs(eventC);
+    }
+
+    @Test
+    void singleWithMessageMatching_shouldFailWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithMessageMatching("NonExistent.*"))
+            .withMessageContaining(
+                "Expected exactly one log event with a message matching 'NonExistent.*' but found 0"
+            );
+    }
+
+    @Test
+    void singleWithMessageMatching_shouldFailWhenMultipleMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithMessageMatching("Message.*"))
+            .withMessageContaining("Expected exactly one log event with a message matching 'Message.*' but found 2");
+    }
+
 
     @Test
     void filteredBy_shouldFilterByCustomPredicate()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
         final Predicate<LogEvent> hasIoException =
             event -> event.getThrowable().map(IOException.class::isInstance).orElse(false);
 
-        // execute & verify
-        logEventsAssert.filteredBy(hasIoException).hasSize(1)
-            .extracting(LogEvent::getMessage).containsExactly("Message B");
-    }
-
-    @Test
-    void filteredByLoggerName_shouldFilterCorrectly()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.filteredByLoggerName("LoggerA").singleElement()
-            .satisfies(event -> assertThat(event.getLoggerName()).isEqualTo("LoggerA"));
-
-        logEventsAssert.filteredByLoggerName("LoggerB").singleElement()
-            .satisfies(event -> assertThat(event.getLoggerName()).isEqualTo("LoggerB"));
-
-        logEventsAssert.filteredByLoggerName("NonExistent").isEmpty();
-    }
-
-    @Test
-    void assertThatLogEvents_shouldReturnLogEventsAssert()
-    {
-        // setup
-        final List<LogEvent> testEvents = List.of(eventA);
-
         // execute
-        final LogEventsAssert result = LogEventsAssert.assertThatLogEvents(testEvents, logCaptor);
+        final LogEventsAssert result = logEventsAssert.filteredBy(hasIoException);
 
         // verify
-        assertThat(result).extracting("actual").isSameAs(testEvents);
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventB);
+    }
+
+
+    @Test
+    void hasAnyFilteredBy_shouldSucceedWithMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+        final Predicate<LogEvent> hasMessageA = event -> "Message A".equals(event.getMessage());
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.hasAnyFilteredBy(hasMessageA);
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventA);
     }
 
     @Test
-    void filteredByMessagesContaining_shouldHandleEmptyString()
+    void hasAnyFilteredBy_shouldFailWhenNoMatches()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+        final Predicate<LogEvent> noMatchPredicate = event -> "NonExistent".equals(event.getMessage());
 
         // execute & verify
-        logEventsAssert.filteredByMessagesContaining("").hasSize(3);
-    }
-
-    @Test
-    void filteredByMessagesMatching_shouldHandleComplexRegex()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.filteredByMessagesMatching("^Message\\s[AB]$").hasSize(2)
-            .extracting(LogEvent::getMessage).containsExactlyInAnyOrder("Message A", "Message B");
-        logEventsAssert.filteredByMessagesMatching(".*\\sC$").hasSize(1)
-            .extracting(LogEvent::getMessage).containsExactly("Another Message C");
-    }
-
-    @Test
-    void hasAnyMessageContaining_shouldVerifyAtLeastOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.hasAnyMessageContaining("Message");
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.hasAnyMessageContaining("NonExistent"));
+            .isThrownBy(() -> logEventsAssert.hasAnyFilteredBy(noMatchPredicate))
+            .withMessageContaining("Expected at least one log event matching the predicate but found none");
+    }
+
+
+    @Test
+    void singleFilteredBy_shouldReturnSingleMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+        final Predicate<LogEvent> hasMessageA = event -> "Message A".equals(event.getMessage());
+
+        // execute
+        final LogEventAssert result = logEventsAssert.singleFilteredBy(hasMessageA);
+
+        // verify
+        assertThat(result)
+            .extracting(LOG_EVENT_EXTRACTOR)
+            .isSameAs(eventA);
     }
 
     @Test
-    void singleMessageContaining_shouldVerifyExactlyOneMatch()
+    void singleFilteredBy_shouldFailWhenNoMatches()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+        final Predicate<LogEvent> noMatchPredicate = event -> "NonExistent".equals(event.getMessage());
 
         // execute & verify
-        logEventsAssert.singleMessageContaining("Another")
-            .satisfies(event -> assertThat(event.getMessage()).contains("Another"));
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.singleMessageContaining("Message"));
+            .isThrownBy(() -> logEventsAssert.singleFilteredBy(noMatchPredicate))
+            .withMessageContaining("Expected exactly one log event matching the predicate but found 0");
     }
 
     @Test
-    void hasAnyExactMessage_shouldVerifyAtLeastOneMatch()
+    void singleFilteredBy_shouldFailWhenMultipleMatches()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.hasAnyExactMessage("Message A");
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.hasAnyExactMessage("NonExistent"));
-    }
-
-    @Test
-    void singleExactMessage_shouldVerifyExactlyOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.singleExactMessage("Message A")
-            .satisfies(event -> assertThat(event.getMessage()).isEqualTo("Message A"));
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.singleExactMessage("Message"));
-    }
-
-    @Test
-    void hasAnyMessageStartingWith_shouldVerifyAtLeastOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.hasAnyMessageStartingWith("Message");
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.hasAnyMessageStartingWith("NonExistent"));
-    }
-
-    @Test
-    void singleMessageStartingWith_shouldVerifyExactlyOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.singleMessageStartingWith("Another")
-            .satisfies(event -> assertThat(event.getMessage()).startsWith("Another"));
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.singleMessageStartingWith("Message"));
-    }
-
-    @Test
-    void hasAnyMessageEndingWith_shouldVerifyAtLeastOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.hasAnyMessageEndingWith("A");
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.hasAnyMessageEndingWith("NonExistent"));
-    }
-
-    @Test
-    void singleMessageEndingWith_shouldVerifyExactlyOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.singleMessageEndingWith("A")
-            .satisfies(event -> assertThat(event.getMessage()).endsWith("A"));
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.singleMessageEndingWith("Message"));
-    }
-
-    @Test
-    void hasAnyMessageMatching_shouldVerifyAtLeastOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.hasAnyMessageMatching("Message.*");
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.hasAnyMessageMatching("NonExistent.*"));
-    }
-
-    @Test
-    void singleMessageMatching_shouldVerifyExactlyOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.singleMessageMatching("Another.*")
-            .satisfies(event -> assertThat(event.getMessage()).matches("Another.*"));
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.singleMessageMatching("Message.*"));
-    }
-
-    @Test
-    void hasAnyThrowableOfType_shouldVerifyAtLeastOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.hasAnyThrowableOfType(Exception.class);
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.hasAnyThrowableOfType(ClassNotFoundException.class));
-    }
-
-    @Test
-    void singleThrowableOfType_shouldVerifyExactlyOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.singleThrowableOfType(UncheckedIOException.class)
-            .satisfies(event -> assertThat(event.getThrowable()).isPresent());
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.singleThrowableOfType(Exception.class));
-    }
-
-    @Test
-    void hasAnyThrowableExactlyOfType_shouldVerifyAtLeastOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.hasAnyThrowableExactlyOfType(IOException.class);
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.hasAnyThrowableExactlyOfType(ClassNotFoundException.class));
-    }
-
-    @Test
-    void singleThrowableExactlyOfType_shouldVerifyExactlyOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.singleThrowableExactlyOfType(IOException.class)
-            .satisfies(event -> assertThat(event.getThrowable()).isPresent());
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.singleThrowableExactlyOfType(Exception.class));
-    }
-
-    @Test
-    void anyWithThrowable_shouldVerifyAtLeastOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.anyWithThrowable();
-
-        // Test with empty throwables
-        when(logCaptor.getLogEvents()).thenReturn(List.of(eventA));
-        final LogEventsAssert noThrowableAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(noThrowableAssert::anyWithThrowable);
-    }
-
-    @Test
-    void singleWithThrowable_shouldVerifyExactlyOneMatch()
-    {
-        // setup
-        when(logCaptor.getLogEvents()).thenReturn(List.of(eventB));
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.singleWithThrowable()
-            .satisfies(event -> assertThat(event.getThrowable()).isPresent());
-
-        when(logCaptor.getLogEvents()).thenReturn(allEvents);
-        final LogEventsAssert multipleThrowableAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(multipleThrowableAssert::singleWithThrowable);
-    }
-
-    @Test
-    void anyWithoutThrowable_shouldVerifyAtLeastOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.anyWithoutThrowable();
-
-        // Test with all events having throwables
-        when(logCaptor.getLogEvents()).thenReturn(List.of(eventB, eventC));
-        final LogEventsAssert allThrowableAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(allThrowableAssert::anyWithoutThrowable);
-    }
-
-    @Test
-    void singleWithoutThrowable_shouldVerifyExactlyOneMatch()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-
-        // execute & verify
-        logEventsAssert.singleWithoutThrowable()
-            .satisfies(event -> assertThat(event.getThrowable()).isEmpty());
-
-        when(logCaptor.getLogEvents()).thenReturn(List.of(eventA, eventA));
-        final LogEventsAssert multipleNoThrowableAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-        assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(multipleNoThrowableAssert::singleWithoutThrowable);
-    }
-
-    @Test
-    void hasAnyFilteredBy_shouldVerifyAtLeastOneMatchWithPredicate()
-    {
-        // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventA, eventA), logCaptor);
         final Predicate<LogEvent> hasMessageA = event -> "Message A".equals(event.getMessage());
 
         // execute & verify
-        logEventsAssert.hasAnyFilteredBy(hasMessageA);
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.hasAnyFilteredBy(event -> false));
+            .isThrownBy(() -> logEventsAssert.singleFilteredBy(hasMessageA))
+            .withMessageContaining("Expected exactly one log event matching the predicate but found 2");
+    }
+
+
+    @Test
+    void filteredByThrowableOfType_shouldFilterByInstanceOfCheck()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert ioException =
+            logEventsAssert.filteredByThrowableOfType(IOException.class);
+
+        final LogEventsAssert uncheckedIoException =
+            logEventsAssert.filteredByThrowableOfType(UncheckedIOException.class);
+
+        // verify
+        assertThat(ioException)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventB);
+
+        assertThat(uncheckedIoException)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventC);
     }
 
     @Test
-    void singleFilteredBy_shouldVerifyExactlyOneMatchWithPredicate()
+    void filteredByThrowableOfType_shouldFilterByInheritance()
     {
         // setup
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
-        final Predicate<LogEvent> hasMessageA = event -> "Message A".equals(event.getMessage());
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert runtimeException = logEventsAssert.filteredByThrowableOfType(RuntimeException.class);
+
+        // verify
+        assertThat(runtimeException)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventC);
+    }
+
+
+    @Test
+    void hasAnyWithThrowableOfType_shouldSucceedWithMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.hasAnyWithThrowableOfType(Exception.class);
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(2);
+    }
+
+    @Test
+    void hasAnyWithThrowableOfType_shouldFailWhenNoMatches()
+    {
+        // setup
+        final var throwableType = ClassNotFoundException.class;
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
 
         // execute & verify
-        logEventsAssert.singleFilteredBy(hasMessageA)
-            .satisfies(event -> assertThat(event.getMessage()).isEqualTo("Message A"));
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventsAssert.singleFilteredBy(event -> event.getMessage().startsWith("Message")));
+            .isThrownBy(() -> logEventsAssert.hasAnyWithThrowableOfType(throwableType))
+            .withMessageContaining(
+                "Expected at least one log event with a throwable of type %s but found none",
+                throwableType.getName()
+            );
+    }
+
+
+    @Test
+    void singleThrowableOfType_shouldReturnSingleWithMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventAssert result = logEventsAssert.singleWithThrowableOfType(UncheckedIOException.class);
+
+        // verify
+        assertThat(result)
+            .extracting(LOG_EVENT_EXTRACTOR)
+            .isSameAs(eventC);
+    }
+
+    @Test
+    void singleWithThrowableOfType_shouldFailWhenNoMatches()
+    {
+        // setup
+        final var throwableType = IOException.class;
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventA), logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithThrowableOfType(throwableType))
+            .withMessageContaining(
+                "Expected exactly one log event with a throwable of type %s but found 0",
+                throwableType.getName()
+            );
+    }
+
+    @Test
+    void singleWithThrowableOfType_shouldFailWhenMultipleMatches()
+    {
+        // setup
+        final var throwableType = Exception.class;
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithThrowableOfType(throwableType))
+            .withMessageContaining(
+                "Expected exactly one log event with a throwable of type %s but found 2",
+                throwableType.getName()
+            );
+    }
+
+
+    @Test
+    void filteredByThrowableExactlyOfType_shouldFilterCorrectly()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert ioException = logEventsAssert.filteredByThrowableExactlyOfType(IOException.class);
+        final LogEventsAssert uncheckedIoException =
+            logEventsAssert.filteredByThrowableExactlyOfType(UncheckedIOException.class);
+
+        // verify
+        assertThat(ioException)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventB);
+        assertThat(uncheckedIoException)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventC);
+    }
+
+
+    @Test
+    void hasAnyWithThrowableExactlyOfType_shouldSucceedWithMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.hasAnyWithThrowableExactlyOfType(IOException.class);
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1);
+    }
+
+    @Test
+    void hasAnyWithThrowableExactlyOfType_shouldFailWhenNoMatches()
+    {
+        // setup
+        final Class<? extends Throwable> nonExistentThrowable = ClassNotFoundException.class;
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.hasAnyWithThrowableExactlyOfType(nonExistentThrowable))
+            .withMessageContaining(
+                "Expected at least one log event with a throwable exactly of type %s but found none",
+                nonExistentThrowable.getName()
+            );
+    }
+
+    @Test
+    void singleThrowableExactlyOfType_shouldReturnSingleWithMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventAssert result = logEventsAssert.singleWithThrowableExactlyOfType(IOException.class);
+
+        // verify
+        assertThat(result)
+            .extracting(LOG_EVENT_EXTRACTOR)
+            .isSameAs(eventB);
+    }
+
+    @Test
+    void singleWithThrowableExactlyOfType_shouldFailWhenNoMatches()
+    {
+        // setup
+        final var throwableType = IOException.class;
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventA), logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithThrowableExactlyOfType(throwableType))
+            .withMessageContaining(
+                "Expected exactly one log event with a throwable exactly of type %s but found 0",
+                throwableType.getName()
+            );
+    }
+
+    @Test
+    void singleWithThrowableExactlyOfType_shouldFailWhenMultipleMatches()
+    {
+        // setup
+        final var throwableType = IOException.class;
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventB, eventB), logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.singleWithThrowableExactlyOfType(throwableType))
+            .withMessageContaining(
+                "Expected exactly one log event with a throwable exactly of type %s but found 2",
+                throwableType.getName()
+            );
+    }
+
+
+    @Test
+    void filteredByHasThrowable_shouldReturnEventsWithThrowables()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.filteredByHasThrowable();
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(eventB, eventC);
+    }
+
+
+    @Test
+    void anyWithThrowable_shouldSucceedWithMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.anyWithThrowable();
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(2);
+    }
+
+    @Test
+    void anyWithThrowable_shouldFailWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventA), logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(logEventsAssert::anyWithThrowable)
+            .withMessageContaining("Expected at least one log event with a throwable but found none");
+    }
+
+
+    @Test
+    void singleWithThrowable_shouldReturnSingleMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventA, eventB), logCaptor);
+
+        // execute
+        final LogEventAssert result = logEventsAssert.singleWithThrowable();
+
+        // verify
+        assertThat(result)
+            .extracting(LOG_EVENT_EXTRACTOR)
+            .isSameAs(eventB);
+    }
+
+    @Test
+    void singleWithThrowable_shouldFailWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventA), logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(logEventsAssert::singleWithThrowable)
+            .withMessageContaining("Expected exactly one log event with a throwable but found 0");
+    }
+
+    @Test
+    void singleWithThrowable_shouldFailWhenMultipleMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventB, eventC), logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(logEventsAssert::singleWithThrowable)
+            .withMessageContaining("Expected exactly one log event with a throwable but found 2");
+    }
+
+
+    @Test
+    void filteredByWithoutThrowable_shouldReturnEventsWithoutThrowables()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.filteredByWithoutThrowable();
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventA);
+    }
+
+
+    @Test
+    void anyWithoutThrowable_shouldSucceedWithMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert result = logEventsAssert.anyWithoutThrowable();
+
+        // verify
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1);
+    }
+
+    @Test
+    void anyWithoutThrowable_shouldFailWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventB, eventC), logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(logEventsAssert::anyWithoutThrowable)
+            .withMessageContaining("Expected at least one log event without a throwable but found none");
+    }
+
+
+    @Test
+    void singleWithoutThrowable_shouldReturnSingleMatch()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventAssert result = logEventsAssert.singleWithoutThrowable();
+
+        // verify
+        assertThat(result)
+            .extracting(LOG_EVENT_EXTRACTOR)
+            .isSameAs(eventA);
+    }
+
+    @Test
+    void singleWithoutThrowable_shouldFailWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventB, eventC), logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(logEventsAssert::singleWithoutThrowable)
+            .withMessageContaining("Expected exactly one log event without a throwable but found 0");
+    }
+
+    @Test
+    void singleWithoutThrowable_shouldFailWhenMultipleMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(List.of(eventA, eventA), logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(logEventsAssert::singleWithoutThrowable)
+            .withMessageContaining("Expected exactly one log event without a throwable but found 2");
+    }
+
+
+    @Test
+    void filteredByLoggerName_shouldFilterByExistingLoggerNames()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert loggerA = logEventsAssert.filteredByLoggerName("LoggerA");
+        final LogEventsAssert loggerB = logEventsAssert.filteredByLoggerName("LoggerB");
+
+        // verify
+        assertThat(loggerA)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventA);
+        assertThat(loggerB)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(eventB);
+    }
+
+    @Test
+    void filteredByLoggerName_shouldReturnEmptyForNonExistentLogger()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute
+        final LogEventsAssert nonExistent = logEventsAssert.filteredByLoggerName("NonExistent");
+
+        // verify
+        assertThat(nonExistent)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .isEmpty();
     }
 
     @Test
     void filteredByLoggerName_shouldHandleEmptyLoggerName()
     {
         // setup
-        final LogEvent emptyLoggerEvent = createMockLogEvent("Test", null, "");
-        when(logCaptor.getLogEvents()).thenReturn(List.of(emptyLoggerEvent));
-        final LogEventsAssert logEventsAssert = assertThatLogCaptor(logCaptor).atAllLevels();
+        final LogEvent emptyLoggerEvent = createLogEvent("Test", null, "");
+        final LogEventsAssert emptyLoggerAssert = assertThatLogEvents(List.of(emptyLoggerEvent), logCaptor);
 
-        // execute & verify
-        logEventsAssert.filteredByLoggerName("").hasSize(1);
+        // execute
+        final LogEventsAssert emptyLogger = emptyLoggerAssert.filteredByLoggerName("");
+
+        // verify
+        assertThat(emptyLogger)
+            .extracting(ACTUAL_EXTRACTOR, INSTANCE_OF_LOG_EVENT_LIST)
+            .hasSize(1)
+            .containsExactly(emptyLoggerEvent);
     }
 
-    private LogEvent createMockLogEvent(String message, @Nullable Throwable throwable, String loggerName)
+    private LogEvent createLogEvent(String message, @Nullable Throwable throwable, String loggerName)
     {
-        final LogEvent mockEvent = mock(LogEvent.class);
-        lenient().when(mockEvent.getLevel()).thenReturn("INFO");
-        lenient().when(mockEvent.getMessage()).thenReturn(message);
-        lenient().when(mockEvent.getFormattedMessage()).thenReturn("[INFO] " + message);
-        lenient().when(mockEvent.getThrowable()).thenReturn(Optional.ofNullable(throwable));
-        lenient().when(mockEvent.getLoggerName()).thenReturn(loggerName);
-        return mockEvent;
+        return new LogEvent(
+            message,
+            message,
+            "INFO",
+            loggerName,
+            "TestThread",
+            ZonedDateTime.now(),
+            List.of(),
+            throwable,
+            Map.of(),
+            List.of(),
+            List.of()
+        );
     }
 }

@@ -5,80 +5,96 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Optional;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import static nl.pim16aap2.testing.assertions.LogEventAssert.assertThatLogEvent;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
 class LogEventAssertTest
 {
+    private static final Function<LogEventAssert, LogEvent> ACTUAL_EXTRACTOR = LogEventAssert::actual;
+
     @Test
-    void assertThatLogEvent_shouldReturnLogEventAssert()
+    void assertThatLogEvent_shouldCreateAssertForLogEvent()
     {
         // setup
-        final LogEvent testEvent = createMockLogEvent(null);
+        final LogEvent testEvent = newLogEvent(null);
 
         // execute
         final LogEventAssert result = assertThatLogEvent(testEvent);
 
         // verify
-        assertThat(result).extracting("actual").isSameAs(testEvent);
+        assertThat(result)
+            .extracting(ACTUAL_EXTRACTOR)
+            .isSameAs(testEvent);
     }
 
     @Test
-    void hasThrowable_shouldPassWhenThrowableIsPresent()
+    void assertThatLogEvent_shouldAcceptNullLogEvent()
+    {
+        // execute & verify
+        assertThat(assertThatLogEvent(null))
+            .extracting(ACTUAL_EXTRACTOR)
+            .isNull();
+    }
+
+    @Test
+    void hasThrowable_shouldReturnThrowableAssertWhenPresent()
     {
         // setup
         final IOException exception = new IOException("Test exception");
-        final LogEvent testEvent = createMockLogEvent(exception);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
+        final LogEvent testEvent = newLogEvent(exception);
 
         // execute & verify
-        logEventAssert.hasThrowable().isSameAs(exception);
+        assertThatLogEvent(testEvent)
+            .hasThrowable()
+            .isSameAs(exception);
     }
 
     @Test
     void hasThrowable_shouldFailWhenThrowableIsAbsent()
     {
         // setup
-        final LogEvent testEvent = createMockLogEvent(null);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
+        final LogEvent testEvent = newLogEvent(null);
 
         // execute & verify
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(logEventAssert::hasThrowable)
+            .isThrownBy(() -> assertThatLogEvent(testEvent).hasThrowable())
             .withMessage("Expected log event to have a throwable but found none.");
     }
 
     @Test
-    void hasThrowableOfType_shouldPassForSameType()
+    void hasThrowable_shouldFailWhenLogEventIsNull()
+    {
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> assertThatLogEvent(null).hasThrowable())
+            .withMessageContaining("Expecting actual not to be null");
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {IOException.class, Exception.class})
+    void hasThrowableOfType_shouldPassForTypeAndSupertypes(Class<? extends Throwable> type)
     {
         // setup
         final IOException exception = new IOException("Test exception");
-        final LogEvent testEvent = createMockLogEvent(exception);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
+        final LogEvent testEvent = newLogEvent(exception);
 
         // execute & verify
-        logEventAssert.hasThrowableOfType(IOException.class).isSameAs(exception);
-    }
-
-    @Test
-    void hasThrowableOfType_shouldPassForSubtype()
-    {
-        // setup
-        final UncheckedIOException exception = new UncheckedIOException(new IOException("Test exception"));
-        final LogEvent testEvent = createMockLogEvent(exception);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
-
-        // execute & verify
-        logEventAssert.hasThrowableOfType(RuntimeException.class).isSameAs(exception);
+        assertThatLogEvent(testEvent)
+            .hasThrowableOfType(type)
+            .isSameAs(exception);
     }
 
     @Test
@@ -86,37 +102,47 @@ class LogEventAssertTest
     {
         // setup
         final IllegalArgumentException exception = new IllegalArgumentException("Test exception");
-        final LogEvent testEvent = createMockLogEvent(exception);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
+        final LogEvent testEvent = newLogEvent(exception);
 
         // execute & verify
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventAssert.hasThrowableOfType(IOException.class));
+            .isThrownBy(() -> assertThatLogEvent(testEvent).hasThrowableOfType(IOException.class))
+            .withMessageContaining("to be an instance of")
+            .withMessageContaining("java.io.IOException");
     }
 
     @Test
     void hasThrowableOfType_shouldFailWhenThrowableIsAbsent()
     {
         // setup
-        final LogEvent testEvent = createMockLogEvent(null);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
+        final LogEvent testEvent = newLogEvent(null);
 
         // execute & verify
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventAssert.hasThrowableOfType(IOException.class))
-            .withMessage("Expected log event to have a throwable of type java.io.IOException but found none.");
+            .isThrownBy(() -> assertThatLogEvent(testEvent).hasThrowableOfType(IOException.class))
+            .withMessage("Expected log event to have a throwable of type class java.io.IOException but found none.");
     }
 
     @Test
-    void hasThrowableExactlyOfType_shouldPassForSameType()
+    void hasThrowableOfType_shouldFailWhenLogEventIsNull()
+    {
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> assertThatLogEvent(null).hasThrowableOfType(IOException.class))
+            .withMessageContaining("Expecting actual not to be null");
+    }
+
+    @Test
+    void hasThrowableExactlyOfType_shouldPassForExactType()
     {
         // setup
         final IOException exception = new IOException("Test exception");
-        final LogEvent testEvent = createMockLogEvent(exception);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
+        final LogEvent testEvent = newLogEvent(exception);
 
         // execute & verify
-        logEventAssert.hasThrowableExactlyOfType(IOException.class);
+        assertThatLogEvent(testEvent)
+            .hasThrowableExactlyOfType(IOException.class)
+            .isSameAs(exception);
     }
 
     @Test
@@ -124,82 +150,64 @@ class LogEventAssertTest
     {
         // setup
         final UncheckedIOException exception = new UncheckedIOException(new IOException("Test exception"));
-        final LogEvent testEvent = createMockLogEvent(exception);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
+        final LogEvent testEvent = newLogEvent(exception);
 
         // execute & verify
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventAssert.hasThrowableExactlyOfType(IOException.class));
+            .isThrownBy(() -> assertThatLogEvent(testEvent).hasThrowableExactlyOfType(IOException.class))
+            .withMessageContaining("to be exactly an instance of")
+            .withMessageContaining("java.io.IOException");
     }
 
     @Test
-    void hasThrowableExactlyOfType_shouldFailForDifferentType()
+    void hasThrowableExactlyOfType_shouldFailForSupertype()
     {
         // setup
-        final IllegalArgumentException exception = new IllegalArgumentException("Test exception");
-        final LogEvent testEvent = createMockLogEvent(exception);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
+        final IOException exception = new IOException("Test exception");
+        final LogEvent testEvent = newLogEvent(exception);
 
         // execute & verify
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventAssert.hasThrowableExactlyOfType(IOException.class));
+            .isThrownBy(() -> assertThatLogEvent(testEvent).hasThrowableExactlyOfType(Exception.class))
+            .withMessageContaining("to be exactly an instance of")
+            .withMessageContaining("java.lang.Exception");
     }
 
     @Test
     void hasThrowableExactlyOfType_shouldFailWhenThrowableIsAbsent()
     {
         // setup
-        final LogEvent testEvent = createMockLogEvent(null);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
+        final LogEvent testEvent = newLogEvent(null);
 
         // execute & verify
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> logEventAssert.hasThrowableExactlyOfType(IOException.class))
-            .withMessage("Expected log event to have a throwable of type java.io.IOException but found none.");
+            .isThrownBy(() -> assertThatLogEvent(testEvent).hasThrowableExactlyOfType(IOException.class))
+            .withMessage("Expected log event to have a throwable of type class java.io.IOException but found none.");
     }
 
     @Test
-    void hasThrowableOfType_shouldHandleNullClass()
+    void hasThrowableExactlyOfType_shouldFailWhenLogEventIsNull()
     {
-        // setup
-        final IOException exception = new IOException("Test exception");
-        final LogEvent testEvent = createMockLogEvent(exception);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
-
         // execute & verify
-        assertThatExceptionOfType(NullPointerException.class)
-            .isThrownBy(() -> logEventAssert.hasThrowableOfType(null));
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> assertThatLogEvent(null).hasThrowableExactlyOfType(IOException.class))
+            .withMessageContaining("Expecting actual not to be null");
     }
 
-    @Test
-    void hasThrowableExactlyOfType_shouldHandleNullClass()
+    private LogEvent newLogEvent(@Nullable Throwable throwable)
     {
-        // setup
-        final IOException exception = new IOException("Test exception");
-        final LogEvent testEvent = createMockLogEvent(exception);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
-
-        // execute & verify
-        assertThatExceptionOfType(NullPointerException.class)
-            .isThrownBy(() -> logEventAssert.hasThrowableExactlyOfType(null));
-    }
-
-    @Test
-    void hasThrowableOfType_shouldPassForRuntimeExceptionSubtype()
-    {
-        // setup
-        final IllegalArgumentException exception = new IllegalArgumentException("Test exception");
-        final LogEvent testEvent = createMockLogEvent(exception);
-        final LogEventAssert logEventAssert = assertThatLogEvent(testEvent);
-
-        // execute & verify
-        logEventAssert.hasThrowableOfType(RuntimeException.class).isSameAs(exception);
-    }
-
-    private LogEvent createMockLogEvent(@Nullable Throwable throwable)
-    {
-        final LogEvent mockEvent = mock(LogEvent.class);
-        lenient().when(mockEvent.getThrowable()).thenReturn(Optional.ofNullable(throwable));
-        return mockEvent;
+        return new LogEvent(
+            "message",
+            "message",
+            "INFO",
+            "TestLogger",
+            "TestThread",
+            ZonedDateTime.now(),
+            List.of(),
+            throwable,
+            Map.of(),
+            List.of(),
+            List.of()
+        );
     }
 }

@@ -4,6 +4,7 @@ import nl.altindag.log.model.LogEvent;
 import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.api.ThrowableAssert;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents an assertion class for {@link LogEvent} instances.
@@ -14,8 +15,9 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class LogEventAssert extends AbstractObjectAssert<LogEventAssert, LogEvent>
 {
-    LogEventAssert(LogEvent actual)
+    LogEventAssert(@Nullable LogEvent actual)
     {
+        //noinspection DataFlowIssue
         super(actual, LogEventAssert.class);
     }
 
@@ -26,7 +28,7 @@ public class LogEventAssert extends AbstractObjectAssert<LogEventAssert, LogEven
      *     The {@link LogEvent} to create the assertion for.
      * @return A new {@link LogEventAssert} for the given {@link LogEvent}.
      */
-    static LogEventAssert assertThatLogEvent(LogEvent actual)
+    static LogEventAssert assertThatLogEvent(@Nullable LogEvent actual)
     {
         return new LogEventAssert(actual);
     }
@@ -38,7 +40,7 @@ public class LogEventAssert extends AbstractObjectAssert<LogEventAssert, LogEven
      */
     public ThrowableAssert<?> hasThrowable()
     {
-        final Throwable throwable = actual.getThrowable().orElse(null);
+        final Throwable throwable = checkedActual().getThrowable().orElse(null);
         if (throwable == null)
             failWithMessage("Expected log event to have a throwable but found none.");
         return new ThrowableAssert<>(throwable);
@@ -55,7 +57,10 @@ public class LogEventAssert extends AbstractObjectAssert<LogEventAssert, LogEven
      */
     public <T extends Throwable> ThrowableAssert<T> hasThrowableOfType(Class<T> throwableType)
     {
-        return getThrowableAssertForType(throwableType).isInstanceOf(throwableType);
+        //noinspection unchecked
+        return (ThrowableAssert<T>)
+            getThrowableAssertOrFail(throwableType)
+                .isInstanceOf(throwableType);
     }
 
     /**
@@ -69,18 +74,30 @@ public class LogEventAssert extends AbstractObjectAssert<LogEventAssert, LogEven
      */
     public <T extends Throwable> ThrowableAssert<T> hasThrowableExactlyOfType(Class<T> throwableType)
     {
-        return getThrowableAssertForType(throwableType).isExactlyInstanceOf(throwableType);
+        //noinspection unchecked
+        return (ThrowableAssert<T>)
+            getThrowableAssertOrFail(throwableType)
+                .isExactlyInstanceOf(throwableType);
     }
 
-    private <T extends Throwable> ThrowableAssert<T> getThrowableAssertForType(Class<T> throwableType)
+    /**
+     * Gets a null-checked version of the actual log event.
+     *
+     * @return The actual log event, guaranteed to be non-null.
+     */
+    private LogEvent checkedActual()
     {
-        final Throwable throwable = actual.getThrowable().orElse(null);
+        isNotNull();
+        return actual;
+    }
+
+    private ThrowableAssert<?> getThrowableAssertOrFail(Class<? extends Throwable> throwableType)
+    {
+        final Throwable throwable = checkedActual().getThrowable().orElse(null);
 
         if (throwable == null)
-            failWithMessage("Expected log event to have a throwable of type %s but found none.",
-                throwableType.getName());
+            failWithMessage("Expected log event to have a throwable of type %s but found none.", throwableType);
 
-        //noinspection unchecked
-        return (ThrowableAssert<T>) new ThrowableAssert<>(throwable);
+        return new ThrowableAssert<>(throwable);
     }
 }

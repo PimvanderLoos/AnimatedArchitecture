@@ -9,7 +9,9 @@ import org.assertj.core.api.AbstractListAssert;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 import static nl.pim16aap2.testing.assertions.LogAssertionsUtil.formatLogEvents;
@@ -29,7 +31,9 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
     LogEventsAssert(List<LogEvent> logEvents, LogCaptor logCaptor)
     {
         super(logEvents, LogEventsAssert.class);
-        this.logCaptor = logCaptor;
+        this.logCaptor = Objects.requireNonNull(logCaptor);
+
+        isNotNull();
     }
 
     /**
@@ -68,6 +72,17 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
     protected LogEventsAssert newAbstractIterableAssert(Iterable<? extends LogEvent> iterable)
     {
         return new LogEventsAssert(newArrayList(iterable), logCaptor);
+    }
+
+    @Override
+    public LogEventsAssert isNotEmpty()
+    {
+        if (info.overridingErrorMessage() == null)
+        {
+            info.overridingErrorMessage("Expected at least one log event but found none");
+        }
+        iterables.assertNotEmpty(info, actual);
+        return myself;
     }
 
     /**
@@ -126,7 +141,11 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
         @FormatString String expected,
         Object... args)
     {
-        return filteredByMessage(matcher, expected, args).isNotEmpty();
+        return filteredByMessage(matcher, expected, args)
+            .isNotEmpty(String.format(
+                "Expected at least one log event with a message matching '%s' but found none",
+                String.format(expected, args)
+            ));
     }
 
     /**
@@ -154,7 +173,12 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
         @FormatString String expected,
         Object... args)
     {
-        return filteredByMessage(matcher, expected, args).singleElement();
+        return filteredByMessage(matcher, expected, args)
+            .singleElement(count -> String.format(
+                "Expected exactly one log event with a message matching '%s' but found %d",
+                String.format(expected, args),
+                count
+            ));
     }
 
 
@@ -188,9 +212,13 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      * @return A new {@link LogEventsAssert} containing the log events that match the expectation. This is never empty.
      */
     @FormatMethod
-    public LogEventsAssert hasAnyMessageContaining(@FormatString String expectedMessage, Object... args)
+    public LogEventsAssert hasAnyWithMessageContaining(@FormatString String expectedMessage, Object... args)
     {
-        return filteredByMessagesContaining(expectedMessage, args).isNotEmpty();
+        return filteredByMessagesContaining(expectedMessage, args)
+            .isNotEmpty(String.format(
+                "Expected at least one log event with a message containing '%s' but found none",
+                String.format(expectedMessage, args)
+            ));
     }
 
     /**
@@ -203,9 +231,14 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      * @return A new {@link LogEventAssert} containing the log event that matches the expectation.
      */
     @FormatMethod
-    public LogEventAssert singleMessageContaining(@FormatString String expectedMessage, Object... args)
+    public LogEventAssert singleWithMessageContaining(@FormatString String expectedMessage, Object... args)
     {
-        return filteredByMessagesContaining(expectedMessage, args).singleElement();
+        return filteredByMessagesContaining(expectedMessage, args)
+            .singleElement(count -> String.format(
+                "Expected exactly one log event with a message containing '%s' but found %d",
+                String.format(expectedMessage, args),
+                count
+            ));
     }
 
 
@@ -221,7 +254,7 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      * @return A new {@link LogEventsAssert} containing the log events that match the expectation. This may be empty.
      */
     @FormatMethod
-    public LogEventsAssert filteredByExactMessages(@FormatString String expectedMessage, Object... args)
+    public LogEventsAssert filteredByMessagesExactly(@FormatString String expectedMessage, Object... args)
     {
         return filteredByMessage(String::equals, expectedMessage, args);
     }
@@ -229,8 +262,8 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
     /**
      * Verifies that at least one log event has a message that exactly matches the expected message.
      * <p>
-     * This method is similar to {@link #filteredByExactMessages(String, Object...)} but asserts that the result is not
-     * empty.
+     * This method is similar to {@link #filteredByMessagesExactly(String, Object...)} but asserts that the result is
+     * not empty.
      *
      * @param expectedMessage
      *     The expected message to match exactly.
@@ -239,9 +272,13 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      * @return A new {@link LogEventsAssert} containing the log events that match the expectation. This is never empty.
      */
     @FormatMethod
-    public LogEventsAssert hasAnyExactMessage(@FormatString String expectedMessage, Object... args)
+    public LogEventsAssert hasAnyWithMessageExactly(@FormatString String expectedMessage, Object... args)
     {
-        return filteredByExactMessages(expectedMessage, args).isNotEmpty();
+        return filteredByMessagesExactly(expectedMessage, args)
+            .isNotEmpty(String.format(
+                "Expected at least one log event with exact message '%s' but found none",
+                String.format(expectedMessage, args)
+            ));
     }
 
     /**
@@ -254,9 +291,14 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      * @return A new {@link LogEventAssert} containing the log event that matches the expectation.
      */
     @FormatMethod
-    public LogEventAssert singleExactMessage(@FormatString String expectedMessage, Object... args)
+    public LogEventAssert singleWithMessageExactly(@FormatString String expectedMessage, Object... args)
     {
-        return filteredByExactMessages(expectedMessage, args).singleElement();
+        return filteredByMessagesExactly(expectedMessage, args)
+            .singleElement(count -> String.format(
+                "Expected exactly one log event with exact message '%s' but found %d",
+                String.format(expectedMessage, args),
+                count
+            ));
     }
 
 
@@ -290,9 +332,13 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      * @return A new {@link LogEventsAssert} containing the log events that match the expectation. This is never empty.
      */
     @FormatMethod
-    public LogEventsAssert hasAnyMessageStartingWith(@FormatString String expectedMessage, Object... args)
+    public LogEventsAssert hasAnyWithMessageStartingWith(@FormatString String expectedMessage, Object... args)
     {
-        return filteredByMessagesStartingWith(expectedMessage, args).isNotEmpty();
+        return filteredByMessagesStartingWith(expectedMessage, args)
+            .isNotEmpty(String.format(
+                "Expected at least one log event with a message starting with '%s' but found none",
+                String.format(expectedMessage, args)
+            ));
     }
 
     /**
@@ -305,9 +351,14 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      * @return A new {@link LogEventAssert} containing the log event that matches the expectation.
      */
     @FormatMethod
-    public LogEventAssert singleMessageStartingWith(@FormatString String expectedMessage, Object... args)
+    public LogEventAssert singleWithMessageStartingWith(@FormatString String expectedMessage, Object... args)
     {
-        return filteredByMessagesStartingWith(expectedMessage, args).singleElement();
+        return filteredByMessagesStartingWith(expectedMessage, args)
+            .singleElement(count -> String.format(
+                "Expected exactly one log event with a message starting with '%s' but found %d",
+                String.format(expectedMessage, args),
+                count
+            ));
     }
 
 
@@ -341,9 +392,13 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      * @return A new {@link LogEventsAssert} containing the log events that match the expectation. This is never empty.
      */
     @FormatMethod
-    public LogEventsAssert hasAnyMessageEndingWith(@FormatString String expectedMessage, Object... args)
+    public LogEventsAssert hasAnyWithMessageEndingWith(@FormatString String expectedMessage, Object... args)
     {
-        return filteredByMessagesEndingWith(expectedMessage, args).isNotEmpty();
+        return filteredByMessagesEndingWith(expectedMessage, args)
+            .isNotEmpty(String.format(
+                "Expected at least one log event with a message ending with '%s' but found none",
+                String.format(expectedMessage, args)
+            ));
     }
 
     /**
@@ -356,9 +411,14 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      * @return A new {@link LogEventAssert} containing the log event that matches the expectation.
      */
     @FormatMethod
-    public LogEventAssert singleMessageEndingWith(@FormatString String expectedMessage, Object... args)
+    public LogEventAssert singleWithMessageEndingWith(@FormatString String expectedMessage, Object... args)
     {
-        return filteredByMessagesEndingWith(expectedMessage, args).singleElement();
+        return filteredByMessagesEndingWith(expectedMessage, args)
+            .singleElement(count -> String.format(
+                "Expected exactly one log event with a message ending with '%s' but found %d",
+                String.format(expectedMessage, args),
+                count
+            ));
     }
 
 
@@ -385,9 +445,13 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      *     The regular expression to match the log event messages against.
      * @return A new {@link LogEventsAssert} containing the log events that match the expectation. This is never empty.
      */
-    public LogEventsAssert hasAnyMessageMatching(String regex)
+    public LogEventsAssert hasAnyWithMessageMatching(String regex)
     {
-        return filteredByMessagesMatching(regex).isNotEmpty();
+        return filteredByMessagesMatching(regex)
+            .isNotEmpty(String.format(
+                "Expected at least one log event with a message matching '%s' but found none",
+                regex
+            ));
     }
 
     /**
@@ -397,9 +461,14 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      *     The regular expression to match the log event messages against.
      * @return A new {@link LogEventAssert} containing the log event that matches the expectation.
      */
-    public LogEventAssert singleMessageMatching(String regex)
+    public LogEventAssert singleWithMessageMatching(String regex)
     {
-        return filteredByMessagesMatching(regex).singleElement();
+        return filteredByMessagesMatching(regex)
+            .singleElement(count -> String.format(
+                "Expected exactly one log event with a message matching '%s' but found %d",
+                regex,
+                count
+            ));
     }
 
 
@@ -428,7 +497,13 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      */
     public LogEventsAssert hasAnyFilteredBy(Predicate<LogEvent> predicate)
     {
-        return filteredBy(predicate).isNotEmpty();
+        return filteredBy(predicate)
+            .isNotEmpty("Expected at least one log event matching the predicate but found none");
+    }
+
+    private int logEventCount()
+    {
+        return actual.size();
     }
 
     /**
@@ -440,7 +515,8 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      */
     public LogEventAssert singleFilteredBy(Predicate<LogEvent> predicate)
     {
-        return filteredBy(predicate).singleElement();
+        return filteredBy(predicate)
+            .singleElement("Expected exactly one log event matching the predicate but found %d");
     }
 
 
@@ -471,9 +547,13 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      *     The type of the throwable to check for.
      * @return A new {@link LogEventsAssert} containing the filtered log events. This is never empty.
      */
-    public LogEventsAssert hasAnyThrowableOfType(Class<? extends Throwable> throwableType)
+    public LogEventsAssert hasAnyWithThrowableOfType(Class<? extends Throwable> throwableType)
     {
-        return filteredByThrowableOfType(throwableType).isNotEmpty();
+        return filteredByThrowableOfType(throwableType)
+            .isNotEmpty(String.format(
+                "Expected at least one log event with a throwable of type %s but found none",
+                throwableType.getName()
+            ));
     }
 
     /**
@@ -483,9 +563,14 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      *     The type of the throwable to filter by.
      * @return A new {@link LogEventAssert} containing the log event that matches the expectation.
      */
-    public LogEventAssert singleThrowableOfType(Class<? extends Throwable> throwableType)
+    public LogEventAssert singleWithThrowableOfType(Class<? extends Throwable> throwableType)
     {
-        return filteredByThrowableOfType(throwableType).singleElement();
+        return filteredByThrowableOfType(throwableType)
+            .singleElement(count -> String.format(
+                "Expected exactly one log event with a throwable of type %s but found %d",
+                throwableType.getName(),
+                count
+            ));
     }
 
 
@@ -516,9 +601,13 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      *     The type of the throwable to check for.
      * @return A new {@link LogEventsAssert} containing the filtered log events. This is never empty.
      */
-    public LogEventsAssert hasAnyThrowableExactlyOfType(Class<? extends Throwable> throwableType)
+    public LogEventsAssert hasAnyWithThrowableExactlyOfType(Class<? extends Throwable> throwableType)
     {
-        return filteredByThrowableExactlyOfType(throwableType).isNotEmpty();
+        return filteredByThrowableExactlyOfType(throwableType)
+            .isNotEmpty(String.format(
+                "Expected at least one log event with a throwable exactly of type %s but found none",
+                throwableType.getName()
+            ));
     }
 
     /**
@@ -528,9 +617,14 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      *     The type of the throwable to check for.
      * @return A new {@link LogEventAssert} containing the log event that matches the expectation.
      */
-    public LogEventAssert singleThrowableExactlyOfType(Class<? extends Throwable> throwableType)
+    public LogEventAssert singleWithThrowableExactlyOfType(Class<? extends Throwable> throwableType)
     {
-        return filteredByThrowableExactlyOfType(throwableType).singleElement();
+        return filteredByThrowableExactlyOfType(throwableType)
+            .singleElement(count -> String.format(
+                "Expected exactly one log event with a throwable exactly of type %s but found %d",
+                throwableType.getName(),
+                count
+            ));
     }
 
 
@@ -555,7 +649,8 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      */
     public LogEventsAssert anyWithThrowable()
     {
-        return filteredByHasThrowable().isNotEmpty();
+        return filteredByHasThrowable()
+            .isNotEmpty("Expected at least one log event with a throwable but found none");
     }
 
     /**
@@ -565,7 +660,8 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      */
     public LogEventAssert singleWithThrowable()
     {
-        return filteredByHasThrowable().singleElement();
+        return filteredByHasThrowable()
+            .singleElement("Expected exactly one log event with a throwable but found %d");
     }
 
 
@@ -590,7 +686,8 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      */
     public LogEventsAssert anyWithoutThrowable()
     {
-        return filteredByWithoutThrowable().isNotEmpty();
+        return filteredByWithoutThrowable()
+            .isNotEmpty("Expected at least one log event without a throwable but found none");
     }
 
     /**
@@ -600,7 +697,8 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
      */
     public LogEventAssert singleWithoutThrowable()
     {
-        return filteredByWithoutThrowable().singleElement();
+        return filteredByWithoutThrowable()
+            .singleElement("Expected exactly one log event without a throwable but found %d");
     }
 
 
@@ -614,6 +712,66 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
     public LogEventsAssert filteredByLoggerName(String loggerName)
     {
         return filteredBy(event -> event.getLoggerName().equals(loggerName));
+    }
+
+    /**
+     * Asserts that the log events contain exactly one element and returns an assertion for that element.
+     * <p>
+     * This method is a convenience method to assert that the log events contain exactly one element and uses the
+     * provided message format to override the error message if the assertion fails.
+     *
+     * @param messageFormat
+     *     The format string for the error message if the assertion fails. This should contain a single "%d" placeholder
+     *     for the number of log events.
+     *     <p>
+     *     For example:
+     *     <pre>{@code .singleElement("Expected exactly one log event but found %d")}</pre>
+     * @return A new {@link LogEventAssert} containing the single log event that matches the expectation.
+     */
+    private LogEventAssert singleElement(String messageFormat)
+    {
+        return this
+            .overridingErrorMessage(messageFormat, logEventCount())
+            .singleElement();
+    }
+
+    /**
+     * Asserts that the log events contain exactly one element and returns an assertion for that element.
+     * <p>
+     * This method is a convenience method to assert that the log events contain exactly one element and uses the
+     * provided message format to override the error message if the assertion fails.
+     *
+     * @param messageFormatter
+     *     A function that takes the number of log events and returns a formatted message.
+     *     <p>
+     *     For example:
+     *     <pre>{@code .singleElement(i -> String.format("Expected exactly one log event but found %d", i))}</pre>
+     * @return A new {@link LogEventAssert} containing the single log event that matches the expectation.
+     */
+    private LogEventAssert singleElement(IntFunction<String> messageFormatter)
+    {
+        return this
+            .overridingErrorMessage(messageFormatter.apply(logEventCount()))
+            .singleElement();
+    }
+
+    /**
+     * Asserts that the log events contain at least one element and returns an assertion for that element.
+     * <p>
+     * This method is a convenience method to assert that the log events contain at least one element and uses the
+     * provided message to override the error message if the assertion fails.
+     *
+     * @param message
+     *     The message to override the error message if the assertion fails.
+     *     <p>
+     *     For example: <pre>{@code .anyElement("Expected at least one log event but found none")}</pre>
+     * @return {@code this} instance of {@link LogEventsAssert} for method chaining.
+     */
+    private LogEventsAssert isNotEmpty(String message)
+    {
+        return this
+            .overridingErrorMessage(message)
+            .isNotEmpty();
     }
 
     private List<LogEvent> logEventsFilteredBy(Predicate<LogEvent> predicate)

@@ -2,6 +2,7 @@ package nl.pim16aap2.testing.assertions;
 
 import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
+import nl.pim16aap2.util.logging.floggerbackend.Log4j2LogEventUtil;
 import org.apache.logging.log4j.Level;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.AbstractObjectAssert;
@@ -25,6 +26,7 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     LogCaptorAssert(LogCaptor actual)
     {
         super(actual, LogCaptorAssert.class);
+        isNotNull();
     }
 
     /**
@@ -54,6 +56,38 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     public LogEventsAssert atAllLevels()
     {
         return at(null);
+    }
+
+    /**
+     * Verifies that one or more logs were captured at the specified log level.
+     *
+     * @param level
+     *     The log level to filter by, or {@code null} to get all logs.
+     * @return A {@link LogEventsAssert} containing the log events at the specified level.
+     */
+    public LogEventsAssert atJulLevel(java.util.logging.Level level)
+    {
+        return at(Log4j2LogEventUtil.toLog4jLevel(level));
+    }
+
+    /**
+     * Verifies that one or more logs were captured at the specified log level.
+     *
+     * @return A {@link LogEventsAssert} containing the log events at the specified level.
+     */
+    public LogEventsAssert atSevere()
+    {
+        return atJulLevel(java.util.logging.Level.SEVERE);
+    }
+
+    /**
+     * Verifies that one or more fatal logs were captured.
+     *
+     * @return A {@link LogEventsAssert} containing the error logs.
+     */
+    public LogEventsAssert atFatal()
+    {
+        return at(Level.FATAL);
     }
 
     /**
@@ -122,6 +156,16 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
         if (!actual.getLogs().isEmpty())
             failWithMessage("Expected no logs, but found: %s", actual.getLogs());
         return this;
+    }
+
+    /**
+     * Verifies that no fatal logs were captured.
+     *
+     * @return {@code this} assertion object
+     */
+    public LogCaptorAssert hasNoFatalLogs()
+    {
+        return hasNoLogsOfLevel(Level.FATAL);
     }
 
     /**
