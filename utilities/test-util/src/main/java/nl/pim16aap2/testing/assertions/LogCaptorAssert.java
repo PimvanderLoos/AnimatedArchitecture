@@ -2,7 +2,7 @@ package nl.pim16aap2.testing.assertions;
 
 import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
-import nl.pim16aap2.util.logging.floggerbackend.Log4j2LogEventUtil;
+import nl.pim16aap2.util.logging.floggerbackend.CustomLevel;
 import org.apache.logging.log4j.Level;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.AbstractObjectAssert;
@@ -49,7 +49,7 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     }
 
     /**
-     * Verifies that the {@link LogCaptor} has captured one or more log events.
+     * Gets all logs captured by the {@link LogCaptor}. The result may be empty.
      *
      * @return A {@link LogEventsAssert} containing the captured log events.
      */
@@ -59,29 +59,57 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     }
 
     /**
-     * Verifies that one or more logs were captured at the specified log level.
-     *
-     * @param level
-     *     The log level to filter by, or {@code null} to get all logs.
-     * @return A {@link LogEventsAssert} containing the log events at the specified level.
-     */
-    public LogEventsAssert atJulLevel(java.util.logging.Level level)
-    {
-        return at(Log4j2LogEventUtil.toLog4jLevel(level));
-    }
-
-    /**
-     * Verifies that one or more logs were captured at the specified log level.
+     * Gets all severe logs captured by the {@link LogCaptor}. The result may be empty.
      *
      * @return A {@link LogEventsAssert} containing the log events at the specified level.
      */
     public LogEventsAssert atSevere()
     {
-        return atJulLevel(java.util.logging.Level.SEVERE);
+        return atError();
     }
 
     /**
-     * Verifies that one or more fatal logs were captured.
+     * Gets all severe logs captured by the {@link LogCaptor}. The result may be empty.
+     *
+     * @return A {@link LogEventsAssert} containing the log events at the specified level.
+     */
+    public LogEventsAssert atFine()
+    {
+        return atDebug();
+    }
+
+    /**
+     * Gets all configuration logs captured by the {@link LogCaptor}. The result may be empty.
+     *
+     * @return A {@link LogEventsAssert} containing the log events at the specified level.
+     */
+    public LogEventsAssert atConf()
+    {
+        return at(CustomLevel.CONF);
+    }
+
+    /**
+     * Gets all finer logs captured by the {@link LogCaptor}. The result may be empty.
+     *
+     * @return A {@link LogEventsAssert} containing the log events at the specified level.
+     */
+    public LogEventsAssert atFiner()
+    {
+        return at(CustomLevel.FINER);
+    }
+
+    /**
+     * Gets all finest logs captured by the {@link LogCaptor}. The result may be empty.
+     *
+     * @return A {@link LogEventsAssert} containing the log events at the specified level.
+     */
+    public LogEventsAssert atFinest()
+    {
+        return atTrace();
+    }
+
+    /**
+     * Gets all fatal logs captured by the {@link LogCaptor}. The result may be empty.
      *
      * @return A {@link LogEventsAssert} containing the error logs.
      */
@@ -91,7 +119,7 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     }
 
     /**
-     * Verifies that one or more error logs were captured.
+     * Gets all error logs captured by the {@link LogCaptor}. The result may be empty.
      *
      * @return A {@link LogEventsAssert} containing the error logs.
      */
@@ -101,7 +129,7 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     }
 
     /**
-     * Verifies that one or more warning logs were captured.
+     * Gets all warning logs captured by the {@link LogCaptor}. The result may be empty.
      *
      * @return A {@link LogEventsAssert} containing the warning logs.
      */
@@ -111,7 +139,7 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     }
 
     /**
-     * Verifies that one or more info logs were captured.
+     * Gets all info logs captured by the {@link LogCaptor}. The result may be empty.
      *
      * @return A {@link LogEventsAssert} containing the info logs.
      */
@@ -121,7 +149,7 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     }
 
     /**
-     * Verifies that one or more debug logs were captured.
+     * Gets all debug logs captured by the {@link LogCaptor}. The result may be empty.
      *
      * @return A {@link LogEventsAssert} containing the debug logs.
      */
@@ -131,7 +159,7 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     }
 
     /**
-     * Verifies that one or more trace logs were captured.
+     * Gets all trace logs captured by the {@link LogCaptor}. The result may be empty.
      *
      * @return A {@link LogEventsAssert} containing the trace logs.
      */
@@ -156,6 +184,46 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
         if (!actual.getLogs().isEmpty())
             failWithMessage("Expected no logs, but found: %s", actual.getLogs());
         return this;
+    }
+
+    /**
+     * Verifies that no severe logs were captured.
+     *
+     * @return {@code this} assertion object
+     */
+    public LogCaptorAssert hasNoSevereLogs()
+    {
+        return hasNoErrorLogs();
+    }
+
+    /**
+     * Verifies that no fine logs were captured.
+     *
+     * @return {@code this} assertion object
+     */
+    public LogCaptorAssert hasNoFineLogs()
+    {
+        return hasNoDebugLogs();
+    }
+
+    /**
+     * Verifies that no finer logs were captured.
+     *
+     * @return {@code this} assertion object
+     */
+    public LogCaptorAssert hasNoFinerLogs()
+    {
+        return hasNoLogsOfLevel(CustomLevel.FINER);
+    }
+
+    /**
+     * Verifies that no finest logs were captured.
+     *
+     * @return {@code this} assertion object
+     */
+    public LogCaptorAssert hasNoFinestLogs()
+    {
+        return hasNoTraceLogs();
     }
 
     /**
@@ -196,6 +264,11 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     public LogCaptorAssert hasNoInfoLogs()
     {
         return hasNoLogsOfLevel(Level.INFO);
+    }
+
+    public LogCaptorAssert hasNoConfLogs()
+    {
+        return hasNoLogsOfLevel(CustomLevel.CONF);
     }
 
     /**

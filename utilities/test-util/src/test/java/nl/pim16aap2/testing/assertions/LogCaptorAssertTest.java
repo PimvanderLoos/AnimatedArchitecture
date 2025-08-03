@@ -1,9 +1,12 @@
 package nl.pim16aap2.testing.assertions;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
 import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
+import nl.pim16aap2.util.logging.floggerbackend.CustomLevel;
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.spi.StandardLevel;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -18,8 +21,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import java.util.function.UnaryOperator;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
@@ -90,7 +92,7 @@ class LogCaptorAssertTest
         assertThat(result)
             .isInstanceOf(LogEventsAssert.class)
             .extracting(LIST_EXTRACTOR, LIST)
-            .hasSize(Level.values().length);
+            .hasSize(LevelWrapper.BASE_LOG_LEVELS.size());
     }
 
     @Test
@@ -112,24 +114,15 @@ class LogCaptorAssertTest
     }
 
     @ParameterizedTest
-    @EnumSource(value = StandardLevel.class, mode = EnumSource.Mode.EXCLUDE, names = {"OFF", "ALL"})
-    void atLevelX_shouldReturnLogEventsAssertForSpecificLevel(StandardLevel standardLevel)
+    @EnumSource(LevelWrapper.class)
+    void atLevelX_shouldReturnLogEventsAssertForSpecificLevel(LevelWrapper levelWrapper)
     {
         // setup
         final LogCaptorAssert logCaptorAssert = new LogCaptorAssert(logCaptor);
         populateLogCaptorWithEventsForEachLevel(logCaptor);
 
         // execute
-        final LogEventsAssert result = switch (standardLevel)
-        {
-            case FATAL -> logCaptorAssert.atFatal();
-            case ERROR -> logCaptorAssert.atError();
-            case WARN -> logCaptorAssert.atWarn();
-            case INFO -> logCaptorAssert.atInfo();
-            case DEBUG -> logCaptorAssert.atDebug();
-            case TRACE -> logCaptorAssert.atTrace();
-            default -> throw new IllegalArgumentException("Unsupported log level: " + standardLevel);
-        };
+        final LogEventsAssert result = levelWrapper.atLevelMethod().apply(logCaptorAssert);
 
         // verify
         assertThat(result)
@@ -139,14 +132,14 @@ class LogCaptorAssertTest
             .asInstanceOf(InstanceOfAssertFactories.type(LogEvent.class))
             .satisfies(logEvent ->
             {
-                assertThat(logEvent.getLevel()).isEqualTo(standardLevel.name());
-                assertThat(logEvent.getMessage()).contains("Test message for " + standardLevel.name());
+                assertThat(logEvent.getLevel()).isEqualTo(levelWrapper.levelName());
+                assertThat(logEvent.getMessage()).contains("Test message for " + levelWrapper.levelName());
             });
     }
 
     @ParameterizedTest
-    @EnumSource(value = StandardLevel.class, mode = EnumSource.Mode.EXCLUDE, names = {"OFF", "ALL"})
-    void atLevelX_shouldReturnEmptyLogEventsAssertWhenNoEvents(StandardLevel standardLevel)
+    @EnumSource(LevelWrapper.class)
+    void atLevelX_shouldReturnEmptyLogEventsAssertWhenNoEvents(LevelWrapper levelWrapper)
     {
         // setup
         final LogCaptorAssert logCaptorAssert = new LogCaptorAssert(logCaptor);
@@ -154,16 +147,7 @@ class LogCaptorAssertTest
         when(logCaptor.getLogEvents()).thenReturn(List.of());
 
         // execute
-        final LogEventsAssert result = switch (standardLevel)
-        {
-            case FATAL -> logCaptorAssert.atFatal();
-            case ERROR -> logCaptorAssert.atError();
-            case WARN -> logCaptorAssert.atWarn();
-            case INFO -> logCaptorAssert.atInfo();
-            case DEBUG -> logCaptorAssert.atDebug();
-            case TRACE -> logCaptorAssert.atTrace();
-            default -> throw new IllegalArgumentException("Unsupported log level: " + standardLevel);
-        };
+        final LogEventsAssert result = levelWrapper.atLevelMethod().apply(logCaptorAssert);
 
         // verify
         assertThat(result)
@@ -200,19 +184,19 @@ class LogCaptorAssertTest
     }
 
     @ParameterizedTest
-    @EnumSource(value = StandardLevel.class, mode = EnumSource.Mode.EXCLUDE, names = {"OFF", "ALL"})
-    void hasNoLogs_shouldPassWhenNoErrorLogsExist(StandardLevel standardLevel)
+    @EnumSource(LevelWrapper.class)
+    void hasNoLogs_shouldPassWhenNoErrorLogsExist(LevelWrapper levelWrapper)
     {
         // setup
         final LogCaptorAssert logCaptorAssert = new LogCaptorAssert(logCaptor);
         when(logCaptor.getLogEvents()).thenReturn(List.of());
 
         // execute
-        final Supplier<LogCaptorAssert> result = getHasNoLogsOfLevelMethod(logCaptorAssert, standardLevel);
+        final UnaryOperator<LogCaptorAssert> result = levelWrapper.hasNoLogsMethod();
 
         // verify
         assertThatNoException()
-            .isThrownBy(result::get);
+            .isThrownBy(() -> result.apply(logCaptorAssert));
     }
 
     @Test
@@ -284,8 +268,8 @@ class LogCaptorAssertTest
 
     private void populateLogCaptorWithEventsForEachLevel(LogCaptor logCaptor)
     {
-        final List<LogEvent> logEvents = Stream.of(Level.values())
-            .map(level -> newLogEvent(level.name(), "Test message for " + level.name(), null))
+        final List<LogEvent> logEvents = LevelWrapper.BASE_LOG_LEVELS.stream()
+            .map(level -> newLogEvent(level.levelName(), "Test message for " + level.levelName(), null))
             .toList();
 
         when(logCaptor.getLogEvents()).thenReturn(logEvents);
@@ -308,19 +292,37 @@ class LogCaptorAssertTest
         );
     }
 
-    private Supplier<LogCaptorAssert> getHasNoLogsOfLevelMethod(
-        LogCaptorAssert logCaptorAssert,
-        StandardLevel standardLevel)
+    @Getter
+    @Accessors(fluent = true)
+    @RequiredArgsConstructor
+    private enum LevelWrapper
     {
-        return switch (standardLevel)
-        {
-            case FATAL -> logCaptorAssert::hasNoFatalLogs;
-            case ERROR -> logCaptorAssert::hasNoErrorLogs;
-            case WARN -> logCaptorAssert::hasNoWarnLogs;
-            case INFO -> logCaptorAssert::hasNoInfoLogs;
-            case DEBUG -> logCaptorAssert::hasNoDebugLogs;
-            case TRACE -> logCaptorAssert::hasNoTraceLogs;
-            default -> throw new IllegalArgumentException("Unsupported log level: " + standardLevel);
-        };
+        // log4j2 levels
+        LOG4J2_FATAL(Level.FATAL.name(), LogCaptorAssert::hasNoFatalLogs, LogCaptorAssert::atFatal),
+        LOG4J2_ERROR(Level.ERROR.name(), LogCaptorAssert::hasNoErrorLogs, LogCaptorAssert::atError),
+        LOG4J2_WARN(Level.WARN.name(), LogCaptorAssert::hasNoWarnLogs, LogCaptorAssert::atWarn),
+        LOG4J2_INFO(Level.INFO.name(), LogCaptorAssert::hasNoInfoLogs, LogCaptorAssert::atInfo),
+        LOG4J2_DEBUG(Level.DEBUG.name(), LogCaptorAssert::hasNoDebugLogs, LogCaptorAssert::atDebug),
+        LOG4J2_TRACE(Level.TRACE.name(), LogCaptorAssert::hasNoTraceLogs, LogCaptorAssert::atTrace),
+
+        // custom levels
+        CUSTOM_CONF(CustomLevel.CONF.name(), LogCaptorAssert::hasNoConfLogs, LogCaptorAssert::atConf),
+        CUSTOM_FINER(CustomLevel.FINER.name(), LogCaptorAssert::hasNoFinerLogs, LogCaptorAssert::atFiner),
+
+        // Unmapped Java logging levels
+        // These have their own methods in LogCaptorAssert that basically directly map to the log4j2 levels
+        JUL_SEVERE(Level.ERROR.name(), LogCaptorAssert::hasNoSevereLogs, LogCaptorAssert::atSevere),
+        JUL_FINE(Level.DEBUG.name(), LogCaptorAssert::hasNoFineLogs, LogCaptorAssert::atFine),
+        JUL_FINEST(Level.TRACE.name(), LogCaptorAssert::hasNoFinestLogs, LogCaptorAssert::atFinest),
+        ;
+
+        public static final List<LevelWrapper> BASE_LOG_LEVELS = List.of(
+            LOG4J2_FATAL, LOG4J2_ERROR, LOG4J2_WARN, LOG4J2_INFO, LOG4J2_DEBUG, LOG4J2_TRACE,
+            CUSTOM_CONF, CUSTOM_FINER
+        );
+
+        private final String levelName;
+        private final UnaryOperator<LogCaptorAssert> hasNoLogsMethod;
+        private final Function<LogCaptorAssert, LogEventsAssert> atLevelMethod;
     }
 }
