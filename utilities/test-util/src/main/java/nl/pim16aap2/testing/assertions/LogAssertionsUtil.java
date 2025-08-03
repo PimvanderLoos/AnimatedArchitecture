@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -72,6 +73,36 @@ public final class LogAssertionsUtil
             );
 
         return logEvents.get(index);
+    }
+
+    /**
+     * Filters the log events by the specified log level.
+     *
+     * @param logEvents
+     *     The log events to filter.
+     * @param level
+     *     The log level to filter by.
+     * @return A stream of log events that match the specified log level.
+     */
+    static Stream<LogEvent> filterByLogLevel(List<LogEvent> logEvents, @Nullable org.apache.logging.log4j.Level level)
+    {
+        if (level == null)
+            return logEvents.stream();
+
+        return logEvents.stream()
+            .filter(logEvent -> logEvent.getLevel().equals(level.name()));
+    }
+
+    /**
+     * Formats the log events as an enumerated string.
+     *
+     * @param logEvents
+     *     The log events to process.
+     * @return The most recent log messages as an enumerated string with the position from the last log event.
+     */
+    static String formatLogEvents(List<LogEvent> logEvents)
+    {
+        return formatLogEvents(logEvents, logEvents.size());
     }
 
     /**
