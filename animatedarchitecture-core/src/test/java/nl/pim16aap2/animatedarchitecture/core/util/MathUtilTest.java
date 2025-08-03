@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -9,6 +11,7 @@ import java.util.OptionalLong;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 public class MathUtilTest
 {
     @Test

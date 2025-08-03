@@ -9,6 +9,8 @@ import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.semver4j.Semver;
 
 import java.io.IOException;
@@ -27,6 +29,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @Timeout(1)
 @WithLogCapture
+@ExtendWith(MockitoExtension.class)
 class StructureTypeLoaderTest
 {
     @Test

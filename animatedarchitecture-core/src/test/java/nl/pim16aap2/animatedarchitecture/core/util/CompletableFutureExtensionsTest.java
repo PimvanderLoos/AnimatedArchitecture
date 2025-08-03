@@ -5,6 +5,8 @@ import nl.pim16aap2.testing.annotations.WithLogCapture;
 import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -18,6 +20,7 @@ import static org.mockito.Mockito.*;
 
 @Timeout(2)
 @WithLogCapture
+@ExtendWith(MockitoExtension.class)
 class CompletableFutureExtensionsTest
 {
     @Test

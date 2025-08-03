@@ -4,11 +4,14 @@ import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidNameSpacedKeyExc
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Timeout(1)
+@ExtendWith(MockitoExtension.class)
 class NamespacedKeyTest
 {
     @Test

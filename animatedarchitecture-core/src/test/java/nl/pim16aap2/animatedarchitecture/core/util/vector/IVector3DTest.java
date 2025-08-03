@@ -2,9 +2,12 @@ package nl.pim16aap2.animatedarchitecture.core.util.vector;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Random;
 
+@ExtendWith(MockitoExtension.class)
 class IVector3DTest
 {
     @Test

@@ -4,11 +4,14 @@ import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.Locale;
 
+@ExtendWith(MockitoExtension.class)
 class StructureTypeManagerTest
 {
     private final StructureType type0 = newMockedStructureType("TestType0");

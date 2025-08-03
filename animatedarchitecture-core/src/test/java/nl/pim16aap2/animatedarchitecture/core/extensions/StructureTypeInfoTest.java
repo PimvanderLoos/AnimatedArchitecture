@@ -7,7 +7,9 @@ import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -17,6 +19,7 @@ import static nl.pim16aap2.animatedarchitecture.core.extensions.StructureTypeInf
 import static nl.pim16aap2.animatedarchitecture.core.extensions.StructureTypeInfo.parseDependency;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 class StructureTypeInfoTest
 {
     private static final String NAMESPACE = Constants.PLUGIN_NAME.toLowerCase(Locale.ROOT);
