@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.audio.IAudioPlayer;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.animatedarchitecture.core.commands.IServer;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;

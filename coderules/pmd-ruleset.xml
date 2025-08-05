@@ -12,8 +12,6 @@
     <rule ref="category/java/bestpractices.xml/AvoidReassigningParameters"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#checkresultset -->
     <rule ref="category/java/bestpractices.xml/CheckResultSet"/>
-    <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#constantsininterface -->
-    <rule ref="category/java/bestpractices.xml/ConstantsInInterface"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#defaultlabelnotlastinswitch -->
     <rule ref="category/java/bestpractices.xml/DefaultLabelNotLastInSwitch"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#doublebraceinitialization -->
