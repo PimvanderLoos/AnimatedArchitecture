@@ -1,7 +1,6 @@
 package nl.pim16aap2.testing.assertions;
 
 import com.google.errorprone.annotations.CheckReturnValue;
-import nl.altindag.log.LogCaptor;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -16,21 +15,6 @@ public final class AssertionBuilder
     private AssertionBuilder()
     {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
-    }
-
-    /**
-     * Creates a new {@link LogAssertionsUtil.LogAssertion.LogAssertionBuilder} for the given {@link LogCaptor}.
-     * <p>
-     * The builder can be used to assert that certain log messages were logged with the provided properties (e.g. log
-     * level, message, throwable, etc.).
-     *
-     * @param logCaptor
-     *     The {@link LogCaptor} to create the assertion for.
-     * @return A new {@link LogAssertionsUtil.LogAssertion.LogAssertionBuilder} for the given {@link LogCaptor}.
-     */
-    public static LogAssertionsUtil.LogAssertion.LogAssertionBuilder assertLogged(LogCaptor logCaptor)
-    {
-        return LogAssertionsUtil.logAssertionBuilder(logCaptor);
     }
 
     /**

@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -20,6 +22,7 @@ import static nl.pim16aap2.animatedarchitecture.core.extensions.StructureTypeInf
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class StructureTypeInfoTest
 {
     private static final String NAMESPACE = Constants.PLUGIN_NAME.toLowerCase(Locale.ROOT);

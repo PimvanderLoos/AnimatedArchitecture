@@ -755,6 +755,42 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
             .singleElement();
     }
 
+    @Override
+    public LogEventAssert singleElement()
+    {
+        if (actual.size() == 1)
+        {
+            return toAssert(actual.getFirst(), "Single log event");
+        }
+
+        this.appendLogEventsToInfo()
+            .failWithMessage("Expected exactly one log event but found %d", actual.size());
+
+        // This line will never be reached, but it is required to satisfy the compiler.
+        return new LogEventAssert(null);
+    }
+
+    /**
+     * Appends the formatted log events to the info message.
+     *
+     * @return {@code this} instance of {@link LogEventsAssert} for method chaining.
+     */
+    private LogEventsAssert appendLogEventsToInfo()
+    {
+        final String base = info.overridingErrorMessage();
+        final String formattedLogEvents = formatLogEvents(logCaptor.getLogEvents());
+
+        if (base == null || base.isEmpty())
+        {
+            info.overridingErrorMessage(formattedLogEvents);
+        }
+        else
+        {
+            info.overridingErrorMessage(base + "\n" + formattedLogEvents);
+        }
+        return this;
+    }
+
     /**
      * Asserts that the log events contain at least one element and returns an assertion for that element.
      * <p>
@@ -771,6 +807,7 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
     {
         return this
             .overridingErrorMessage(message)
+            .appendLogEventsToInfo()
             .isNotEmpty();
     }
 

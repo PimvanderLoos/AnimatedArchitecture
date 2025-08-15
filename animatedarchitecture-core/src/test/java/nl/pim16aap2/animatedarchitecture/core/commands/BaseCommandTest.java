@@ -14,7 +14,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
-import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import nl.pim16aap2.util.exceptions.ContextualOperationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -25,8 +24,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 
+import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -82,11 +81,9 @@ class BaseCommandTest
 
         command.handleRunException(exception);
 
-        AssertionBuilder
-            .assertLogged(logCaptor)
-            .withJulLevel(Level.SEVERE)
-            .message("Failed to execute command: %s", command)
-            .assertLogged();
+        assertThatLogCaptor(logCaptor)
+            .atSevere()
+            .singleWithMessageExactly("Failed to execute command: %s", command);
     }
 
     @Test
@@ -99,11 +96,9 @@ class BaseCommandTest
 
         command.handleRunException(exception);
 
-        AssertionBuilder
-            .assertLogged(logCaptor)
-            .withJulLevel(Level.FINE)
-            .message("Failed to execute command: %s", command)
-            .assertLogged();
+        assertThatLogCaptor(logCaptor)
+            .atFine()
+            .singleWithMessageExactly("Failed to execute command: %s", command);
     }
 
     @Test

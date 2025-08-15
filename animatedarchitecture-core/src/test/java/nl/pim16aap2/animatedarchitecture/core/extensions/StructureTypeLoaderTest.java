@@ -5,7 +5,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.testing.annotations.FileSystemTest;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
-import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -25,6 +24,7 @@ import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
 import static org.assertj.core.api.Assertions.*;
 
 @Timeout(1)
@@ -53,27 +53,25 @@ class StructureTypeLoaderTest
         StructureTypeLoader.logPreloadCheckResults(map);
 
         // Verify
-        AssertionBuilder
-            .assertLogged(logCaptor)
-            .message("Loading structure type: %s", infoPass.getFullKey())
+        assertThatLogCaptor(logCaptor)
             .atInfo()
-            .assertLogged();
+            .singleWithMessageExactly("Loading structure type: %s", infoPass.getFullKey());
 
-        AssertionBuilder
-            .assertLogged(logCaptor)
-            .message("Structure type '%s' is already loaded, skipping.", infoAlreadyLoaded.getFullKey())
+        assertThatLogCaptor(logCaptor)
             .atInfo()
-            .assertLogged();
+            .singleWithMessageExactly(
+                "Structure type '%s' is already loaded, skipping.",
+                infoAlreadyLoaded.getFullKey()
+            );
 
-        AssertionBuilder
-            .assertLogged(logCaptor)
-            .message(
+        assertThatLogCaptor(logCaptor)
+            .atAllLevels()
+            .singleWithMessageExactly(
                 "Current API version '%s' out of the supported range '%s' for structure type: '%s'",
                 StructureTypeLoader.CURRENT_EXTENSION_API_VERSION,
                 infoApiVersionNotSupported.getSupportedApiVersions(),
-                infoApiVersionNotSupported.getFullKey())
-            .atSevere()
-            .assertLogged();
+                infoApiVersionNotSupported.getFullKey()
+            );
     }
 
     // This test kind of tests the library code, and only a subset of its functionality.
@@ -241,12 +239,10 @@ class StructureTypeLoaderTest
         // Verify
         assertThat(result).isFalse();
 
-        AssertionBuilder
-            .assertLogged(logCaptor)
-            .atSevere()
-            .message("Failed to create directory: %s", path)
-            .assertLoggedExceptionOfType(FileAlreadyExistsException.class)
-            .hasMessage(fileName);
+        assertThatLogCaptor(logCaptor)
+            .atAllLevels()
+            .hasAnyWithMessageExactly("Failed to create directory: %s", path)
+            .hasAnyWithThrowableExactlyOfType(FileAlreadyExistsException.class);
     }
 
     @FileSystemTest

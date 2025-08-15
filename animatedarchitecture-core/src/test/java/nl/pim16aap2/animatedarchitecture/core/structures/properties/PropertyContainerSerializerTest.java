@@ -9,7 +9,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
-import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +27,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSerializer.UndefinedPropertyValue;
+import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -192,15 +192,18 @@ class PropertyContainerSerializerTest
         assertThat(deserialized.hasProperty(Property.ANIMATION_SPEED_MULTIPLIER)).isTrue();
         assertThat(deserialized.hasProperty(Property.OPEN_STATUS)).isTrue();
 
-        AssertionBuilder
-            .assertLogged(logCaptor)
+
+        logCaptor.getTraceLogs().forEach(System.out::println);
+
+
+        assertThatLogCaptor(logCaptor)
             .atFiner()
-            .message(
+            .singleWithMessageExactly(
                 "Property '%s' was not supplied for structure type '%s', using default value '%s'.",
                 PropertyContainer.mapKey(Property.OPEN_STATUS),
                 structureType,
-                Property.OPEN_STATUS.getDefaultValue())
-            .assertLogged();
+                Property.OPEN_STATUS.getDefaultValue()
+            );
     }
 
     @Test
