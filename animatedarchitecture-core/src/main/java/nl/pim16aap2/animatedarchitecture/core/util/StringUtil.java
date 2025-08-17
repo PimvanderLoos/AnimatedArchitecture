@@ -199,6 +199,35 @@ public final class StringUtil
      *     The function to map the objects to strings.
      * @param indent
      *     The amount of spaces to indent the lines. This is the number of spaces before each '-'.
+     * @param printSize
+     *     Whether to print the size of the collection in parentheses before the formatted strings.
+     * @param <T>
+     *     The type of the objects in the collection.
+     * @return A formatted string.
+     */
+    public static <T> String formatCollection(
+        Collection<T> collection,
+        Function<T, String> mapper,
+        int indent,
+        boolean printSize)
+    {
+        final String delimiter = "\n" + " ".repeat(indent) + "- ";
+        String prefix = "";
+        if (printSize)
+            prefix = collection.isEmpty() ? "" : "(" + collection.size() + ") ";
+        return prefix + collection.stream().map(mapper).collect(stringCollector(delimiter));
+    }
+
+    /**
+     * Formats a collection of objects into a string.
+     * <p>
+     * This method is a shortcut for {@link #formatCollection(Collection, Function, int, boolean)} with an indent of 0
+     * and printSize enabled.
+     *
+     * @param collection
+     *     The collection of objects to format.
+     * @param mapper
+     *     The function to map the objects to strings.
      * @param <T>
      *     The type of the objects in the collection.
      * @return A formatted string.
@@ -216,7 +245,8 @@ public final class StringUtil
     /**
      * Formats a collection of objects into a string.
      * <p>
-     * This method is a shortcut for {@link #formatCollection(Collection, Function, int)} with an indent of 0.
+     * This method is a shortcut for {@link #formatCollection(Collection, Function, int, boolean)} with an indent of 0
+     * and printSize enabled.
      *
      * @param collection
      *     The collection of objects to format.
@@ -234,8 +264,8 @@ public final class StringUtil
     /**
      * Formats a collection of objects into a string.
      * <p>
-     * This method is a shortcut for {@link #formatCollection(Collection, Function, int)} with a mapper that calls
-     * {@link Object#toString()}.
+     * This method is a shortcut for {@link #formatCollection(Collection, Function, int, boolean)} with a mapper that
+     * calls {@link Object#toString()} and printSize enabled.
      *
      * @param collection
      *     The collection of objects to format.
@@ -249,8 +279,8 @@ public final class StringUtil
     /**
      * Formats a collection of objects into a string.
      * <p>
-     * This method is a shortcut for {@link #formatCollection(Collection, Function, int)} with an indent of 0 and the
-     * mapper that calls {@link Object#toString()}.
+     * This method is a shortcut for {@link #formatCollection(Collection, Function, int, boolean)} with an indent of 0
+     * and the mapper that calls {@link Object#toString()} and printSize enabled.
      *
      * @param collection
      *     The collection of objects to format.
