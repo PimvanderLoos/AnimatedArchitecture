@@ -1,6 +1,6 @@
 package nl.pim16aap2.util;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
@@ -11,7 +11,7 @@ import java.util.function.Supplier;
  * <p>
  * Note that these catch all throwables, so carefully consider if you really need this class before using it!
  */
-@Flogger
+@CustomLog
 public final class SafeStringBuilder implements CharSequence, Appendable, Serializable
 {
     private final StringBuilder sb;
@@ -52,7 +52,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         }
         catch (Throwable t)
         {
-            log.atSevere().withCause(t).log("Failed to append supplied object to SafeStringBuilder.");
+            log.atError().withCause(t).log("Failed to append supplied object to SafeStringBuilder.");
             sb.append("ERROR!");
             return this;
         }
@@ -74,7 +74,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         }
         catch (Throwable t)
         {
-            log.atSevere().withCause(t).log("Failed to append supplied char sequence to SafeStringBuilder.");
+            log.atError().withCause(t).log("Failed to append supplied char sequence to SafeStringBuilder.");
             sb.append("ERROR!");
             return this;
         }
@@ -102,7 +102,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         }
         catch (Throwable t)
         {
-            log.atSevere().withCause(t).log("Failed to append supplied object to SafeStringBuilder.");
+            log.atError().withCause(t).log("Failed to append supplied object to SafeStringBuilder.");
             obj = "ERROR";
         }
         return appendIndented(indent, obj);
@@ -120,7 +120,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         }
         catch (Throwable t)
         {
-            log.atSevere().withCause(t).log("Failed to append indented object to SafeStringBuilder.");
+            log.atError().withCause(t).log("Failed to append indented object to SafeStringBuilder.");
         }
         return this;
     }
