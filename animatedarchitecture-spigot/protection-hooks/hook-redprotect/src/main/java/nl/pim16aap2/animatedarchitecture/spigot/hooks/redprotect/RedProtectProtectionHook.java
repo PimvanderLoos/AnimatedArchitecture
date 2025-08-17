@@ -3,8 +3,8 @@ package nl.pim16aap2.animatedarchitecture.spigot.hooks.redprotect;
 import br.net.fabiozumbi12.RedProtect.Bukkit.API.RedProtectAPI;
 import br.net.fabiozumbi12.RedProtect.Bukkit.RedProtect;
 import br.net.fabiozumbi12.RedProtect.Bukkit.Region;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Protection hook for RedProtect.
  */
-@Flogger
+@CustomLog
 public class RedProtectProtectionHook implements IProtectionHookSpigot
 {
     private final RedProtect redProtect;
@@ -41,7 +41,7 @@ public class RedProtectProtectionHook implements IProtectionHookSpigot
             final Region rpRegion = rpAPI.getRegion(loc);
             final boolean result = rpRegion == null || rpRegion.canBuild(player);
             if (!result)
-                log.atFine().log(
+                log.atDebug().log(
                     "Player %s is not allowed to break block at %s",
                     lazyFormatPlayerName(player),
                     loc
@@ -50,7 +50,7 @@ public class RedProtectProtectionHook implements IProtectionHookSpigot
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Failed to check if player %s can break block at %s; defaulting to false.",
                 lazyFormatPlayerName(player),
                 loc

@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
 
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents an implementation of {@link IPlayer} for the Spigot platform.
  */
-@Flogger
+@CustomLog
 public final class WrappedPlayer implements IPlayer
 {
     private final Player spigotPlayer;

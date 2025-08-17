@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.api;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -182,7 +182,7 @@ public abstract class HighlightedBlockSpawner
      * The default builder implementation for highlighted blocks.
      */
     @SuppressWarnings("unused")
-    @Flogger
+    @CustomLog
     public static final class Builder
     {
         private final HighlightedBlockSpawner highlightedBlockSpawner;
@@ -327,7 +327,7 @@ public abstract class HighlightedBlockSpawner
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Failed to spawn highlighted block!");
+                log.atError().withCause(e).log("Failed to spawn highlighted block!");
                 return Optional.empty();
             }
         }

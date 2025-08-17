@@ -6,7 +6,7 @@ import cloud.commandframework.arguments.parser.ArgumentParseResult;
 import cloud.commandframework.arguments.parser.ArgumentParser;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.exceptions.parsing.NoInputProvidedException;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
@@ -30,7 +30,7 @@ import java.util.function.BiFunction;
 /**
  * Represents a type of argument in a command used to specify a structure.
  */
-@Flogger
+@CustomLog
 public class StructureArgument extends CommandArgument<ICommandSender, StructureRetriever>
 {
     @lombok.Builder
@@ -145,7 +145,7 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
             }
             catch (InterruptedException e)
             {
-                log.atSevere().withCause(e).log(
+                log.atError().withCause(e).log(
                     "Thread was interrupted getting suggestions for structure argument with input '%s' for user: '%s'",
                     input,
                     commandContext.getSender()
@@ -155,7 +155,7 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
             }
             catch (ExecutionException | TimeoutException e)
             {
-                log.atSevere().withCause(e).log(
+                log.atError().withCause(e).log(
                     "Failed to get suggestions for structure argument with input '%s' for user: '%s'",
                     input,
                     commandContext.getSender()

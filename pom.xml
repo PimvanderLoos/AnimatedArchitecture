@@ -103,6 +103,13 @@
                 <scope>compile</scope>
                 <optional>true</optional>
             </dependency>
+
+            <dependency>
+                <groupId>nl.pim16aap2</groupId>
+                <artifactId>util</artifactId>
+                <version>0.8.0-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -240,7 +247,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${dependency.slf4j.version}</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.github.hakky54</groupId>
@@ -417,6 +424,10 @@
                     <configuration>
                         <relocations>
                             <relocation>
+                                <pattern>org.jspecify</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.jspecify</shadedPattern>
+                            </relocation>
+                            <relocation>
                                 <pattern>cloud.commandframework</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.cloud</shadedPattern>
                             </relocation>
@@ -427,6 +438,10 @@
                             <relocation>
                                 <pattern>com.google.errorprone</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.errorprone</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.google.auto</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.auto</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>com.mojang.brigadier</pattern>
@@ -455,10 +470,6 @@
                             <relocation>
                                 <pattern>nl.pim16aap2.jcalculator</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.jcalculator</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>nl.pim16aap2.util</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.util</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>org.apiguardian</pattern>

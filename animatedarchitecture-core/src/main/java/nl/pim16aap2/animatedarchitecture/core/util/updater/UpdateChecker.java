@@ -3,9 +3,9 @@ package nl.pim16aap2.animatedarchitecture.core.util.updater;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Represents an update checker that checks for new releases on GitHub.
  */
-@Flogger
+@CustomLog
 @Singleton
 @ExtensionMethod(CompletableFutureExtensions.class)
 public final class UpdateChecker implements IDebuggable
@@ -88,14 +88,14 @@ public final class UpdateChecker implements IDebuggable
         final @Nullable UpdateInformation current = this.updateInformation;
         if (newInformation == null)
         {
-            log.atWarning().log("Received invalid update information!");
+            log.atWarn().log("Received invalid update information!");
             return current;
         }
 
         final UpdateCheckResult status = newInformation.updateCheckResult();
         if (status != UpdateCheckResult.UPDATE_AVAILABLE && status != UpdateCheckResult.UP_TO_DATE)
         {
-            log.atSevere().log("Received unexpected update state: '%s' for URL: '%s'!", status, UPDATE_URL);
+            log.atError().log("Received unexpected update state: '%s' for URL: '%s'!", status, UPDATE_URL);
             if (current != null)
                 return current;
         }
@@ -170,7 +170,7 @@ public final class UpdateChecker implements IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to parse json data!");
+            log.atError().withCause(e).log("Failed to parse json data!");
             return null;
         }
     }
@@ -190,7 +190,7 @@ public final class UpdateChecker implements IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to parse json data!");
+            log.atError().withCause(e).log("Failed to parse json data!");
             return null;
         }
     }
@@ -211,7 +211,7 @@ public final class UpdateChecker implements IDebuggable
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to read URL '%s'", UPDATE_URL);
+            log.atError().withCause(e).log("Failed to read URL '%s'", UPDATE_URL);
             return null;
         }
     }
@@ -231,7 +231,7 @@ public final class UpdateChecker implements IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to get URL from path '%s'", path);
+            log.atError().withCause(e).log("Failed to get URL from path '%s'", path);
             return null;
         }
     }

@@ -1,11 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.hooks;
 
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager.HookCheckResult;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
@@ -29,7 +29,7 @@ import java.util.function.Function;
  * This class should be instantiated using {@link HookCheckStateContainer#of(List)}.
  */
 @Accessors(fluent = true, chain = true)
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 final class HookCheckStateContainer
 {
@@ -93,7 +93,7 @@ final class HookCheckStateContainer
         HookPreCheckResult result,
         @Nullable HookCheckState hookCheckState)
     {
-        log.atFinest().log("Processing pre-check result: %s", result);
+        log.atTrace().log("Processing pre-check result: %s", result);
 
         if (result == HookPreCheckResult.BYPASS)
             bypassedCount.incrementAndGet();
@@ -134,7 +134,7 @@ final class HookCheckStateContainer
     {
         if (allBypassed() || isDenied())
         {
-            log.atFiner().log("All hooks are bypassed or at least one hook denied the check. Skipping sync checks.");
+            log.atTrace().log("All hooks are bypassed or at least one hook denied the check. Skipping sync checks.");
             return;
         }
 
@@ -166,7 +166,7 @@ final class HookCheckStateContainer
     {
         if (allBypassed() || isDenied())
         {
-            log.atFiner().log(
+            log.atTrace().log(
                 "All hooks are bypassed or at least one hook denied the check. Skipping async checks.");
             return CompletableFuture.completedFuture(null);
         }
@@ -178,7 +178,7 @@ final class HookCheckStateContainer
                     .preCheckAsync(executor, player, world)
                     .exceptionally(e ->
                     {
-                        log.atSevere().withCause(e).log(
+                        log.atError().withCause(e).log(
                             "An exception occurred while running async pre-check for hook '%s'.",
                             hookCheckState.hookName()
                         );
@@ -220,7 +220,7 @@ final class HookCheckStateContainer
                             runPreChecksSync(executor, player, world)));
         }
         return results.thenRun(() ->
-            log.atFinest().log("Result of pre-checks for player %s in world '%s': %s", player, world.getName(), this));
+            log.atTrace().log("Result of pre-checks for player %s in world '%s': %s", player, world.getName(), this));
     }
 
     /**
@@ -251,12 +251,12 @@ final class HookCheckStateContainer
 
         if (isDenied())
         {
-            log.atFine().log("At least one hook denied the check. Skipping main checks.");
+            log.atDebug().log("At least one hook denied the check. Skipping main checks.");
             return CompletableFuture.completedFuture(HookCheckResult.denied(denyingHookName()));
         }
         else if (allBypassed())
         {
-            log.atFine().log("All hooks are bypassed. Skipping main checks.");
+            log.atDebug().log("All hooks are bypassed. Skipping main checks.");
             return CompletableFuture.completedFuture(HookCheckResult.allowed());
         }
 
@@ -266,7 +266,7 @@ final class HookCheckStateContainer
         {
             if (hookCheckState.isBypassed())
             {
-                log.atFinest().log("Hook '%s' is bypassed. Skipping check...", hookCheckState.hook().getName());
+                log.atTrace().log("Hook '%s' is bypassed. Skipping check...", hookCheckState.hook().getName());
                 continue;
             }
 
@@ -274,12 +274,12 @@ final class HookCheckStateContainer
             // This way, we run the checks sequentially and stop when a check denies the action.
             result = result.thenCompose(previousResult ->
             {
-                log.atFinest().log("Checking hook %s", hookCheckState.hook().getName());
+                log.atTrace().log("Checking hook %s", hookCheckState.hook().getName());
 
                 // Propagate the previous result if it was denied. We only need a single hook to deny the check.
                 if (previousResult.isDenied())
                 {
-                    log.atFiner().log(
+                    log.atTrace().log(
                         "Not checking hook %s because it was already denied by hook %s",
                         hookCheckState.hook().getName(),
                         previousResult.denyingHookName()
@@ -293,7 +293,7 @@ final class HookCheckStateContainer
 
         return result.exceptionally(e ->
         {
-            log.atSevere().withCause(e).log("An exception occurred while running main checks.");
+            log.atError().withCause(e).log("An exception occurred while running main checks.");
             return HookCheckResult.ERROR;
         });
     }
@@ -316,7 +316,7 @@ final class HookCheckStateContainer
             {
                 if (result.isDenied())
                     isDenied(true);
-                log.atFinest().log(
+                log.atTrace().log(
                     "Result of all checks for player %s in world '%s': %s",
                     player, world.getName(), this
                 );
@@ -355,7 +355,7 @@ final class HookCheckStateContainer
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("An exception occurred while running all checks.");
+            log.atError().withCause(e).log("An exception occurred while running all checks.");
             return CompletableFuture.completedFuture(HookCheckResult.ERROR);
         }
     }
@@ -373,7 +373,7 @@ final class HookCheckStateContainer
     /**
      * Represents the state of a hook check.
      */
-    @Flogger
+    @CustomLog
     @Accessors(fluent = true)
     private static final class HookCheckState
     {
@@ -391,7 +391,7 @@ final class HookCheckStateContainer
         {
             if (result != HookPreCheckResult.ALLOW)
             {
-                log.atFiner().log(
+                log.atTrace().log(
                     "Hook '%s' is already in the state '%s'. Skipping check...",
                     hookName(),
                     result
@@ -403,11 +403,11 @@ final class HookCheckStateContainer
             return predicate.apply(hook)
                 .thenApply(allowed ->
                 {
-                    log.atFinest().log("Hook '%s' main check result: %s", hookName(), allowed);
+                    log.atTrace().log("Hook '%s' main check result: %s", hookName(), allowed);
                     if (!allowed)
                     {
                         this.result = HookPreCheckResult.DENY;
-                        log.atFine().log("Hook '%s' denied the check.", hookName());
+                        log.atDebug().log("Hook '%s' denied the check.", hookName());
                         return HookCheckResult.denied(hookName());
                     }
                     return HookCheckResult.allowed();
@@ -446,16 +446,16 @@ final class HookCheckStateContainer
         {
             if (result == HookPreCheckResult.BYPASS)
             {
-                log.atFiner().log("Hook '%s' bypassed the check.", hookName());
+                log.atTrace().log("Hook '%s' bypassed the check.", hookName());
                 this.result = HookPreCheckResult.BYPASS;
             }
             else if (result == HookPreCheckResult.DENY)
             {
-                log.atFine().log("Hook '%s' denied the check.", hookName());
+                log.atDebug().log("Hook '%s' denied the check.", hookName());
                 this.result = HookPreCheckResult.DENY;
             }
             else
-                log.atFiner().log("Hook '%s' pre-check result: %s", hookName(), result);
+                log.atTrace().log("Hook '%s' pre-check result: %s", hookName(), result);
             return result;
         }
 
@@ -493,7 +493,7 @@ final class HookCheckStateContainer
 
             if (this.result != HookPreCheckResult.ALLOW)
             {
-                log.atFiner().log(
+                log.atTrace().log(
                     "Hook '%s' is already in the state '%s'. Skipping sync pre-check...",
                     hookName(),
                     this.result
@@ -509,7 +509,7 @@ final class HookCheckStateContainer
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log(
+                log.atError().withCause(e).log(
                     "An exception occurred while running pre-check for hook '%s'.",
                     hookName()
                 );
@@ -543,7 +543,7 @@ final class HookCheckStateContainer
 
             if (this.result != HookPreCheckResult.ALLOW)
             {
-                log.atFiner().log(
+                log.atTrace().log(
                     "Hook '%s' is already in the state '%s'. Skipping async pre-check...",
                     hookName(),
                     this.result
@@ -556,7 +556,7 @@ final class HookCheckStateContainer
                 .preCheckAsync(player, world)
                 .exceptionally(e ->
                 {
-                    log.atSevere().withCause(e).log(
+                    log.atError().withCause(e).log(
                         "An exception occurred while running async pre-check for hook '%s'.", hookName());
                     return HookPreCheckResult.DENY;
                 })

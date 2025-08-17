@@ -1,9 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @ToString
 @EqualsAndHashCode
-@Flogger
+@CustomLog
 public final class Property<T> implements IKeyed
 {
     /**

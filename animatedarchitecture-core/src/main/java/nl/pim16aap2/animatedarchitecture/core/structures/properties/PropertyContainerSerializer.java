@@ -6,7 +6,7 @@ import com.alibaba.fastjson2.JSONWriter;
 import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.fastjson2.annotation.JSONField;
 import com.alibaba.fastjson2.writer.ObjectWriter;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * Serializes and deserializes {@link PropertyContainer} instances to and from JSON.
  */
-@Flogger
+@CustomLog
 public final class PropertyContainerSerializer
 {
     static
@@ -124,7 +124,7 @@ public final class PropertyContainerSerializer
 
             // If the key does not exist in the default map,
             // we can conclude that the structure type does not support this property.
-            log.atSevere().log(
+            log.atError().log(
                 "Discarding property '%s' with value '%s' for structure type '%s' as it is not supported.",
                 key,
                 jsonObject,
@@ -261,7 +261,7 @@ public final class PropertyContainerSerializer
             .entrySet()
             .stream()
             .filter(entry -> !deserializedMap.containsKey(entry.getKey()))
-            .forEach(entry -> log.atFiner().log(
+            .forEach(entry -> log.atTrace().log(
                 "Property '%s' was not supplied for structure type '%s', using default value '%s'.",
                 entry.getKey(),
                 structureType,

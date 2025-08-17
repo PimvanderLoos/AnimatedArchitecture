@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core;
 
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
@@ -68,7 +68,7 @@ import java.util.function.Function;
  * Refer to {@link nl.pim16aap2.animatedarchitecture.spigot.core} for more information on how to obtain the instance of
  * this class.
  */
-@Flogger
+@CustomLog
 @Singleton
 public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchitecturePlatform
 {

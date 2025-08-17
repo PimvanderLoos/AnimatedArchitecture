@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.storage.sqlite;
 
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.storage.IDataSourceInfo;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +19,7 @@ import java.util.OptionalInt;
 /**
  * Represents the data needed to connect to a {@code SQLite} DataSource.
  */
-@Flogger
+@CustomLog
 public class DataSourceInfoSQLite implements IDataSourceInfo
 {
     private static final Type TYPE = Type.SQLITE;
@@ -85,14 +85,14 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
     {
         if (Files.exists(databasePath))
         {
-            log.atFinest().log("New database already exists. Not using existing database as baseline.");
+            log.atTrace().log("New database already exists. Not using existing database as baseline.");
             return null;
         }
 
         final Path oldDatabasePath = databasePath.resolveSibling("structures.db");
         if (!Files.exists(oldDatabasePath))
         {
-            log.atFinest().log("Old database doesn't exist. Not using existing database as baseline.");
+            log.atTrace().log("Old database doesn't exist. Not using existing database as baseline.");
             return null;
         }
 
@@ -102,7 +102,7 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
         final var currentVersion = getCurrentDatabaseVersion();
         if (currentVersion.isEmpty())
         {
-            log.atWarning().log("Failed to get the current database version. Not using existing database as baseline.");
+            log.atWarn().log("Failed to get the current database version. Not using existing database as baseline.");
             return null;
         }
 
@@ -114,7 +114,7 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
 
         if (version == FLYWAY_MANAGED_DATABASE_VERSION)
         {
-            log.atWarning().log("Database is already managed by Flyway. Not using existing database as baseline.");
+            log.atWarn().log("Database is already managed by Flyway. Not using existing database as baseline.");
             return null;
         }
 
@@ -201,7 +201,7 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
     {
         if (!Files.exists(databasePath))
         {
-            log.atFine().log("Database doesn't exist. Not creating a backup.");
+            log.atDebug().log("Database doesn't exist. Not creating a backup.");
             return;
         }
         try
@@ -211,7 +211,7 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to create backup of the database!");
+            log.atError().withCause(e).log("Failed to create backup of the database!");
         }
     }
 
@@ -228,14 +228,14 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
         // If the old database doesn't exist, there is nothing to move.
         if (!Files.exists(oldDatabasePath))
         {
-            log.atWarning().log("Old database doesn't exist. Not copying the old database.");
+            log.atWarn().log("Old database doesn't exist. Not copying the old database.");
             return;
         }
 
         // If the new database doesn't exist, copy the old database to the new location.
         if (Files.exists(databasePath))
         {
-            log.atWarning().log("New database already exists. Not copying the old database.");
+            log.atWarn().log("New database already exists. Not copying the old database.");
             return;
         }
 
@@ -265,7 +265,7 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
         // If the old database doesn't exist, there is nothing to move.
         if (!Files.exists(oldDatabasePath))
         {
-            log.atWarning().log("Old database doesn't exist. Not moving the old database.");
+            log.atWarn().log("Old database doesn't exist. Not moving the old database.");
             return;
         }
 

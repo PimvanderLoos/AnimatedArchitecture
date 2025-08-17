@@ -10,8 +10,8 @@ import com.plotsquared.core.plot.flag.implementations.DoneFlag;
 import com.plotsquared.core.plot.flag.types.BlockTypeWrapper;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.world.block.BlockType;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
@@ -29,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
  * @deprecated PlotSquared 6 is no longer supported. It will be removed in a future version.
  */
 @Deprecated
-@Flogger
+@CustomLog
 public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
 {
     @Getter
@@ -39,7 +39,7 @@ public class PlotSquared6ProtectionHook implements IProtectionHookSpigot
     public PlotSquared6ProtectionHook(ProtectionHookContext context)
     {
         this.context = context;
-        log.atSevere().log(
+        log.atError().log(
             "PlotSquared 6 support is deprecated and will be removed in a future version. " +
                 "Please upgrade to PlotSquared 7."
         );

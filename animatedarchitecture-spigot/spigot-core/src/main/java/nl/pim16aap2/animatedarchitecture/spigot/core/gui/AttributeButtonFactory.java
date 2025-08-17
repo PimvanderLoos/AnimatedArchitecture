@@ -3,8 +3,8 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.StaticGuiElement;
+import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Factory for creating buttons for the different attributes of a structure.
  */
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 class AttributeButtonFactory
 {
@@ -172,7 +172,7 @@ class AttributeButtonFactory
     private void handleExceptional(Throwable ex, WrappedPlayer player, String context)
     {
         player.sendError("commands.base.error.generic");
-        log.atSevere().withCause(ex).log("Failed to handle action '%s' for player '%s'", context, player);
+        log.atError().withCause(ex).log("Failed to handle action '%s' for player '%s'", context, player);
     }
 
     private GuiElement infoButton(Structure structure, WrappedPlayer player, char slotChar)

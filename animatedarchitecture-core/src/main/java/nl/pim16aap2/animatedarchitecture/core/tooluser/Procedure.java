@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
 import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents a procedure as defined by a series of {@link Step}s.
  */
-@Flogger
+@CustomLog
 @ThreadSafe
 public final class Procedure
 {
@@ -126,7 +126,7 @@ public final class Procedure
     {
         if (!hasNextStep())
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Trying to advance to the next step while there is none! Step: %s",
                 (currentStep == null ? "NULL" : getCurrentStepName())
             );
@@ -218,7 +218,7 @@ public final class Procedure
     {
         if (step == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Cannot get the current step message because there is no active step!");
             return messageable
                 .newText()
@@ -254,7 +254,7 @@ public final class Procedure
     {
         if (step == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Cannot get the name of the current because there is no active step!");
             return "NULL";
         }
@@ -270,7 +270,7 @@ public final class Procedure
     {
         if (currentStep == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Cannot wait for user input because there is no active step!");
             return false;
         }
@@ -309,7 +309,7 @@ public final class Procedure
 
         if (currentStep == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Cannot check for implicit next step as there is no current step!");
             return false;
         }

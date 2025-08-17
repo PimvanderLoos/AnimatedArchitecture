@@ -1,9 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.animation;
 
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.Color;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -23,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * A manager for {@link AnimatedHighlightedBlock}s.
  */
-@Flogger
+@CustomLog
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
 public class AnimatedPreviewBlockContainer implements IAnimatedBlockContainer
@@ -100,7 +100,7 @@ public class AnimatedPreviewBlockContainer implements IAnimatedBlockContainer
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to create animated blocks.");
+            log.atError().withCause(e).log("Failed to create animated blocks.");
             this.privateAnimatedBlocks.addAll(animatedBlocksTmp);
             return false;
         }

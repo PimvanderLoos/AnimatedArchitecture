@@ -255,7 +255,7 @@ public final class FakePlayerClassGenerator extends ClassGenerator
     private DynamicType.Builder<?> addMethodsGetLocation(
         DynamicType.Builder<?> currentBuilder, Map<String, Method> remainingMethods)
     {
-        final Constructor<?> locCtor = findConstructor(Location.class)
+        final Constructor<Location> locCtor = findConstructor(Location.class)
             .withParameters(World.class, double.class, double.class, double.class).get();
 
         final Method method0 = findMethod(Player.class)

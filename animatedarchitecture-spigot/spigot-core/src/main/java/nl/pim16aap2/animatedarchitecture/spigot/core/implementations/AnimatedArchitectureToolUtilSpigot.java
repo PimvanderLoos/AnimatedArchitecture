@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
 import com.google.common.flogger.StackSize;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.util.reflection.ReflectionBuilder;
@@ -27,7 +27,7 @@ import java.util.Arrays;
  * This class is responsible for giving the player the Animated Architecture tool and removing it from the player.
  */
 @Singleton
-@Flogger
+@CustomLog
 public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitectureToolUtil
 {
     private static final Material TOOL_MATERIAL = Material.STICK;
@@ -53,7 +53,7 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
         final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: %s", player.getUUID());
+            log.atError().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: %s", player.getUUID());
             return;
         }
 
@@ -86,7 +86,7 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
         final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
+            log.atError().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
             return;
         }
 
@@ -115,7 +115,7 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
         final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
+            log.atError().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
             return false;
         }
 

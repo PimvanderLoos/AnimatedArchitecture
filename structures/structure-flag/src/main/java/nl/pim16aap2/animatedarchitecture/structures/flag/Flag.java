@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.flag;
 
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureComponent;
@@ -19,7 +19,7 @@ import java.util.Optional;
 /**
  * Represents a Flag structure type.
  */
-@Flogger
+@CustomLog
 @ToString
 @EqualsAndHashCode
 public class Flag implements IStructureComponent

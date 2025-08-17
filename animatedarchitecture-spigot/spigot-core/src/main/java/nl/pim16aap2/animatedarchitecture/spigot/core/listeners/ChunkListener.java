@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
+import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
  * Represents a listener that keeps track of chunks being unloaded.
  */
 @Singleton
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public class ChunkListener extends AbstractListener
 {
@@ -84,7 +84,7 @@ public class ChunkListener extends AbstractListener
             .getAllCompletableFutureResultsFlatMap(rotationPoints, powerBlocks)
             .thenAccept(lst -> lst.forEach(Structure::onChunkLoad))
             .handleExceptional(ex ->
-                log.atSevere().atMostEvery(5, TimeUnit.SECONDS).withCause(ex).log(
+                log.atError().atMostEvery(5, TimeUnit.SECONDS).withCause(ex).log(
                     "Processing chunk [%d %d] being loaded in world: %s",
                     chunk.getX(), chunk.getZ(),
                     world.getName())
@@ -145,7 +145,7 @@ public class ChunkListener extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to abort BlockMovers in chunk %s", chunkCoords);
+            log.atError().withCause(e).log("Failed to abort BlockMovers in chunk %s", chunkCoords);
         }
     }
 

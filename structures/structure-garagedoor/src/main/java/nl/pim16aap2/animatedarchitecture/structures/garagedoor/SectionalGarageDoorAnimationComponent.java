@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.garagedoor;
 
+import lombok.CustomLog;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationUtil;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
@@ -18,7 +18,7 @@ import java.util.function.BiFunction;
  * <p>
  * This component moves the garage door with individual sections.
  */
-@Flogger
+@CustomLog
 @ToString(callSuper = true)
 public final class SectionalGarageDoorAnimationComponent extends CounterWeightGarageDoorAnimationComponent
 {

@@ -14,6 +14,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.DebugReport
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.BackupCommandListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
+import nl.pim16aap2.util.logging.FloggerFacade;
 import nl.pim16aap2.util.logging.Log4J2Configurator;
 import nl.pim16aap2.util.logging.floggerbackend.CustomLog4j2BackendFactory;
 import org.bstats.bukkit.Metrics;
@@ -41,7 +42,7 @@ import java.util.logging.Level;
 public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAnimatedArchitecturePlatformProvider
 {
     @SuppressWarnings("PMD.FieldNamingConventions")
-    private static final FluentLogger log;
+    private static final FloggerFacade log;
 
     static
     {
@@ -51,7 +52,8 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         // The #getInstance does not exist, but without it, Flogger derps out and won't load the specified backend.
         System.setProperty(propName, CustomLog4j2BackendFactory.class.getName() + "#getInstance");
 
-        log = FluentLogger.forEnclosingClass();
+        var flogger = FluentLogger.forEnclosingClass();
+        log = new FloggerFacade(flogger);
 
         if (oldProp != null)
             System.setProperty(propName, oldProp);
@@ -111,7 +113,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         catch (Exception e)
         {
             setLogLevel(Level.ALL);
-            log.atSevere().withCause(e).log("Failed to read config! Defaulting to logging everything!");
+            log.atError().withCause(e).log("Failed to read config! Defaulting to logging everything!");
         }
     }
 
@@ -164,14 +166,14 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Failed to initialize AnimatedArchitecture's Spigot platform!");
+                log.atError().withCause(e).log("Failed to initialize AnimatedArchitecture's Spigot platform!");
             }
         }
         initialized = true;
 
         if (animatedArchitectureSpigotPlatform == null)
         {
-            log.atSevere().log("Failed to enable AnimatedArchitecture: Platform could not be initialized!");
+            log.atError().log("Failed to enable AnimatedArchitecture: Platform could not be initialized!");
             return;
         }
 
@@ -200,7 +202,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to schedule update checker!");
+            log.atError().withCause(e).log("Failed to schedule update checker!");
         }
     }
 
@@ -212,7 +214,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to initialize command listener!");
+            log.atError().withCause(e).log("Failed to initialize command listener!");
             onInitFailure();
         }
     }
@@ -232,7 +234,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to enable stats! :(");
+            log.atError().withCause(e).log("Failed to enable stats! :(");
         }
     }
 
@@ -254,7 +256,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to initialize AnimatedArchitecture's Spigot platform!");
+            log.atError().withCause(e).log("Failed to initialize AnimatedArchitecture's Spigot platform!");
             initErrorMessage = e.getMessage();
             onInitFailure();
             return null;
@@ -266,7 +268,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         restartableHolder.shutDown();
         new BackupCommandListener(this, initErrorMessage);
         registerFailureLoginListener();
-        log.atWarning().log("%s", new DebugReporterSpigot(this, this, null, new DebuggableRegistry()));
+        log.atWarn().log("%s", new DebugReporterSpigot(this, this, null, new DebuggableRegistry()));
         successfulInit = false;
         restartableHolder.shutDown();
     }

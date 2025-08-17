@@ -10,8 +10,8 @@ import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.HookPreCheckResult;
@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Protection hook for WorldGuard 7.
  */
-@Flogger
+@CustomLog
 public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
 {
     private static final StateFlag[] FLAGS = new StateFlag[]{Flags.BLOCK_BREAK, Flags.BLOCK_PLACE, Flags.BUILD};
@@ -64,7 +64,7 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         // We don't want to check permissions for fake (offline) players on the main thread.
         if (isFakePlayer(player))
         {
-            log.atFinest().log(
+            log.atTrace().log(
                 "Player %s is a fake player, skipping sync pre-check.",
                 lazyFormatPlayerName(player)
             );
@@ -76,7 +76,7 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
 
         final boolean hasBypass = worldGuard.getPlatform().getSessionManager().hasBypass(wgPlayer, wgWorld);
         final var result = hasBypass ? HookPreCheckResult.BYPASS : HookPreCheckResult.ALLOW;
-        log.atFiner().log(
+        log.atTrace().log(
             "Sync pre-check for player %s in world '%s': %s",
             lazyFormatPlayerName(player),
             world.getName(),
@@ -90,7 +90,7 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
     {
         if (!isFakePlayer(player))
         {
-            log.atFinest().log(
+            log.atTrace().log(
                 "Player %s is not a fake player, skipping async pre-check.",
                 lazyFormatPlayerName(player)
             );
@@ -100,7 +100,7 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
         return hasPermissionOffline(world, player, "worldguard.region.bypass." + world.getName())
             .exceptionally(e ->
             {
-                log.atSevere().withCause(e).log(
+                log.atError().withCause(e).log(
                     "Error while checking permission for player %s in world '%s'.",
                     lazyFormatPlayerName(player),
                     world.getName()
@@ -110,7 +110,7 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
             .thenApply(result ->
             {
                 final var result0 = result ? HookPreCheckResult.BYPASS : HookPreCheckResult.ALLOW;
-                log.atFiner().log(
+                log.atTrace().log(
                     "Async pre-check for player %s in world '%s': %s",
                     lazyFormatPlayerName(player),
                     world.getName(),

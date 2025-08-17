@@ -3,10 +3,10 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
@@ -37,7 +37,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Getter
 @ToString
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public class StructureAnimationRequest
 {
@@ -115,7 +115,7 @@ public class StructureAnimationRequest
      */
     public CompletableFuture<StructureToggleResult> execute()
     {
-        log.atFine().log("Executing toggle request: %s", this);
+        log.atDebug().log("Executing toggle request: %s", this);
         return structureRetriever
             .getStructure()
             .thenCompose(this::execute)

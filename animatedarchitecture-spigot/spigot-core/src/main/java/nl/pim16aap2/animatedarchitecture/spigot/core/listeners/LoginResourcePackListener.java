@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
 import com.google.common.io.BaseEncoding;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
@@ -30,7 +30,7 @@ import java.util.function.BiConsumer;
  * Represents a listener that keeps track of {@link Player}s logging in to send them the resource pack.
  */
 @Singleton
-@Flogger
+@CustomLog
 public class LoginResourcePackListener extends AbstractListener
 {
     private static final UUID ANIMATED_ARCHITECTURE_RESOURCE_PACK_ID =
@@ -68,7 +68,7 @@ public class LoginResourcePackListener extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to send resource pack to player %s", event.getPlayer().getName());
+            log.atError().withCause(e).log("Failed to send resource pack to player %s", event.getPlayer().getName());
         }
     }
 
@@ -90,7 +90,7 @@ public class LoginResourcePackListener extends AbstractListener
         }
         catch (Throwable throwable)
         {
-            log.atSevere().withCause(throwable).log("Failed to add resource pack to player!");
+            log.atError().withCause(throwable).log("Failed to add resource pack to player!");
         }
     }
 
@@ -123,7 +123,7 @@ public class LoginResourcePackListener extends AbstractListener
         }
         catch (IllegalAccessException e)
         {
-            log.atSevere().withCause(e).log("Failed to access addResourcePack method");
+            log.atError().withCause(e).log("Failed to access addResourcePack method");
         }
         return null;
     }

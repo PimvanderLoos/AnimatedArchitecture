@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
@@ -23,7 +23,7 @@ import java.util.function.Supplier;
  * Represents a manager for the localization system.
  */
 @Singleton
-@Flogger
+@CustomLog
 public final class LocalizationManager extends Restartable implements ILocalizationGenerator
 {
     private final Path baseDir;
@@ -88,7 +88,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to execute action : '%s'", desc.get());
+            log.atError().withCause(e).log("Failed to execute action : '%s'", desc.get());
         }
     }
 
@@ -129,7 +129,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to apply localization patches!");
+            log.atError().withCause(e).log("Failed to apply localization patches!");
         }
     }
 

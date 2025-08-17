@@ -15,7 +15,7 @@ import java.util.Locale;
 
 import static nl.pim16aap2.animatedarchitecture.core.extensions.StructureTypeInfo.Dependency;
 import static nl.pim16aap2.animatedarchitecture.core.extensions.StructureTypeInfo.parseDependency;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class StructureTypeInfoTest
 {

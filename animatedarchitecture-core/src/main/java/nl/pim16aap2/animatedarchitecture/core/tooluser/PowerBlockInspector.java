@@ -3,9 +3,9 @@ package nl.pim16aap2.animatedarchitecture.core.tooluser;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.CustomLog;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
@@ -22,7 +22,7 @@ import java.util.List;
  * Represents a type of {@link ToolUser} that tries to find powerblocks based on the locations provided by the user.
  */
 @ToString(callSuper = true)
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public class PowerBlockInspector extends ToolUser
 {
@@ -73,7 +73,7 @@ public class PowerBlockInspector extends ToolUser
                 else
                     sendPowerBlockInfo(getPlayer(), filtered);
             }).handleExceptional(ex ->
-                log.atSevere().withCause(ex).log("Failed to inspect location %s for power blocks!", loc.getPosition()));
+                log.atError().withCause(ex).log("Failed to inspect location %s for power blocks!", loc.getPosition()));
         return true;
     }
 

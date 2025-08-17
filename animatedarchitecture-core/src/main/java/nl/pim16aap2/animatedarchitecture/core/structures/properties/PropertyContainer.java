@@ -1,9 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
 import com.alibaba.fastjson2.annotation.JSONField;
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.util.LazyValue;
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  */
 @NotThreadSafe
 @ToString
-@Flogger
+@CustomLog
 @EqualsAndHashCode
 public final class PropertyContainer implements IPropertyHolder, IPropertyContainerConst
 {
@@ -158,7 +158,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
 
         if (oldValue instanceof PropertyContainerSerializer.UndefinedPropertyValue undefinedPropertyValue)
         {
-            log.atWarning().log(
+            log.atWarn().log(
                 "Property '%s' was previously undefined. It was overwritten with new value '%s'.",
                 property.getFullKey(),
                 newValue.value()

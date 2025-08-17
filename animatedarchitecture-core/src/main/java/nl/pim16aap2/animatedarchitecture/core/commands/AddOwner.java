@@ -4,9 +4,9 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
  * Represents the command that adds co-owners to a given structure.
  */
 @ToString(callSuper = true)
-@Flogger
+@CustomLog
 public final class AddOwner extends StructureTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.ADD_OWNER;

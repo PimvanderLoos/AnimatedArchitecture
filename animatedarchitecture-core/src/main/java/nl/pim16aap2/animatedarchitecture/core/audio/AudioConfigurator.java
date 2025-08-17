@@ -2,8 +2,8 @@ package nl.pim16aap2.animatedarchitecture.core.audio;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * Represents a class used to read and access the audio configuration.
  */
-@Flogger
+@CustomLog
 public final class AudioConfigurator implements IRestartable, IDebuggable
 {
     public static final String KEY_DEFAULT = "DEFAULT";

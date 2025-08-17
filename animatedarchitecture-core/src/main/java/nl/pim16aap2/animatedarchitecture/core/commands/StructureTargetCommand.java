@@ -3,11 +3,11 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Locked;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
@@ -34,7 +34,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Represents a command that relates to an existing structure.
  */
-@Flogger
+@CustomLog
 @ToString(callSuper = true)
 public abstract class StructureTargetCommand extends BaseCommand
 {
@@ -356,7 +356,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      */
     protected final void handleDatabaseActionResult(DatabaseManager.ActionResult result, Structure structure)
     {
-        log.atFine().log("Handling database action result: %s for command: %s", result.name(), this);
+        log.atDebug().log("Handling database action result: %s for command: %s", result.name(), this);
         switch (result)
         {
             case CANCELLED -> handleDatabaseActionCancelled(structure);
@@ -385,7 +385,7 @@ public abstract class StructureTargetCommand extends BaseCommand
                     structure.getName() + " (" + structure.getUid() + ")"
                 );
 
-            log.atSevere().withStackTrace(StackSize.FULL).log("Structure not available after database action!");
+            log.atError().withStackTrace(StackSize.FULL).log("Structure not available after database action!");
             return EMPTY_DESCRIPTION;
         }
     }

@@ -5,8 +5,8 @@ import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 /**
  * Represents an animated block display. These are the blocks that the player sees moving around in the world.
  */
-@Flogger
+@CustomLog
 public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
 {
     private final BlockDisplayHelper blockDisplayHelper;
@@ -106,7 +106,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     {
         if (entity != null)
         {
-            log.atFine().withStackTrace(StackSize.FULL).log("Entity is already spawned, killing it first!");
+            log.atDebug().withStackTrace(StackSize.FULL).log("Entity is already spawned, killing it first!");
             kill0();
         }
 
@@ -240,14 +240,14 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     {
         for (final IAnimatedBlockHook hook : hooks)
         {
-            log.atFinest().log("Executing '%s' for hook '%s'!", actionName, hook.getName());
+            log.atTrace().log("Executing '%s' for hook '%s'!", actionName, hook.getName());
             try
             {
                 call.accept(hook);
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
+                log.atError().withCause(e).log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
             }
         }
     }

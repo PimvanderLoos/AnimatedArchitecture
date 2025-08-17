@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
@@ -20,7 +20,7 @@ import java.util.logging.Level;
 /**
  * Represents various small and platform-agnostic utility functions.
  */
-@Flogger
+@CustomLog
 public final class Util
 {
     private static final Map<BlockFace, MovementDirection> TO_MOVEMENT_DIRECTION =

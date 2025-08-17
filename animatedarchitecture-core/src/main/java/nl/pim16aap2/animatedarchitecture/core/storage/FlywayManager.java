@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.storage;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Manages the Flyway migrations.
  */
-@Flogger
+@CustomLog
 @Singleton
 public final class FlywayManager implements IDebuggable
 {
@@ -47,7 +47,7 @@ public final class FlywayManager implements IDebuggable
     {
         if (isMigrationPerformed.getAndSet(true))
         {
-            log.atWarning().log("Migration has already been performed. Skipping.");
+            log.atWarn().log("Migration has already been performed. Skipping.");
             return;
         }
 

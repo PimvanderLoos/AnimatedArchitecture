@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Handles all I/O for the audio config.
  */
-@Flogger
+@CustomLog
 class AudioConfigIO
 {
     private static final Gson GSON = new GsonBuilder()
@@ -54,7 +54,7 @@ class AudioConfigIO
         }
         catch (Exception | AssertionError e)
         {
-            log.atSevere().withCause(e).log("Failed to read audio config!");
+            log.atError().withCause(e).log("Failed to read audio config!");
         }
         return Collections.emptyMap();
     }
@@ -84,7 +84,7 @@ class AudioConfigIO
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to write audio config!");
+            log.atError().withCause(e).log("Failed to write audio config!");
         }
     }
 

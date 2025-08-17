@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
+import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
-import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -12,7 +12,7 @@ import java.util.OptionalLong;
 /**
  * Utility class for mathematical operations.
  */
-@Flogger
+@CustomLog
 @UtilityClass
 public final class MathUtil
 {

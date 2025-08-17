@@ -51,15 +51,7 @@ public class ConstructorFinder
         @Override
         public Constructor<T> get()
         {
-            return Objects.requireNonNull(
-                getNullable(),
-                String.format(
-                    "Failed to find constructor %s[%s %s(%s)]",
-                    ReflectionBackend.formatAnnotations(annotations),
-                    ReflectionBackend.optionalModifiersToString(modifiers),
-                    source.getName(),
-                    ReflectionBackend.formatOptionalValue(parameters))
-            );
+            return Objects.requireNonNull(getNullable(), this::toString);
         }
 
         /**
@@ -80,16 +72,23 @@ public class ConstructorFinder
         @Override
         public @Nullable Constructor<T> getNullable()
         {
-            final List<Constructor<T>> ctors =
-                ReflectionBackend.findCTor(
-                    source,
-                    modifiers,
-                    parameters,
-                    setAccessible,
-                    1,
-                    annotations
-                );
-            return ctors.isEmpty() ? null : ctors.getFirst();
+            try
+            {
+                final List<Constructor<T>> ctors =
+                    ReflectionBackend.findCTor(
+                        source,
+                        modifiers,
+                        parameters,
+                        setAccessible,
+                        1,
+                        annotations
+                    );
+                return ctors.isEmpty() ? null : ctors.getFirst();
+            }
+            catch (Throwable throwable)
+            {
+                throw new RuntimeException("Failed to find constructors for request: " + this, throwable);
+            }
         }
 
         @Override
@@ -105,6 +104,18 @@ public class ConstructorFinder
         {
             this.annotations = annotations;
             return this;
+        }
+
+        @Override
+        public String toString()
+        {
+            return String.format(
+                "Failed to find constructor %s[%s %s(%s)]",
+                ReflectionBackend.formatAnnotations(annotations),
+                ReflectionBackend.optionalModifiersToString(modifiers),
+                source.getName(),
+                ReflectionBackend.formatOptionalValue(parameters)
+            );
         }
     }
 }

@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
@@ -22,7 +22,7 @@ import javax.inject.Singleton;
 /**
  * Helper class for BlockDisplay entities.
  */
-@Flogger
+@CustomLog
 @Singleton
 public final class BlockDisplayHelper
 {

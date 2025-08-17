@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.managers;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
  * Represents a manager of player heads with the texture of a certain player.
  */
 @Singleton
-@Flogger
+@CustomLog
 public final class HeadManager extends Restartable
 {
     /**
@@ -71,7 +71,7 @@ public final class HeadManager extends Restartable
         final var headMap0 = headMap;
         if (headMap0 == null)
         {
-            log.atSevere().log("Trying to retrieve player head while head map is not initialized!");
+            log.atError().log("Trying to retrieve player head while head map is not initialized!");
             return CompletableFuture.completedFuture(Optional.empty());
         }
 
@@ -82,7 +82,7 @@ public final class HeadManager extends Restartable
                 executor.getVirtualExecutor())
             .exceptionally(ex ->
             {
-                log.atSevere().withCause(ex).log(
+                log.atError().withCause(ex).log(
                     "Failed to get player head for player with UUID: %s and display name: %s",
                     playerUUID,
                     displayName

@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.data.graph.DirectedAcyclicGraph;
@@ -24,7 +24,7 @@ import java.util.Map;
  * This class will ensure that the dependencies between {@link StructureType}s are met and then load their jars into the
  * desired {@link StructureTypeClassLoader}.,
  */
-@Flogger
+@CustomLog
 final class StructureTypeInitializer
 {
     private final DirectedAcyclicGraph<Loadable> graph;
@@ -49,7 +49,7 @@ final class StructureTypeInitializer
         this.structureTypeClassLoader = structureTypeClassLoader;
         this.graph = createGraph(structureTypeInfos, debug);
 
-        log.atFiner().log("Dependency order: %s", graph.getLeafPath().stream().map(Loadable::getFullKey).toList());
+        log.atTrace().log("Dependency order: %s", graph.getLeafPath().stream().map(Loadable::getFullKey).toList());
     }
 
     /**
@@ -65,7 +65,7 @@ final class StructureTypeInitializer
             final Loadable loadable = node.getObj();
             if (loadable.getLoadFailure() != null)
             {
-                log.atWarning().log(
+                log.atWarn().log(
                     "Failed to load structure type %s, reason: %s",
                     loadable.getStructureTypeInfo(),
                     loadable.getLoadFailure()
@@ -202,7 +202,7 @@ final class StructureTypeInitializer
     {
         if (!structureTypeClassLoader.loadJar(structureTypeInfo.getJarFile()))
         {
-            log.atSevere().log(
+            log.atError().log(
                 "Failed to load file: '%s'! This type ('%s') will not be loaded!",
                 structureTypeInfo.getJarFile(),
                 structureTypeInfo.getFullKey()
@@ -218,16 +218,16 @@ final class StructureTypeInitializer
         }
         catch (NoSuchMethodException e)
         {
-            log.atSevere().withCause(e).log("Failed to load invalid extension: %s", structureTypeInfo);
+            log.atError().withCause(e).log("Failed to load invalid extension: %s", structureTypeInfo);
             return null;
         }
         catch (Exception | Error e)
         {
-            log.atSevere().withCause(e).log("Failed to load extension: %s", structureTypeInfo);
+            log.atError().withCause(e).log("Failed to load extension: %s", structureTypeInfo);
             return null;
         }
 
-        log.atFine().log(
+        log.atDebug().log(
             "Loaded AnimatedArchitecture extension: %s",
             StringUtil.capitalizeFirstLetter(structureType.getSimpleName())
         );
@@ -287,7 +287,7 @@ final class StructureTypeInitializer
 
         public void setLoadFailure(LoadFailure loadFailure)
         {
-            log.atFiner().log("Failed to load %s: %s", this, loadFailure);
+            log.atTrace().log("Failed to load %s: %s", this, loadFailure);
             this.loadFailure = loadFailure;
         }
 

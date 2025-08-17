@@ -4,11 +4,11 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
@@ -41,7 +41,7 @@ import java.util.function.Supplier;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = false)
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
 {
@@ -120,7 +120,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         this.initMessageSupplier = initMessageSupplier;
         this.inputClass = inputClass;
 
-        log.atFinest().log("Started delayed input request for command: %s", this);
+        log.atTrace().log("Started delayed input request for command: %s", this);
 
         final var commandOutputFuture = constructOutput(executorFunction);
 

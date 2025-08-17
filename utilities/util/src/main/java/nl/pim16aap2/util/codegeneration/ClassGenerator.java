@@ -1,7 +1,7 @@
 package nl.pim16aap2.util.codegeneration;
 
+import lombok.CustomLog;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
@@ -19,7 +19,7 @@ import java.util.Objects;
  * {@link ClassLoader}.
  */
 @SuppressWarnings("unused")
-@Flogger
+@CustomLog
 public abstract class ClassGenerator
 {
     private boolean isGenerated = false;
@@ -182,7 +182,7 @@ public abstract class ClassGenerator
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to save class '%s' to file: '%s'", getFormattedName(), file);
+            log.atError().withCause(e).log("Failed to save class '%s' to file: '%s'", getFormattedName(), file);
         }
     }
 

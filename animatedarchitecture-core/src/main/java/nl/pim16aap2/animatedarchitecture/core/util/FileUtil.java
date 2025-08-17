@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +26,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * Utility class for file operations.
  */
-@Flogger
+@CustomLog
 public final class FileUtil
 {
 
@@ -52,7 +52,7 @@ public final class FileUtil
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to delete file: '%s'", file);
+            log.atError().withCause(e).log("Failed to delete file: '%s'", file);
         }
     }
 
@@ -121,7 +121,7 @@ public final class FileUtil
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to create directories: %s", dir);
+            log.atError().withCause(e).log("Failed to create directories: %s", dir);
         }
     }
 
@@ -143,7 +143,7 @@ public final class FileUtil
             }
             catch (IOException e)
             {
-                log.atSevere().withCause(e).log("Failed to create directories: %s", parent);
+                log.atError().withCause(e).log("Failed to create directories: %s", parent);
                 return;
             }
         }
@@ -159,7 +159,7 @@ public final class FileUtil
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to create file: %s", zipFile);
+            log.atError().withCause(e).log("Failed to create file: %s", zipFile);
         }
     }
 

@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
 
+import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
@@ -25,7 +25,7 @@ import java.util.function.Supplier;
  * Implementation of {@link IExecutor} for the Spigot platform.
  */
 @Singleton
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggable
 {
@@ -174,7 +174,7 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Encountered an exception while executing a runnable.");
+                log.atError().withCause(e).log("Encountered an exception while executing a runnable.");
             }
         };
     }
@@ -192,7 +192,7 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
                 }
                 catch (Exception e)
                 {
-                    log.atSevere().withCause(e).log("Encountered an exception while executing a timer task.");
+                    log.atError().withCause(e).log("Encountered an exception while executing a timer task.");
                 }
             }
         };
@@ -208,7 +208,7 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Encountered an exception while executing a supplier.");
+                log.atError().withCause(e).log("Encountered an exception while executing a supplier.");
                 throw new RuntimeException(e);
             }
         };
@@ -231,7 +231,7 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
         try
         {
             if (!executor0.awaitTermination(30, TimeUnit.SECONDS))
-                log.atSevere().log("Timed out waiting to terminate General ExecutorService!");
+                log.atError().log("Timed out waiting to terminate General ExecutorService!");
         }
         catch (InterruptedException exception)
         {

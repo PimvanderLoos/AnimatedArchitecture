@@ -10,8 +10,8 @@ import com.plotsquared.core.plot.flag.implementations.DoneFlag;
 import com.plotsquared.core.plot.flag.types.BlockTypeWrapper;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.world.block.BlockType;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Protection hook for PlotSquared 7.
  */
-@Flogger
+@CustomLog
 public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
 {
     @Getter
@@ -49,7 +49,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
 
         final boolean result = canBreakBlock(player, area, area.getPlot(psLocation), loc);
         if (!result)
-            log.atFine().log(
+            log.atDebug().log(
                 "Player %s is not allowed to break block at %s",
                 lazyFormatPlayerName(player),
                 loc
@@ -92,7 +92,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                 hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_HEIGHT_LIMIT.toString());
 
         if (!result)
-            log.atFiner().log(
+            log.atTrace().log(
                 "Player %s is not allowed to break blocks at height %d in plot area '%s' with region '%s'",
                 lazyFormatPlayerName(player),
                 height,
@@ -106,7 +106,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
     {
         final boolean result = hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_ROAD.toString());
         if (!result)
-            log.atFiner().log(
+            log.atTrace().log(
                 "Player %s is not allowed to break roads",
                 lazyFormatPlayerName(player)
             );
@@ -128,7 +128,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
         {
             final boolean result = hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_UNOWNED.toString());
             if (!result)
-                log.atFiner().log(
+                log.atTrace().log(
                     "Player %s is not allowed to break block in unowned plot '%s' at location '%s'",
                     lazyFormatPlayerName(player),
                     plot,
@@ -147,7 +147,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
 
             final boolean result = hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_OTHER.toString());
             if (!result)
-                log.atFiner().log(
+                log.atTrace().log(
                     "Player %s is not allowed to break block in plot '%s' at location '%s': " +
                         "block type '%s' is not allowed!",
                     lazyFormatPlayerName(player),
@@ -161,7 +161,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
         {
             final boolean result = hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_OTHER.toString());
             if (!result)
-                log.atFiner().log(
+                log.atTrace().log(
                     "Player %s is not allowed to break block in plot '%s' at location '%s': plot is marked as done!",
                     lazyFormatPlayerName(player),
                     plot,
@@ -201,7 +201,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
                 final Plot newPlot = area.getPlot(psLocation);
                 if (newPlot == null && !canBreakRoads)
                 {
-                    log.atFiner().log(
+                    log.atTrace().log(
                         "Player %s is not allowed to break block at %s: Not in a plot area and cannot break roads!",
                         lazyFormatPlayerName(player),
                         loc

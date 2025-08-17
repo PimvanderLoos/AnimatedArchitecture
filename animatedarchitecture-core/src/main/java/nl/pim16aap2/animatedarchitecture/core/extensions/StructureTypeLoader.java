@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
@@ -43,7 +43,7 @@ import java.util.stream.Stream;
  * Responsible for loading extensions (structure types) from the extensions directory.
  */
 @Singleton
-@Flogger
+@CustomLog
 public final class StructureTypeLoader extends Restartable
 {
     /**
@@ -136,7 +136,7 @@ public final class StructureTypeLoader extends Restartable
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to create directory: %s", directory);
+            log.atError().withCause(e).log("Failed to create directory: %s", directory);
         }
         return false;
     }
@@ -150,7 +150,7 @@ public final class StructureTypeLoader extends Restartable
      */
     private ParsedStructureTypeInfo getStructureTypeInfo(Path file)
     {
-        log.atFine().log("Attempting to load StructureType from jar: %s", file);
+        log.atDebug().log("Attempting to load StructureType from jar: %s", file);
         if (!file.toString().endsWith(".jar"))
         {
             return ParsedStructureTypeInfo.failed(
@@ -162,7 +162,7 @@ public final class StructureTypeLoader extends Restartable
 
         if (INVALID_EXTENSION_JARS.contains(file.getFileName().toString()))
         {
-            log.atSevere().log(
+            log.atError().log(
                 "Found extension with invalid name '%s'. Going to delete it now...",
                 file.getFileName()
             );
@@ -173,7 +173,7 @@ public final class StructureTypeLoader extends Restartable
             }
             catch (IOException e)
             {
-                log.atSevere().withCause(e).log("Failed to delete extension with invalid name '%s'", file);
+                log.atError().withCause(e).log("Failed to delete extension with invalid name '%s'", file);
             }
 
             return ParsedStructureTypeInfo.failed(
@@ -197,7 +197,7 @@ public final class StructureTypeLoader extends Restartable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Failed to load structure type info from file: '%s'.\nManifest:\n%s",
                 file,
                 manifestToString(manifest)
@@ -260,7 +260,7 @@ public final class StructureTypeLoader extends Restartable
 
         if (!isSupported(currentApiVersion, typeInfo.getSupportedApiVersions()))
         {
-            log.atSevere().log(
+            log.atError().log(
                 "The API version of the extension '%s' is not supported by the current API version: %s",
                 typeInfo.getFullKey(),
                 currentApiVersion
@@ -293,7 +293,7 @@ public final class StructureTypeLoader extends Restartable
                 structureTypeInfo.getFullKey()
             );
 
-            case API_VERSION_NOT_SUPPORTED -> log.atSevere().log(
+            case API_VERSION_NOT_SUPPORTED -> log.atError().log(
                 "Current API version '%s' out of the supported range '%s' for structure type: '%s'",
                 CURRENT_EXTENSION_API_VERSION,
                 structureTypeInfo.getSupportedApiVersions(),
@@ -332,7 +332,7 @@ public final class StructureTypeLoader extends Restartable
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to read resource from file: %s", jarFile);
+            log.atError().withCause(e).log("Failed to read resource from file: %s", jarFile);
         }
     }
 
@@ -356,7 +356,7 @@ public final class StructureTypeLoader extends Restartable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to read resource from file: %s", jarFile);
+            log.atError().withCause(e).log("Failed to read resource from file: %s", jarFile);
         }
     }
 
@@ -377,7 +377,7 @@ public final class StructureTypeLoader extends Restartable
     {
         if (!parsedInfo.isSuccessful())
         {
-            log.atSevere().log(
+            log.atError().log(
                 "Failed to extract embedded structure type from jar: '%s'. Reason: %s",
                 jarFile,
                 parsedInfo.context()
@@ -416,7 +416,7 @@ public final class StructureTypeLoader extends Restartable
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Failed to extract embedded structure type '%s' from jar: '%s' to: '%s'",
                 structureTypeInfo.getFullKey(),
                 jarFile,
@@ -457,7 +457,7 @@ public final class StructureTypeLoader extends Restartable
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to load structure types from directory: %s", directory);
+            log.atError().withCause(e).log("Failed to load structure types from directory: %s", directory);
             return List.of();
         }
         logPreloadCheckResults(preloadCheckListMap);
@@ -465,7 +465,7 @@ public final class StructureTypeLoader extends Restartable
         final List<StructureTypeInfo> acceptedTypes = preloadCheckListMap.get(PreloadCheckResult.PASS);
         if (acceptedTypes == null)
         {
-            log.atWarning().log("No structure types to load!");
+            log.atWarn().log("No structure types to load!");
             return List.of();
         }
 
@@ -494,7 +494,7 @@ public final class StructureTypeLoader extends Restartable
         if (parsedStructureTypeInfo.isSuccessful())
             return Optional.of(Objects.requireNonNull(parsedStructureTypeInfo.structureTypeInfo()));
 
-        log.atSevere().log(
+        log.atError().log(
             "Failed to load structure type from file: '%s'. Reason: %s",
             parsedStructureTypeInfo.file(),
             parsedStructureTypeInfo.context()
@@ -525,7 +525,7 @@ public final class StructureTypeLoader extends Restartable
         if (!LEGACY_EXTENSION_JARS.contains(file.getFileName().toString()))
             return;
 
-        log.atWarning().log(
+        log.atWarn().log(
             "Found legacy extension jar '%s'. " +
                 "Going to delete it now... The updated version has been installed automatically.",
             file.getFileName()
@@ -537,7 +537,7 @@ public final class StructureTypeLoader extends Restartable
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to delete legacy extension jar: %s", file);
+            log.atError().withCause(e).log("Failed to delete legacy extension jar: %s", file);
         }
     }
 

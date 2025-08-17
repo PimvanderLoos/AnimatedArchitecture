@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
+import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  * Represents a listener that keeps track of various events.
  */
 @Singleton
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public class EventListeners extends AbstractListener
 {
@@ -91,7 +91,7 @@ public class EventListeners extends AbstractListener
                 toolUser
                     .handleInput(SpigotAdapter.wrapLocation(event.getClickedBlock().getLocation()))
                     .orTimeout(100, TimeUnit.MILLISECONDS)
-                    .handleExceptional(e -> log.atSevere().withCause(e).log(
+                    .handleExceptional(e -> log.atError().withCause(e).log(
                         "Failed to handle input for player %s clicking block %s",
                         event.getPlayer().getName(),
                         event.getClickedBlock().getLocation()
@@ -117,7 +117,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to update player %s", event.getPlayer().getName());
+            log.atError().withCause(e).log("Failed to update player %s", event.getPlayer().getName());
         }
     }
 
@@ -143,7 +143,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Encountered an error while cleaning up after player %s",
                 event.getPlayer().getName()
             );
@@ -186,7 +186,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Encountered an error while handling a PlayerDropItemEvent");
+            log.atError().withCause(e).log("Encountered an error while handling a PlayerDropItemEvent");
         }
     }
 
@@ -225,7 +225,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Encountered an error while handling an InventoryClickEvent");
+            log.atError().withCause(e).log("Encountered an error while handling an InventoryClickEvent");
         }
     }
 
@@ -249,7 +249,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Encountered an error while handling an InventoryDragEvent");
+            log.atError().withCause(e).log("Encountered an error while handling an InventoryDragEvent");
         }
     }
 
@@ -280,7 +280,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Encountered an error while handling an InventoryMoveItemEvent");
+            log.atError().withCause(e).log("Encountered an error while handling an InventoryMoveItemEvent");
         }
     }
 }

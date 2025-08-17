@@ -1,9 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.animation;
 
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
@@ -20,7 +20,7 @@ import java.util.function.Function;
 /**
  * Represents an implementation of {@link IAnimatedBlockContainer} for animated blocks that affect the world.
  */
-@Flogger
+@CustomLog
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
 public class AnimatedBlockContainer implements IAnimatedBlockContainer
@@ -101,7 +101,7 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Failed to create animated blocks at position: [%s, %s, %s]", posX, posY, posZ);
             this.privateAnimatedBlocks.addAll(animatedBlocksTmp);
             return false;
@@ -201,7 +201,7 @@ public class AnimatedBlockContainer implements IAnimatedBlockContainer
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to kill animated block: %s", animatedBlock);
+            log.atError().withCause(e).log("Failed to kill animated block: %s", animatedBlock);
         }
     }
 

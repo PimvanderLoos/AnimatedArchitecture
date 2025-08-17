@@ -8,10 +8,10 @@ import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Gui page for creating new structures.
  */
-@Flogger
+@CustomLog
 @ToString(onlyExplicitlyIncluded = true)
 @ExtensionMethod(CompletableFutureExtensions.class)
 class CreateStructureGui implements IGuiPage
@@ -125,7 +125,7 @@ class CreateStructureGui implements IGuiPage
                         .handleExceptional(ex ->
                         {
                             inventoryHolder.sendError("constants.error.generic");
-                            log.atSevere().withCause(ex).log("Failed to delete structure.");
+                            log.atError().withCause(ex).log("Failed to delete structure.");
                         });
                     GuiUtil.closeAllGuis(inventoryHolder);
                     return true;

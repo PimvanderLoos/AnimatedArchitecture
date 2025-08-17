@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.bigdoor;
 
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureComponent;
@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  *
  * @see Structure
  */
-@Flogger
+@CustomLog
 @ToString
 @EqualsAndHashCode
 public class BigDoor implements IStructureComponent
@@ -53,7 +53,7 @@ public class BigDoor implements IStructureComponent
         }
         else
         {
-            log.atSevere().log(
+            log.atError().log(
                 "Invalid movement direction '%s' for door: %d",
                 movementDirection.name(),
                 structure.getUid()

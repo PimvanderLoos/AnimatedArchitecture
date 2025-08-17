@@ -4,8 +4,8 @@ import com.google.common.flogger.StackSize;
 import dagger.Lazy;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongList;
+import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
@@ -52,7 +52,7 @@ import java.util.function.Function;
  * Manages all database interactions.
  */
 @Singleton
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public final class DatabaseManager extends Restartable implements IDebuggable
 {
@@ -127,7 +127,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         try
         {
             if (!threadPool0.awaitTermination(30, TimeUnit.SECONDS))
-                log.atSevere().log(
+                log.atError().log(
                     "Timed out waiting to terminate DatabaseManager ExecutorService!" +
                         " The database may be out of sync with the world!"
                 );
@@ -194,7 +194,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                         );
                         newStructure.verifyRedstoneState();
                     },
-                    () -> log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event)
+                    () -> log.atError().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event)
                 );
 
                 return new StructureInsertResult(result, false);
@@ -207,7 +207,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
         ret.thenAccept(result -> result.structure.ifPresent(unused -> callStructureCreatedEvent(result, responsible)))
             .handleExceptional(ex ->
-                log.atSevere().withCause(ex).log("Failed to call IStructureCreatedEvent for structure %s!", structure));
+                log.atError().withCause(ex).log("Failed to call IStructureCreatedEvent for structure %s!", structure));
 
         return ret;
     }
@@ -236,7 +236,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
             }, executor.getVirtualExecutor())
             .orTimeout(10, TimeUnit.SECONDS)
             .handleExceptional(ex ->
-                log.atSevere().withCause(ex).log(
+                log.atError().withCause(ex).log(
                     "Failed to call IStructureCreatedEvent for structure %s with player %s!",
                     result.structure(),
                     responsible
@@ -278,7 +278,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                 final boolean result = db.removeStructure(snapshot.getUid());
                 if (!result)
                 {
-                    log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
+                    log.atError().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
                     return ActionResult.FAIL;
                 }
 
@@ -648,14 +648,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
 
                 if (!structureModifier.addOwner(structure, newOwner))
                 {
-                    log.atSevere().log("Failed to add owner %s to structure %s!", newOwner, structure);
+                    log.atError().log("Failed to add owner %s to structure %s!", newOwner, structure);
                     return ActionResult.FAIL;
                 }
 
                 final boolean result = db.addOwner(structure.getUid(), newOwner.playerData(), permission);
                 if (!result)
                 {
-                    log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
+                    log.atError().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
                     structureModifier.removeOwner(structure, newOwner.playerData().getUUID());
                     return ActionResult.FAIL;
                 }
@@ -684,9 +684,9 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         final T event = factoryMethod.apply(animatedArchitectureEventFactory);
         return CompletableFuture.supplyAsync(() ->
             {
-                log.atFinest().log("Calling event: %s", event);
+                log.atTrace().log("Calling event: %s", event);
                 animatedArchitectureEventCaller.callAnimatedArchitectureEvent(event);
-                log.atFinest().log("Processed event: %s", event);
+                log.atTrace().log("Processed event: %s", event);
                 return event;
             }, executor.getVirtualExecutor())
             .withExceptionContext("Calling event %s", event);
@@ -761,7 +761,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         final Optional<StructureOwner> structureOwner = structure.getOwner(playerUUID);
         if (structureOwner.isEmpty())
         {
-            log.atFine().log(
+            log.atDebug().log(
                 "Trying to remove player: %s from structure: %d, but the player is not an owner!",
                 playerUUID,
                 structure.getUid()
@@ -770,7 +770,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         }
         if (structureOwner.get().permission() == PermissionLevel.CREATOR)
         {
-            log.atFine().log(
+            log.atDebug().log(
                 "Trying to remove player: %s from structure: %d, but the player is the prime owner! " +
                     "This is not allowed!",
                 playerUUID,
@@ -789,14 +789,14 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                 final @Nullable StructureOwner oldOwner = structureModifier.removeOwner(structure, playerUUID);
                 if (oldOwner == null)
                 {
-                    log.atSevere().log("Failed to remove owner %s from structure %s!", structureOwner.get(), structure);
+                    log.atError().log("Failed to remove owner %s from structure %s!", structureOwner.get(), structure);
                     return ActionResult.FAIL;
                 }
 
                 final boolean result = db.removeOwner(structure.getUid(), playerUUID);
                 if (!result)
                 {
-                    log.atSevere().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
+                    log.atError().withStackTrace(StackSize.FULL).log("Failed to process event: %s", event);
                     structureModifier.addOwner(structure, oldOwner);
                     return ActionResult.FAIL;
                 }

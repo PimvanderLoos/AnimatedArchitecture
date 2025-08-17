@@ -9,10 +9,10 @@ import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  */
 @ToString(onlyExplicitlyIncluded = true)
 @NotThreadSafe
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 class MainGui implements IGuiPage.IGuiStructureDeletionListener
 {
@@ -156,7 +156,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                             .handleExceptional(e ->
                             {
                                 inventoryHolder.sendError("constants.error.generic");
-                                log.atSevere().withCause(e).log("Failed to sync structure data.");
+                                log.atError().withCause(e).log("Failed to sync structure data.");
                             });
                         this.selectedStructure = null;
                         return true;

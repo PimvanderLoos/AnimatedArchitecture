@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.Color;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -17,7 +17,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
-@Flogger
+@CustomLog
 public final class HighlightedBlockDisplay implements IHighlightedBlock
 {
     private final BlockDisplayHelper blockDisplayHelper;

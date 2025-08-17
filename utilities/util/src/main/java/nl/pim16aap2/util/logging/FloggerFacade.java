@@ -8,7 +8,8 @@ import org.slf4j.event.Level;
 /**
  * A simple facade for Flogger's {@link FluentLogger} to use slf4j log level names.
  */
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@SuppressWarnings("FloggerSplitLogStatement")
+@AllArgsConstructor(access = AccessLevel.PUBLIC)
 public final class FloggerFacade
 {
     private final FluentLogger flogger;

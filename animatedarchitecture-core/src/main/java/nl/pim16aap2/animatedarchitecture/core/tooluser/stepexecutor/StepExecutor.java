@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor;
 
+import lombok.CustomLog;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -10,7 +10,7 @@ import java.util.function.BiFunction;
 /**
  * Represents an executor for a single step in a larger procedure.
  */
-@Flogger
+@CustomLog
 @ToString
 public abstract class StepExecutor
 {

@@ -3,8 +3,8 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.CustomLog;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IAnimatedArchitectureEventFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventCaller;
@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
  * Represents the command that is used to change whether a structure is locked.
  */
 @ToString(callSuper = true)
-@Flogger
+@CustomLog
 public class Lock extends StructureTargetCommand
 {
     private final boolean isLocked;
@@ -87,7 +87,7 @@ public class Lock extends StructureTargetCommand
 
         if (event.isCancelled())
         {
-            log.atFine().log("Event %s was cancelled!", event);
+            log.atDebug().log("Event %s was cancelled!", event);
             return CompletableFuture.completedFuture(null);
         }
 

@@ -1,9 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import com.google.common.flogger.LazyArgs;
+import lombok.CustomLog;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
@@ -32,7 +32,7 @@ import java.util.function.Supplier;
  * having to use specify the structure they would need to change in a command or something would be rather awkward, so
  * this way we can remember that information and not require the user to input duplicate data.
  */
-@Flogger
+@CustomLog
 @ToString
 @ExtensionMethod(CompletableFutureExtensions.class)
 public abstract class DelayedCommand<T>
@@ -113,7 +113,7 @@ public abstract class DelayedCommand<T>
             commandSender,
             creator
         );
-        log.atFinest().log("%s", LazyArgs.lazy(contextSupplier::get));
+        log.atTrace().log("%s", LazyArgs.lazy(contextSupplier::get));
 
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return inputRequestFactory
@@ -152,7 +152,7 @@ public abstract class DelayedCommand<T>
             commandSender,
             structureRetriever
         );
-        log.atFinest().log("%s", LazyArgs.lazy(contextSupplier::get));
+        log.atTrace().log("%s", LazyArgs.lazy(contextSupplier::get));
 
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return inputRequestFactory
@@ -252,7 +252,7 @@ public abstract class DelayedCommand<T>
      */
     public CompletableFuture<?> provideDelayedInput(ICommandSender commandSender, T data)
     {
-        log.atFinest().log(
+        log.atTrace().log(
             "Providing delayed command data for command '%s' with command sender: '%s' and data: '%s'",
             getCommandDefinition(),
             commandSender,
@@ -282,7 +282,7 @@ public abstract class DelayedCommand<T>
      */
     private CompletableFuture<?> handleMissingInputRequest(ICommandSender commandSender, T data)
     {
-        log.atSevere().log(
+        log.atError().log(
             "'%s' tried to issue delayed command input '%s' without active command waiter!",
             commandSender,
             data

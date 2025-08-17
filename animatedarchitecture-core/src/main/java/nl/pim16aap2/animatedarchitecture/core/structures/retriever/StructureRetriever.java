@@ -1,10 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.retriever;
 
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
@@ -51,7 +51,7 @@ import java.util.concurrent.CompletableFuture;
  *     structureRetriever.getStructures(player, PermissionLevel.USER);
  * }</pre>
  */
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public sealed abstract class StructureRetriever
 {
@@ -243,7 +243,7 @@ public sealed abstract class StructureRetriever
         if (list.size() == 1)
             return Optional.of(list.getFirst());
 
-        log.atWarning().log("Tried to get 1 structure but received %d!", list.size());
+        log.atWarn().log("Tried to get 1 structure but received %d!", list.size());
         return Optional.empty();
     }
 
@@ -307,7 +307,7 @@ public sealed abstract class StructureRetriever
      */
     @ToString
     @AllArgsConstructor
-    @Flogger
+    @CustomLog
     static final class StructureNameRetriever extends StructureRetriever
     {
         @ToString.Exclude
@@ -440,7 +440,7 @@ public sealed abstract class StructureRetriever
     @ToString
     @AllArgsConstructor()
     @EqualsAndHashCode(callSuper = false, doNotUseGetters = true)
-    @Flogger
+    @CustomLog
     static final class StructureListRetriever extends StructureRetriever
     {
         @ToString.Exclude
@@ -502,7 +502,7 @@ public sealed abstract class StructureRetriever
      */
     @ToString
     @EqualsAndHashCode(callSuper = false, doNotUseGetters = true)
-    @Flogger
+    @CustomLog
     static final class FutureStructureListRetriever extends StructureRetriever
     {
         @ToString.Exclude

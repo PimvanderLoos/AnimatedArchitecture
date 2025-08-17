@@ -9,9 +9,9 @@ import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
@@ -34,7 +34,7 @@ import java.util.Map;
  * <p>
  * This contains all the options for a single structure.
  */
-@Flogger
+@CustomLog
 @ToString(onlyExplicitlyIncluded = true)
 class InfoGui implements IGuiPage
 {
@@ -151,7 +151,7 @@ class InfoGui implements IGuiPage
 
     private StructureOwner getDummyOwner()
     {
-        log.atSevere().log("Player '%s' does not have access to structure: '%s'!", inventoryHolder, structure);
+        log.atError().log("Player '%s' does not have access to structure: '%s'!", inventoryHolder, structure);
         return new StructureOwner(
             structure.getUid(),
             PermissionLevel.NO_PERMISSION,

@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.managers;
 
 import com.google.common.flogger.StackSize;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
@@ -45,7 +45,7 @@ import java.util.concurrent.CompletableFuture;
  * Manages all interactions with Vault.
  */
 @Singleton
-@Flogger
+@CustomLog
 public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManagerSpigot, IDebuggable
 {
     private final Map<StructureType, Double> flatPrices;
@@ -82,7 +82,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
+            log.atError().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
             return false;
         }
 
@@ -106,7 +106,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
             arg -> arg.highlight(price)
         );
 
-        log.atFine().log(
+        log.atDebug().log(
             "Player '%s' does not have enough money to buy structure of type '%s' of size %d! Price: %f",
             player.asString(),
             type.getSimpleName(),
@@ -152,7 +152,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
 
         final boolean result = perms.playerHas(player.getWorld().getName(), player, permission);
-        log.atFine().log("Player '%s' has permission '%s': %b", player.getName(), permission, result);
+        log.atDebug().log("Player '%s' has permission '%s': %b", player.getName(), permission, result);
         return result;
     }
 
@@ -180,7 +180,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Failed to determine structure creation price! Please contact pim16aap2! "
                     + "Include this: '%s' and stacktrace:",
                 formula
@@ -215,7 +215,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final boolean defaultValue = true;
         if (economy == null)
         {
-            log.atWarning().log(
+            log.atWarn().log(
                 "Economy not enabled! Could not subtract %f from the balance of player: %s!",
                 amount,
                 player
@@ -229,7 +229,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to check balance of player %s! Please contact pim16aap2!", player);
+            log.atError().withCause(e).log("Failed to check balance of player %s! Please contact pim16aap2!", player);
         }
         return defaultValue;
     }
@@ -250,7 +250,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final boolean defaultValue = true;
         if (economy == null)
         {
-            log.atWarning().log(
+            log.atWarn().log(
                 "Economy not enabled! Could not subtract %f from the balance of player: %s in world: %s!",
                 amount,
                 player,
@@ -270,7 +270,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Failed to subtract %f money from player %s! Please contact pim16aap2!",
                 amount,
                 player
@@ -314,7 +314,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to initialize economy!");
+            log.atError().withCause(e).log("Failed to initialize economy!");
             return null;
         }
     }
@@ -431,7 +431,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (bukkitPlayer == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Failed to obtain BukkitPlayer for player: '%s'",
                 player.asString()
             );

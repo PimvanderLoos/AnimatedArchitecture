@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +21,7 @@ import java.util.Set;
 /**
  * Represents a class that can be used to apply user-defined localization patches.
  */
-@Flogger
+@CustomLog
 final class LocalizationPatcher
 {
     @Getter
@@ -93,7 +93,7 @@ final class LocalizationPatcher
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to write localization entries to file: %s", localeFile.path());
+            log.atError().withCause(e).log("Failed to write localization entries to file: %s", localeFile.path());
         }
     }
 

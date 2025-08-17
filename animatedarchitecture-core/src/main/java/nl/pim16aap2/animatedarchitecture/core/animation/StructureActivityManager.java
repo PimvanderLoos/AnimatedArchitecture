@@ -3,8 +3,8 @@ package nl.pim16aap2.animatedarchitecture.core.animation;
 import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
@@ -38,7 +38,7 @@ import java.util.stream.Stream;
  * Keeps track of which structures are currently active.
  */
 @Singleton
-@Flogger
+@CustomLog
 public final class StructureActivityManager extends Restartable
     implements StructureDeletionManager.IDeletionListener, IDebuggable
 {
@@ -143,7 +143,7 @@ public final class StructureActivityManager extends Restartable
                 // If the existing entry is requiresWriteAccess, we cannot register a new animator.
                 if (entry.requiresWriteAccess())
                 {
-                    log.atFine().withStackTrace(StackSize.FULL).log(
+                    log.atDebug().withStackTrace(StackSize.FULL).log(
                         "Trying to register animator with active requiresWriteAccess entry: %s", entry);
                     return entry;
                 }
@@ -673,7 +673,7 @@ public final class StructureActivityManager extends Restartable
                     final String logStr = "Trying to remove animator %s while the entry actually contains animator %s";
                     if (animator.getAnimationType().requiresWriteAccess())
                         throw new IllegalStateException(String.format(logStr, animator, this.animator));
-                    log.atFiner().log(logStr, animator, this.animator);
+                    log.atTrace().log(logStr, animator, this.animator);
                     return false;
                 }
                 isAborted = true;

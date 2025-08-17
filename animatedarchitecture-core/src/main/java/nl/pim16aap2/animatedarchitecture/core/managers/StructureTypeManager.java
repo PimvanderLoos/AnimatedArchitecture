@@ -1,9 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.managers;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Locked;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationManager;
@@ -31,7 +31,7 @@ import java.util.Set;
  * still registered and can still be used by other types that may depend on it.
  */
 @Singleton
-@Flogger
+@CustomLog
 @ThreadSafe
 public final class StructureTypeManager implements IDebuggable
 {

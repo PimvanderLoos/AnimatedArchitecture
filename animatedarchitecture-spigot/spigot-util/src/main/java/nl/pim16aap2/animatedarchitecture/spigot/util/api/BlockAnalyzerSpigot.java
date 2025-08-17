@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.api;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  * <p>
  * An instance of this class can be obtained through {@link IAnimatedArchitecturePlatform#getBlockAnalyzer()}.
  */
-@Flogger
+@CustomLog
 public abstract class BlockAnalyzerSpigot implements IBlockAnalyzer<Material>, IRestartable
 {
     /**

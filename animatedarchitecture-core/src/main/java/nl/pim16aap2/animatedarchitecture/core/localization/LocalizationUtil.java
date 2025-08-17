@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 /**
  * Represents a utility class with methods that can be used for the localization system.
  */
-@Flogger
+@CustomLog
 public final class LocalizationUtil
 {
     /**
@@ -136,7 +136,7 @@ public final class LocalizationUtil
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to get keys from file: %s", path);
+            log.atError().withCause(e).log("Failed to get keys from file: %s", path);
             return Collections.emptySet();
         }
     }
@@ -196,7 +196,7 @@ public final class LocalizationUtil
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to get entries from file: %s", path);
+            log.atError().withCause(e).log("Failed to get entries from file: %s", path);
             return Collections.emptyMap();
         }
     }
@@ -244,7 +244,7 @@ public final class LocalizationUtil
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to read localization file!");
+            log.atError().withCause(e).log("Failed to read localization file!");
         }
     }
 
@@ -281,7 +281,7 @@ public final class LocalizationUtil
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log("Failed to read file: %s", path);
+            log.atError().withCause(e).log("Failed to read file: %s", path);
         }
     }
 
@@ -447,7 +447,7 @@ public final class LocalizationUtil
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to find locales in file: %s", zipFile);
+            log.atError().withCause(e).log("Failed to find locales in file: %s", zipFile);
             return Collections.emptyList();
         }
     }
@@ -470,9 +470,9 @@ public final class LocalizationUtil
         final Locale parsed = Locale.lookup(languages, AVAILABLE_LOCALES);
 
         if (parsed == null)
-            log.atSevere().log("Failed to parse locale: '%s'", locale);
+            log.atError().log("Failed to parse locale: '%s'", locale);
 
-        log.atFine().log("Parsed locale: '%s' -> '%s'", locale, parsed);
+        log.atDebug().log("Parsed locale: '%s' -> '%s'", locale, parsed);
         return parsed;
     }
 }

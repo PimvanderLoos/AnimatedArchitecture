@@ -4,8 +4,8 @@ import com.google.common.flogger.StackSize;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockHook;
@@ -35,7 +35,7 @@ import java.util.function.Consumer;
  * This class is used to store the data of a block that is animated. These data are used to rotate the block in the
  * direction of the animation and to place the block back in the world when the animation finishes.
  */
-@Flogger
+@CustomLog
 public class SimpleBlockData implements IAnimatedBlockData
 {
     private final IExecutor executor;
@@ -151,7 +151,7 @@ public class SimpleBlockData implements IAnimatedBlockData
         final @Nullable var rotationFunction = BlockFace.getRotationFunction(dir);
         if (rotationFunction == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Failed to get face from vector '%s'. Rotations will not work as expected!",
                 dir
             );
@@ -179,7 +179,7 @@ public class SimpleBlockData implements IAnimatedBlockData
         final @Nullable var rotationFunction = BlockFace.getRotationFunction(dir);
         if (rotationFunction == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Failed to get face from vector '%s'. Rotations will not work as expected!",
                 dir
             );
@@ -219,7 +219,7 @@ public class SimpleBlockData implements IAnimatedBlockData
     {
         if (!executor.isMainThread())
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block placement! THIS IS A BUG!");
+            log.atError().withStackTrace(StackSize.FULL).log("Caught async block placement! THIS IS A BUG!");
             return;
         }
 
@@ -237,7 +237,7 @@ public class SimpleBlockData implements IAnimatedBlockData
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to obtain rotated block data for block: '%s'", blockData);
+            log.atError().withCause(e).log("Failed to obtain rotated block data for block: '%s'", blockData);
         }
         return blockData;
     }
@@ -246,7 +246,7 @@ public class SimpleBlockData implements IAnimatedBlockData
     {
         if (!executor.isMainThread())
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Caught async block removal! THIS IS A BUG!");
+            log.atError().withStackTrace(StackSize.FULL).log("Caught async block removal! THIS IS A BUG!");
             return;
         }
         this.bukkitWorld

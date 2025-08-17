@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.hooks.bundle;
 
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.spigot.hooks.griefdefender2.GriefDefender2ProtectionHook;
 import nl.pim16aap2.animatedarchitecture.spigot.hooks.griefprevention.GriefPreventionProtectionHook;
 import nl.pim16aap2.animatedarchitecture.spigot.hooks.lands.LandsProtectionHook;
@@ -21,7 +21,7 @@ import java.util.List;
  * Represents a definition of a protection hook.
  */
 @SuppressWarnings("unused")
-@Flogger
+@CustomLog
 @ToString
 @EqualsAndHashCode
 public abstract class AbstractProtectionHookSpecification implements IProtectionHookSpigotSpecification
@@ -149,7 +149,7 @@ public abstract class AbstractProtectionHookSpecification implements IProtection
 
     private static void logUnsupportedVersion(String hook, String version)
     {
-        log.atSevere().log("No hook exists for '%s' version '%s'", hook, version);
+        log.atError().log("No hook exists for '%s' version '%s'", hook, version);
     }
 
     @Override
