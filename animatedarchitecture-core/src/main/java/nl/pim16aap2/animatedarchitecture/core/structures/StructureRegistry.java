@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import com.google.common.flogger.StackSize;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
@@ -8,8 +10,6 @@ import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Supplier;

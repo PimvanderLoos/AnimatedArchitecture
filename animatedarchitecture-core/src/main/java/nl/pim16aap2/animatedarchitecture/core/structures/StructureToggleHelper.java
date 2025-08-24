@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import com.google.common.flogger.StackSize;
+import jakarta.inject.Inject;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimatedBlockContainerFactory;
@@ -41,7 +42,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.event.Level;
 
-import javax.inject.Inject;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.OptionalLong;

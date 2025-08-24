@@ -1,15 +1,14 @@
 package nl.pim16aap2.animatedarchitecture.core.audio;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.animation.Animation;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimationHook;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimationHookFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 
 /**
  * Represents an {@link IAnimationHook} that provides audio for animations.

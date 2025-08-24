@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
@@ -8,8 +10,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;

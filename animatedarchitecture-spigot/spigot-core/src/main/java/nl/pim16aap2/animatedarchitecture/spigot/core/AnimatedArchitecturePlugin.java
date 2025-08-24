@@ -1,7 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core;
 
-import com.google.common.flogger.FluentLogger;
+import jakarta.inject.Singleton;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
@@ -14,21 +15,17 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.DebugReport
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.BackupCommandListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
-import nl.pim16aap2.util.logging.FloggerFacade;
 import nl.pim16aap2.util.logging.Log4J2Configurator;
-import nl.pim16aap2.util.logging.floggerbackend.CustomLog4j2BackendFactory;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
 
-import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Level;
 
 /**
  * Represents the base {@link JavaPlugin} for AnimatedArchitecture.
@@ -39,26 +36,9 @@ import java.util.logging.Level;
  * plugin.
  */
 @Singleton
+@CustomLog
 public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAnimatedArchitecturePlatformProvider
 {
-    @SuppressWarnings("PMD.FieldNamingConventions")
-    private static final FloggerFacade log;
-
-    static
-    {
-        final String propName = "flogger.backend_factory";
-        final @Nullable String oldProp = System.getProperty(propName);
-
-        // The #getInstance does not exist, but without it, Flogger derps out and won't load the specified backend.
-        System.setProperty(propName, CustomLog4j2BackendFactory.class.getName() + "#getInstance");
-
-        var flogger = FluentLogger.forEnclosingClass();
-        log = new FloggerFacade(flogger);
-
-        if (oldProp != null)
-            System.setProperty(propName, oldProp);
-    }
-
     private final Set<JavaPlugin> registeredPlugins = Collections.synchronizedSet(new LinkedHashSet<>());
     private final AnimatedArchitectureSpigotComponent animatedArchitectureSpigotComponent;
     private final RestartableHolder restartableHolder;
@@ -102,7 +82,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
     /**
      * Tries to update the logger using {@link IConfig#logLevel()}.
      * <p>
-     * If the config is not available for some reason, the log level defaults to {@link Level#ALL}.
+     * If the config is not available for some reason, the log level defaults to {@link java.util.logging.Level#ALL}.
      */
     private void updateLogger()
     {
@@ -112,12 +92,12 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         }
         catch (Exception e)
         {
-            setLogLevel(Level.ALL);
+            setLogLevel(java.util.logging.Level.ALL);
             log.atError().withCause(e).log("Failed to read config! Defaulting to logging everything!");
         }
     }
 
-    private void setLogLevel(Level level)
+    private void setLogLevel(java.util.logging.Level level)
     {
         Log4J2Configurator.getInstance().setJULLevel(level);
     }

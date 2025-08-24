@@ -23,6 +23,29 @@
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>flogger</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>flogger-log4j2-backend</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>test-util</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>util</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

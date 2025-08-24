@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
 import com.google.common.flogger.StackSize;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -30,8 +32,6 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.EnumMap;
 import java.util.Map;

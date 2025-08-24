@@ -2,6 +2,9 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 
 import com.google.common.flogger.StackSize;
 import dagger.Lazy;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
@@ -25,9 +28,6 @@ import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

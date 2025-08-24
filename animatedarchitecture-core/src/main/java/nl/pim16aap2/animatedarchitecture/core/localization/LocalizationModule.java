@@ -2,8 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.localization;
 
 import dagger.Module;
 import dagger.Provides;
-
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Module
 public class LocalizationModule

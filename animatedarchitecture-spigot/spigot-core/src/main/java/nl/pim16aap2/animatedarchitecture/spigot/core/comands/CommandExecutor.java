@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.comands;
 
 import cloud.commandframework.context.CommandContext;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
@@ -21,8 +23,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFacto
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.concurrent.TimeUnit;
 
 /**

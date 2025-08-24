@@ -10,3 +10,6 @@ libraries:
   - com.alibaba:fastjson:${dependency.fastjson.version}
   - net.bytebuddy:byte-buddy:${dependency.bytebuddy.version}
   - org.flywaydb:flyway-core:${dependency.flyway.version}
+  - com.google.flogger:flogger:${dependency.flogger.version}
+  - com.google.flogger:flogger-log4j2-backend:${dependency.flogger.version}
+  - com.google.dagger:dagger:${dependency.dagger.version}

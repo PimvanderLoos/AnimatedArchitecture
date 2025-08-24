@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.util.delayedinput;
 
+import jakarta.inject.Inject;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
@@ -18,7 +19,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 
-import javax.inject.Inject;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;

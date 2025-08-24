@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import jakarta.inject.Inject;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
@@ -25,7 +26,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;

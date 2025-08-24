@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import jakarta.inject.Provider;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -46,7 +47,7 @@ class NewStructureTest
     private NewStructure.IFactory factory;
 
     @Mock
-    private javax.inject.Provider<ToolUser.Context> creatorContextProvider;
+    private Provider<ToolUser.Context> creatorContextProvider;
 
     @Mock
     private IPermissionsManager permissionsManager;

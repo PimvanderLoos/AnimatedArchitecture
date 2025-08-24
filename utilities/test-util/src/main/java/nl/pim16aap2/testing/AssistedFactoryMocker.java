@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import jakarta.inject.Named;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,7 +18,6 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import javax.inject.Named;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -129,8 +129,10 @@ public class AssistedFactoryMocker<T, U>
         throws IllegalArgumentException
     {
         if (!factoryClass.isAnnotationPresent(AssistedFactory.class))
+        {
             throw new IllegalArgumentException(
                 "Factory class " + factoryClass + " is not annotated with " + AssistedFactory.class);
+        }
 
         if (!Modifier.isInterface(factoryClass.getModifiers()) && !Modifier.isAbstract(factoryClass.getModifiers()))
             throw new IllegalArgumentException(

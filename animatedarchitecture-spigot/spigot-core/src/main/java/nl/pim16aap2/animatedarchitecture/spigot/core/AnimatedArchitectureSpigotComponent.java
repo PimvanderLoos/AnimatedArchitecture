@@ -2,6 +2,8 @@ package nl.pim16aap2.animatedarchitecture.spigot.core;
 
 import dagger.BindsInstance;
 import dagger.Component;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
@@ -77,9 +79,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.MessagingIn
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.SpigotServerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.text.TextComponentFactorySpigotModule;
 import org.semver4j.Semver;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
 
 @SuppressWarnings("unused")
 @Singleton

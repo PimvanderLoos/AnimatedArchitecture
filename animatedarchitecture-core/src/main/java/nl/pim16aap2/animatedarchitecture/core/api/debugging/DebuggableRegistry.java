@@ -1,11 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.core.api.debugging;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.AccessLevel;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

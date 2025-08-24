@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.util.updater;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
@@ -11,7 +12,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
 
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;

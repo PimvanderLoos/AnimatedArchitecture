@@ -26,32 +26,9 @@ public final class FloggerFacadeFactory
 
     public static FloggerFacade getLogger(String className)
     {
-        final LoggerBackend backend = Platform.getBackend(className);
+        final var backend = Platform.getBackend(className);
         try
         {
-//            if (FLUENT_LOGGER_CONSTRUCTOR == null)
-//            {
-//                System.out.println("Logger constructor is somehow null?! Wtf?");
-//
-//                var backup = ReflectionBuilder
-//                    .findConstructor()
-//                    .inClass(FluentLogger.class)
-//                    .withParameters(LoggerBackend.class)
-//                    .setAccessible()
-//                    .get();
-//
-//                if (backup == null)
-//                {
-//                    throw new RuntimeException(
-//                        "Failed to find a constructor for FluentLogger with LoggerBackend parameter!");
-//                }
-//                else
-//                {
-//                    System.out.println("Backup is not null... Very strange.");
-//                }
-//            }
-
-
             return new FloggerFacade(FLUENT_LOGGER_CONSTRUCTOR.get().newInstance(backend));
         }
         catch (Exception e)

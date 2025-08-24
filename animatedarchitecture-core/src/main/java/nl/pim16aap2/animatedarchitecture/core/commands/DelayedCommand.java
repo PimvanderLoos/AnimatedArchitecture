@@ -1,6 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import com.google.common.flogger.LazyArgs;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
+import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
@@ -14,9 +17,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;

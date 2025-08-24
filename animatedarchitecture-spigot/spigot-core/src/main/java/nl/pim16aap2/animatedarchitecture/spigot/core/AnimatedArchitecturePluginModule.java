@@ -3,11 +3,11 @@ package nl.pim16aap2.animatedarchitecture.spigot.core;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
 import java.nio.file.Path;
 
 @Module

@@ -15,8 +15,6 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import java.nio.file.Path;
 
-import static nl.pim16aap2.util.logging.floggerbackend.Log4j2LogEventUtil.toLog4jLevel;
-
 /**
  * Configures Log4J2 to log to a file at the specified path.
  * <p>
@@ -38,6 +36,62 @@ public final class Log4J2Configurator
     {
         levelFilter = new VariableLevelFilter(Level.ALL);
         levelFilter.start();
+    }
+
+    /**
+     * Converts a {@link java.util.logging.Level} to a {@link Level}.
+     *
+     * @param level
+     *     The level to convert.
+     * @return The converted level.
+     *
+     * @deprecated Use log4j2 levels directly.
+     */
+    @Deprecated(forRemoval = true)
+    public static org.apache.logging.log4j.Level toLog4jLevel(java.util.logging.Level level)
+    {
+        final int logLevel = level.intValue();
+
+        if (logLevel == java.util.logging.Level.OFF.intValue())
+        {
+            return org.apache.logging.log4j.Level.OFF;
+        }
+        if (logLevel == java.util.logging.Level.ALL.intValue())
+        {
+            return org.apache.logging.log4j.Level.ALL;
+        }
+
+        /*
+         * FINEST  -> TRACE
+         * FINER   -> TRACE
+         * FINE    -> DEBUG
+         * CONFIG  -> DEBUG
+         * INFO    -> INFO
+         * WARNING -> WARN
+         * SEVERE  -> ERROR
+         */
+        if (logLevel < java.util.logging.Level.FINE.intValue())
+        {
+            // <= FINER -> TRACE
+            return org.apache.logging.log4j.Level.TRACE;
+        }
+        if (logLevel < java.util.logging.Level.CONFIG.intValue())
+        {
+            // FINE -> DEBUG
+            return org.apache.logging.log4j.Level.DEBUG;
+        }
+        else if (logLevel < java.util.logging.Level.WARNING.intValue())
+        {
+            // INFO -> INFO
+            return org.apache.logging.log4j.Level.INFO;
+        }
+        else if (logLevel < java.util.logging.Level.SEVERE.intValue())
+        {
+            // WARNING -> WARN
+            return org.apache.logging.log4j.Level.WARN;
+        }
+        // >= SEVERE -> ERROR
+        return org.apache.logging.log4j.Level.ERROR;
     }
 
     /**

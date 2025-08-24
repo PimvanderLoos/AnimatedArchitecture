@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
@@ -17,8 +19,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetr
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;

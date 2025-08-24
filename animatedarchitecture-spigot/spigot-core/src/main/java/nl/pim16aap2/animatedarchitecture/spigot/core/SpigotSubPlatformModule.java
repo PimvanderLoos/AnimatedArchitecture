@@ -2,6 +2,9 @@ package nl.pim16aap2.animatedarchitecture.spigot.core;
 
 import dagger.Module;
 import dagger.Provides;
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
+import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
@@ -10,10 +13,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.v1_21.SubPlatform_V1_21;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
-
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
 
 /**
  * Module that provides the sub-platform for the Spigot platform based on the server version.

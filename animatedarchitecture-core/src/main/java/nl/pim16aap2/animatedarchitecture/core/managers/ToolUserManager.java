@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.managers;
 
 import com.google.common.flogger.StackSize;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
@@ -13,8 +15,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;

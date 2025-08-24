@@ -1,15 +1,14 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.events;
 
 import com.google.common.flogger.StackSize;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventCaller;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * Represents an implementation of {@link IAnimatedArchitectureEventCaller} for the Spigot platform.

@@ -11,8 +11,7 @@ import nl.altindag.log.LogCaptor;
 import nl.altindag.log.model.LogEvent;
 import nl.pim16aap2.testing.TestUtil;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
-import nl.pim16aap2.util.logging.floggerbackend.CustomLevel;
-import nl.pim16aap2.util.logging.floggerbackend.Log4j2LogEventUtil;
+import nl.pim16aap2.util.logging.Log4J2Configurator;
 import org.assertj.core.api.AbstractThrowableAssert;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -910,28 +909,6 @@ public final class LogAssertionsUtil
             }
 
             /**
-             * Gets the standard log level from the provided log level.
-             * <p>
-             * If the provided log level is the custom log level {@link CustomLevel#FINER}, it will be converted to
-             * {@link org.apache.logging.log4j.Level#TRACE}. If it is {@link CustomLevel#CONF}, it will be converted to
-             * {@link org.apache.logging.log4j.Level#DEBUG}.
-             * <p>
-             * If the provided log level is a standard log level, it will be returned as-is.
-             *
-             * @param level
-             *     The log level to convert.
-             * @return The standard log level.
-             */
-            private static org.apache.logging.log4j.Level withoutCustomLevels(org.apache.logging.log4j.Level level)
-            {
-                if (level == CustomLevel.FINER)
-                    return org.apache.logging.log4j.Level.TRACE;
-                if (level == CustomLevel.CONF)
-                    return org.apache.logging.log4j.Level.DEBUG;
-                return level;
-            }
-
-            /**
              * Sets the expected log level of the log event.
              * <p>
              * This method will convert the provided log level to a Log4j {@link org.apache.logging.log4j.Level}.
@@ -946,7 +923,7 @@ public final class LogAssertionsUtil
             @CheckReturnValue
             public LogAssertionBuilder withJulLevel(Level level)
             {
-                this.level$value = withoutCustomLevels(Log4j2LogEventUtil.toLog4jLevel(level)).name();
+                this.level$value = Log4J2Configurator.toLog4jLevel(level).name();
                 this.level$set = true;
                 return this;
             }

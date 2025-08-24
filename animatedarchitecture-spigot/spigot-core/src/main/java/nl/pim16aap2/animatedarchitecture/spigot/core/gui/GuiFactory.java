@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 
+import jakarta.inject.Inject;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -10,7 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetr
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 

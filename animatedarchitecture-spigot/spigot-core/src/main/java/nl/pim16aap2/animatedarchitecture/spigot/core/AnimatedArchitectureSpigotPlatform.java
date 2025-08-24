@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core;
 
+import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
@@ -55,7 +56,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
 
-import javax.inject.Singleton;
 import java.util.function.Function;
 
 /**

@@ -5,12 +5,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;

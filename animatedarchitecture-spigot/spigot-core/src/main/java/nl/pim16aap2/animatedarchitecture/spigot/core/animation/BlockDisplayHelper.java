@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -15,9 +17,6 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * Helper class for BlockDisplay entities.

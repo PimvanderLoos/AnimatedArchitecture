@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.animation;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import jakarta.inject.Named;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
@@ -14,8 +15,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-
-import javax.inject.Named;
 
 /**
  * Simple class that holds the data of a toggle request that is passed to the BlockMover.

@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.storage.sqlite;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import lombok.CustomLog;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.storage.IDataSourceInfo;
@@ -8,8 +10,6 @@ import org.jetbrains.annotations.Nullable;
 import org.sqlite.JDBC;
 import org.sqlite.SQLiteDataSource;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

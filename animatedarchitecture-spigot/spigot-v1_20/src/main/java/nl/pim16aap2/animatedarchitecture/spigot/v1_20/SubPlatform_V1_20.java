@@ -1,10 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.spigot.v1_20;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * Represents a sub-platform for Spigot 1.20.
