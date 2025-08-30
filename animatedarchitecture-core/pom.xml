@@ -24,8 +24,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.PimvanderLoos</groupId>
-            <artifactId>JCalculator</artifactId>
+            <groupId>nl.pim16aap2.jcalculator</groupId>
+            <artifactId>jcalculator</artifactId>
         </dependency>
 
         <dependency>

@@ -13,3 +13,4 @@ libraries:
   - com.google.flogger:flogger:${dependency.flogger.version}
   - com.google.flogger:flogger-log4j2-backend:${dependency.flogger.version}
   - com.google.dagger:dagger:${dependency.dagger.version}
+  - nl.pim16aap2.jcalculator:jcalculator:${dependency.jcalculator.version}
