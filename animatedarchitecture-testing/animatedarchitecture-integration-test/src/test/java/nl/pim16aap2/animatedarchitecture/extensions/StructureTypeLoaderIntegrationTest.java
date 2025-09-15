@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.extensions;
 
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.extensions.StructureTypeLoader;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import org.junit.jupiter.api.Assertions;
