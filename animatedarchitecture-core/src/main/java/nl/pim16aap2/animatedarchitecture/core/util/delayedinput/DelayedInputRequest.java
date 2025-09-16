@@ -1,12 +1,12 @@
 package nl.pim16aap2.animatedarchitecture.core.util.delayedinput;
 
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Locked;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @param <T>
  *     The type of data to request.
  */
-@Flogger
+@CustomLog
 @ToString
 @EqualsAndHashCode
 @ExtensionMethod(CompletableFutureExtensions.class)

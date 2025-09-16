@@ -4,9 +4,11 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongImmutableList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
@@ -22,8 +24,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Manages all power block interactions.
  */
 @Singleton
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public final class PowerBlockManager extends Restartable implements StructureDeletionManager.IDeletionListener
 {
@@ -125,7 +125,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarn().log("Failed to load power blocks for world: '%s'.", worldName);
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
         return mapUidsToStructures(powerBlockWorld.getPowerBlocksAtLocation(loc));
@@ -145,7 +145,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarn().log("Failed to load power blocks for world: '%s'.", worldName);
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
         return mapUidsToStructures(powerBlockWorld.getPowerBlocksInChunk(loc));
@@ -175,7 +175,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarn().log("Failed to load power blocks for world: '%s'.", worldName);
             return false;
         }
         return powerBlockWorld.isAnimatedArchitectureWorld();
@@ -194,7 +194,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarn().log("Failed to load power blocks for world: '%s'.", worldName);
             return;
         }
         powerBlockWorld.invalidatePosition(pos);
@@ -214,7 +214,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarning().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarn().log("Failed to load power blocks for world: '%s'.", worldName);
             return;
         }
         powerBlockWorld.invalidatePosition(new Vector3Di(chunk.x(), 64, chunk.y()));
@@ -290,7 +290,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
                 .thenApply(PowerBlockChunk::new)
                 .exceptionally(ex ->
                 {
-                    log.atSevere().withCause(ex).log("Failed to find power block chunk with id: %d", chunkId);
+                    log.atError().withCause(ex).log("Failed to find power block chunk with id: %d", chunkId);
                     return null;
                 });
         }
@@ -347,7 +347,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
                 .isAnimatedArchitectureWorld(worldName)
                 .thenAccept(result -> isAnimatedArchitectureWorld = result)
                 .handleExceptional(ex ->
-                    log.atSevere().withCause(ex).log(
+                    log.atError().withCause(ex).log(
                         "Failed to check if world '%s' is an AnimatedArchitecture world.",
                         worldName)
                 );

@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.drawbridge;
 
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureComponent;
@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 /**
  * Represents a Drawbridge structure type.
  */
-@Flogger
+@CustomLog
 @ToString
 @EqualsAndHashCode
 public class Drawbridge implements IStructureComponent
@@ -45,7 +45,7 @@ public class Drawbridge implements IStructureComponent
         }
         else
         {
-            log.atSevere().log(
+            log.atError().log(
                 "Invalid open direction '%s' for door: %d",
                 movementDirection.name(),
                 structure.getUid()

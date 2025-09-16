@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.api.debugging;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * This class is abstract because it is meant to be extended by a platform-specific implementation.
  */
-@Flogger
+@CustomLog
 @AllArgsConstructor
 public abstract class DebugReporter
 {
@@ -63,7 +63,7 @@ public abstract class DebugReporter
         }
         catch (Throwable t)
         {
-            log.atSevere().withCause(t).log("Failed to get debug information for class: %s", debuggableName);
+            log.atError().withCause(t).log("Failed to get debug information for class: %s", debuggableName);
             msg = "ERROR";
         }
 
@@ -79,7 +79,7 @@ public abstract class DebugReporter
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to get additional debug data!");
+            log.atError().withCause(e).log("Failed to get additional debug data!");
             return "ERROR";
         }
     }

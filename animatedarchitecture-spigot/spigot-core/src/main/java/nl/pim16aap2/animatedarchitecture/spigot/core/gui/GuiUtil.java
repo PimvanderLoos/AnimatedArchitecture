@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 
 import de.themoep.inventorygui.InventoryGui;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,7 +10,7 @@ import java.util.Deque;
 /**
  * Utility class for GUI-related operations.
  */
-@Flogger
+@CustomLog
 final class GuiUtil
 {
     private GuiUtil()
@@ -143,12 +143,12 @@ final class GuiUtil
     {
         if (headerLine.length() > 9)
         {
-            log.atSevere().log("Invalid header line: '%s'! Line too long!", headerLine);
+            log.atError().log("Invalid header line: '%s'! Line too long!", headerLine);
             return headerLine.substring(0, 9);
         }
         else if (headerLine.length() < 9)
         {
-            log.atSevere().log("Invalid header line: '%s'! Line too short!", headerLine);
+            log.atError().log("Invalid header line: '%s'! Line too short!", headerLine);
             final char[] padding = new char[9];
             int idx = 0;
             for (; idx < headerLine.length(); ++idx)

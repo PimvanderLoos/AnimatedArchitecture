@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.hooks.lands;
 
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import me.angeschossen.lands.api.LandsIntegration;
 import me.angeschossen.lands.api.flags.type.Flags;
 import me.angeschossen.lands.api.land.Area;
@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
  * <p>
  * Uses <a href="https://github.com/Angeschossen/LandsAPI">LandsAPI</a>.
  */
-@Flogger
+@CustomLog
 public class LandsProtectionHook implements IProtectionHookSpigot
 {
     private final LandsIntegration landsAddon;
@@ -42,7 +42,7 @@ public class LandsProtectionHook implements IProtectionHookSpigot
 
         final boolean result = area.hasRoleFlag(player.getUniqueId(), Flags.BLOCK_BREAK);
         if (!result)
-            log.atFine().log(
+            log.atDebug().log(
                 "Player %s is not allowed to break block at %s",
                 lazyFormatPlayerName(player), loc
             );

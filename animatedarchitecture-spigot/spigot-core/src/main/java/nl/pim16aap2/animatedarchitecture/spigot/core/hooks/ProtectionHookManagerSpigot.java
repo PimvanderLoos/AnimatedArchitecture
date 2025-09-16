@@ -1,7 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.hooks;
 
 import dagger.Lazy;
-import lombok.extern.flogger.Flogger;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -35,8 +37,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  * Class that manages all {@link IProtectionHookSpigot} instances and provides a unified interface to them.
  */
 @Singleton
-@Flogger
+@CustomLog
 public final class ProtectionHookManagerSpigot
     implements IRestartable, Listener, IProtectionHookManager, IDebuggable
 {
@@ -176,13 +176,13 @@ public final class ProtectionHookManagerSpigot
         final @Nullable IProtectionHookSpigotSpecification spec = registeredDefinitions.get(pluginName);
         if (spec == null)
         {
-            log.atFinest().log("Skipping plugin '%s' because no hook implementation exists for it", pluginName);
+            log.atTrace().log("Skipping plugin '%s' because no hook implementation exists for it", pluginName);
             return;
         }
 
         if (!config.get().isHookEnabled(spec))
         {
-            log.atFine().log("Not loading hook for plugin '%s' because it is disabled in the config.", pluginName);
+            log.atDebug().log("Not loading hook for plugin '%s' because it is disabled in the config.", pluginName);
             return;
         }
 
@@ -214,7 +214,7 @@ public final class ProtectionHookManagerSpigot
         }
         catch (NoClassDefFoundError | ExceptionInInitializerError | Exception e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Failed to initialize protection hook for plugin '%s' (version '%s')!", pluginName, version);
         }
     }
@@ -304,7 +304,7 @@ public final class ProtectionHookManagerSpigot
             .orElseGet(() -> CompletableFuture.completedFuture(HookCheckResult.ERROR))
             .exceptionally(e ->
             {
-                log.atSevere().withCause(e).log(
+                log.atError().withCause(e).log(
                     "Error while checking protection hooks for player %s.",
                     player.getName()
                 );

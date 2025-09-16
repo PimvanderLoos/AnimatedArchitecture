@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.v1_20;
 
-import lombok.extern.flogger.Flogger;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.IBlockAnalyzerConfig;
@@ -10,8 +12,6 @@ import org.bukkit.block.data.Levelled;
 import org.bukkit.block.data.type.CommandBlock;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.List;
 
 /**
@@ -19,7 +19,7 @@ import java.util.List;
  * <p>
  * See {@link BlockAnalyzerSpigot} for more information.
  */
-@Flogger
+@CustomLog
 @Singleton
 final class BlockAnalyzer_V1_20 extends BlockAnalyzerSpigot
 {

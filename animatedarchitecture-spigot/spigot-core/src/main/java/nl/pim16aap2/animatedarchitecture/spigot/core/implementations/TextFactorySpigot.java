@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.md_5.bungee.api.ChatColor;
@@ -14,9 +16,6 @@ import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.spigot.util.text.TextComponentFactorySpigot;
 import org.jetbrains.annotations.Nullable;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * Implementation of {@link ITextFactory} for the Spigot platform.

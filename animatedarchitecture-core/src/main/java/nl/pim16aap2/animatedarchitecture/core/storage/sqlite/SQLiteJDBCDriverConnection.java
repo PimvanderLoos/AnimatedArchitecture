@@ -6,9 +6,11 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Locked;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
@@ -45,8 +47,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.sqlite.JDBC;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -70,7 +70,7 @@ import java.util.stream.Collectors;
  * An implementation of {@link IStorage} for SQLite.
  */
 @Singleton
-@Flogger
+@CustomLog
 public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 {
     /**
@@ -121,7 +121,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         {
             if (!loadDriver())
             {
-                log.atWarning().log("Failed to load database driver!");
+                log.atWarn().log("Failed to load database driver!");
                 databaseState = DatabaseState.NO_DRIVER;
                 return;
             }
@@ -133,15 +133,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Failed to initialize database!");
+                log.atError().withCause(e).log("Failed to initialize database!");
                 databaseState = DatabaseState.ERROR;
             }
 
-            log.atFine().log("Database initialized! Current state: %s", databaseState);
+            log.atDebug().log("Database initialized! Current state: %s", databaseState);
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to initialize database!");
+            log.atError().withCause(e).log("Failed to initialize database!");
             databaseState = DatabaseState.ERROR;
         }
         debuggableRegistry.registerDebuggable(this);
@@ -162,7 +162,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (ClassNotFoundException e)
         {
-            log.atSevere().withCause(e).log("Failed to load database driver: %s!", driver);
+            log.atError().withCause(e).log("Failed to load database driver: %s!", driver);
         }
         return false;
     }
@@ -201,7 +201,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         if (!databaseState.equals(state))
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Database connection could not be created! " +
                     "Requested database for state '%s' while it is actually in state '%s'!",
                 state.name(),
@@ -238,7 +238,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         if (!structureTypeOpt.map(structureTypeManager::isRegistered).orElse(false))
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Type with ID: '%s' has not been registered (yet)!", structureTypeResult);
             return Optional.empty();
         }
@@ -414,7 +414,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             {
                 if (resultSet.next())
                     return resultSet.getLong(1);
-                log.atSevere().log("Failed to retrieve structure ID while inserting structure: %s", structure);
+                log.atError().log("Failed to retrieve structure ID while inserting structure: %s", structure);
                 return -1L;
             },
             -1L
@@ -422,7 +422,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         if (structureUID < 0)
         {
-            log.atSevere().log("Failed to insert structure: %s", structure);
+            log.atError().log("Failed to insert structure: %s", structure);
             return -1L;
         }
 
@@ -484,9 +484,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception t)
         {
-            log.atSevere().withCause(t).log("Failed to insert structure: %s", structure);
+            log.atError().withCause(t).log("Failed to insert structure: %s", structure);
         }
-        log.atSevere().withStackTrace(StackSize.FULL).log("Failed to insert structure: %s", structure);
+        log.atError().withStackTrace(StackSize.FULL).log("Failed to insert structure: %s", structure);
         return Optional.empty();
     }
 
@@ -607,7 +607,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
             if (!structureType.map(structureTypeManager::isRegistered).orElse(false))
             {
-                log.atSevere().withStackTrace(StackSize.FULL).log(
+                log.atError().withStackTrace(StackSize.FULL).log(
                     "Type with ID: '%s' has not been registered (yet)!", structureTypeResult);
                 continue;
             }
@@ -1128,7 +1128,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         {
             if (conn == null)
             {
-                log.atSevere().withStackTrace(StackSize.FULL).log("Failed to execute update: Connection is null!");
+                log.atError().withStackTrace(StackSize.FULL).log("Failed to execute update: Connection is null!");
                 logStatement(delayedPreparedStatement);
                 return -1;
             }
@@ -1136,7 +1136,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to execute update: %s", delayedPreparedStatement);
+            log.atError().withCause(e).log("Failed to execute update: %s", delayedPreparedStatement);
         }
         return -1;
     }
@@ -1160,7 +1160,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (SQLException e)
         {
-            log.atSevere().withCause(e).log("Failed to execute update: %s", delayedPreparedStatement);
+            log.atError().withCause(e).log("Failed to execute update: %s", delayedPreparedStatement);
         }
         return -1;
     }
@@ -1189,7 +1189,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         {
             if (conn == null)
             {
-                log.atSevere().withStackTrace(StackSize.FULL).log("Failed to execute query: Connection is null!");
+                log.atError().withStackTrace(StackSize.FULL).log("Failed to execute query: Connection is null!");
                 logStatement(query);
                 return fallback;
             }
@@ -1197,7 +1197,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to execute query: %s", query);
+            log.atError().withCause(e).log("Failed to execute query: %s", query);
         }
         return fallback;
     }
@@ -1227,7 +1227,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         {
             if (conn == null)
             {
-                log.atSevere().withStackTrace(StackSize.FULL).log("Failed to execute query: Connection is null!");
+                log.atError().withStackTrace(StackSize.FULL).log("Failed to execute query: Connection is null!");
                 logStatement(query);
                 return fallback;
             }
@@ -1239,7 +1239,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to execute batch query: %s", query);
+            log.atError().withCause(e).log("Failed to execute batch query: %s", query);
         }
         return fallback;
     }
@@ -1276,7 +1276,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to execute query: %s", delayedPreparedStatement);
+            log.atError().withCause(e).log("Failed to execute query: %s", delayedPreparedStatement);
         }
         return fallback;
     }
@@ -1326,7 +1326,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             {
                 if (conn == null)
                 {
-                    log.atSevere().withStackTrace(StackSize.FULL).log(
+                    log.atError().withStackTrace(StackSize.FULL).log(
                         "Failed to execute function: Connection is null!");
                     return fallback;
                 }
@@ -1334,7 +1334,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log(
+                log.atError().withCause(e).log(
                     "Failed to execute function! Using failure action: '%s'",
                     failureAction
                 );
@@ -1345,7 +1345,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to execute function!");
+            log.atError().withCause(e).log("Failed to execute function!");
         }
         return fallback;
     }
@@ -1387,7 +1387,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      */
     private static void logStatement(DelayedPreparedStatement delayedPreparedStatement)
     {
-        log.atFinest().log("Executed statement: %s", delayedPreparedStatement);
+        log.atTrace().log("Executed statement: %s", delayedPreparedStatement);
     }
 
     @Override

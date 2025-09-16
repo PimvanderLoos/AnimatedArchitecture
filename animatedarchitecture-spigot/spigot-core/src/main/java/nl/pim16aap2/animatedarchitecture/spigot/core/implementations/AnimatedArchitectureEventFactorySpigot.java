@@ -1,5 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.AllArgsConstructor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IAnimatedArchitectureEventFactory;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructureCreatedEvent;
@@ -28,21 +31,13 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareLock
 import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareRemoveOwnerEvent;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 /**
  * The implementation of {@link IAnimatedArchitectureEventFactory} for the Spigot platform.
  */
 @Singleton
+@AllArgsConstructor(onConstructor_ = {@Inject})
 public class AnimatedArchitectureEventFactorySpigot implements IAnimatedArchitectureEventFactory
 {
-    @Inject
-    public AnimatedArchitectureEventFactorySpigot()
-    {
-    }
-
-
     @Override
     public IStructureCreatedEvent createStructureCreatedEvent(Structure preview, @Nullable IPlayer responsible)
     {

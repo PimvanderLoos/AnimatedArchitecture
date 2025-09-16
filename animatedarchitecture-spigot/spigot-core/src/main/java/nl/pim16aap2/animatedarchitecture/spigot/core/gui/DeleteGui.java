@@ -5,10 +5,10 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -19,7 +19,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlay
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-@Flogger
+@CustomLog
 @ToString(onlyExplicitlyIncluded = true)
 @ExtensionMethod(CompletableFutureExtensions.class)
 class DeleteGui implements IGuiPage
@@ -116,7 +116,7 @@ class DeleteGui implements IGuiPage
                     .handleExceptional(ex ->
                     {
                         inventoryHolder.sendError("constants.error.generic");
-                        log.atSevere().withCause(ex).log("Failed to delete structure.");
+                        log.atError().withCause(ex).log("Failed to delete structure.");
                     });
                 GuiUtil.closeGuiPage(gui, inventoryHolder);
                 return true;

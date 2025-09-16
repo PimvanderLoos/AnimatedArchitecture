@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
-import lombok.extern.flogger.Flogger;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
@@ -18,8 +20,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
  * Represents an implementation of {@link IPlayerFactory} for the Spigot platform.
  */
 @Singleton
-@Flogger
+@CustomLog
 public class PlayerFactorySpigot implements IPlayerFactory
 {
     private final TimedCache<UUID, WrappedPlayer> playerCache = TimedCache
@@ -196,7 +196,7 @@ public class PlayerFactorySpigot implements IPlayerFactory
             .thenApply(playerData -> playerData.<IPlayer>map(WrappedOfflinePlayer::new))
             .exceptionally(ex ->
             {
-                log.atSevere().withCause(ex).log("Failed to create player for UUID: %s", uuid);
+                log.atError().withCause(ex).log("Failed to create player for UUID: %s", uuid);
                 return Optional.empty();
             });
     }

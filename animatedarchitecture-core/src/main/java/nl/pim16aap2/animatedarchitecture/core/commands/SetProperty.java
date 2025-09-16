@@ -3,9 +3,9 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.CustomLog;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CannotAddPropertyException;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * Represents the command that sets property values for structures.
  */
 @ToString
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public class SetProperty extends StructureTargetCommand
 {

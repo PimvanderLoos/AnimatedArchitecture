@@ -4,8 +4,8 @@ import com.griefdefender.api.Core;
 import com.griefdefender.api.GriefDefender;
 import com.griefdefender.api.User;
 import com.griefdefender.api.claim.Claim;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.HookPreCheckResult;
@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Protection hook for GriefDefender 2.
  */
-@Flogger
+@CustomLog
 public class GriefDefender2ProtectionHook implements IProtectionHookSpigot
 {
     private final Core griefDefender;
@@ -62,7 +62,7 @@ public class GriefDefender2ProtectionHook implements IProtectionHookSpigot
         final User wrappedPlayer = GriefDefender.getCore().getUser(player.getUniqueId());
         final boolean result = targetClaim.canBreak(player, loc, wrappedPlayer);
         if (!result)
-            log.atFine().log(
+            log.atDebug().log(
                 "Player %s is not allowed to break block at %s",
                 lazyFormatPlayerName(player),
                 loc

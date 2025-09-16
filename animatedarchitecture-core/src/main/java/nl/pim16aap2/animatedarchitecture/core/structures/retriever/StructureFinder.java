@@ -4,11 +4,11 @@ import com.google.errorprone.annotations.concurrent.GuardedBy;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Locked;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
@@ -23,6 +23,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import org.slf4j.event.Level;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -44,7 +45,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
  * The finder uses the command sender to determine which structures are visible to the user if the command sender is a
  * player. If the command sender is the console, all structures are visible.
  */
-@Flogger
+@CustomLog
 @ThreadSafe
 @ExtensionMethod(CompletableFutureExtensions.class)
 public final class StructureFinder
@@ -665,7 +665,7 @@ public final class StructureFinder
             {
                 // It can happen that the searcher was cancelled because it received incompatible
                 // input before finishing. That isn't important.
-                final Level lvl = t.getCause() instanceof CancellationException ? Level.FINEST : Level.SEVERE;
+                final Level lvl = t.getCause() instanceof CancellationException ? Level.TRACE : Level.ERROR;
                 log.at(lvl).withCause(t).log("Failed to update search cache for input '%s'", input);
                 return null;
             });
@@ -818,7 +818,7 @@ public final class StructureFinder
                 }
             }, executor.getVirtualExecutor())
             .handleExceptional(ex ->
-                log.atSevere().withCause(ex).log(
+                log.atError().withCause(ex).log(
                     "Failed to wait for cache to become available for StructureFinder: %s",
                     this
                 ));

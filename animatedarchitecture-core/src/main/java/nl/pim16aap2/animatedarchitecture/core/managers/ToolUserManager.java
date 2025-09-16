@@ -1,11 +1,13 @@
 package nl.pim16aap2.animatedarchitecture.core.managers;
 
 import com.google.common.flogger.StackSize;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
@@ -13,8 +15,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Represents a class that manages {@link ToolUser}s.
  */
 @Singleton
-@Flogger
+@CustomLog
 public final class ToolUserManager extends Restartable
 {
     private final Map<UUID, ToolUserEntry> toolUsers = new ConcurrentHashMap<>();
@@ -153,8 +153,8 @@ public final class ToolUserManager extends Restartable
 
         if (!toolUsers.isEmpty())
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Failed to properly remove ToolUsers!");
-            toolUsers.forEach((uuid, pair) -> log.atSevere().log("Failed to abort ToolUer for user: %s", uuid));
+            log.atError().withStackTrace(StackSize.FULL).log("Failed to properly remove ToolUsers!");
+            toolUsers.forEach((uuid, pair) -> log.atError().log("Failed to abort ToolUer for user: %s", uuid));
             toolUsers.clear();
         }
     }
@@ -173,14 +173,14 @@ public final class ToolUserManager extends Restartable
         final @Nullable ToolUserEntry pair = toolUsers.get(toolUser.getPlayer().getUUID());
         if (pair == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Trying to start a tool user even though it wasn't registered, somehow!");
             return;
         }
 
         if (pair.toolUser != toolUser)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Trying to start a tool user while another instance is already running! Aborting...");
             abortToolUser(toolUser);
             return;
@@ -188,7 +188,7 @@ public final class ToolUserManager extends Restartable
 
         if (pair.timerTask != null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Trying to create a timer for a tool user even though it already has one! Aborting...");
             abortToolUser(toolUser);
             return;

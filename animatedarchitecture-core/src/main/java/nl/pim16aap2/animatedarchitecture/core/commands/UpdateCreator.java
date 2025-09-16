@@ -3,9 +3,9 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.CustomLog;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
  * <p>
  * See {@link Creator#update(String, Object)}.
  */
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public final class UpdateCreator extends BaseCommand
 {

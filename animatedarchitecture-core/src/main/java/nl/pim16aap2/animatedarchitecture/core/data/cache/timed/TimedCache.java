@@ -27,7 +27,7 @@ package nl.pim16aap2.animatedarchitecture.core.data.cache.timed;
 import com.google.common.flogger.StackSize;
 import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +56,7 @@ import java.util.function.Function;
  * @param <V>
  *     Type of the value of the map.
  */
-@Flogger
+@CustomLog
 public sealed class TimedCache<K, V>
 {
     private static final Clock DEFAULT_CLOCK = Clock.systemUTC();
@@ -519,7 +519,7 @@ public sealed class TimedCache<K, V>
     public void shutDown()
     {
         this.alive = false;
-        log.atFinest().withStackTrace(StackSize.FULL).log("Shutting down TimedCache normally!");
+        log.atTrace().withStackTrace(StackSize.FULL).log("Shutting down TimedCache normally!");
         cache.clear();
         taskTimer.cancel();
     }

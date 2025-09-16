@@ -3,9 +3,9 @@ package nl.pim16aap2.animatedarchitecture.core.util;
 import com.google.common.flogger.LazyArg;
 import com.google.common.flogger.LazyArgs;
 import com.google.common.flogger.StackSize;
+import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.experimental.UtilityClass;
-import lombok.extern.flogger.Flogger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Utility class for futures.
  */
-@Flogger
+@CustomLog
 @UtilityClass
 @ExtensionMethod(CompletableFutureExtensions.class)
 public final class FutureUtil
@@ -34,7 +34,7 @@ public final class FutureUtil
      */
     public static void logPossibleDeadlockTimeout(LazyArg<?> context, int timeoutMs, boolean isMainThread)
     {
-        log.atSevere()
+        log.atError()
             .atMostEvery(30, TimeUnit.SECONDS)
             .withStackTrace(StackSize.FULL)
             .log("""

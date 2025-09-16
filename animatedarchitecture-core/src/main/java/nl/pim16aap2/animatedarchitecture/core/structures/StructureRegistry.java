@@ -1,15 +1,15 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import com.google.common.flogger.StackSize;
-import lombok.extern.flogger.Flogger;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  * @see <a href="https://en.wikipedia.org/wiki/Multiton_pattern">Wikipedia: Multiton</a>
  */
 @Singleton
-@Flogger
+@CustomLog
 public final class StructureRegistry implements IDebuggable, StructureDeletionManager.IDeletionListener
 {
     public static final Duration CACHE_EXPIRY = Duration.ofMinutes(15);
@@ -166,7 +166,7 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
                 if (value == null)
                     return Util.requireNonNull(supplier.get(), "Supplied Structure");
 
-                log.atFine().withStackTrace(StackSize.FULL).log(
+                log.atDebug().withStackTrace(StackSize.FULL).log(
                     "Caught attempted double registering of structure %d! Existing = %s",
                     uid, value
                 );

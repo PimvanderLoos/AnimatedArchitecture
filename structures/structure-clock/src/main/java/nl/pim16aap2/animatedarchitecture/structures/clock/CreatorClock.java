@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.structures.clock;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import lombok.CustomLog;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-@Flogger
+@CustomLog
 @ToString(callSuper = true)
 public class CreatorClock extends Creator
 {

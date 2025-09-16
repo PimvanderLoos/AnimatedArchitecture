@@ -1,21 +1,20 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.events;
 
 import com.google.common.flogger.StackSize;
-import lombok.extern.flogger.Flogger;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventCaller;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 /**
  * Represents an implementation of {@link IAnimatedArchitectureEventCaller} for the Spigot platform.
  */
 @Singleton
-@Flogger
+@CustomLog
 public class AnimatedArchitectureEventCallerSpigot implements IAnimatedArchitectureEventCaller
 {
     private final IExecutor executor;
@@ -33,7 +32,7 @@ public class AnimatedArchitectureEventCallerSpigot implements IAnimatedArchitect
     {
         if (!(animatedArchitectureEvent instanceof AnimatedArchitectureSpigotEvent animatedArchitectureSpigotEvent))
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Event '%s', is not a Spigot event, but it was called on the Spigot platform!",
                 animatedArchitectureEvent.getEventName()
             );
@@ -42,7 +41,7 @@ public class AnimatedArchitectureEventCallerSpigot implements IAnimatedArchitect
 
         if (!plugin.isEnabled())
         {
-            log.atFine().log(
+            log.atDebug().log(
                 "Is the server shutting down? Tried to call event while disabled: %s",
                 animatedArchitectureEvent
             );

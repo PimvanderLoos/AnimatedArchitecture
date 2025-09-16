@@ -1,20 +1,20 @@
 package nl.pim16aap2.animatedarchitecture.core.managers;
 
-import lombok.extern.flogger.Flogger;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Singleton
-@Flogger
+@CustomLog
 public class StructureDeletionManager implements IDebuggable
 {
     /**
@@ -105,7 +105,7 @@ public class StructureDeletionManager implements IDebuggable
             }
             catch (Exception exception)
             {
-                log.atSevere().withCause(exception).log(
+                log.atError().withCause(exception).log(
                     "Failed to call structure deletion listener '%s' for structure %s!",
                     listener.getClass().getName(),
                     structure

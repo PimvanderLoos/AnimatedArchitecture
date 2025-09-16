@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
-import lombok.extern.flogger.Flogger;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebugReporter;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
@@ -23,8 +25,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredListener;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.List;
 
 /**
@@ -34,7 +34,7 @@ import java.util.List;
  * registered addons, and event listeners.
  */
 @Singleton
-@Flogger
+@CustomLog
 public class DebugReporterSpigot extends DebugReporter
 {
     private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
@@ -106,7 +106,7 @@ public class DebugReporterSpigot extends DebugReporter
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Failed to find MethodHandle for handlers!");
+                log.atError().withCause(e).log("Failed to find MethodHandle for handlers!");
                 stringBuilder.append("ERROR: ").append(clz::getName).append('\n');
             }
         }

@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -9,9 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.World;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * Implementation of {@link IChunkLoader} for the Spigot platform.

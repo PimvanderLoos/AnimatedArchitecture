@@ -20,6 +20,13 @@
         <project.root-dir>${project.basedir}/../..</project.root-dir>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.jcalculator</groupId>
+            <artifactId>jcalculator</artifactId>
+        </dependency>
+    </dependencies>
+
     <build>
         <finalName>${typeName}</finalName>
 

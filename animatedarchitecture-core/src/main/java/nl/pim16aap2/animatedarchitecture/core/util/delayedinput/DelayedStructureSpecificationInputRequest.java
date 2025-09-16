@@ -1,10 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.core.util.delayedinput;
 
+import jakarta.inject.Inject;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
@@ -18,7 +19,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 
-import javax.inject.Inject;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents a {@link DelayedInputRequest} to specify which structure was meant out of a list of multiple.
  */
-@Flogger
+@CustomLog
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ExtensionMethod(CompletableFutureExtensions.class)

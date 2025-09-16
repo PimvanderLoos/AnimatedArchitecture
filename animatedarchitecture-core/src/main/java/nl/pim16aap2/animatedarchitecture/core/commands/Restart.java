@@ -3,8 +3,8 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.CustomLog;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
  * Represents the command that is used to restart AnimatedArchitecture.
  */
 @ToString(callSuper = true)
-@Flogger
+@CustomLog
 public class Restart extends BaseCommand
 {
     @ToString.Exclude
@@ -40,7 +40,7 @@ public class Restart extends BaseCommand
     private void onFail()
     {
         getCommandSender().sendError("commands.restart.error");
-        log.atSevere().log("Failed to restart plugin: No active platform! Did it start successfully?");
+        log.atError().log("Failed to restart plugin: No active platform! Did it start successfully?");
     }
 
     private void restartPlatform(IAnimatedArchitecturePlatform platform)

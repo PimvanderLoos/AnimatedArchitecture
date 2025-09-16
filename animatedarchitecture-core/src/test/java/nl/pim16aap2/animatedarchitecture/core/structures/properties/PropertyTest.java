@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -216,13 +215,12 @@ class PropertyTest
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void constructor_shouldThrowExceptionForTypeMismatch()
     {
         // Setup
         final NamespacedKey testKey = NamespacedKey.of("animatedarchitecture:property_ctor_test");
 
-        final Constructor<Property<?>> ctor = (Constructor<Property<?>>) ReflectionBuilder
+        var ctor = ReflectionBuilder
             .findConstructor()
             .inClass(Property.class)
             .withParameters(NamespacedKey.class,

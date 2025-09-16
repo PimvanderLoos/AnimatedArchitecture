@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.util;
 
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.util.exceptions.ContextualOperationException;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  *    }
  * }</pre>
  */
-@Flogger
+@CustomLog
 public final class CompletableFutureExtensions
 {
     private CompletableFutureExtensions()
@@ -115,7 +115,7 @@ public final class CompletableFutureExtensions
         }
         catch (Throwable nestedThrowable)
         {
-            log.atSevere().withCause(nestedThrowable).log(
+            log.atError().withCause(nestedThrowable).log(
                 "Failed to get context for exception: %s",
                 throwable.getMessage() // Log the outer message for context.
             );
@@ -151,7 +151,7 @@ public final class CompletableFutureExtensions
      * Example usage when using Lombok's {@code @ExtensionMethod} annotation:
      * <pre>{@code
      * CompletableFuture<Response> future = client.sendRequest();
-     * future.handleExceptional(ex -> log.atSevere().withCause(ex).log("Request failed!"));
+     * future.handleExceptional(ex -> log.atError().withCause(ex).log("Request failed!"));
      * }</pre>
      *
      * @param future
@@ -192,7 +192,7 @@ public final class CompletableFutureExtensions
     {
         handleExceptional(
             future,
-            throwable -> log.atWarning().withCause(throwable).log("Exception occurred in CompletableFuture!")
+            throwable -> log.atWarn().withCause(throwable).log("Exception occurred in CompletableFuture!")
         );
     }
 }

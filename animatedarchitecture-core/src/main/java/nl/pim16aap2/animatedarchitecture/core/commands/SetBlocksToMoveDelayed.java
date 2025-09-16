@@ -1,12 +1,12 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.concurrent.CompletableFuture;
 
 /**

@@ -1,7 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 
+import jakarta.inject.Inject;
+import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IGuiFactory;
@@ -10,14 +11,13 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetr
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
  * The implementation of {@link IGuiFactory} for the Spigot platform.
  */
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public class GuiFactory implements IGuiFactory
 {
@@ -49,7 +49,7 @@ public class GuiFactory implements IGuiFactory
             .orTimeout(5, TimeUnit.SECONDS)
             .handleExceptional(ex ->
             {
-                log.atSevere().withCause(ex).log(
+                log.atError().withCause(ex).log(
                     "Failed to create new GUI for player %s from source %s",
                     inventoryHolder,
                     finalSource

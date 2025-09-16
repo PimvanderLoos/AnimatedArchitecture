@@ -4,8 +4,8 @@ import com.google.common.flogger.StackSize;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.CustomLog;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -33,7 +33,7 @@ import java.util.function.Function;
  * Represents the information command that provides the issuer with more information about the structure.
  */
 @ToString(callSuper = true)
-@Flogger
+@CustomLog
 public class Info extends StructureTargetCommand
 {
     @ToString.Exclude
@@ -69,7 +69,7 @@ public class Info extends StructureTargetCommand
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to highlight blocks for command sender: %s", getCommandSender());
+            log.atError().withCause(e).log("Failed to highlight blocks for command sender: %s", getCommandSender());
         }
         return CompletableFuture.completedFuture(null);
     }
@@ -298,7 +298,7 @@ public class Info extends StructureTargetCommand
         if (!(getCommandSender() instanceof IPlayer player))
         {
             // Most parts of the command can be handled for any type of command sender, so this is not an error.
-            log.atFinest().withStackTrace(StackSize.FULL).log(
+            log.atTrace().withStackTrace(StackSize.FULL).log(
                 "Not highlighting blocks for non-player command sender '%s'.",
                 getCommandSender()
             );

@@ -1,9 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import jakarta.inject.Inject;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
@@ -25,7 +26,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -50,7 +50,7 @@ import java.util.function.Supplier;
  * subclass needs to perform multiple operations that require the lock, it should use the {@link #runWithLock(Supplier)}
  * method.
  */
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public abstract class ToolUser
 {
@@ -355,7 +355,7 @@ public abstract class ToolUser
         assertInitialized();
         assertLockHeld();
 
-        log.atFine().log(
+        log.atDebug().log(
             "Handling input: %s (%s) for step: %s in ToolUser: %s.",
             obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
             procedure.getCurrentStepName(), this);
@@ -453,7 +453,7 @@ public abstract class ToolUser
         assertInitialized();
         final var message = procedure.getMessage(step);
         if (message.isEmpty())
-            log.atWarning().log("Missing translation for step: %s", procedure.getStepName(step));
+            log.atWarn().log("Missing translation for step: %s", procedure.getStepName(step));
         else
             getPlayer().sendMessage(message);
     }
@@ -497,7 +497,7 @@ public abstract class ToolUser
                 if (result.isAllowed())
                     return true;
 
-                log.atFine().log(
+                log.atDebug().log(
                     "Blocked access to location %s for player %s! Reason: %s",
                     loc, getPlayer(), result.denyingHookName());
                 getPlayer().sendError("tool_user.base.error.no_permission_for_location");
@@ -526,7 +526,7 @@ public abstract class ToolUser
                 if (result.isAllowed())
                     return Optional.of(cuboid);
 
-                log.atFine().log(
+                log.atDebug().log(
                     "Blocked access to cuboid %s for player %s in world %s! Reason: %s",
                     cuboid,
                     getPlayer(),

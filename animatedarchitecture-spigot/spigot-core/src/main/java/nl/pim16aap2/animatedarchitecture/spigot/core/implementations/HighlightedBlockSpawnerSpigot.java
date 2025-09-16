@@ -1,9 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
 import com.google.common.flogger.StackSize;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.RotatedPosition;
 import nl.pim16aap2.animatedarchitecture.core.api.Color;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
@@ -30,8 +32,6 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.EnumMap;
 import java.util.Map;
@@ -43,7 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Represents an implementation of {@link HighlightedBlockSpawner} for the Spigot platform.
  */
 @Singleton
-@Flogger
+@CustomLog
 public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner implements IRestartable
 {
     private static final BukkitRunnable NULL_RUNNABLE = new BukkitRunnable()
@@ -94,14 +94,14 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
 
         if (scoreboard == null)
         {
-            log.atWarning().log("Failed to spawn glowing block: Scoreboard is null!");
+            log.atWarn().log("Failed to spawn glowing block: Scoreboard is null!");
             return Optional.empty();
         }
 
         if (teams.get(color) == null)
         {
             // FINER because it will already have been logged on startup.
-            log.atFiner().log("GlowingBlock Color %s was not registered properly!", color.name());
+            log.atTrace().log("GlowingBlock Color %s was not registered properly!", color.name());
             return Optional.empty();
         }
 
@@ -110,7 +110,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
         final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "Player %s does not appear to be online! They will not receive any GlowingBlock packets!", player);
             return Optional.empty();
         }
@@ -118,7 +118,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
         final @Nullable World spigotWorld = SpigotAdapter.getBukkitWorld(world);
         if (spigotWorld == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "World %s does not appear to be online! No Glowing Blocks can be spawned here!", world);
             return Optional.empty();
         }
@@ -128,7 +128,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
         if (entity == null || !setEntityTeam(entity, color))
         {
             block.kill();
-            log.atSevere().log("Failed to create glowing entity!");
+            log.atError().log("Failed to create glowing entity!");
             return Optional.empty();
         }
         spigotPlayer.showEntity(plugin, entity);
@@ -155,7 +155,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
         final @Nullable Team team = teams.get(color);
         if (team == null)
         {
-            log.atWarning().log("Failed to spawn glowing block: Could not find team for color: %s", color);
+            log.atWarn().log("Failed to spawn glowing block: Could not find team for color: %s", color);
             return false;
         }
         team.addEntry(entity.getUniqueId().toString());
@@ -245,7 +245,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
             }
             catch (IllegalStateException e)
             {
-                log.atFine().withCause(e).log("Failed to cancel task for glowing block!");
+                log.atDebug().withCause(e).log("Failed to cancel task for glowing block!");
             }
             entry.getKey().kill();
         }

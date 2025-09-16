@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
 import it.unimi.dsi.fastutil.ints.IntImmutableList;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 /**
  * Utility class for strings.
  */
-@Flogger
+@CustomLog
 public final class StringUtil
 {
     /**

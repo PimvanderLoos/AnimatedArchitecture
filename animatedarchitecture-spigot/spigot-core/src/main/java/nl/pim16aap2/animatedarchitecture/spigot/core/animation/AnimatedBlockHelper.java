@@ -1,7 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
 import com.google.common.flogger.LazyArgs;
-import lombok.extern.flogger.Flogger;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.AnimatedBlockRecoveryDataType;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.IAnimatedBlockRecoveryData;
@@ -11,14 +13,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Objects;
 
 /**
  * Helper class for animated blocks.
  */
-@Flogger
+@CustomLog
 @Singleton
 public final class AnimatedBlockHelper
 {
@@ -56,7 +56,7 @@ public final class AnimatedBlockHelper
         if (recoveryData == null)
             return;
 
-        log.atFinest().log(
+        log.atTrace().log(
             "Attempting to recover animated block with recovery data '%s'",
             LazyArgs.lazy(
                 () -> entity.getPersistentDataContainer().get(recoveryKey, AnimatedBlockRecoveryDataType.STRING))
@@ -65,19 +65,19 @@ public final class AnimatedBlockHelper
         try
         {
             if (recoveryData.recover())
-                log.atWarning().log(
+                log.atWarn().log(
                     "Recovered animated block with recovery data '%s'! " +
                         "This is not intended behavior, please contact the author(s) of this plugin!",
                     recoveryData
                 );
             else
-                log.atFine().log("No recovery action required for data '%s'", recoveryData);
+                log.atDebug().log("No recovery action required for data '%s'", recoveryData);
 
             entity.remove();
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Failed to recover animated block '%s' from recovery: '%s'",
                 entity,
                 recoveryData

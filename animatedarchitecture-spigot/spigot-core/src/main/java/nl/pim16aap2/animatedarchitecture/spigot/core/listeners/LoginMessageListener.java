@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
@@ -16,8 +18,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Objects;
 
 /**

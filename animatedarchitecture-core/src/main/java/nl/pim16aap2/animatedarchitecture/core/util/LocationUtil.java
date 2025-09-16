@@ -1,14 +1,14 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
+import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 /**
  * Utility class for operations related to locations (and chunks).
  */
-@Flogger
+@CustomLog
 @UtilityClass
 public final class LocationUtil
 {

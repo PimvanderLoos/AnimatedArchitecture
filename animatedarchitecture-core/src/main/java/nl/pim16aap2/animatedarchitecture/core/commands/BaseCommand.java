@@ -1,9 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionException;
@@ -20,11 +20,11 @@ import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.slf4j.event.Level;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 /**
  * Represents the base AnimatedArchitecture command.
@@ -32,7 +32,7 @@ import java.util.logging.Level;
  * This handles all the basics shared by all commands and contains some utility methods for common actions.
  */
 @ToString
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public abstract class BaseCommand
 {
@@ -135,9 +135,9 @@ public abstract class BaseCommand
         // If the user has not been informed about the issue, it's a severe issue.
         final Level level;
         if (shouldInformUser)
-            level = Level.SEVERE;
+            level = Level.ERROR;
         else
-            level = Level.FINE;
+            level = Level.DEBUG;
 
         log.at(level).withCause(throwable).log("Failed to execute command: %s", this);
         if (shouldInformUser && commandSender.isPlayer())
@@ -214,7 +214,7 @@ public abstract class BaseCommand
                     return;
                 }
 
-                log.atFiner().withCause(throwable).log("Failed to execute command: %s", this);
+                log.atTrace().withCause(throwable).log("Failed to execute command: %s", this);
                 ret.completeExceptionally(new RuntimeException(throwable));
             });
 
@@ -232,7 +232,7 @@ public abstract class BaseCommand
         final boolean isPlayer = commandSender instanceof IPlayer;
         if (isPlayer && !availableForPlayers())
         {
-            log.atFine().log("Command not allowed for players: %s", this);
+            log.atDebug().log("Command not allowed for players: %s", this);
             commandSender.sendError("commands.base.error.no_permission_for_command");
             return CompletableFuture
                 .failedFuture(new PlayerExecutingNonPlayerCommandException(true))
@@ -240,7 +240,7 @@ public abstract class BaseCommand
         }
         if (!isPlayer && !availableForNonPlayers())
         {
-            log.atFine().log("Command not allowed for non-players: %s", this);
+            log.atDebug().log("Command not allowed for non-players: %s", this);
             commandSender.sendError("commands.base.error.only_available_for_players");
             return CompletableFuture
                 .failedFuture(new NonPlayerExecutingPlayerCommandException(true))
@@ -271,7 +271,7 @@ public abstract class BaseCommand
     {
         if (!permissionResult.hasAnyPermission())
         {
-            log.atFine().log("Permission for command: %s: %s", this, permissionResult);
+            log.atDebug().log("Permission for command: %s: %s", this, permissionResult);
             commandSender.sendError("commands.base.error.no_permission_for_command");
             throw new CommandExecutionException(
                 true,
@@ -305,7 +305,7 @@ public abstract class BaseCommand
      */
     private void log()
     {
-        log.atFinest().log("Running command %s: %s", getCommand().getName(), this);
+        log.atTrace().log("Running command %s: %s", getCommand().getName(), this);
     }
 
     /**
@@ -336,7 +336,7 @@ public abstract class BaseCommand
             )
             .thenApply(structure ->
             {
-                log.atFine().log("Retrieved structure %s for command: %s", structure, this);
+                log.atDebug().log("Retrieved structure %s for command: %s", structure, this);
                 if (structure.isPresent())
                     return structure.get();
 

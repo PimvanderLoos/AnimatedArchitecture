@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
 
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.experimental.Delegate;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents an implementation of {@link IPlayer} for the Spigot platform.
  */
-@Flogger
+@CustomLog
 public final class WrappedOfflinePlayer implements IPlayer
 {
     @Delegate
@@ -53,7 +53,7 @@ public final class WrappedOfflinePlayer implements IPlayer
     @Deprecated
     public void sendMessage(Text text)
     {
-        log.atFine().log("Sent message to offline player: %s", text);
+        log.atDebug().log("Sent message to offline player: %s", text);
     }
 
     @Override

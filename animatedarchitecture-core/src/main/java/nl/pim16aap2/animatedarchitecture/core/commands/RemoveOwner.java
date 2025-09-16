@@ -3,8 +3,8 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.CustomLog;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidCommandInputException;
@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
  * Represents the remove owner command. This command is used to remove owners from a structure.
  */
 @ToString(callSuper = true)
-@Flogger
+@CustomLog
 public class RemoveOwner extends StructureTargetCommand
 {
     public static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.REMOVE_OWNER;

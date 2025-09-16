@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfigReader;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Represents an option in a config file.
  */
-@Flogger
+@CustomLog
 public final class ConfigEntry<V>
 {
     private final IConfigReader config;
@@ -78,7 +78,7 @@ public final class ConfigEntry<V>
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Failed to read config value of: \"%s\"! Using default value instead!", optionName);
             value = defaultValue;
         }

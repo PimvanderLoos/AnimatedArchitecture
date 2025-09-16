@@ -32,7 +32,7 @@
         <dependency.git-commit-id.version>9.0.2</dependency.git-commit-id.version>
         <dependency.gson.version>2.13.1</dependency.gson.version>
         <dependency.jacoco.version>0.8.13</dependency.jacoco.version>
-        <dependency.jcalculator.version>1.10</dependency.jcalculator.version>
+        <dependency.jcalculator.version>3.0.0</dependency.jcalculator.version>
         <dependency.jdbc-sqlite.version>3.49.1.0</dependency.jdbc-sqlite.version>
         <dependency.jimfs.version>1.3.1</dependency.jimfs.version>
         <dependency.junit.version>5.13.4</dependency.junit.version>
@@ -79,16 +79,6 @@
             <url>https://gitlab.com/api/v4/projects/42502896/packages/maven</url>
         </repository>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
@@ -97,11 +87,44 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.github.PimvanderLoos</groupId>
-                <artifactId>JCalculator</artifactId>
+                <groupId>nl.pim16aap2.jcalculator</groupId>
+                <artifactId>jcalculator</artifactId>
                 <version>${dependency.jcalculator.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>nl.pim16aap2</groupId>
+                <artifactId>util</artifactId>
+                <version>0.8.0-SNAPSHOT</version>
                 <scope>compile</scope>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>nl.pim16aap2</groupId>
+                <artifactId>test-util</artifactId>
+                <version>0.8.0-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${dependency.log4j.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.flogger</groupId>
+                <artifactId>flogger</artifactId>
+                <version>${dependency.flogger.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.flogger</groupId>
+                <artifactId>flogger-log4j2-backend</artifactId>
+                <version>${dependency.flogger.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -111,8 +134,7 @@
             <groupId>com.google.dagger</groupId>
             <artifactId>dagger</artifactId>
             <version>${dependency.dagger.version}</version>
-            <scope>compile</scope>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.dagger</groupId>
@@ -148,21 +170,6 @@
             <artifactId>fastutil</artifactId>
             <version>${dependency.fastutil.version}</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.flogger</groupId>
-            <artifactId>flogger</artifactId>
-            <version>${dependency.flogger.version}</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>com.google.flogger</groupId>
-            <artifactId>flogger-system-backend</artifactId>
-            <version>${dependency.flogger.version}</version>
-            <scope>compile</scope>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -223,11 +230,9 @@
             <scope>test</scope>
         </dependency>
 
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>${dependency.log4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -240,7 +245,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${dependency.slf4j.version}</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.github.hakky54</groupId>
@@ -281,6 +286,13 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>${dependency.fastjson.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+            <version>2.0.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -382,9 +394,6 @@
                         <forkCount>1</forkCount>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
-                        <systemPropertyVariables>
-                            <flogger.backend_factory>com.google.common.flogger.backend.slf4j.Slf4jBackendFactory#getInstance</flogger.backend_factory>
-                        </systemPropertyVariables>
                     </configuration>
                 </plugin>
 
@@ -417,24 +426,24 @@
                     <configuration>
                         <relocations>
                             <relocation>
-                                <pattern>cloud.commandframework</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.cloud</shadedPattern>
+                                <pattern>org.jspecify</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.jspecify</shadedPattern>
                             </relocation>
                             <relocation>
-                                <pattern>com.google.common.flogger</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.flogger</shadedPattern>
+                                <pattern>cloud.commandframework</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.cloud</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>com.google.errorprone</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.errorprone</shadedPattern>
                             </relocation>
                             <relocation>
-                                <pattern>com.mojang.brigadier</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.brigadier</shadedPattern>
+                                <pattern>com.google.auto</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.auto</shadedPattern>
                             </relocation>
                             <relocation>
-                                <pattern>dagger</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.dagger</shadedPattern>
+                                <pattern>com.mojang.brigadier</pattern>
+                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.brigadier</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>de.themoep.inventorygui</pattern>
@@ -453,14 +462,6 @@
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.kyori</shadedPattern>
                             </relocation>
                             <relocation>
-                                <pattern>nl.pim16aap2.jcalculator</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.jcalculator</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>nl.pim16aap2.util</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.util</shadedPattern>
-                            </relocation>
-                            <relocation>
                                 <pattern>org.apiguardian</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.apiguardian</shadedPattern>
                             </relocation>
@@ -475,14 +476,6 @@
                             <relocation>
                                 <pattern>org.semver4j</pattern>
                                 <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.semver4j</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>javax.inject</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.javax.inject</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>jakarta.inject</pattern>
-                                <shadedPattern>nl.pim16aap2.animatedarchitecture.lib.jakarta.inject</shadedPattern>
                             </relocation>
                         </relocations>
                     </configuration>

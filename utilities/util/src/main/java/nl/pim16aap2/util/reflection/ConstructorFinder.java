@@ -22,49 +22,44 @@ public class ConstructorFinder
      *     The class to analyze.
      * @return The next step in the constructor finding process.
      */
-    @CheckReturnValue @Contract(pure = true)
-    public ConstructorFinderInSource inClass(Class<?> source)
+    @CheckReturnValue
+    @Contract(pure = true)
+    public <T> ConstructorFinderInSource<T> inClass(Class<T> source)
     {
-        return new ConstructorFinderInSource(Objects.requireNonNull(source, "Source class cannot be null!"));
+        return new ConstructorFinderInSource<>(Objects.requireNonNull(source, "Source class cannot be null!"));
     }
 
     /**
      * Represents an implementation of {@link ReflectionFinder}
      */
-    public static final class ConstructorFinderInSource
-        extends ReflectionFinder.ReflectionFinderWithParameters<Constructor<?>, ConstructorFinderInSource>
-        implements IAccessibleSetter<ConstructorFinderInSource>, IAnnotationFinder<ConstructorFinderInSource>
+    public static final class ConstructorFinderInSource<T>
+        extends ReflectionFinder.ReflectionFinderWithParameters<Constructor<T>, ConstructorFinderInSource<T>>
+        implements IAccessibleSetter<ConstructorFinderInSource<T>>, IAnnotationFinder<ConstructorFinderInSource<T>>
     {
-        private final Class<?> source;
+        private final Class<T> source;
 
         private boolean setAccessible = false;
 
         @SuppressWarnings("unchecked")
         private Class<? extends Annotation>[] annotations = new Class[0];
 
-        private ConstructorFinderInSource(Class<?> source)
+        private ConstructorFinderInSource(Class<T> source)
         {
             this.source = source;
         }
 
         @Override
-        public Constructor<?> get()
+        public Constructor<T> get()
         {
-            return Objects.requireNonNull(
-                getNullable(),
-                String.format(
-                    "Failed to find constructor %s[%s %s(%s)]",
-                    ReflectionBackend.formatAnnotations(annotations),
-                    ReflectionBackend.optionalModifiersToString(modifiers),
-                    source.getName(),
-                    ReflectionBackend.formatOptionalValue(parameters))
-            );
+            return Objects.requireNonNull(getNullable(), this::toString);
         }
 
         /**
+         * Gets all constructors that match the provided data.
+         *
          * @return All constructors that match the provided data.
          */
-        public List<Constructor<?>> getAll()
+        public List<Constructor<T>> getAll()
         {
             return ReflectionBackend.findCTor(
                 source,
@@ -77,22 +72,29 @@ public class ConstructorFinder
         }
 
         @Override
-        public @Nullable Constructor<?> getNullable()
+        public @Nullable Constructor<T> getNullable()
         {
-            final List<Constructor<?>> ctors =
-                ReflectionBackend.findCTor(
-                    source,
-                    modifiers,
-                    parameters,
-                    setAccessible,
-                    1,
-                    annotations
-                );
-            return ctors.isEmpty() ? null : ctors.getFirst();
+            try
+            {
+                final List<Constructor<T>> ctors =
+                    ReflectionBackend.findCTor(
+                        source,
+                        modifiers,
+                        parameters,
+                        setAccessible,
+                        1,
+                        annotations
+                    );
+                return ctors.isEmpty() ? null : ctors.getFirst();
+            }
+            catch (Throwable throwable)
+            {
+                throw new RuntimeException("Failed to find constructors for request: " + this, throwable);
+            }
         }
 
         @Override
-        public ConstructorFinderInSource setAccessible()
+        public ConstructorFinderInSource<T> setAccessible()
         {
             setAccessible = true;
             return this;
@@ -100,10 +102,22 @@ public class ConstructorFinder
 
         @Override
         @SafeVarargs
-        public final ConstructorFinderInSource withAnnotations(Class<? extends Annotation>... annotations)
+        public final ConstructorFinderInSource<T> withAnnotations(Class<? extends Annotation>... annotations)
         {
             this.annotations = annotations;
             return this;
+        }
+
+        @Override
+        public String toString()
+        {
+            return String.format(
+                "Failed to find constructor %s[%s %s(%s)]",
+                ReflectionBackend.formatAnnotations(annotations),
+                ReflectionBackend.optionalModifiersToString(modifiers),
+                source.getName(),
+                ReflectionBackend.formatOptionalValue(parameters)
+            );
         }
     }
 }

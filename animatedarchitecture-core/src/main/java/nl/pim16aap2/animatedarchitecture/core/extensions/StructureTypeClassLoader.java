@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 
 import java.lang.reflect.InvocationTargetException;
@@ -10,7 +10,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 
-@Flogger
+@CustomLog
 final class StructureTypeClassLoader extends URLClassLoader implements IStructureTypeClassLoader
 {
     public StructureTypeClassLoader(ClassLoader parent)
@@ -21,14 +21,14 @@ final class StructureTypeClassLoader extends URLClassLoader implements IStructur
     @Override
     public boolean loadJar(Path file)
     {
-        log.atFinest().log("Trying to load jar '%s' into StructureTypeClassLoader.", file);
+        log.atTrace().log("Trying to load jar '%s' into StructureTypeClassLoader.", file);
         try
         {
             addURL(file.toUri().toURL());
         }
         catch (Exception e)
         {
-            log.atWarning().withCause(e).log("Failed to load jar '%s' into StructureTypeClassLoader.", file);
+            log.atWarn().withCause(e).log("Failed to load jar '%s' into StructureTypeClassLoader.", file);
             return false;
         }
         return true;

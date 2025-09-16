@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.hooks.griefprevention;
 
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Protection hook for GriefPrevention.
  */
-@Flogger
+@CustomLog
 public class GriefPreventionProtectionHook implements IProtectionHookSpigot
 {
     private final @Nullable GriefPrevention griefPrevention;
@@ -53,7 +53,7 @@ public class GriefPreventionProtectionHook implements IProtectionHookSpigot
             Objects.requireNonNull(griefPrevention).allowBreak(player, block, loc, blockBreakEvent) == null;
 
         if (!result)
-            log.atFine().log(
+            log.atDebug().log(
                 "Player %s is not allowed to break block at %s",
                 lazyFormatPlayerName(player),
                 loc

@@ -21,4 +21,19 @@
         <module>animatedarchitecture-integration-test-lib</module>
         <module>animatedarchitecture-integration-test</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>flogger</artifactId>
+            <version>${dependency.flogger.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>flogger-log4j2-backend</artifactId>
+            <version>${dependency.flogger.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>

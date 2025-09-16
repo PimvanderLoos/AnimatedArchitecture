@@ -1,7 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core;
 
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
@@ -11,7 +12,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
-import nl.pim16aap2.animatedarchitecture.core.api.IMessagingInterface;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IRedstoneManager;
@@ -55,7 +55,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.api.BlockAnalyzerSpigot;
 import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
 
-import javax.inject.Singleton;
 import java.util.function.Function;
 
 /**
@@ -68,7 +67,7 @@ import java.util.function.Function;
  * Refer to {@link nl.pim16aap2.animatedarchitecture.spigot.core} for more information on how to obtain the instance of
  * this class.
  */
-@Flogger
+@CustomLog
 @Singleton
 public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchitecturePlatform
 {
@@ -116,9 +115,6 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
 
     @Getter
     private final ILocalizer localizer;
-
-    @Getter
-    private final IMessagingInterface messagingInterface;
 
     @Getter
     private final IMessageable messageableServer;
@@ -273,7 +269,6 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         highlightedBlockSpawner = safeGetter(AnimatedArchitectureSpigotComponent::getHighlightedBlockSpawner);
         server = safeGetter(AnimatedArchitectureSpigotComponent::getServer);
         audioPlayer = safeGetter(AnimatedArchitectureSpigotComponent::getIAudioPlayer);
-        messagingInterface = safeGetter(AnimatedArchitectureSpigotComponent::getIMessagingInterface);
         messageableServer = safeGetter(AnimatedArchitectureSpigotComponent::getMessageable);
         animatedArchitectureToolUtil = safeGetter(
             AnimatedArchitectureSpigotComponent::getAnimatedArchitectureToolUtilSpigot);

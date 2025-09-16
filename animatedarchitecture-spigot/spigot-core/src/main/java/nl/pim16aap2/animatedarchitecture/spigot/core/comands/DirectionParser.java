@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.comands;
 import cloud.commandframework.arguments.parser.ArgumentParseResult;
 import cloud.commandframework.arguments.parser.ArgumentParser;
 import cloud.commandframework.context.CommandContext;
+import jakarta.inject.Inject;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.IRestartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
@@ -15,7 +16,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;

@@ -2,8 +2,11 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 
 import com.google.common.flogger.StackSize;
 import dagger.Lazy;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfigReader;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
@@ -25,9 +28,6 @@ import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,7 +52,7 @@ import java.util.logging.Level;
  */
 @ToString
 @Singleton
-@Flogger
+@CustomLog
 public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerConfig
 {
     private static final List<String> DEFAULT_COMMAND_ALIASES = List.of(
@@ -503,7 +503,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
 
         if (commandAliases.isEmpty())
         {
-            log.atWarning().log(
+            log.atWarn().log(
                 "No command aliases were found. Using the default aliases: %s", DEFAULT_COMMAND_ALIASES);
             commandAliases.addAll(DEFAULT_COMMAND_ALIASES);
         }
@@ -568,7 +568,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
             @Nullable Material mat = Material.getMaterial(entry.getValue());
             if (mat == null)
             {
-                log.atWarning().log(
+                log.atWarn().log(
                     "Could not find material with name '%s'! Defaulting to '%s'!",
                     entry.getValue(),
                     DEFAULT_MATERIAL.name()
@@ -713,15 +713,15 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
 
             if (!Files.isWritable(configFile))
             {
-                log.atWarning().log("=======================================");
-                log.atWarning().log("============== !WARNING! ==============");
-                log.atWarning().log("=======================================");
-                log.atWarning().log("====== CANNOT WRITE CONFIG FILE! ======");
-                log.atWarning().log("==== NEW OPTIONS WILL NOT SHOW UP! ====");
-                log.atWarning().log("==== THEY WILL USE DEFAULT VALUES! ====");
-                log.atWarning().log("=======================================");
-                log.atWarning().log("============== !WARNING! ==============");
-                log.atWarning().log("=======================================");
+                log.atWarn().log("=======================================");
+                log.atWarn().log("============== !WARNING! ==============");
+                log.atWarn().log("=======================================");
+                log.atWarn().log("====== CANNOT WRITE CONFIG FILE! ======");
+                log.atWarn().log("==== NEW OPTIONS WILL NOT SHOW UP! ====");
+                log.atWarn().log("==== THEY WILL USE DEFAULT VALUES! ====");
+                log.atWarn().log("=======================================");
+                log.atWarn().log("============== !WARNING! ==============");
+                log.atWarn().log("=======================================");
             }
 
             final StringBuilder sb = new StringBuilder().append(header).append('\n');
@@ -741,7 +741,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
         }
         catch (IOException e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Could not save config.yml! Please contact pim16aap2 and show him the following stacktrace:");
         }
     }
@@ -856,7 +856,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
         final String ret = structurePrices.get(type);
         if (ret != null)
             return ret;
-        log.atSevere().withStackTrace(StackSize.FULL).log("No price found for type: '%s'", type);
+        log.atError().withStackTrace(StackSize.FULL).log("No price found for type: '%s'", type);
         return "0";
     }
 
@@ -958,7 +958,7 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
                     final Material mat = Material.valueOf(str);
                     if (output.contains(mat))
                     {
-                        log.atWarning().log("Failed to add material: \"%s\". It was already on the list!", str);
+                        log.atWarn().log("Failed to add material: \"%s\". It was already on the list!", str);
                         it.remove();
                     }
                     else if (mat.isSolid())
@@ -967,13 +967,13 @@ public final class ConfigSpigot implements IConfig, IDebuggable, IBlockAnalyzerC
                     }
                     else
                     {
-                        log.atWarning().log("Failed to add material: \"%s\". Only solid materials are allowed!", str);
+                        log.atWarn().log("Failed to add material: \"%s\". Only solid materials are allowed!", str);
                         it.remove();
                     }
                 }
                 catch (Exception e)
                 {
-                    log.atWarning().log("Failed to parse material: \"%s\".", str);
+                    log.atWarn().log("Failed to parse material: \"%s\".", str);
                     it.remove();
                 }
             }

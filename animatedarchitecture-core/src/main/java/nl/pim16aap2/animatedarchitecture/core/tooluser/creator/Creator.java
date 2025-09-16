@@ -1,10 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.tooluser.creator;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
@@ -57,7 +57,7 @@ import java.util.concurrent.TimeUnit;
  * Represents a specialization of the {@link ToolUser} that is used for creating new {@link Structure}s.
  */
 @ToString(callSuper = true, onlyExplicitlyIncluded = true)
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public abstract class Creator extends ToolUser
 {
@@ -438,7 +438,7 @@ public abstract class Creator extends ToolUser
      */
     protected final void handleExceptional(Throwable ex, String context)
     {
-        log.atSevere().withCause(ex).log("Failed to %s for Creator '%s'", context, this);
+        log.atError().withCause(ex).log("Failed to %s for Creator '%s'", context, this);
         getPlayer().sendError("creator.base.error.creation_cancelled");
         this.abort();
     }
@@ -498,7 +498,7 @@ public abstract class Creator extends ToolUser
     {
         if (structureAnimationRequestBuilder == null)
         {
-            log.atWarning().log("No StructureAnimationRequestBuilder available for Creator '%s'", this);
+            log.atWarn().log("No StructureAnimationRequestBuilder available for Creator '%s'", this);
             return;
         }
 
@@ -513,7 +513,7 @@ public abstract class Creator extends ToolUser
             .build()
             .execute()
             .orTimeout(10, TimeUnit.SECONDS)
-            .handleExceptional(ex -> log.atSevere().withCause(ex).log("Failed to show preview for Creator '%s'", this));
+            .handleExceptional(ex -> log.atError().withCause(ex).log("Failed to show preview for Creator '%s'", this));
     }
 
     protected synchronized void prepareReviewResult()
@@ -524,7 +524,7 @@ public abstract class Creator extends ToolUser
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to create structure preview!");
+            log.atError().withCause(e).log("Failed to create structure preview!");
             getPlayer().sendError("constants.error.generic");
         }
         this.processIsUpdatable = true;
@@ -596,7 +596,7 @@ public abstract class Creator extends ToolUser
     {
         if (!StringUtil.isValidStructureName(str))
         {
-            log.atFine().log("Invalid name '%s' for selected Creator: %s", str, this);
+            log.atDebug().log("Invalid name '%s' for selected Creator: %s", str, this);
             getPlayer().sendError(
                 "creator.base.error.invalid_name",
                 arg -> arg.highlight(str),
@@ -802,7 +802,7 @@ public abstract class Creator extends ToolUser
 
         getPlayer().sendError("creator.base.error.world_mismatch");
 
-        log.atFine().log("World mismatch in ToolUser for player: %s", getPlayer());
+        log.atDebug().log("World mismatch in ToolUser for player: %s", getPlayer());
         return false;
     }
 
@@ -827,14 +827,14 @@ public abstract class Creator extends ToolUser
                 if (result.structure().isEmpty())
                 {
                     getPlayer().sendError("constants.error.generic");
-                    log.atSevere().log("Failed to insert structure after creation!");
+                    log.atError().log("Failed to insert structure after creation!");
                 }
             })
             .orTimeout(30, TimeUnit.SECONDS)
             .handleExceptional(ex ->
             {
                 getPlayer().sendError("constants.error.generic");
-                log.atSevere().withCause(ex).log("Failed to insert structure after creation!");
+                log.atError().withCause(ex).log("Failed to insert structure after creation!");
             });
     }
 
@@ -978,7 +978,7 @@ public abstract class Creator extends ToolUser
 
         if (!Util.requireNonNull(cuboid, "cuboid").isInRange(loc, 1))
         {
-            log.atFinest().log("Rotation point not in range of cuboid for player: %s", getPlayer());
+            log.atTrace().log("Rotation point not in range of cuboid for player: %s", getPlayer());
             getPlayer().sendError("creator.base.error.invalid_rotation_point");
             return false;
         }

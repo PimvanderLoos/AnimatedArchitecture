@@ -1,9 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import jakarta.inject.Inject;
 import lombok.Getter;
 import lombok.experimental.Delegate;
-
-import javax.inject.Inject;
 
 /**
  * Represents a factory for commands.

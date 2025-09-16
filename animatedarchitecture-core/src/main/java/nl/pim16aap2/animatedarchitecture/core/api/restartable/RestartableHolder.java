@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.api.restartable;
 
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 /**
  * Represents an object that can issue a restart or shutdown to {@link IRestartable} objects.
  */
-@Flogger
+@CustomLog
 public final class RestartableHolder implements IDebuggable
 {
     private final Set<IRestartable> restartables = new LinkedHashSet<>();
@@ -104,7 +104,7 @@ public final class RestartableHolder implements IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Failed to %s restartable of type %s:\n%s",
                 actionName,
                 restartable.getClass().getName(),

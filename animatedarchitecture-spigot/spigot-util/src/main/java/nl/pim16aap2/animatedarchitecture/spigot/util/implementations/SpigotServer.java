@@ -1,21 +1,20 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.IServer;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 /**
  * Represents the Spigot implementation of {@link IServer}.
  */
 @Singleton
-@Flogger
+@CustomLog
 @Getter
 public class SpigotServer implements IServer
 {

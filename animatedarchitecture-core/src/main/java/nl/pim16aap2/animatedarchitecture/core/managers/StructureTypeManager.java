@@ -1,9 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.core.managers;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Locked;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationManager;
@@ -12,8 +14,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,7 +31,7 @@ import java.util.Set;
  * still registered and can still be used by other types that may depend on it.
  */
 @Singleton
-@Flogger
+@CustomLog
 @ThreadSafe
 public final class StructureTypeManager implements IDebuggable
 {

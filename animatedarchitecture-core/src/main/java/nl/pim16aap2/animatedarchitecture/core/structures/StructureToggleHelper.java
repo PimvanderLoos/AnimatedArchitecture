@@ -1,8 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import com.google.common.flogger.StackSize;
+import jakarta.inject.Inject;
+import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimatedBlockContainerFactory;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
@@ -39,20 +40,19 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.event.Level;
 
-import javax.inject.Inject;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
 
 /**
  * Represents a utility singleton that is used to open {@link Structure}s.
  */
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 final class StructureToggleHelper
 {
@@ -134,7 +134,7 @@ final class StructureToggleHelper
         IMessageable messageReceiver,
         @Nullable Long stamp)
     {
-        log.atFine().log(
+        log.atDebug().log(
             "Aborted toggle for structure %d because of %s. Toggle Reason: %s, Responsible: %s",
             structure.getUid(),
             result.name(),
@@ -156,7 +156,7 @@ final class StructureToggleHelper
             );
         else
         {
-            final Level level = result == StructureToggleResult.BUSY ? Level.FINE : Level.INFO;
+            final Level level = result == StructureToggleResult.BUSY ? Level.DEBUG : Level.INFO;
 
             if (result.equals(StructureToggleResult.INSTANCE_UNREGISTERED))
                 log.at(level).withStackTrace(StackSize.FULL).log(
@@ -291,7 +291,7 @@ final class StructureToggleHelper
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to register block mover for structure %d", structure.getUid());
+            log.atError().withCause(e).log("Failed to register block mover for structure %d", structure.getUid());
             return false;
         }
         return true;
@@ -308,7 +308,7 @@ final class StructureToggleHelper
     {
         if (snapshot.getOpenDirection() == MovementDirection.NONE)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log("OpenDir cannot be 'NONE'!");
+            log.atError().withStackTrace(StackSize.FULL).log("OpenDir cannot be 'NONE'!");
             return CompletableFuture.completedFuture(StructureToggleResult.ERROR);
         }
 
@@ -394,7 +394,7 @@ final class StructureToggleHelper
         final boolean scheduled = registerBlockMover(targetStructure, data, component, player, animationType, stamp);
         if (!scheduled)
         {
-            log.atSevere().log("Failed to schedule block mover for structure %d", targetStructure.getUid());
+            log.atError().log("Failed to schedule block mover for structure %d", targetStructure.getUid());
             return CompletableFuture.completedFuture(StructureToggleResult.ERROR);
         }
 
@@ -523,7 +523,7 @@ final class StructureToggleHelper
         return canBreakBlocks0(structure, cuboid0, cuboid1, responsible)
             .exceptionally(exception ->
             {
-                log.atSevere().withCause(exception).log(
+                log.atError().withCause(exception).log(
                     "Failed to check if blocks can be broken in cuboids %s and %s for user: '%s' for structure %s",
                     cuboid0,
                     cuboid1,
@@ -558,7 +558,7 @@ final class StructureToggleHelper
                 if (protectionCheckResult.isAllowed())
                     return true;
 
-                log.atWarning().log(
+                log.atWarn().log(
                     "Player %s is not allowed to open structure '%s' (%d) here! Reason: %s",
                     responsible,
                     structure.getName(),
@@ -624,7 +624,7 @@ final class StructureToggleHelper
                                 .spawn())
                             .orTimeout(1, TimeUnit.SECONDS)
                             .handleExceptional(ex ->
-                                log.atWarning().withCause(ex).atMostEvery(5, TimeUnit.SECONDS).log(
+                                log.atWarn().withCause(ex).atMostEvery(5, TimeUnit.SECONDS).log(
                                     "Failed to spawn highlighted block for player %s at %d, %d, %d in world %s",
                                     player,
                                     xAxis0,
@@ -683,7 +683,7 @@ final class StructureToggleHelper
 
         if (!chunksLoaded(structure, newCuboid))
         {
-            log.atWarning().log("Chunks for structure '%s' could not be not loaded!", structure.getName());
+            log.atWarn().log("Chunks for structure '%s' could not be not loaded!", structure.getName());
             return StructureToggleResult.ERROR;
         }
 

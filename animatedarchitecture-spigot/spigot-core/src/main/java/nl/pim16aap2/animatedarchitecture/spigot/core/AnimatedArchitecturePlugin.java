@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core;
 
-import com.google.common.flogger.FluentLogger;
+import jakarta.inject.Singleton;
 import lombok.AccessLevel;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
@@ -8,26 +8,26 @@ import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformP
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateChecker;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.DebugReporterSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.BackupCommandListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
+import nl.pim16aap2.util.logging.FloggerFacade;
+import nl.pim16aap2.util.logging.FloggerFacadeFactory;
 import nl.pim16aap2.util.logging.Log4J2Configurator;
-import nl.pim16aap2.util.logging.floggerbackend.CustomLog4j2BackendFactory;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 import org.semver4j.Semver;
 
-import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Level;
 
 /**
  * Represents the base {@link JavaPlugin} for AnimatedArchitecture.
@@ -41,21 +41,18 @@ import java.util.logging.Level;
 public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAnimatedArchitecturePlatformProvider
 {
     @SuppressWarnings("PMD.FieldNamingConventions")
-    private static final FluentLogger log;
+    private static final FloggerFacade log;
 
     static
     {
-        final String propName = "flogger.backend_factory";
-        final @Nullable String oldProp = System.getProperty(propName);
-
-        // The #getInstance does not exist, but without it, Flogger derps out and won't load the specified backend.
-        System.setProperty(propName, CustomLog4j2BackendFactory.class.getName() + "#getInstance");
-
-        log = FluentLogger.forEnclosingClass();
-
-        if (oldProp != null)
-            System.setProperty(propName, oldProp);
+        Log4J2Configurator.setMarkerName(Constants.PLUGIN_NAME);
+        log = FloggerFacadeFactory.getLogger(AnimatedArchitecturePlugin.class);
     }
+
+    private final Log4J2Configurator logConfigurator = new Log4J2Configurator(
+        Constants.PLUGIN_NAME,
+        "nl.pim16aap2"
+    );
 
     private final Set<JavaPlugin> registeredPlugins = Collections.synchronizedSet(new LinkedHashSet<>());
     private final AnimatedArchitectureSpigotComponent animatedArchitectureSpigotComponent;
@@ -78,7 +75,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
 
     public AnimatedArchitecturePlugin()
     {
-        Log4J2Configurator.getInstance().setLogPath(getDataFolder().toPath());
+        logConfigurator.configure(getDataFolder().toPath());
 
         mainThreadId = Thread.currentThread().threadId();
         restartableHolder = new RestartableHolder();
@@ -100,7 +97,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
     /**
      * Tries to update the logger using {@link IConfig#logLevel()}.
      * <p>
-     * If the config is not available for some reason, the log level defaults to {@link Level#ALL}.
+     * If the config is not available for some reason, the log level defaults to {@link java.util.logging.Level#ALL}.
      */
     private void updateLogger()
     {
@@ -110,14 +107,14 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         }
         catch (Exception e)
         {
-            setLogLevel(Level.ALL);
-            log.atSevere().withCause(e).log("Failed to read config! Defaulting to logging everything!");
+            setLogLevel(java.util.logging.Level.ALL);
+            log.atError().withCause(e).log("Failed to read config! Defaulting to logging everything!");
         }
     }
 
-    private void setLogLevel(Level level)
+    private void setLogLevel(java.util.logging.Level level)
     {
-        Log4J2Configurator.getInstance().setJULLevel(level);
+        logConfigurator.setLevel(Log4J2Configurator.toLog4jLevel(level));
     }
 
     /**
@@ -164,14 +161,14 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Failed to initialize AnimatedArchitecture's Spigot platform!");
+                log.atError().withCause(e).log("Failed to initialize AnimatedArchitecture's Spigot platform!");
             }
         }
         initialized = true;
 
         if (animatedArchitectureSpigotPlatform == null)
         {
-            log.atSevere().log("Failed to enable AnimatedArchitecture: Platform could not be initialized!");
+            log.atError().log("Failed to enable AnimatedArchitecture: Platform could not be initialized!");
             return;
         }
 
@@ -200,7 +197,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to schedule update checker!");
+            log.atError().withCause(e).log("Failed to schedule update checker!");
         }
     }
 
@@ -212,7 +209,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to initialize command listener!");
+            log.atError().withCause(e).log("Failed to initialize command listener!");
             onInitFailure();
         }
     }
@@ -232,7 +229,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to enable stats! :(");
+            log.atError().withCause(e).log("Failed to enable stats! :(");
         }
     }
 
@@ -254,7 +251,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to initialize AnimatedArchitecture's Spigot platform!");
+            log.atError().withCause(e).log("Failed to initialize AnimatedArchitecture's Spigot platform!");
             initErrorMessage = e.getMessage();
             onInitFailure();
             return null;
@@ -266,7 +263,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
         restartableHolder.shutDown();
         new BackupCommandListener(this, initErrorMessage);
         registerFailureLoginListener();
-        log.atWarning().log("%s", new DebugReporterSpigot(this, this, null, new DebuggableRegistry()));
+        log.atWarn().log("%s", new DebugReporterSpigot(this, this, null, new DebuggableRegistry()));
         successfulInit = false;
         restartableHolder.shutDown();
     }

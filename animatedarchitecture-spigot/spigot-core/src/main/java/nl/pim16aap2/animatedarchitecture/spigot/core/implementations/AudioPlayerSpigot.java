@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.implementations;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.audio.IAudioPlayer;
@@ -10,8 +12,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.function.DoubleUnaryOperator;
 
 /**

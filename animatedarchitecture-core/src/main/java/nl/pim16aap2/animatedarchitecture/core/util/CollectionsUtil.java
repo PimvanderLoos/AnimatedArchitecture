@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
+import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
-import lombok.extern.flogger.Flogger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +13,7 @@ import java.util.function.Predicate;
  * Utility class for collections.
  */
 @UtilityClass
-@Flogger
+@CustomLog
 public final class CollectionsUtil
 {
     /**

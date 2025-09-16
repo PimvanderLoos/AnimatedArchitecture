@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.animation;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
@@ -7,9 +9,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFa
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import org.jetbrains.annotations.Nullable;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * A factory for creating {@link IAnimatedBlockContainer}s.

@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.structures.flag;
 
+import lombok.CustomLog;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimator;
@@ -21,7 +21,7 @@ import java.util.function.BiFunction;
  * Represents an {@link IAnimationComponent} for {@link Flag} structure types.
  */
 @SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "PMD"})
-@Flogger
+@CustomLog
 @ToString
 public final class FlagAnimationComponent implements IAnimationComponent
 {
@@ -73,7 +73,7 @@ public final class FlagAnimationComponent implements IAnimationComponent
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to parse flag formula: '%s'", formula);
+            log.atError().withCause(e).log("Failed to parse flag formula: '%s'", formula);
             return 0.0D;
         }
     }

@@ -1,15 +1,15 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.hooks;
 
-import lombok.extern.flogger.Flogger;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 import java.lang.reflect.Constructor;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -18,7 +18,7 @@ import java.util.Optional;
  * Class used to create a fake-online player who is actually offline.
  */
 @Singleton
-@Flogger
+@CustomLog
 public class FakePlayerCreator
 {
     private final @Nullable Constructor<?> ctor;
@@ -42,7 +42,7 @@ public class FakePlayerCreator
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to create fake player constructor!");
+            log.atError().withCause(e).log("Failed to create fake player constructor!");
             return null;
         }
     }
@@ -70,7 +70,7 @@ public class FakePlayerCreator
     {
         if (ctor == null)
         {
-            log.atFine().log("Failed to create fake player: No constructor available!");
+            log.atDebug().log("Failed to create fake player: No constructor available!");
             return Optional.empty();
         }
 
@@ -80,7 +80,7 @@ public class FakePlayerCreator
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to create fake player!");
+            log.atError().withCause(e).log("Failed to create fake player!");
             return Optional.empty();
         }
     }

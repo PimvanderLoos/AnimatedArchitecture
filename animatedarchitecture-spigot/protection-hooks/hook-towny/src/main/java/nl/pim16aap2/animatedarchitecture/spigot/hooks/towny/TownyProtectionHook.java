@@ -3,8 +3,8 @@ package nl.pim16aap2.animatedarchitecture.spigot.hooks.towny;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.TownyPermission.ActionType;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Protection hook for Towny.
  */
-@Flogger
+@CustomLog
 public class TownyProtectionHook implements IProtectionHookSpigot
 {
     @Getter
@@ -37,7 +37,7 @@ public class TownyProtectionHook implements IProtectionHookSpigot
         final boolean result =
             PlayerCacheUtil.getCachePermission(player, loc, loc.getBlock().getType(), ActionType.DESTROY);
         if (!result)
-            log.atFine().log(
+            log.atDebug().log(
                 "Player %s is not allowed to break block at %s",
                 lazyFormatPlayerName(player),
                 loc

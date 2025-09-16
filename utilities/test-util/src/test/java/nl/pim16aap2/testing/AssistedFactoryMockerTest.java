@@ -3,6 +3,7 @@ package nl.pim16aap2.testing;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import jakarta.inject.Named;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.inject.Named;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;

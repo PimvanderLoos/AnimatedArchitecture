@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
+import lombok.CustomLog;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +24,7 @@ import java.util.Set;
  * All sources are merged and written to a new set of files in the specified output directory with the specified base
  * name.
  */
-@Flogger
+@CustomLog
 final class LocalizationGenerator implements ILocalizationGenerator
 {
     /**
@@ -75,7 +75,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log(
+            log.atError().withCause(e).log(
                 "Failed to add resources from directory '%s' with base name: '%s", directory, baseName);
         }
     }
@@ -99,7 +99,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
-            log.atSevere().withCause(e).log("Failed to read resource from file: %s", jarFile);
+            log.atError().withCause(e).log("Failed to read resource from file: %s", jarFile);
         }
     }
 
@@ -132,7 +132,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
             }
             catch (Throwable t)
             {
-                log.atSevere().withCause(t).log("Failed to load resources from class: %s", clz);
+                log.atError().withCause(t).log("Failed to load resources from class: %s", clz);
             }
         }
     }
@@ -165,7 +165,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
-            log.atSevere().withCause(e).log("Failed to open output file!");
+            log.atError().withCause(e).log("Failed to open output file!");
         }
     }
 

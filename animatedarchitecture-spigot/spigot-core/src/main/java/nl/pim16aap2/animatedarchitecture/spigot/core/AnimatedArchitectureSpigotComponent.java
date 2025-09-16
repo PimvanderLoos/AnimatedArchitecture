@@ -2,12 +2,13 @@ package nl.pim16aap2.animatedarchitecture.spigot.core;
 
 import dagger.BindsInstance;
 import dagger.Component;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
-import nl.pim16aap2.animatedarchitecture.core.api.IMessagingInterface;
 import nl.pim16aap2.animatedarchitecture.core.api.IRedstoneManager;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebugReporter;
@@ -73,13 +74,9 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManagerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.ExecutorModule;
-import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.MessagingInterfaceSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.SpigotServerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.text.TextComponentFactorySpigotModule;
 import org.semver4j.Semver;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
 
 @SuppressWarnings("unused")
 @Singleton
@@ -98,7 +95,6 @@ import javax.inject.Singleton;
         HighlightedBlockSpawnerModule.class,
         LocalizationModule.class,
         LocationFactorySpigotModule.class,
-        MessagingInterfaceSpigotModule.class,
         PlayerFactorySpigotModule.class,
         PowerBlockRedstoneManagerSpigotModule.class,
         ProtectionHookManagerModule.class,
@@ -194,8 +190,6 @@ interface AnimatedArchitectureSpigotComponent
     IAudioPlayer getIAudioPlayer();
 
     AudioAnimationHook.Factory getAudioAnimationHookFactory();
-
-    IMessagingInterface getIMessagingInterface();
 
     IChunkLoader getChunkLoader();
 

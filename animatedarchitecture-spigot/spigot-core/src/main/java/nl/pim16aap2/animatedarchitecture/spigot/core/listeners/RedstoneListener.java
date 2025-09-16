@@ -1,7 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
@@ -19,8 +21,6 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * Represents a listener that keeps track redstone changes.
  */
 @Singleton
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public class RedstoneListener extends AbstractListener implements IDebuggable
 {
@@ -79,7 +79,7 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
             .structuresFromPowerBlockLoc(loc)
             .thenAccept(structures -> structures.forEach(structure -> structure.onRedstoneChange(isPowered)))
             .handleExceptional(ex ->
-                log.atSevere().atMostEvery(1, TimeUnit.SECONDS).withCause(ex).log(
+                log.atError().atMostEvery(1, TimeUnit.SECONDS).withCause(ex).log(
                     "Exception thrown while handling redstone event at location %s! (isPowered=%s)",
                     loc,
                     isPowered
@@ -125,7 +125,7 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().atMostEvery(1, TimeUnit.SECONDS).withCause(e).log(
+            log.atError().atMostEvery(1, TimeUnit.SECONDS).withCause(e).log(
                 "Exception thrown while handling redstone event!"
             );
         }
@@ -144,7 +144,7 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
         final @Nullable ExecutorService currentThreadPool = executor.getVirtualExecutor();
         if (currentThreadPool.isShutdown())
         {
-            log.atWarning().log(
+            log.atWarn().log(
                 "Redstone event at location %s was not processed because the thread pool was shut down!",
                 event.getBlock().getLocation()
             );
@@ -163,7 +163,7 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
             .runAsync(() -> processRedstoneEvent(event), currentThreadPool)
             .orTimeout(10, TimeUnit.SECONDS)
             .handleExceptional(exception ->
-                log.atSevere().atMostEvery(1, TimeUnit.SECONDS).withCause(exception).log(
+                log.atError().atMostEvery(1, TimeUnit.SECONDS).withCause(exception).log(
                     "Exception thrown while handling redstone event at location %s!",
                     block
                 ));

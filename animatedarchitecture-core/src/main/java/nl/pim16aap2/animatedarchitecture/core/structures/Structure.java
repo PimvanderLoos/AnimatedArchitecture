@@ -7,11 +7,11 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Locked;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
@@ -68,7 +68,7 @@ import java.util.function.Supplier;
  * you can use the {@link #syncData()} method.
  */
 @EqualsAndHashCode
-@Flogger
+@CustomLog
 @ThreadSafe
 @ExtensionMethod(CompletableFutureExtensions.class)
 public final class Structure implements IStructureConst, IPropertyHolder
@@ -595,7 +595,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
             }
             else
             {
-                log.atFinest().log(
+                log.atTrace().log(
                     "Aborted toggle attempt with %s redstone for openable structure: %s",
                     status,
                     this
@@ -605,7 +605,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         }
         else
         {
-            log.atFinest().log(
+            log.atTrace().log(
                 "Aborted toggle attempt with %s redstone for structure: %s",
                 status,
                 this
@@ -624,7 +624,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
             .execute()
             .orTimeout(30, TimeUnit.SECONDS)
             .handleExceptional(ex ->
-                log.atSevere().withCause(ex).log(
+                log.atError().withCause(ex).log(
                     "Toggle structure %s with redstone status %s",
                     getBasicInfo(),
                     status
@@ -657,7 +657,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
             {
                 return ret.exceptionally(ex ->
                 {
-                    log.atSevere().withCause(ex).log("Failed to sync data for structure: %s", getBasicInfo());
+                    log.atError().withCause(ex).log("Failed to sync data for structure: %s", getBasicInfo());
                     return DatabaseManager.ActionResult.FAIL;
                 });
             }
@@ -666,7 +666,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to sync data for structure: %s", getBasicInfo());
+            log.atError().withCause(e).log("Failed to sync data for structure: %s", getBasicInfo());
         }
         return CompletableFuture.completedFuture(DatabaseManager.ActionResult.FAIL);
     }
@@ -1046,7 +1046,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         {
             if (primeOwner.playerData().getUUID().equals(ownerUUID))
             {
-                log.atSevere().withStackTrace(StackSize.FULL).log(
+                log.atError().withStackTrace(StackSize.FULL).log(
                     "Failed to remove owner: '%s' as owner from structure: '%d'" +
                         " because removing an owner with a permission level of 0 is not allowed!",
                     primeOwner.playerData(),
@@ -1082,7 +1082,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         {
             if (structureOwner.permission() == PermissionLevel.CREATOR)
             {
-                log.atSevere().withStackTrace(StackSize.FULL).log(
+                log.atError().withStackTrace(StackSize.FULL).log(
                     "Failed to add Owner '%s' as owner to structure: " +
                         "%d because a permission level of 0 is not allowed!",
                     structureOwner.playerData(),

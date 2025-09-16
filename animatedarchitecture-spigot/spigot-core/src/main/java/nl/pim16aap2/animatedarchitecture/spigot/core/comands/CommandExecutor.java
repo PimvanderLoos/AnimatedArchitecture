@@ -1,8 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.comands;
 
 import cloud.commandframework.context.CommandContext;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.commands.AddOwnerDelayed;
@@ -21,8 +23,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFacto
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * {@link CommandFactory}, which in turn delegates the execution to the appropriate command.
  */
 @Singleton
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 class CommandExecutor
 {
@@ -405,6 +405,6 @@ class CommandExecutor
     private void handleException(CommandContext<ICommandSender> context, Throwable ex, String commandName)
     {
         sendGenericErrorMessageToPlayer(context);
-        log.atSevere().withCause(ex).log("Failed to execute %s command!", commandName);
+        log.atError().withCause(ex).log("Failed to execute %s command!", commandName);
     }
 }

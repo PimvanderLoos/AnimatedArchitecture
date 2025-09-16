@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.commands;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import jakarta.inject.Provider;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
@@ -13,7 +14,6 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
 
 /**

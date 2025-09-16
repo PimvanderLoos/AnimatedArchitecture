@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.listeners;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * This is intended to be used as a failure state.
  */
-@Flogger
+@CustomLog
 public final class BackupCommandListener implements CommandExecutor
 {
     private final JavaPlugin plugin;
@@ -32,7 +32,7 @@ public final class BackupCommandListener implements CommandExecutor
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
-        log.atWarning().log("%s", errorMessage);
+        log.atWarn().log("%s", errorMessage);
 
         if (sender instanceof Player player)
             player.sendMessage(ChatColor.YELLOW + getReturnMessage(player));

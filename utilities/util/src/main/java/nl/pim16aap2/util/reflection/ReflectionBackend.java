@@ -1,6 +1,5 @@
 package nl.pim16aap2.util.reflection;
 
-import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -17,7 +16,6 @@ import java.util.function.Function;
 /**
  * Represents the reflection backend for the {@link ReflectionFinder} classes.
  */
-@Flogger
 final class ReflectionBackend
 {
     private ReflectionBackend()
@@ -424,15 +422,15 @@ final class ReflectionBackend
      * @return All constructors matching the specified description.
      */
     @SafeVarargs
-    public static List<Constructor<?>> findCTor(
-        Class<?> source,
+    public static <T> List<Constructor<T>> findCTor(
+        Class<T> source,
         int modifiers,
         @Nullable ParameterGroup parameters,
         boolean setAccessible,
         int maxCount,
         Class<? extends Annotation>... annotations)
     {
-        final List<Constructor<?>> ret = new ArrayList<>();
+        final List<Constructor<T>> ret = new ArrayList<>();
         for (final Constructor<?> ctor : source.getDeclaredConstructors())
         {
             if (modifiers != 0 && ctor.getModifiers() != modifiers)
@@ -441,7 +439,8 @@ final class ReflectionBackend
                 continue;
             if (!containsAnnotations(ctor, annotations))
                 continue;
-            ret.add(setAccessibleIfNeeded(ctor, setAccessible));
+            //noinspection unchecked
+            ret.add((Constructor<T>) setAccessibleIfNeeded(ctor, setAccessible));
             if (ret.size() >= maxCount)
                 break;
         }

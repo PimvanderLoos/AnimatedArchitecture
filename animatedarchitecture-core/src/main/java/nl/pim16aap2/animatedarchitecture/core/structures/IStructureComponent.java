@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
@@ -168,7 +168,7 @@ public interface IStructureComponent
         final double minimum = structure.getMinimumAnimationTime();
         if (target < minimum)
         {
-            LogHolder.log.atFiner().log(
+            LogHolder.log.atTrace().log(
                 "Target animation time of %.4f seconds is less than the minimum of %.4f seconds for structure: %s.",
                 target,
                 minimum,
@@ -205,7 +205,7 @@ public interface IStructureComponent
     /**
      * Simple nested class to hold the logger for this interface.
      */
-    @Flogger
+    @CustomLog
     final class LogHolder
     {
     }

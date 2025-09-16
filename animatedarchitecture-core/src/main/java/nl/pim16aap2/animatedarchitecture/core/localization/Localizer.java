@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
+import lombok.CustomLog;
 import lombok.Setter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +22,7 @@ import java.util.ResourceBundle;
 /**
  * Represents a class that can be used to localize Strings.
  */
-@Flogger
+@CustomLog
 final class Localizer implements ILocalizer
 {
     static final String KEY_NOT_FOUND_MESSAGE = "Failed to localize message: ";
@@ -96,7 +96,7 @@ final class Localizer implements ILocalizer
     {
         if (classLoader == null)
         {
-            log.atWarning().log("Failed to find localization key '%s'! Reason: ClassLoader is null!", key);
+            log.atWarn().log("Failed to find localization key '%s'! Reason: ClassLoader is null!", key);
             return formatKeyNotFoundMessage(key);
         }
 
@@ -108,7 +108,7 @@ final class Localizer implements ILocalizer
 
             if (!bundle.containsKey(key))
             {
-                log.atWarning().log("Failed to find localization key '%s'! Reason: Key does not exist!", key);
+                log.atWarn().log("Failed to find localization key '%s'! Reason: Key does not exist!", key);
                 return formatKeyNotFoundMessage(key);
             }
 
@@ -117,7 +117,7 @@ final class Localizer implements ILocalizer
         }
         catch (MissingResourceException e)
         {
-            log.atWarning().log("Failed to find localization key '%s'! Reason: Bundle does not exist!", key);
+            log.atWarn().log("Failed to find localization key '%s'! Reason: Bundle does not exist!", key);
             return formatKeyNotFoundMessage(key);
         }
     }
@@ -153,7 +153,7 @@ final class Localizer implements ILocalizer
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to initialize localizer!");
+            log.atError().withCause(e).log("Failed to initialize localizer!");
             classLoader = null;
             localeList = Collections.emptyList();
         }
@@ -205,7 +205,7 @@ final class Localizer implements ILocalizer
             }
             catch (IOException e)
             {
-                log.atSevere().withCause(e).log("Failed to close class loader! Localizations cannot be reloaded!");
+                log.atError().withCause(e).log("Failed to close class loader! Localizations cannot be reloaded!");
             }
         }
     }

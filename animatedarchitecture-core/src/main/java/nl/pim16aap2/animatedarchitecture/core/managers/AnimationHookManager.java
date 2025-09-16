@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.managers;
 
-import lombok.extern.flogger.Flogger;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.animation.Animation;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimationHook;
@@ -10,8 +12,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -22,7 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Factories that are registered with this manager will be inserted into every animation.
  */
 @Singleton
-@Flogger
+@CustomLog
 public final class AnimationHookManager implements IDebuggable
 {
     private final List<IAnimationHookFactory<? extends IAnimatedBlock>> factories = new CopyOnWriteArrayList<>();
@@ -56,7 +56,7 @@ public final class AnimationHookManager implements IDebuggable
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log(
+                log.atError().withCause(e).log(
                     "Failed to create animation hook with factory '%s'.",
                     factory.getClass().getName()
                 );

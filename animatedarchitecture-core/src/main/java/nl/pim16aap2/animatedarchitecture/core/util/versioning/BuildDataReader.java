@@ -1,13 +1,13 @@
 package nl.pim16aap2.animatedarchitecture.core.util.versioning;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,7 +20,7 @@ import java.util.OptionalLong;
  * This class allows reading the build data (e.g. commit hash and actions ID) from the 'build_data' file in the jar.
  */
 @Singleton
-@Flogger
+@CustomLog
 @EqualsAndHashCode
 public final class BuildDataReader implements IDebuggable
 {
@@ -68,7 +68,7 @@ public final class BuildDataReader implements IDebuggable
     {
         final OptionalLong ret = MathUtil.parseLong(str);
         if (ret.isEmpty())
-            log.atSevere().log("Failed to parse %s from input: '%s'", name, str);
+            log.atError().log("Failed to parse %s from input: '%s'", name, str);
         return ret.orElse(-1);
     }
 
@@ -80,7 +80,7 @@ public final class BuildDataReader implements IDebuggable
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to read build data!");
+            log.atError().withCause(e).log("Failed to read build data!");
             return new BuildData("ERROR", -1, -1);
         }
     }

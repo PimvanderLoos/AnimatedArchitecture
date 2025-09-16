@@ -15,7 +15,9 @@ import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler;
 import cloud.commandframework.minecraft.extras.MinecraftHelp;
 import cloud.commandframework.paper.PaperCommandManager;
-import lombok.extern.flogger.Flogger;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.CustomLog;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.format.NamedTextColor;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -36,8 +38,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFacto
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 import static net.kyori.adventure.text.Component.text;
 
 @Singleton
-@Flogger
+@CustomLog
 public final class CommandManager
 {
     private final JavaPlugin plugin;
@@ -614,7 +614,7 @@ public final class CommandManager
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to register brigadier!");
+            log.atError().withCause(e).log("Failed to register brigadier!");
         }
     }
 

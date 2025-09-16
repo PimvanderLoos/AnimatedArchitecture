@@ -1,7 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -32,7 +31,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@Slf4j
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
 @WithLogCapture

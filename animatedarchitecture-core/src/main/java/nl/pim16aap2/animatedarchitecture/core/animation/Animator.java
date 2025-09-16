@@ -1,10 +1,10 @@
 package nl.pim16aap2.animatedarchitecture.core.animation;
 
 import com.google.common.flogger.StackSize;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
@@ -34,7 +34,7 @@ import static nl.pim16aap2.animatedarchitecture.core.animation.Animation.Animati
  * Represents a class that animates blocks.
  */
 @ToString
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public final class Animator implements IAnimator
 {
@@ -309,7 +309,7 @@ public final class Animator implements IAnimator
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log("Failed to start animation!");
+                log.atError().withCause(e).log("Failed to start animation!");
                 handleInitFailure();
             }
         });
@@ -368,7 +368,7 @@ public final class Animator implements IAnimator
     {
         if (!executor.isMainThread())
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log("Trying to handle init failure asynchronously!");
+            log.atError().withStackTrace(StackSize.FULL).log("Trying to handle init failure asynchronously!");
             executor.runOnMainThread(this::handleInitFailure);
             return;
         }
@@ -438,7 +438,7 @@ public final class Animator implements IAnimator
         final @Nullable TimerTask moverTask0 = moverTask;
         if (moverTask0 == null)
         {
-            log.atWarning().log("MoverTask unexpectedly null for BlockMover:\n%s", this);
+            log.atWarn().log("MoverTask unexpectedly null for BlockMover:\n%s", this);
             return;
         }
         executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
@@ -503,7 +503,7 @@ public final class Animator implements IAnimator
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to remove original blocks!");
+            log.atError().withCause(e).log("Failed to remove original blocks!");
             handleInitFailure();
         }
     }
@@ -521,7 +521,7 @@ public final class Animator implements IAnimator
         }
         catch (Exception e)
         {
-            log.atSevere().withCause(e).log("Failed to prepare animation!");
+            log.atError().withCause(e).log("Failed to prepare animation!");
             handleInitFailure();
             return;
         }
@@ -555,7 +555,7 @@ public final class Animator implements IAnimator
                 catch (Exception e)
                 {
                     // TODO: Stop animation etc.
-                    log.atSevere().withCause(e).log("Failed to execute animation step!");
+                    log.atError().withCause(e).log("Failed to execute animation step!");
                 }
             }
         };
@@ -612,7 +612,7 @@ public final class Animator implements IAnimator
             restoreBlocks
                 .thenRun(updateStructure)
                 .handleExceptional(ex ->
-                    log.atSevere().withCause(ex).log("Failed to finish animation! IsAborted: %b", isAborted));
+                    log.atError().withCause(ex).log("Failed to finish animation! IsAborted: %b", isAborted));
         }
     }
 
@@ -637,7 +637,7 @@ public final class Animator implements IAnimator
         structure
             .syncData(false)
             .handleExceptional(ex ->
-                log.atSevere().withCause(ex).log("""
+                log.atError().withCause(ex).log("""
                         Failed to update the coordinates of the structure!
                         Animation: %s
                         Structure Snapshot: %s
@@ -665,14 +665,14 @@ public final class Animator implements IAnimator
 
         for (final IAnimationHook hook : hooks0)
         {
-            log.atFinest().log("Executing '%s' for hook '%s'!", actionName, hook.getName());
+            log.atTrace().log("Executing '%s' for hook '%s'!", actionName, hook.getName());
             try
             {
                 call.accept(hook);
             }
             catch (Exception e)
             {
-                log.atSevere().withCause(e).log(
+                log.atError().withCause(e).log(
                     "Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
             }
         }

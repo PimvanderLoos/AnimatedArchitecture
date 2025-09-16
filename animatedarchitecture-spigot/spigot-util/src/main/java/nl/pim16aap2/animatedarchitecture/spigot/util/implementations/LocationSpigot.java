@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
 
 import com.google.common.flogger.StackSize;
 import com.google.errorprone.annotations.CheckReturnValue;
-import lombok.extern.flogger.Flogger;
+import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents an implementation of {@link ILocation} for the Spigot platform.
  */
-@Flogger
+@CustomLog
 public final class LocationSpigot implements ILocation
 {
     private final Location location;
@@ -36,7 +36,7 @@ public final class LocationSpigot implements ILocation
     {
         final @Nullable World bukkitWorld = retrieveBukkitWorld(world);
         if (bukkitWorld == null)
-            log.atFine().withStackTrace(StackSize.FULL).log("Bukkit world of world '%s' is null!", world);
+            log.atDebug().withStackTrace(StackSize.FULL).log("Bukkit world of world '%s' is null!", world);
         location = new Location(bukkitWorld, x, y, z);
         this.world = world;
     }

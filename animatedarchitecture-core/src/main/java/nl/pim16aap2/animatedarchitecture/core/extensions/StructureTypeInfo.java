@@ -1,8 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.extensions;
 
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.InvalidNameSpacedKeyException;
@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  * These data are extracted from the manifest of the jar file that contains the structure type and can be used to
  * instantiate the structure type.
  */
-@Flogger
+@CustomLog
 @ToString
 final class StructureTypeInfo implements IKeyed
 {

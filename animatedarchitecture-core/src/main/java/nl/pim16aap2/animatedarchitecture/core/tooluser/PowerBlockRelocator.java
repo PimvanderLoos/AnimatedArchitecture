@@ -5,9 +5,9 @@ import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.CustomLog;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents a tool user that relocates a powerblock to a new position.
  */
-@Flogger
+@CustomLog
 @ToString(callSuper = true)
 @ExtensionMethod(CompletableFutureExtensions.class)
 public class PowerBlockRelocator extends ToolUser
@@ -89,7 +89,7 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (newLoc == null)
         {
-            log.atSevere().withStackTrace(StackSize.FULL).log(
+            log.atError().withStackTrace(StackSize.FULL).log(
                 "newLoc is null, which should not be possible at this point!");
             getPlayer().sendError("constants.error.generic");
         }
@@ -105,7 +105,7 @@ public class PowerBlockRelocator extends ToolUser
                 .handleExceptional(ex ->
                 {
                     getPlayer().sendError("constants.error.generic");
-                    log.atSevere().withCause(ex).log("Failed to sync structure data after powerblock relocation.");
+                    log.atError().withCause(ex).log("Failed to sync structure data after powerblock relocation.");
                 });
         }
         return true;

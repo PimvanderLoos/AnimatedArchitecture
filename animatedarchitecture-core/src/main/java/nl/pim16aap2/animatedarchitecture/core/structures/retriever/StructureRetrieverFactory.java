@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.retriever;
 
+import jakarta.inject.Inject;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
@@ -10,7 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedStructureSpecificationInputRequest;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

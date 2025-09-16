@@ -1,9 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.structures.portcullis;
 
 
+import lombok.CustomLog;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -24,7 +24,7 @@ import java.util.OptionalInt;
  * Implementation of the {@link Creator} class for the {@link Portcullis} structure.
  */
 @ToString(callSuper = true)
-@Flogger
+@CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 public class CreatorPortcullis extends Creator
 {
@@ -101,7 +101,7 @@ public class CreatorPortcullis extends Creator
     {
         if (blocksToMove < 1)
         {
-            log.atFiner().log("Blocks to move must be at least 1. Got: %d", blocksToMove);
+            log.atTrace().log("Blocks to move must be at least 1. Got: %d", blocksToMove);
             return false;
         }
 
@@ -114,7 +114,7 @@ public class CreatorPortcullis extends Creator
                 arg -> arg.highlight(blocksToMove),
                 arg -> arg.highlight(blocksToMoveLimit.getAsInt())
             );
-            log.atFiner().log(
+            log.atTrace().log(
                 "Blocks to move is too far. Got: %d, Limit: %d", blocksToMove, blocksToMoveLimit.getAsInt());
             return false;
         }
