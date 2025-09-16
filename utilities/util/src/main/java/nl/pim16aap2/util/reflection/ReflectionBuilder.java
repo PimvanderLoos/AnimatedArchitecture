@@ -19,6 +19,8 @@ public final class ReflectionBuilder
     }
 
     /**
+     * Starts a reflection lookup for a {@link Class}.
+     *
      * @return A new {@link ClassFinder}.
      */
     @CheckReturnValue
@@ -96,6 +98,8 @@ public final class ReflectionBuilder
     }
 
     /**
+     * Starts a reflection lookup for a {@link Method}.
+     *
      * @return A new {@link MethodFinder}.
      */
     @CheckReturnValue
@@ -121,6 +125,8 @@ public final class ReflectionBuilder
     }
 
     /**
+     * Starts a reflection lookup for enum values.
+     *
      * @return A new {@link EnumValuesFinder}.
      */
     @CheckReturnValue
@@ -145,6 +151,8 @@ public final class ReflectionBuilder
     }
 
     /**
+     * Begins the creation of a new {@link ParameterGroup}.
+     *
      * @return A new {@link ParameterGroup.Builder}.
      */
     @CheckReturnValue

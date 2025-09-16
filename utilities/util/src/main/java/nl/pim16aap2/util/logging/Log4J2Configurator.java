@@ -2,40 +2,154 @@ package nl.pim16aap2.util.logging;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Filter;
-import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.appender.RollingFileAppender;
 import org.apache.logging.log4j.core.appender.rolling.DefaultRolloverStrategy;
 import org.apache.logging.log4j.core.appender.rolling.SizeBasedTriggeringPolicy;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.logging.log4j.core.filter.AbstractFilter;
+import org.apache.logging.log4j.core.filter.CompositeFilter;
+import org.apache.logging.log4j.core.filter.MarkerFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.jspecify.annotations.NullMarked;
 
 import java.nio.file.Path;
 
 /**
- * Configures Log4J2 to log to a file at the specified path.
+ * Per-plugin Log4j2 configurator:
  * <p>
- * Only logs messages from the package {@code nl.pim16aap2}.
+ * - plugin-specific RollingFile appender
  * <p>
- * This class is a singleton. Use {@link #getInstance()} to get the instance.
+ * - plugin-specific Console appender with [projectName] prefix
+ * <p>
+ * - additivity=false so nothing bubbles to root appenders
+ * <p>
+ * - dynamic level changes via VariableLevelFilter
  */
+@NullMarked
 public final class Log4J2Configurator
 {
-    private static final Log4J2Configurator INSTANCE = new Log4J2Configurator();
+    private static final Level INITIAL_LEVEL = Level.INFO;
 
-    private static final String LOGGER_NAME = "nl.pim16aap2";
-    private static final String MAIN_PACKAGE = "nl.pim16aap2.animatedarchitecture";
-    private static final String UTIL_PACKAGE = "nl.pim16aap2.util";
-
+    private final String projectName;
+    private final String loggerNamePrefix;
     private final VariableLevelFilter levelFilter;
 
-    private Log4J2Configurator()
+    private final String fileAppenderName;
+    private final String consoleAppenderName;
+
+    private final Configuration configuration;
+    private final LoggerContext context;
+
+    public Log4J2Configurator(String projectName, String loggerNamePrefix)
     {
-        levelFilter = new VariableLevelFilter(Level.ALL);
+        this.projectName = projectName;
+        this.loggerNamePrefix = loggerNamePrefix;
+
+        this.levelFilter = new VariableLevelFilter(INITIAL_LEVEL);
+        this.fileAppenderName = projectName + "-File";
+        this.consoleAppenderName = projectName + "-Console";
+
+        this.context = (LoggerContext) LogManager.getContext(false);
+        this.configuration = context.getConfiguration();
+
         levelFilter.start();
+    }
+
+    public static void setMarkerName(String name)
+    {
+        CustomLog4j2Backend.setMarkerName(name);
+    }
+
+    public void setLevel(Level level)
+    {
+        levelFilter.level(level);
+    }
+
+    public void configure(Path logDir)
+    {
+        final var marker = CustomLog4j2Backend.getMarker();
+        if (marker == null)
+            throw new IllegalStateException("Marker not set, call Log4J2Configurator.setMarkerName() first");
+
+        final var fileLayout = PatternLayout.newBuilder()
+            .withConfiguration(configuration)
+            .withPattern("[%date{ISO8601}] [%thread/%level] [%c{1.1.1.*}]: %message%n%throwable")
+            .build();
+
+        final var consoleLayout = PatternLayout.newBuilder()
+            .withConfiguration(configuration)
+            .withPattern("[%date{HH:mm:ss}] [%thread/%level] [" + projectName + "]: %message%n%throwable")
+            .build();
+
+        // Appender for our log file:
+        final String base = logDir.toAbsolutePath().resolve("aa").toString();
+        final var rollStrategy = DefaultRolloverStrategy.newBuilder()
+            .withMax("3")
+            .withFileIndex("min")
+            .withCompressionLevelStr("5")
+            .withConfig(configuration)
+            .build();
+
+        final var fileAppender = RollingFileAppender.newBuilder()
+            .setConfiguration(configuration)
+            .setName(fileAppenderName)
+            .withFileName(base + ".log")
+            .withFilePattern(base + ".%i.log.gz")
+            .withPolicy(SizeBasedTriggeringPolicy.createPolicy("10MB"))
+            .withStrategy(rollStrategy)
+            .withAppend(true)
+            .setLayout(fileLayout)
+            .setFilter(levelFilter)
+            .build();
+        fileAppender.start();
+        configuration.addAppender(fileAppender);
+
+        // Also append to console:
+        final var consoleAppender = ConsoleAppender.newBuilder()
+            .setConfiguration(configuration)
+            .setName(consoleAppenderName)
+            .setTarget(ConsoleAppender.Target.SYSTEM_OUT)
+            .setLayout(consoleLayout)
+            .setFilter(levelFilter)
+            .build();
+        consoleAppender.start();
+        configuration.addAppender(consoleAppender);
+
+        final var loggerConfig = LoggerConfig.newBuilder()
+            .withAdditivity(false)
+            .withConfig(configuration)
+            .withtFilter(CompositeFilter.createFilters(
+                levelFilter,
+                MarkerFilter.createFilter(marker.getName(), Filter.Result.NEUTRAL, Filter.Result.DENY)
+            ))
+            .withLevel(Level.ALL)
+            .withLoggerName(loggerNamePrefix)
+            .build();
+
+        loggerConfig.addAppender(fileAppender, Level.ALL, levelFilter);
+        loggerConfig.addAppender(consoleAppender, Level.ALL, levelFilter);
+
+        // Clean up any previous logger with the same exact name to avoid duplicates.
+        final LoggerConfig existing = configuration.getLoggerConfig(loggerNamePrefix);
+        if (existing != null && loggerNamePrefix.equals(existing.getName()))
+            configuration.removeLogger(loggerNamePrefix);
+
+        configuration.addLogger(loggerNamePrefix, loggerConfig);
+        context.updateLoggers();
+    }
+
+    public void removeLoggers()
+    {
+        configuration.removeLogger(loggerNamePrefix);
+
+        stopAndRemoveAppender(fileAppenderName);
+        stopAndRemoveAppender(consoleAppenderName);
+
+        context.updateLoggers();
     }
 
     /**
@@ -94,113 +208,10 @@ public final class Log4J2Configurator
         return org.apache.logging.log4j.Level.ERROR;
     }
 
-    /**
-     * Gets the instance of the Log4J2Configurator.
-     *
-     * @return The instance of the Log4J2Configurator.
-     */
-    public static Log4J2Configurator getInstance()
+    private void stopAndRemoveAppender(String name)
     {
-        return INSTANCE;
-    }
-
-    /**
-     * Sets the level to filter on.
-     * <p>
-     * Any log event with a level lower than this level will be filtered out.
-     *
-     * @param level
-     *     The level to filter on.
-     */
-    public void setLevel(Level level)
-    {
-        levelFilter.level(level);
-    }
-
-    /**
-     * Sets the level to filter on.
-     * <p>
-     * Any log event with a level lower than this level will be filtered out.
-     *
-     * @param level
-     *     The level to filter on.
-     */
-    public void setJULLevel(java.util.logging.Level level)
-    {
-        setLevel(toLog4jLevel(level));
-    }
-
-    /**
-     * Sets the path to log to.
-     * <p>
-     * This method will create a new appender and logger for the specified path.
-     *
-     * @param path
-     *     The path to log to.
-     */
-    public void setLogPath(Path path)
-    {
-        final LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-        final Configuration configuration = loggerContext.getConfiguration();
-
-        final var pattern = PatternLayout
-            .newBuilder()
-            .withPattern("[%date{ISO8601}] [%thread/%-5level] [%c{1.1.1.*}]: %message%n")
-            .build();
-
-        final var rollOverStrategy = DefaultRolloverStrategy
-            .newBuilder()
-            .withMax("3")
-            .withFileIndex("min")
-            .withConfig(configuration)
-            .withCompressionLevelStr("5")
-            .build();
-
-        final String logFileBaseName = path.toAbsolutePath().resolve("aa").toString();
-
-        final RollingFileAppender appender = RollingFileAppender
-            .newBuilder()
-            .withStrategy(rollOverStrategy)
-            .setConfiguration(configuration)
-            .setName(LOGGER_NAME)
-            .withAppend(true)
-            .withFilePattern(logFileBaseName + ".%i.log.gz")
-            .withFileName(logFileBaseName + ".log")
-            .withPolicy(SizeBasedTriggeringPolicy.createPolicy("10MB"))
-            .setLayout(pattern)
-            .setFilter(levelFilter)
-            .build();
-        appender.start();
-
-        // Create a custom filter to log only messages from AnimatedArchitecture and its utilities.
-        final Filter customFilter = new AbstractFilter()
-        {
-            @Override
-            public Result filter(LogEvent event)
-            {
-                final String loggerName = event.getLoggerName();
-                if (loggerName != null &&
-                    (loggerName.startsWith(MAIN_PACKAGE) || loggerName.startsWith(UTIL_PACKAGE)))
-                    return Result.ACCEPT;
-                return Result.DENY;
-            }
-        };
-
-        final LoggerConfig loggerConfig = LoggerConfig
-            .newBuilder()
-            .withAdditivity(true)
-            .withConfig(configuration)
-            .withtFilter(levelFilter)
-            .withLevel(Level.ALL)
-            .withLoggerName(LOGGER_NAME)
-            .build();
-
-        configuration.getCustomLevels();
-
-        loggerConfig.addFilter(customFilter);
-        loggerConfig.addAppender(appender, Level.ALL, levelFilter);
-        configuration.addLogger(LOGGER_NAME, loggerConfig);
-
-        loggerContext.updateLoggers();
+        final Appender appender = configuration.getAppenders().remove(name);
+        if (appender != null)
+            appender.stop();
     }
 }

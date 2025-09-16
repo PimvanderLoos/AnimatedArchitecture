@@ -153,13 +153,6 @@ public interface IAnimatedArchitecturePlatform
     ILocalizer getLocalizer();
 
     /**
-     * Gets the instance of the {@link IMessagingInterface} for this platform.
-     *
-     * @return The instance of the {@link IMessagingInterface} for this platform.
-     */
-    IMessagingInterface getMessagingInterface();
-
-    /**
      * Gets the implementation of a {@link IMessageable} for the server.
      *
      * @return The implementation of a {@link IMessageable} for the server.

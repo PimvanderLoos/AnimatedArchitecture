@@ -55,6 +55,8 @@ public class ConstructorFinder
         }
 
         /**
+         * Gets all constructors that match the provided data.
+         *
          * @return All constructors that match the provided data.
          */
         public List<Constructor<T>> getAll()

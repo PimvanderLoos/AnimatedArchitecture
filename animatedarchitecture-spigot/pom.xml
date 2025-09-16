@@ -76,5 +76,14 @@
             <groupId>nl.pim16aap2.animatedarchitecture</groupId>
             <artifactId>animatedarchitecture-core</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>flogger</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>flogger-log4j2-backend</artifactId>
+        </dependency>
     </dependencies>
 </project>

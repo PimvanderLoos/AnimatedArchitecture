@@ -2,19 +2,21 @@ package nl.pim16aap2.animatedarchitecture.spigot.core;
 
 import jakarta.inject.Singleton;
 import lombok.AccessLevel;
-import lombok.CustomLog;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
 import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateChecker;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.DebugReporterSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.BackupCommandListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListener;
+import nl.pim16aap2.util.logging.FloggerFacade;
+import nl.pim16aap2.util.logging.FloggerFacadeFactory;
 import nl.pim16aap2.util.logging.Log4J2Configurator;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -36,9 +38,22 @@ import java.util.Set;
  * plugin.
  */
 @Singleton
-@CustomLog
 public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAnimatedArchitecturePlatformProvider
 {
+    @SuppressWarnings("PMD.FieldNamingConventions")
+    private static final FloggerFacade log;
+
+    static
+    {
+        Log4J2Configurator.setMarkerName(Constants.PLUGIN_NAME);
+        log = FloggerFacadeFactory.getLogger(AnimatedArchitecturePlugin.class);
+    }
+
+    private final Log4J2Configurator logConfigurator = new Log4J2Configurator(
+        Constants.PLUGIN_NAME,
+        "nl.pim16aap2"
+    );
+
     private final Set<JavaPlugin> registeredPlugins = Collections.synchronizedSet(new LinkedHashSet<>());
     private final AnimatedArchitectureSpigotComponent animatedArchitectureSpigotComponent;
     private final RestartableHolder restartableHolder;
@@ -60,7 +75,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
 
     public AnimatedArchitecturePlugin()
     {
-        Log4J2Configurator.getInstance().setLogPath(getDataFolder().toPath());
+        logConfigurator.configure(getDataFolder().toPath());
 
         mainThreadId = Thread.currentThread().threadId();
         restartableHolder = new RestartableHolder();
@@ -99,7 +114,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
 
     private void setLogLevel(java.util.logging.Level level)
     {
-        Log4J2Configurator.getInstance().setJULLevel(level);
+        logConfigurator.setLevel(Log4J2Configurator.toLog4jLevel(level));
     }
 
     /**

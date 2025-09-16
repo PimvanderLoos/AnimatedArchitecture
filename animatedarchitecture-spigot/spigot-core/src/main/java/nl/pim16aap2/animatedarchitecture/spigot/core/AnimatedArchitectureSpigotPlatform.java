@@ -12,7 +12,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
-import nl.pim16aap2.animatedarchitecture.core.api.IMessagingInterface;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IRedstoneManager;
@@ -116,9 +115,6 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
 
     @Getter
     private final ILocalizer localizer;
-
-    @Getter
-    private final IMessagingInterface messagingInterface;
 
     @Getter
     private final IMessageable messageableServer;
@@ -273,7 +269,6 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         highlightedBlockSpawner = safeGetter(AnimatedArchitectureSpigotComponent::getHighlightedBlockSpawner);
         server = safeGetter(AnimatedArchitectureSpigotComponent::getServer);
         audioPlayer = safeGetter(AnimatedArchitectureSpigotComponent::getIAudioPlayer);
-        messagingInterface = safeGetter(AnimatedArchitectureSpigotComponent::getIMessagingInterface);
         messageableServer = safeGetter(AnimatedArchitectureSpigotComponent::getMessageable);
         animatedArchitectureToolUtil = safeGetter(
             AnimatedArchitectureSpigotComponent::getAnimatedArchitectureToolUtilSpigot);

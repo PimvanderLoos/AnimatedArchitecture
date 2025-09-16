@@ -1,6 +1,5 @@
 package nl.pim16aap2.util.reflection;
 
-import lombok.CustomLog;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
@@ -17,7 +16,6 @@ import java.util.function.Function;
 /**
  * Represents the reflection backend for the {@link ReflectionFinder} classes.
  */
-@CustomLog
 final class ReflectionBackend
 {
     private ReflectionBackend()
