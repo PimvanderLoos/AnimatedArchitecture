@@ -252,16 +252,6 @@
             <artifactId>logcaptor</artifactId>
             <version>${dependency.logcaptor.version}</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-to-slf4j</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -410,11 +400,9 @@
                         <forkCount>1</forkCount>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
-                        <classpathDependencyExcludes>
-                            <classpathDependencyExclude>org.apache.logging.log4j:log4j-to-slf4j</classpathDependencyExclude>
-                            <classpathDependencyExclude>org.slf4j:jul-to-slf4j</classpathDependencyExclude>
-                            <classpathDependencyExclude>ch.qos.logback:logback-classic</classpathDependencyExclude>
-                        </classpathDependencyExcludes>
+                        <systemPropertyVariables>
+                            <flogger.backend_factory>com.google.common.flogger.backend.slf4j.Slf4jBackendFactory#getInstance</flogger.backend_factory>
+                        </systemPropertyVariables>
                     </configuration>
                 </plugin>
 

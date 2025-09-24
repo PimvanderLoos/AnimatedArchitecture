@@ -65,43 +65,8 @@
             <groupId>io.github.hakky54</groupId>
             <artifactId>logcaptor</artifactId>
             <version>${dependency.logcaptor.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <!--                <exclusion>-->
-                <!--                    <groupId>org.apache.logging.log4j</groupId>-->
-                <!--                    <artifactId>log4j-to-slf4j</artifactId>-->
-                <!--                </exclusion>-->
-                <!--                <exclusion>-->
-                <!--                    <groupId>ch.qos.logback</groupId>-->
-                <!--                    <artifactId>logback-classic</artifactId>-->
-                <!--                </exclusion>-->
-                <!--                <exclusion>-->
-                <!--                    <groupId>org.slf4j</groupId>-->
-                <!--                    <artifactId>jul-to-slf4j</artifactId>-->
-                <!--                </exclusion>-->
-                <!--                <exclusion>-->
-                <!--                    <groupId>org.slf4j</groupId>-->
-                <!--                    <artifactId>slf4j-api</artifactId>-->
-                <!--                </exclusion>-->
-            </exclusions>
+            <scope>compile</scope>
         </dependency>
-
-        <!--        <dependency>-->
-        <!--            <groupId>io.github.hakky54</groupId>-->
-        <!--            <artifactId>logcaptor</artifactId>-->
-        <!--            <version>${dependency.logcaptor.version}</version>-->
-        <!--            <scope>provided</scope>-->
-        <!--            <exclusions>-->
-        <!--                <exclusion>-->
-        <!--                    <groupId>org.slf4j</groupId>-->
-        <!--                    <artifactId>*</artifactId>-->
-        <!--                </exclusion>-->
-        <!--                <exclusion>-->
-        <!--                    <groupId>org.apache.logging.log4j</groupId>-->
-        <!--                    <artifactId>log4j-to-slf4j</artifactId>-->
-        <!--                </exclusion>-->
-        <!--            </exclusions>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
@@ -114,7 +79,6 @@
             <version>${dependency.log4j.version}</version>
             <scope>test</scope>
         </dependency>
-
 
         <dependency>
             <groupId>com.google.jimfs</groupId>

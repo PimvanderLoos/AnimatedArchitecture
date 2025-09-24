@@ -82,7 +82,7 @@ class BaseCommandTest
         command.handleRunException(exception);
 
         assertThatLogCaptor(logCaptor)
-            .atSevere()
+            .atError()
             .singleWithMessageExactly("Failed to execute command: %s", command);
     }
 
@@ -97,7 +97,7 @@ class BaseCommandTest
         command.handleRunException(exception);
 
         assertThatLogCaptor(logCaptor)
-            .atFine()
+            .atDebug()
             .singleWithMessageExactly("Failed to execute command: %s", command);
     }
 

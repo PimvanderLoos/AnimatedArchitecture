@@ -197,7 +197,7 @@ class PropertyContainerSerializerTest
 
 
         assertThatLogCaptor(logCaptor)
-            .atFiner()
+            .atTrace()
             .singleWithMessageExactly(
                 "Property '%s' was not supplied for structure type '%s', using default value '%s'.",
                 PropertyContainer.mapKey(Property.OPEN_STATUS),

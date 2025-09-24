@@ -5,9 +5,9 @@ import nl.altindag.log.model.LogEvent;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.event.Level;
 
 import java.util.List;
-import java.util.logging.Level;
 import java.util.stream.Stream;
 
 /**
@@ -35,7 +35,7 @@ final class LogAssertionsUtil
             return logEvents.stream();
 
         return logEvents.stream()
-            .filter(logEvent -> logEvent.getLevel().equals(level.getName()));
+            .filter(logEvent -> logEvent.getLevel().equals(level.toString()));
     }
 
     /**

@@ -6,9 +6,9 @@ import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.AbstractObjectAssert;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.event.Level;
 
 import java.util.List;
-import java.util.logging.Level;
 
 import static nl.pim16aap2.testing.assertions.LogAssertionsUtil.filterByLogLevel;
 import static nl.pim16aap2.testing.assertions.LogAssertionsUtil.formatLogEvents;
@@ -62,9 +62,9 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
      *
      * @return A {@link LogEventsAssert} containing the log events at the specified level.
      */
-    public LogEventsAssert atSevere()
+    public LogEventsAssert atError()
     {
-        return at(Level.SEVERE);
+        return at(Level.ERROR);
     }
 
     /**
@@ -72,9 +72,9 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
      *
      * @return A {@link LogEventsAssert} containing the log events at the specified level.
      */
-    public LogEventsAssert atWarning()
+    public LogEventsAssert atWarn()
     {
-        return at(Level.WARNING);
+        return at(Level.WARN);
     }
 
     /**
@@ -88,43 +88,23 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     }
 
     /**
-     * Gets all config logs captured by the {@link LogCaptor}. The result may be empty.
+     * Gets all debug logs captured by the {@link LogCaptor}. The result may be empty.
      *
      * @return A {@link LogEventsAssert} containing the log events at the specified level.
      */
-    public LogEventsAssert atConfig()
+    public LogEventsAssert atDebug()
     {
-        return at(Level.CONFIG);
+        return at(Level.DEBUG);
     }
 
     /**
-     * Gets all fine logs captured by the {@link LogCaptor}. The result may be empty.
+     * Gets all trace logs captured by the {@link LogCaptor}. The result may be empty.
      *
      * @return A {@link LogEventsAssert} containing the log events at the specified level.
      */
-    public LogEventsAssert atFine()
+    public LogEventsAssert atTrace()
     {
-        return at(Level.FINE);
-    }
-
-    /**
-     * Gets all finer logs captured by the {@link LogCaptor}. The result may be empty.
-     *
-     * @return A {@link LogEventsAssert} containing the log events at the specified level.
-     */
-    public LogEventsAssert atFiner()
-    {
-        return at(Level.FINER);
-    }
-
-    /**
-     * Gets all finest logs captured by the {@link LogCaptor}. The result may be empty.
-     *
-     * @return A {@link LogEventsAssert} containing the log events at the specified level.
-     */
-    public LogEventsAssert atFinest()
-    {
-        return at(Level.FINEST);
+        return at(Level.TRACE);
     }
 
     private LogEventsAssert at(@Nullable Level level)
@@ -146,13 +126,13 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     }
 
     /**
-     * Verifies that no severe logs were captured.
+     * Verifies that no error logs were captured.
      *
      * @return {@code this} assertion object
      */
-    public LogCaptorAssert hasNoSevereLogs()
+    public LogCaptorAssert hasNoErrorLogs()
     {
-        return hasNoLogsOfLevel(Level.SEVERE);
+        return hasNoLogsOfLevel(Level.ERROR);
     }
 
     /**
@@ -160,9 +140,9 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
      *
      * @return {@code this} assertion object
      */
-    public LogCaptorAssert hasNoWarningLogs()
+    public LogCaptorAssert hasNoWarnLogs()
     {
-        return hasNoLogsOfLevel(Level.WARNING);
+        return hasNoLogsOfLevel(Level.WARN);
     }
 
     /**
@@ -176,43 +156,23 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
     }
 
     /**
-     * Verifies that no config logs were captured.
+     * Verifies that no debug logs were captured.
      *
      * @return {@code this} assertion object
      */
-    public LogCaptorAssert hasNoConfigLogs()
+    public LogCaptorAssert hasNoDebugLogs()
     {
-        return hasNoLogsOfLevel(Level.CONFIG);
+        return hasNoLogsOfLevel(Level.DEBUG);
     }
 
     /**
-     * Verifies that no fine logs were captured.
+     * Verifies that no trace logs were captured.
      *
      * @return {@code this} assertion object
      */
-    public LogCaptorAssert hasNoFineLogs()
+    public LogCaptorAssert hasNoTraceLogs()
     {
-        return hasNoLogsOfLevel(Level.FINE);
-    }
-
-    /**
-     * Verifies that no finer logs were captured.
-     *
-     * @return {@code this} assertion object
-     */
-    public LogCaptorAssert hasNoFinerLogs()
-    {
-        return hasNoLogsOfLevel(Level.FINER);
-    }
-
-    /**
-     * Verifies that no finest logs were captured.
-     *
-     * @return {@code this} assertion object
-     */
-    public LogCaptorAssert hasNoFinestLogs()
-    {
-        return hasNoLogsOfLevel(Level.FINEST);
+        return hasNoLogsOfLevel(Level.TRACE);
     }
 
     private LogCaptorAssert hasNoLogsOfLevel(Level level)

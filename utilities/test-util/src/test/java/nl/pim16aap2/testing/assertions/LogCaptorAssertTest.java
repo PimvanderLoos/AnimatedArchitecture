@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.event.Level;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -69,7 +70,7 @@ class LogCaptorAssertTest
     {
         // setup
         final LogCaptorAssert logCaptorAssert = new LogCaptorAssert(logCaptor);
-        final LogEvent mockEvent = newLogEvent("ERROR", "Test error message", null);
+        final LogEvent mockEvent = newLogEvent(Level.ERROR, "Test error message", null);
 
         when(logCaptor.getLogEvents()).thenReturn(List.of(mockEvent));
 
@@ -95,7 +96,7 @@ class LogCaptorAssertTest
         assertThat(result)
             .isInstanceOf(LogEventsAssert.class)
             .extracting(LIST_EXTRACTOR, LIST)
-            .hasSize(LevelWrapper.BASE_LOG_LEVELS.size());
+            .hasSize(LevelWrapper.LEVELS.size());
     }
 
     @Test
@@ -203,16 +204,16 @@ class LogCaptorAssertTest
     }
 
     @Test
-    void atSevere_shouldReturnEmptyLogEventsAssertWhenNoErrorEvents()
+    void atError_shouldReturnEmptyLogEventsAssertWhenNoErrorEvents()
     {
         // setup
         final LogCaptorAssert logCaptorAssert = new LogCaptorAssert(logCaptor);
-        final LogEvent infoEvent = newLogEvent("INFO", "Info message", null);
+        final LogEvent infoEvent = newLogEvent(Level.INFO, "Info message", null);
 
         when(logCaptor.getLogEvents()).thenReturn(List.of(infoEvent));
 
         // execute
-        final LogEventsAssert result = logCaptorAssert.atSevere();
+        final LogEventsAssert result = logCaptorAssert.atError();
 
         // verify
         assertThat(result)
@@ -225,15 +226,15 @@ class LogCaptorAssertTest
     void hasNoLogsOfLevel_shouldHandleMultipleLogsOfSameLevel()
     {
         // setup
-        final LogEvent errorEvent1 = newLogEvent("ERROR", "Error message 1", null);
-        final LogEvent errorEvent2 = newLogEvent("ERROR", "Error message 2", null);
+        final LogEvent errorEvent1 = newLogEvent(Level.ERROR, "Error message 1", null);
+        final LogEvent errorEvent2 = newLogEvent(Level.ERROR, "Error message 2", null);
         when(logCaptor.getLogEvents()).thenReturn(List.of(errorEvent1, errorEvent2));
 
         final LogCaptorAssert logCaptorAssert = new LogCaptorAssert(logCaptor);
 
         // execute & verify
         assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(logCaptorAssert::hasNoSevereLogs)
+            .isThrownBy(logCaptorAssert::hasNoErrorLogs)
             .withMessageContaining("Expected no logs of level 'ERROR', but found 2");
     }
 
@@ -241,18 +242,18 @@ class LogCaptorAssertTest
     void atLevel_shouldFilterCorrectlyWithMixedEvents()
     {
         // setup
-        final LogEvent errorEvent1 = newLogEvent("ERROR", "Error message 1", null);
-        final LogEvent infoEvent = newLogEvent("INFO", "Info message", null);
-        final LogEvent errorEvent2 = newLogEvent("ERROR", "Error message 2", null);
-        final LogEvent warnEvent = newLogEvent("WARN", "Warn message", null);
+        final LogEvent errorEvent1 = newLogEvent(Level.ERROR, "Error message 1", null);
+        final LogEvent errorEvent2 = newLogEvent(Level.ERROR, "Error message 2", null);
+        final LogEvent warnEvent = newLogEvent(Level.WARN, "Warn message", null);
+        final LogEvent infoEvent = newLogEvent(Level.INFO, "Info message", null);
 
         when(logCaptor.getLogEvents()).thenReturn(List.of(errorEvent1, infoEvent, errorEvent2, warnEvent));
 
         final LogCaptorAssert logCaptorAssert = new LogCaptorAssert(logCaptor);
 
         // execute
-        final LogEventsAssert errorResult = logCaptorAssert.atSevere();
-        final LogEventsAssert warnResult = logCaptorAssert.atWarning();
+        final LogEventsAssert errorResult = logCaptorAssert.atError();
+        final LogEventsAssert warnResult = logCaptorAssert.atWarn();
         final LogEventsAssert infoResult = logCaptorAssert.atInfo();
 
         // verify
@@ -271,11 +272,16 @@ class LogCaptorAssertTest
 
     private void populateLogCaptorWithEventsForEachLevel(LogCaptor logCaptor)
     {
-        final List<LogEvent> logEvents = LevelWrapper.BASE_LOG_LEVELS.stream()
+        final List<LogEvent> logEvents = LevelWrapper.LEVELS.stream()
             .map(level -> newLogEvent(level.levelName(), "Test message for " + level.levelName(), null))
             .toList();
 
         when(logCaptor.getLogEvents()).thenReturn(logEvents);
+    }
+
+    private LogEvent newLogEvent(Level level, String message, @Nullable Throwable throwable)
+    {
+        return newLogEvent(level.toString(), message, throwable);
     }
 
     private LogEvent newLogEvent(String level, String message, @Nullable Throwable throwable)
@@ -300,41 +306,14 @@ class LogCaptorAssertTest
     @RequiredArgsConstructor
     private enum LevelWrapper
     {
-        //        // log4j2 levels
-//        LOG4J2_FATAL(Level.FATAL.name(), LogCaptorAssert::hasNoSevereLogs, LogCaptorAssert::atFatal),
-//        LOG4J2_ERROR(Level.ERROR.name(), LogCaptorAssert::hasNoErrorLogs, LogCaptorAssert::atSevere),
-//        LOG4J2_WARN(Level.WARN.name(), LogCaptorAssert::hasNoWarnLogs, LogCaptorAssert::atWarning),
-//        LOG4J2_INFO(Level.INFO.name(), LogCaptorAssert::hasNoInfoLogs, LogCaptorAssert::atInfo),
-//        LOG4J2_DEBUG(Level.DEBUG.name(), LogCaptorAssert::hasNoDebugLogs, LogCaptorAssert::atDebug),
-//        LOG4J2_TRACE(Level.TRACE.name(), LogCaptorAssert::hasNoTraceLogs, LogCaptorAssert::atTrace),
-//
-//        // custom levels
-//        CUSTOM_CONF(CustomLevel.CONF.name(), LogCaptorAssert::hasNoConfLogs, LogCaptorAssert::atConf),
-//        CUSTOM_FINER(CustomLevel.FINER.name(), LogCaptorAssert::hasNoFinerLogs, LogCaptorAssert::atFiner),
-//
-//        // Unmapped Java logging levels
-//        // These have their own methods in LogCaptorAssert that basically directly map to the log4j2 levels
-//        JUL_SEVERE(Level.ERROR.name(), LogCaptorAssert::hasNoSevereLogs, LogCaptorAssert::atSevere),
-//        JUL_FINE(Level.DEBUG.name(), LogCaptorAssert::hasNoFineLogs, LogCaptorAssert::atFine),
-//        JUL_FINEST(Level.TRACE.name(), LogCaptorAssert::hasNoFinestLogs, LogCaptorAssert::atFinest),
-//        ;
-        JUL_SEVERE("SEVERE", LogCaptorAssert::hasNoSevereLogs, LogCaptorAssert::atSevere),
-        JUL_WARNING("WARNING", LogCaptorAssert::hasNoWarningLogs, LogCaptorAssert::atWarning),
-        JUL_INFO("INFO", LogCaptorAssert::hasNoInfoLogs, LogCaptorAssert::atInfo),
-        JUL_CONFIG("CONFIG", LogCaptorAssert::hasNoConfigLogs, LogCaptorAssert::atConfig),
-        JUL_FINE("FINE", LogCaptorAssert::hasNoFineLogs, LogCaptorAssert::atFine),
-        JUL_FINER("FINER", LogCaptorAssert::hasNoFinerLogs, LogCaptorAssert::atFiner),
-        JUL_FINEST("FINEST", LogCaptorAssert::hasNoFinestLogs, LogCaptorAssert::atFinest),
+        LOG4J2_ERROR(Level.ERROR.name(), LogCaptorAssert::hasNoErrorLogs, LogCaptorAssert::atError),
+        LOG4J2_WARN(Level.WARN.name(), LogCaptorAssert::hasNoWarnLogs, LogCaptorAssert::atWarn),
+        LOG4J2_INFO(Level.INFO.name(), LogCaptorAssert::hasNoInfoLogs, LogCaptorAssert::atInfo),
+        LOG4J2_DEBUG(Level.DEBUG.name(), LogCaptorAssert::hasNoDebugLogs, LogCaptorAssert::atDebug),
+        LOG4J2_TRACE(Level.TRACE.name(), LogCaptorAssert::hasNoTraceLogs, LogCaptorAssert::atTrace),
         ;
 
-        public static final List<LevelWrapper> BASE_LOG_LEVELS = List.of(
-            JUL_SEVERE, JUL_WARNING, JUL_INFO, JUL_CONFIG, JUL_FINE, JUL_FINER, JUL_FINEST
-        );
-
-//        public static final List<LevelWrapper> BASE_LOG_LEVELS = List.of(
-//            LOG4J2_FATAL, LOG4J2_ERROR, LOG4J2_WARN, LOG4J2_INFO, LOG4J2_DEBUG, LOG4J2_TRACE,
-//            CUSTOM_CONF, CUSTOM_FINER
-//        );
+        public static final List<LevelWrapper> LEVELS = List.of(values());
 
         private final String levelName;
         private final UnaryOperator<LogCaptorAssert> hasNoLogsMethod;
