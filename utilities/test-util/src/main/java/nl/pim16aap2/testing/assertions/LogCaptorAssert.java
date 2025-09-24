@@ -177,7 +177,7 @@ public class LogCaptorAssert extends AbstractObjectAssert<LogCaptorAssert, LogCa
 
     private LogCaptorAssert hasNoLogsOfLevel(Level level)
     {
-        int messageCount = getLogsOfLevel(level).size();
+        final int messageCount = getLogsOfLevel(level).size();
 
         if (messageCount != 0)
             failWithMessage("Expected no logs of level '%s', but found %d", level, messageCount);
