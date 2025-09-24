@@ -110,7 +110,7 @@ public class DebugReporterSpigot extends DebugReporter
                 stringBuilder.append("ERROR: ").append(clz::getName).append('\n');
             }
         }
-        return StringUtil.removeTrailingNewLines(stringBuilder);
+        return StringUtil.removeTrailingNewlines(stringBuilder);
     }
 
     private static String formatRegisteredListener(RegisteredListener listener)

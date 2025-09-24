@@ -5,12 +5,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.updater.UpdateChecker;
-import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.DebugReporterSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.TextFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.BackupCommandListener;
@@ -176,7 +175,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
 
         // Rewrite the config after everything has been loaded to ensure all
         // extensions/addons have their hooks in.
-        ((ConfigSpigot) animatedArchitectureSpigotPlatform.getAnimatedArchitectureConfig()).rewriteConfig(false);
+        animatedArchitectureSpigotPlatform.getAnimatedArchitectureConfig().reloadConfig();
         updateLogger();
 
         if (firstInit)

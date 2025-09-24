@@ -9,12 +9,12 @@ import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -250,8 +250,8 @@ public final class PowerBlockManager extends Restartable implements StructureDel
          */
         private final TimedCache<Long, CompletableFuture<PowerBlockChunk>> powerBlockChunks =
             TimedCache.<Long, CompletableFuture<PowerBlockChunk>>builder()
-                .timeOut(Duration.ofMinutes(config.cacheTimeout()))
-                .cleanup(Duration.ofMinutes(Math.max(1, config.cacheTimeout())))
+                .timeOut(Duration.ofMinutes(config.powerblockCacheTimeout()))
+                .cleanup(Duration.ofMinutes(Math.max(1, config.powerblockCacheTimeout())))
                 .softReference(true)
                 .refresh(true)
                 .build();

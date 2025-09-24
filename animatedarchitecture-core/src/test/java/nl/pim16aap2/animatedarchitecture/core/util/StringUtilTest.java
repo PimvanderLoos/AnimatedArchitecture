@@ -26,41 +26,41 @@ public class StringUtilTest
     }
 
     @Test
-    void testHasTrailingNewLine()
+    void testHasTrailingNewline()
     {
-        assertTrue(StringUtil.hasTrailingNewLine("Hello\n"));
-        assertTrue(StringUtil.hasTrailingNewLine("\n"));
-        assertFalse(StringUtil.hasTrailingNewLine("Hello"));
-        assertFalse(StringUtil.hasTrailingNewLine(""));
+        assertTrue(StringUtil.hasTrailingNewline("Hello\n"));
+        assertTrue(StringUtil.hasTrailingNewline("\n"));
+        assertFalse(StringUtil.hasTrailingNewline("Hello"));
+        assertFalse(StringUtil.hasTrailingNewline(""));
     }
 
     @Test
-    void testRemoveTrailingNewLinesStringBuilder()
+    void testRemoveTrailingNewlinesStringBuilder()
     {
         StringBuilder sb = new StringBuilder("Hello\n");
-        assertEquals("Hello", StringUtil.removeTrailingNewLines(sb).toString());
+        assertEquals("Hello", StringUtil.removeTrailingNewlines(sb).toString());
 
         sb = new StringBuilder("Hello\nHello\n");
-        assertEquals("Hello\nHello", StringUtil.removeTrailingNewLines(sb).toString());
+        assertEquals("Hello\nHello", StringUtil.removeTrailingNewlines(sb).toString());
 
         sb = new StringBuilder("\nHello\nHello\n\n\n");
-        assertEquals("\nHello\nHello", StringUtil.removeTrailingNewLines(sb).toString());
+        assertEquals("\nHello\nHello", StringUtil.removeTrailingNewlines(sb).toString());
 
         sb = new StringBuilder("Hello");
-        assertEquals("Hello", StringUtil.removeTrailingNewLines(sb).toString());
+        assertEquals("Hello", StringUtil.removeTrailingNewlines(sb).toString());
 
         sb = new StringBuilder();
-        assertEquals("", StringUtil.removeTrailingNewLines(sb).toString());
+        assertEquals("", StringUtil.removeTrailingNewlines(sb).toString());
     }
 
     @Test
-    void testRemoveTrailingNewLinesString()
+    void testRemoveTrailingNewlinesString()
     {
-        assertEquals("Hello", StringUtil.removeTrailingNewLines("Hello\n"));
-        assertEquals("Hello\nHello", StringUtil.removeTrailingNewLines("Hello\nHello\n"));
-        assertEquals("\nHello\nHello", StringUtil.removeTrailingNewLines("\nHello\nHello\n\n\n"));
-        assertEquals("Hello", StringUtil.removeTrailingNewLines("Hello"));
-        assertEquals("", StringUtil.removeTrailingNewLines(""));
+        assertEquals("Hello", StringUtil.removeTrailingNewlines("Hello\n"));
+        assertEquals("Hello\nHello", StringUtil.removeTrailingNewlines("Hello\nHello\n"));
+        assertEquals("\nHello\nHello", StringUtil.removeTrailingNewlines("\nHello\nHello\n\n\n"));
+        assertEquals("Hello", StringUtil.removeTrailingNewlines("Hello"));
+        assertEquals("", StringUtil.removeTrailingNewlines(""));
     }
 
     @ParameterizedTest

@@ -7,7 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.data.cache.timed.TimedCache;
-import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.core.config.IConfigSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -38,7 +38,7 @@ public final class HeadManager extends Restartable
     private @Nullable TimedCache<UUID, Optional<ItemStack>> headMap;
 
     private final IExecutor executor;
-    private final ConfigSpigot config;
+    private final IConfigSpigot config;
 
     /**
      * Constructs a new {@link HeadManager}.
@@ -49,7 +49,7 @@ public final class HeadManager extends Restartable
      *     The AnimatedArchitecture configuration.
      */
     @Inject
-    public HeadManager(RestartableHolder holder, IExecutor executor, ConfigSpigot config)
+    public HeadManager(RestartableHolder holder, IExecutor executor, IConfigSpigot config)
     {
         super(holder);
         this.executor = executor;

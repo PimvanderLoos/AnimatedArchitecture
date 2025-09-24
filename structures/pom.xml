@@ -22,7 +22,67 @@
         <module>structure-revolvingdoor</module>
         <module>structure-slidingdoor</module>
         <module>structure-windmill</module>
+
+        <module>structures-bundle</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+                <artifactId>structure-bigdoor</artifactId>
+                <version>10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+                <artifactId>structure-clock</artifactId>
+                <version>10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+                <artifactId>structure-drawbridge</artifactId>
+                <version>10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+                <artifactId>structure-flag</artifactId>
+                <version>10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+                <artifactId>structure-garagedoor</artifactId>
+                <version>10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+                <artifactId>structure-portcullis</artifactId>
+                <version>10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+                <artifactId>structure-revolvingdoor</artifactId>
+                <version>10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+                <artifactId>structure-slidingdoor</artifactId>
+                <version>10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+                <artifactId>structure-windmill</artifactId>
+                <version>10</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -167,5 +227,27 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 </project>

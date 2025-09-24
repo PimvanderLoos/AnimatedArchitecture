@@ -10,7 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
-import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.core.config.IConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.LocationSpigot;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class RedstoneListener extends AbstractListener implements IDebuggable
 {
     private final IExecutor executor;
-    private final ConfigSpigot config;
+    private final IConfigSpigot config;
     private final Set<Material> powerBlockTypes = new CopyOnWriteArraySet<>();
     private final PowerBlockManager powerBlockManager;
 
@@ -46,11 +46,11 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
         RestartableHolder holder,
         IExecutor executor,
         JavaPlugin plugin,
-        ConfigSpigot config,
+        IConfigSpigot config,
         PowerBlockManager powerBlockManager,
         DebuggableRegistry debuggableRegistry)
     {
-        super(holder, plugin, config::isRedstoneEnabled);
+        super(holder, plugin, config::allowRedstone);
         this.executor = executor;
         this.config = config;
         this.powerBlockManager = powerBlockManager;
@@ -63,7 +63,7 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
     {
         super.initialize();
         if (super.isRegistered)
-            powerBlockTypes.addAll(config.powerBlockTypes());
+            powerBlockTypes.addAll(config.powerblockTypes());
     }
 
     @Override
@@ -173,7 +173,7 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
     public String getDebugInformation()
     {
         return String.format(
-            "Listener status: registered=%s, powerBlockTypes=%s",
+            "Listener status: registered=%s, powerblockTypes=%s",
             super.isRegistered,
             powerBlockTypes
         );

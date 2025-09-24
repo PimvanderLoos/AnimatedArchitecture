@@ -16,5 +16,5 @@ public interface IBlockAnalyzerConfig
      *
      * @return The set of materials that are blacklisted.
      */
-    Set<Material> getMaterialBlacklist();
+    Set<Material> materialBlacklist();
 }

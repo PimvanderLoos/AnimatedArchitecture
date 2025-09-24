@@ -171,6 +171,29 @@ class LogEventsAssertTest
 
 
     @Test
+    void hasNoneWithMessage_shouldSucceedWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify - should not throw
+        logEventsAssert.hasNoneWithMessage(String::contains, "NonExistent");
+    }
+
+    @Test
+    void hasNoneWithMessage_shouldFailWhenMatchesExist()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.hasNoneWithMessage(String::contains, "Message"))
+            .withMessageContaining("Expected no log events with a message matching 'Message' but found 3");
+    }
+
+
+    @Test
     void filteredByMessagesContaining_shouldFilterForMatchingMessages()
     {
         // setup
@@ -260,6 +283,29 @@ class LogEventsAssertTest
         assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> logEventsAssert.singleWithMessageContaining("Message"))
             .withMessageContaining("Expected exactly one log event with a message containing 'Message' but found 3");
+    }
+
+
+    @Test
+    void hasNoneWithMessageContaining_shouldSucceedWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify - should not throw
+        logEventsAssert.hasNoneWithMessageContaining("NonExistent");
+    }
+
+    @Test
+    void hasNoneWithMessageContaining_shouldFailWhenMatchesExist()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.hasNoneWithMessageContaining("Message"))
+            .withMessageContaining("Expected no log events with a message containing 'Message' but found 3");
     }
 
 
@@ -365,6 +411,29 @@ class LogEventsAssertTest
 
 
     @Test
+    void hasNoneWithMessageExactly_shouldSucceedWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify - should not throw
+        logEventsAssert.hasNoneWithMessageExactly("NonExistent");
+    }
+
+    @Test
+    void hasNoneWithMessageExactly_shouldFailWhenMatchesExist()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.hasNoneWithMessageExactly("Message A"))
+            .withMessageContaining("Expected no log events with exact message 'Message A' but found 1");
+    }
+
+
+    @Test
     void filteredByMessagesStartingWith_shouldFilterCorrectly()
     {
         // setup
@@ -459,6 +528,29 @@ class LogEventsAssertTest
 
 
     @Test
+    void hasNoneWithMessageStartingWith_shouldSucceedWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify - should not throw
+        logEventsAssert.hasNoneWithMessageStartingWith("NonExistent");
+    }
+
+    @Test
+    void hasNoneWithMessageStartingWith_shouldFailWhenMatchesExist()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.hasNoneWithMessageStartingWith("Message"))
+            .withMessageContaining("Expected no log events with a message starting with 'Message' but found 2");
+    }
+
+
+    @Test
     void filteredByMessagesEndingWith_shouldFilterCorrectly()
     {
         // setup
@@ -549,6 +641,29 @@ class LogEventsAssertTest
         assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> logEventsAssert.singleWithMessageEndingWith("A"))
             .withMessageContaining("Expected exactly one log event with a message ending with 'A' but found 2");
+    }
+
+
+    @Test
+    void hasNoneWithMessageEndingWith_shouldSucceedWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify - should not throw
+        logEventsAssert.hasNoneWithMessageEndingWith("NonExistent");
+    }
+
+    @Test
+    void hasNoneWithMessageEndingWith_shouldFailWhenMatchesExist()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.hasNoneWithMessageEndingWith("A"))
+            .withMessageContaining("Expected no log events with a message ending with 'A' but found 1");
     }
 
 
@@ -659,6 +774,29 @@ class LogEventsAssertTest
         assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> logEventsAssert.singleWithMessageMatching("Message.*"))
             .withMessageContaining("Expected exactly one log event with a message matching 'Message.*' but found 2");
+    }
+
+
+    @Test
+    void hasNoneWithMessageMatching_shouldSucceedWhenNoMatches()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify - should not throw
+        logEventsAssert.hasNoneWithMessageMatching("NonExistent.*");
+    }
+
+    @Test
+    void hasNoneWithMessageMatching_shouldFailWhenMatchesExist()
+    {
+        // setup
+        final LogEventsAssert logEventsAssert = assertThatLogEvents(allEvents, logCaptor);
+
+        // execute & verify
+        assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> logEventsAssert.hasNoneWithMessageMatching("Message.*"))
+            .withMessageContaining("Expected no log events with a message matching 'Message.*' but found 2");
     }
 
 

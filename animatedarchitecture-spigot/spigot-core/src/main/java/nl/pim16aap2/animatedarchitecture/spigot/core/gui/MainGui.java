@@ -21,7 +21,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
-import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.core.config.IConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
@@ -52,7 +52,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     private final CreateStructureGui.IFactory createStructureGuiFactory;
     private final GuiStructureDeletionManager deletionManager;
     private final IExecutor executor;
-    private final ConfigSpigot config;
+    private final IConfigSpigot config;
     private final PersonalizedLocalizer localizer;
 
     @Getter
@@ -75,7 +75,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         CreateStructureGui.IFactory createStructureGuiFactory,
         GuiStructureDeletionManager deletionManager,
         IExecutor executor,
-        ConfigSpigot config,
+        IConfigSpigot config,
         PlayerFactorySpigot playerFactory,
         @Assisted IPlayer inventoryHolder,
         @Assisted List<NamedStructure> structures)
@@ -142,7 +142,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         {
             final StaticGuiElement guiElement = new StaticGuiElement(
                 'e',
-                new ItemStack(config.getGuiMaterial(structure.structure().getType())),
+                new ItemStack(config.guiMaterial(structure.structure().getType())),
                 click ->
                 {
                     selectedStructure = structure.structure();

@@ -16,12 +16,12 @@ import nl.pim16aap2.animatedarchitecture.core.animation.AnimationRequestData;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IRedstoneManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
@@ -317,7 +317,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * <p>
      * The animation time is calculated using this structure's {@link #getBaseAnimationTime()}, its
      * {@link #getMinimumAnimationTime()}, and the multiplier for this type as described by
-     * {@link IConfig#getAnimationTimeMultiplier(StructureType)}.
+     * {@link IConfig#animationTimeMultiplier(StructureType)}.
      * <p>
      * If the target is not null, the returned value will simply be the maximum value of the target and
      * {@link #getBaseAnimationTime()}. Note that the time multiplier is ignored in this case.
@@ -331,7 +331,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     {
         final double realTarget = (target != null) ?
             target :
-            config.getAnimationTimeMultiplier(getType()) * getBaseAnimationTime();
+            config.animationTimeMultiplier(getType()) * getBaseAnimationTime();
         return calculateAnimationTime(realTarget);
     }
 
@@ -418,7 +418,10 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Override
     public double getMinimumAnimationTime()
     {
-        return getAnimationCycleDistance() / config.maxBlockSpeed();
+        if (config.maxBlockSpeed().isEmpty())
+            return 0.0D;
+
+        return getAnimationCycleDistance() / config.maxBlockSpeed().getAsDouble();
     }
 
     /**
@@ -431,7 +434,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     public double getBaseAnimationTime()
     {
         return getAnimationCycleDistance() /
-            Math.min(getDefaultAnimationSpeed(), config.maxBlockSpeed());
+            Math.min(getDefaultAnimationSpeed(), config.maxBlockSpeed().orElse(Double.MAX_VALUE));
     }
 
     /**
@@ -476,7 +479,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     private boolean shouldIgnoreRedstone()
     {
-        return uid < 1 || !config.isRedstoneEnabled();
+        return uid < 1 || !config.allowRedstone();
     }
 
     private boolean isChunkLoaded(IVector3D position)

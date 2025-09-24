@@ -7,11 +7,11 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform;
-import nl.pim16aap2.animatedarchitecture.core.api.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
@@ -209,7 +209,7 @@ public class StructureAnimationRequestBuilder
 
         private void verify()
         {
-            if (structureActionCause == StructureActionCause.REDSTONE && !config.isRedstoneEnabled())
+            if (structureActionCause == StructureActionCause.REDSTONE && !config.allowRedstone())
                 throw new IllegalStateException("Trying to execute redstone toggle while redstone is disabled!");
             if (structureActionCause == StructureActionCause.PLAYER && responsible == null)
                 throw new IllegalStateException("Trying to execute player toggle without a responsible player!");

@@ -53,7 +53,7 @@ public abstract class BlockAnalyzerSpigot implements IBlockAnalyzer<Material>, I
      */
     private void updateWhitelist()
     {
-        final Set<Material> blacklist = config.getMaterialBlacklist();
+        final Set<Material> blacklist = config.materialBlacklist();
 
         whitelist = Stream
             .of(Material.values())

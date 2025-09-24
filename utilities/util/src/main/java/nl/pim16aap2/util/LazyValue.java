@@ -1,5 +1,6 @@
 package nl.pim16aap2.util;
 
+import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -15,7 +16,7 @@ import java.util.function.Supplier;
  *     The type of the object to initialize lazily.
  */
 @ThreadSafe
-public final class LazyValue<T>
+public final class LazyValue<T> implements Lazy<T>
 {
     private final Supplier<T> supplier;
     private volatile @Nullable T value;
@@ -37,6 +38,7 @@ public final class LazyValue<T>
      *
      * @return The lazily initialized object.
      */
+    @Override
     public T get()
     {
         @Nullable T tmp = value;
@@ -107,6 +109,6 @@ public final class LazyValue<T>
     @Override
     public String toString()
     {
-        return "LazyInit(obj=" + value + ")";
+        return "LazyInit(obj=" + get() + ")";
     }
 }

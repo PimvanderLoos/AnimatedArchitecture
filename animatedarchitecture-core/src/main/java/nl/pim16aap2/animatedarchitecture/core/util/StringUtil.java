@@ -81,49 +81,49 @@ public final class StringUtil
     }
 
     /**
-     * Checks if a {@link CharSequence} has a trailing new line.
+     * Checks if a {@link CharSequence} has a trailing newline.
      *
      * @param charSequence
      *     The {@link CharSequence} to check.
-     * @return True if the {@link CharSequence} has a trailing new line.
+     * @return True if the {@link CharSequence} has a trailing newline.
      */
-    static boolean hasTrailingNewLine(CharSequence charSequence)
+    static boolean hasTrailingNewline(CharSequence charSequence)
     {
         return !charSequence.isEmpty() && charSequence.charAt(charSequence.length() - 1) == '\n';
     }
 
     /**
-     * Removes all trailing new lines from a {@link StringBuilder}.
+     * Removes all trailing newlines from a {@link StringBuilder}.
      *
      * @param sb
-     *     The {@link StringBuilder} to remove the trailing new lines from.
+     *     The {@link StringBuilder} to remove the trailing newlines from.
      *     <p>
      *     This object is modified in place.
      *     <p>
-     *     If the {@link StringBuilder} is empty or does not end with a new line, nothing is done.
+     *     If the {@link StringBuilder} is empty or does not end with a newline, nothing is done.
      * @return The {@link StringBuilder} for chaining.
      */
     @Contract("_ -> param1")
-    public static StringBuilder removeTrailingNewLines(StringBuilder sb)
+    public static StringBuilder removeTrailingNewlines(StringBuilder sb)
     {
-        while (hasTrailingNewLine(sb))
+        while (hasTrailingNewline(sb))
             sb.deleteCharAt(sb.length() - 1);
         return sb;
     }
 
     /**
-     * Removes all trailing new lines from a {@link String}.
+     * Removes all trailing newlines from a {@link String}.
      *
      * @param string
-     *     The {@link String} to remove the trailing new lines from.
+     *     The {@link String} to remove the trailing newlines from.
      *     <p>
-     *     If the {@link String} is empty or does not end with a new line, the same object is returned.
-     * @return The {@link String} without trailing new lines.
+     *     If the {@link String} is empty or does not end with a newline, the same object is returned.
+     * @return The {@link String} without trailing newlines.
      */
-    public static String removeTrailingNewLines(CharSequence string)
+    public static String removeTrailingNewlines(CharSequence string)
     {
         String ret = string.toString();
-        while (hasTrailingNewLine(ret))
+        while (hasTrailingNewline(ret))
             ret = ret.substring(0, ret.length() - 1);
         return ret;
     }
@@ -199,6 +199,35 @@ public final class StringUtil
      *     The function to map the objects to strings.
      * @param indent
      *     The amount of spaces to indent the lines. This is the number of spaces before each '-'.
+     * @param printSize
+     *     Whether to print the size of the collection in parentheses before the formatted strings.
+     * @param <T>
+     *     The type of the objects in the collection.
+     * @return A formatted string.
+     */
+    public static <T> String formatCollection(
+        Collection<T> collection,
+        Function<T, String> mapper,
+        int indent,
+        boolean printSize)
+    {
+        final String delimiter = "\n" + " ".repeat(indent) + "- ";
+        String prefix = "";
+        if (printSize)
+            prefix = collection.isEmpty() ? "" : "(" + collection.size() + ") ";
+        return prefix + collection.stream().map(mapper).collect(stringCollector(delimiter));
+    }
+
+    /**
+     * Formats a collection of objects into a string.
+     * <p>
+     * This method is a shortcut for {@link #formatCollection(Collection, Function, int, boolean)} with an indent of 0
+     * and printSize enabled.
+     *
+     * @param collection
+     *     The collection of objects to format.
+     * @param mapper
+     *     The function to map the objects to strings.
      * @param <T>
      *     The type of the objects in the collection.
      * @return A formatted string.
@@ -216,7 +245,8 @@ public final class StringUtil
     /**
      * Formats a collection of objects into a string.
      * <p>
-     * This method is a shortcut for {@link #formatCollection(Collection, Function, int)} with an indent of 0.
+     * This method is a shortcut for {@link #formatCollection(Collection, Function, int, boolean)} with an indent of 0
+     * and printSize enabled.
      *
      * @param collection
      *     The collection of objects to format.
@@ -234,8 +264,8 @@ public final class StringUtil
     /**
      * Formats a collection of objects into a string.
      * <p>
-     * This method is a shortcut for {@link #formatCollection(Collection, Function, int)} with a mapper that calls
-     * {@link Object#toString()}.
+     * This method is a shortcut for {@link #formatCollection(Collection, Function, int, boolean)} with a mapper that
+     * calls {@link Object#toString()} and printSize enabled.
      *
      * @param collection
      *     The collection of objects to format.
@@ -249,8 +279,8 @@ public final class StringUtil
     /**
      * Formats a collection of objects into a string.
      * <p>
-     * This method is a shortcut for {@link #formatCollection(Collection, Function, int)} with an indent of 0 and the
-     * mapper that calls {@link Object#toString()}.
+     * This method is a shortcut for {@link #formatCollection(Collection, Function, int, boolean)} with an indent of 0
+     * and the mapper that calls {@link Object#toString()} and printSize enabled.
      *
      * @param collection
      *     The collection of objects to format.

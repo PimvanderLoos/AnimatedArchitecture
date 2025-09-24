@@ -17,7 +17,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
-import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigot;
+import nl.pim16aap2.animatedarchitecture.spigot.core.config.IConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.hooks.bundle.AbstractProtectionHookSpecification;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
@@ -57,7 +57,7 @@ public final class ProtectionHookManagerSpigot
     implements IRestartable, Listener, IProtectionHookManager, IDebuggable
 {
     private final FakePlayerCreator fakePlayerCreator;
-    private final Lazy<ConfigSpigot> config;
+    private final Lazy<IConfigSpigot> config;
     private final IPermissionsManagerSpigot permissionsManager;
     private final Map<String, IProtectionHookSpigotSpecification> registeredDefinitions;
     private final JavaPlugin animatedArchitecture;
@@ -75,7 +75,7 @@ public final class ProtectionHookManagerSpigot
         JavaPlugin animatedArchitecture,
         RestartableHolder holder,
         DebuggableRegistry debuggableRegistry,
-        Lazy<ConfigSpigot> config,
+        Lazy<IConfigSpigot> config,
         IPermissionsManagerSpigot permissionsManager,
         FakePlayerCreator fakePlayerCreator,
         IExecutor executor)
@@ -180,7 +180,7 @@ public final class ProtectionHookManagerSpigot
             return;
         }
 
-        if (!config.get().isHookEnabled(spec))
+        if (!config.get().isProtectionHookEnabled(spec))
         {
             log.atDebug().log("Not loading hook for plugin '%s' because it is disabled in the config.", pluginName);
             return;

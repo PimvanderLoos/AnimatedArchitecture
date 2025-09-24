@@ -1,9 +1,18 @@
 package nl.pim16aap2.testing;
 
+import dagger.Lazy;
 import jakarta.inject.Inject;
-import org.mockito.Mockito;
+import nl.pim16aap2.util.LazyValue;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.mockito.Mockito.*;
 
 /**
  * Simple class that creates real instances of a class using its constructor that is annotated with {@link Inject}.
@@ -49,19 +58,39 @@ public class MockInjector<T>
     /**
      * Creates a new instance of the class using the constructor annotated with {@link Inject}.
      *
+     * @param additionalParameters
+     *     Additional parameters to pass to the constructor. If the class of a parameter of the constructor matches one
+     *     of the additional parameters, that parameter will be used instead of new mocked instance.
      * @return The new instance.
      *
      * @throws RuntimeException
      *     If an exception occurs while creating the instance.
      */
-    public T createInstance()
+    public T createInstance(Object... additionalParameters)
     {
+        final Map<Class<?>, Object> additionalParametersMap = Stream.of(additionalParameters)
+            .collect(Collectors.toMap(
+                Object::getClass,
+                Function.identity(),
+                (a, b) ->
+                {
+                    throw new IllegalArgumentException(
+                        "Cannot have multiple parameters of the same type: " + a.getClass().getName());
+                }));
+
         try
         {
             final Class<?>[] parameterTypes = constructor.getParameterTypes();
+            final Type[] genericParameterTypes = constructor.getGenericParameterTypes();
+
             final Object[] parameters = new Object[parameterTypes.length];
-            for (int i = 0; i < parameterTypes.length; i++)
-                parameters[i] = Mockito.mock(parameterTypes[i]);
+            for (int idx = 0; idx < parameterTypes.length; idx++)
+            {
+                parameters[idx] = ConstructorParameterType
+                    .of(parameterTypes[idx], genericParameterTypes[idx])
+                    .createInstance(additionalParametersMap);
+            }
+
             return constructor.newInstance(parameters);
         }
         catch (Exception e)
@@ -69,6 +98,7 @@ public class MockInjector<T>
             throw new RuntimeException(e);
         }
     }
+
 
     /**
      * Creates a new instance of the class using the constructor annotated with {@link Inject}.
@@ -88,5 +118,34 @@ public class MockInjector<T>
         throws IllegalArgumentException, RuntimeException
     {
         return new MockInjector<>(clz).createInstance();
+    }
+
+    record ConstructorParameterType(
+        Class<?> type,
+        boolean isLazy)
+    {
+        public static ConstructorParameterType of(Class<?> rawType, Type genericType)
+        {
+            if (rawType == Lazy.class && genericType instanceof ParameterizedType parameterizedType)
+            {
+                final Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
+                final Class<?> lazyType = (Class<?>) actualTypeArgument;
+                return new ConstructorParameterType(lazyType, true);
+            }
+            return new ConstructorParameterType(rawType, false);
+        }
+
+        public Object createInstance(Map<Class<?>, Object> additionalParameterMap)
+        {
+            final Object instance = additionalParameterMap.entrySet().stream()
+                .filter(entry -> type.isAssignableFrom(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElseGet(() -> mock(type));
+
+            if (isLazy)
+                return new LazyValue<>(() -> instance);
+            return instance;
+        }
     }
 }
