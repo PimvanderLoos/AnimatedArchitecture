@@ -15,6 +15,7 @@ import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,17 @@ public abstract class AbstractConfig implements IConfig
     {
         this.configPath = baseDir.resolve("config.yaml");
         this.configLoader = initConfig();
+        checkIfOldConfigExists(baseDir);
+    }
+
+    private void checkIfOldConfigExists(Path baseDir)
+    {
+        final var oldConfigPath = baseDir.resolve("config.yml");
+        if (Files.exists(oldConfigPath))
+            log.atWarn().log("An old configuration file was found at %s. Please migrate it manually to %s.",
+                oldConfigPath.toAbsolutePath(),
+                configPath.toAbsolutePath()
+            );
     }
 
     /**
