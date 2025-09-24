@@ -181,6 +181,37 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
             ));
     }
 
+    /**
+     * Verifies that no log events have a message that matches the given matcher.
+     * <p>
+     * This method is similar to {@link #filteredByMessage(BiPredicate, String, Object...)} but asserts that the result
+     * is empty.
+     * <p>
+     * Example usage:
+     * <pre>{@code
+     * .hasNoneWithMessage(String::contains, "Unexpected message")
+     * }</pre>
+     *
+     * @param matcher
+     *     The matcher to apply to the log event messages.
+     * @param expected
+     *     The expected message to match against.
+     * @param args
+     *     The optional arguments to format the expected message.
+     */
+    @FormatMethod
+    public void hasNoneWithMessage(
+        BiPredicate<String, String> matcher,
+        @FormatString String expected,
+        Object... args)
+    {
+        filteredByMessage(matcher, expected, args)
+            .isEmpty(String.format(
+                "Expected no log events with a message matching '%s' but found %%d",
+                String.format(expected, args)
+            ));
+    }
+
 
     /**
      * Filters the log events that have a message containing the expected message.
@@ -238,6 +269,24 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
                 "Expected exactly one log event with a message containing '%s' but found %d",
                 String.format(expectedMessage, args),
                 count
+            ));
+    }
+
+    /**
+     * Verifies that no log events have a message that contains the expected message.
+     *
+     * @param expectedMessage
+     *     The message that should not be contained in any log event messages.
+     * @param args
+     *     Optional arguments to format the expected message.
+     */
+    @FormatMethod
+    public void hasNoneWithMessageContaining(@FormatString String expectedMessage, Object... args)
+    {
+        filteredByMessagesContaining(expectedMessage, args)
+            .isEmpty(String.format(
+                "Expected no log events with a message containing '%s' but found %%d",
+                String.format(expectedMessage, args)
             ));
     }
 
@@ -301,6 +350,24 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
             ));
     }
 
+    /**
+     * Verifies that no log events have a message that exactly matches the expected message.
+     *
+     * @param expectedMessage
+     *     The message that should not exactly match any log event messages.
+     * @param args
+     *     Optional arguments to format the expected message.
+     */
+    @FormatMethod
+    public void hasNoneWithMessageExactly(@FormatString String expectedMessage, Object... args)
+    {
+        filteredByMessagesExactly(expectedMessage, args)
+            .isEmpty(String.format(
+                "Expected no log events with exact message '%s' but found %%d",
+                String.format(expectedMessage, args)
+            ));
+    }
+
 
     /**
      * Filters the log events that have a message that exactly matches the expected message.
@@ -358,6 +425,24 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
                 "Expected exactly one log event with a message starting with '%s' but found %d",
                 String.format(expectedMessage, args),
                 count
+            ));
+    }
+
+    /**
+     * Verifies that no log events have a message that starts with the expected message.
+     *
+     * @param expectedMessage
+     *     The message that should not be at the start of any log event messages.
+     * @param args
+     *     Optional arguments to format the expected message.
+     */
+    @FormatMethod
+    public void hasNoneWithMessageStartingWith(@FormatString String expectedMessage, Object... args)
+    {
+        filteredByMessagesStartingWith(expectedMessage, args)
+            .isEmpty(String.format(
+                "Expected no log events with a message starting with '%s' but found %%d",
+                String.format(expectedMessage, args)
             ));
     }
 
@@ -421,6 +506,24 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
             ));
     }
 
+    /**
+     * Verifies that no log events have a message that ends with the expected message.
+     *
+     * @param expectedMessage
+     *     The message that should not be at the end of any log event messages.
+     * @param args
+     *     Optional arguments to format the expected message.
+     */
+    @FormatMethod
+    public void hasNoneWithMessageEndingWith(@FormatString String expectedMessage, Object... args)
+    {
+        filteredByMessagesEndingWith(expectedMessage, args)
+            .isEmpty(String.format(
+                "Expected no log events with a message ending with '%s' but found %%d",
+                String.format(expectedMessage, args)
+            ));
+    }
+
 
     /**
      * Filters the log events that have a message matching the given regular expression.
@@ -468,6 +571,21 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
                 "Expected exactly one log event with a message matching '%s' but found %d",
                 regex,
                 count
+            ));
+    }
+
+    /**
+     * Verifies that no log events have a message that matches the given regular expression.
+     *
+     * @param regex
+     *     The regular expression that should not match any log event messages.
+     */
+    public void hasNoneWithMessageMatching(String regex)
+    {
+        filteredByMessagesMatching(regex)
+            .isEmpty(String.format(
+                "Expected no log events with a message matching '%s' but found %%d",
+                regex
             ));
     }
 
@@ -753,6 +871,20 @@ public class LogEventsAssert extends AbstractListAssert<LogEventsAssert, List<Lo
         return this
             .overridingErrorMessage(messageFormatter.apply(logEventCount()))
             .singleElement();
+    }
+
+    /**
+     * Asserts that the log events are empty.
+     *
+     * @param messageFormat
+     *     The format string for the error message if the assertion fails. This should contain a single "%d" placeholder
+     *     for the number of log events.
+     */
+    private void isEmpty(String messageFormat)
+    {
+        this.overridingErrorMessage(messageFormat, logEventCount())
+            .appendLogEventsToInfo()
+            .isEmpty();
     }
 
     @Override
