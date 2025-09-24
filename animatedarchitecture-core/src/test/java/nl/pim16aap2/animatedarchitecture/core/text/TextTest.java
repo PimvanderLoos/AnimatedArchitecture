@@ -5,9 +5,12 @@ import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class TextTest
 {
     final ColorScheme<Style> colorScheme =

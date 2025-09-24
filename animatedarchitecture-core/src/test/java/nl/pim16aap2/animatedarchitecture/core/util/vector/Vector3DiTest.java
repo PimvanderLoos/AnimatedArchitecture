@@ -3,7 +3,10 @@ package nl.pim16aap2.animatedarchitecture.core.util.vector;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class Vector3DiTest
 {
 

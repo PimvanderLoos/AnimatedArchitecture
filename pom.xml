@@ -280,6 +280,12 @@
             <artifactId>checkstyle</artifactId>
             <version>${dependency.checkstyle.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -394,6 +400,9 @@
                         <forkCount>1</forkCount>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
+                        <systemPropertyVariables>
+                            <flogger.backend_factory>com.google.common.flogger.backend.slf4j.Slf4jBackendFactory#getInstance</flogger.backend_factory>
+                        </systemPropertyVariables>
                     </configuration>
                 </plugin>
 

@@ -2,22 +2,24 @@ package nl.pim16aap2.animatedarchitecture.core.util;
 
 import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
-import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
+import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(2)
 @WithLogCapture
+@ExtendWith(MockitoExtension.class)
 class CompletableFutureExtensionsTest
 {
     @Test
@@ -125,10 +127,8 @@ class CompletableFutureExtensionsTest
 
         future.completeExceptionally(exception);
 
-        AssertionBuilder
-            .assertLogged(logCaptor)
-            .withJulLevel(Level.WARNING)
-            .message("Exception occurred in CompletableFuture!")
-            .assertLogged();
+        assertThatLogCaptor(logCaptor)
+            .atWarn()
+            .singleWithMessageExactly("Exception occurred in CompletableFuture!");
     }
 }

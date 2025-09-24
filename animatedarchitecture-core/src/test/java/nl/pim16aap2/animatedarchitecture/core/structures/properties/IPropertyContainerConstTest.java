@@ -2,8 +2,10 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +14,7 @@ import java.util.stream.Stream;
 import static nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyTestUtil.*;
 import static org.assertj.core.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 class IPropertyContainerConstTest
 {
     @ParameterizedTest

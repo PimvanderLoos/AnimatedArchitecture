@@ -2,6 +2,8 @@ package nl.pim16aap2.animatedarchitecture.core.data.cache;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +17,7 @@ import java.util.Spliterator;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+@ExtendWith(MockitoExtension.class)
 class RollingCacheTest
 {
     private static final Consumer<Integer> NO_OP_CONSUMER = (ignored) ->

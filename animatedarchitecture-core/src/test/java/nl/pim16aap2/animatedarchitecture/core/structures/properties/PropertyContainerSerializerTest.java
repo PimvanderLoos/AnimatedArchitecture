@@ -9,7 +9,6 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
-import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,13 +27,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSerializer.UndefinedPropertyValue;
+import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
 @WithLogCapture
-public class PropertyContainerSerializerTest
+class PropertyContainerSerializerTest
 {
     private static final Property<Integer> OPTIONAL_PROPERTY = Property
         .builder("external", "optional_property", Integer.class)
@@ -76,32 +76,32 @@ public class PropertyContainerSerializerTest
     @Test
     void serialize_shouldReturnCorrectJson()
     {
-        // Execute
+        // execute
         final String serialized = PropertyContainerSerializer.serialize(propertyContainer);
 
-        // Verify
+        // verify
         assertThat(serialized).isEqualTo(SERIALIZED);
     }
 
     @Test
     void serialize_shouldReturnCorrectJsonForStructureInput()
     {
-        // Setup
+        // setup
         final Structure structure = mock();
 
         when(structure.getPropertyContainerSnapshot()).thenReturn(propertyContainer.snapshot());
 
-        // Execute
+        // execute
         final String serialized = PropertyContainerSerializer.serialize(structure);
 
-        // Verify
+        // verify
         assertThat(serialized).isEqualTo(SERIALIZED);
     }
 
     @Test
     void serialize_shouldAvoidDoubleSerializationForUndefinedPropertyEntries()
     {
-        // Setup
+        // setup
         final String propertyKey = "animatedarchitecture:" + "undefined_property_" + UUID.randomUUID();
         final String valueJson = "{\"value\":5}";
         final String inputJson = "{\"" + propertyKey + "\":" + valueJson + "}";
@@ -110,37 +110,37 @@ public class PropertyContainerSerializerTest
         final var undefinedPropertyValue = new UndefinedPropertyValue(propertyKey, jsonObject, false);
         final PropertyContainer toSerialize = new PropertyContainer(Map.of(propertyKey, undefinedPropertyValue));
 
-        // Execute
+        // execute
         final String serialized = PropertyContainerSerializer.serialize(toSerialize);
 
-        // Verify
+        // verify
         assertThat(serialized).isEqualTo(inputJson);
     }
 
     @Test
     void deserialize_shouldReturnCorrectPropertyContainer()
     {
-        // Setup
+        // setup
         when(structureType.getProperties()).thenReturn(List.copyOf(requiredProperties.keySet()));
 
-        // Execute
+        // execute
         final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, SERIALIZED);
 
-        // Verify
+        // verify
         assertThat(deserialized.getMap()).isEqualTo(propertyContainer.getMap());
     }
 
     @Test
     void deserialize_shouldCreateUndefinedPropertyValueForNonExistingProperty()
     {
-        // Setup
+        // setup
         final String propertyKey = "animatedarchitecture:" + "undefined_property_" + UUID.randomUUID();
         final String serialized = "{\"" + propertyKey + "\":{\"value\":5}}";
 
-        // Execute
+        // execute
         final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
 
-        // Verify
+        // verify
         //noinspection DataFlowIssue
         assertThat(deserialized.getRawValue(propertyKey))
             .asInstanceOf(InstanceOfAssertFactories.type(UndefinedPropertyValue.class))
@@ -154,11 +154,11 @@ public class PropertyContainerSerializerTest
     @Test
     void deserialize_shouldDeserializeDelayedUndefinedPropertyValue()
     {
-        // Setup
+        // setup
         final String propertyKey = "undefined_property_" + UUID.randomUUID();
         final String serialized = "{\"animatedarchitecture:" + propertyKey + "\":{\"value\":5}}";
 
-        // Execute
+        // execute
         final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
         final Property<Integer> property = Property
             .builder("animatedarchitecture", propertyKey, Integer.class)
@@ -167,7 +167,7 @@ public class PropertyContainerSerializerTest
             .build();
         final IPropertyValue<?> value = deserialized.getPropertyValue(property);
 
-        // Verify
+        // verify
         assertThat(value)
             .isInstanceOf(PropertyContainer.ProvidedPropertyValue.class)
             .extracting(IPropertyValue::value)
@@ -179,40 +179,43 @@ public class PropertyContainerSerializerTest
     {
         logCaptor.setLogLevelToTrace();
 
-        // Setup
+        // setup
         final String serialized = "{\"animatedarchitecture:animation_speed_multiplier\":{\"value\":1.5}}";
 
         when(structureType.getProperties())
             .thenReturn(List.of(Property.ANIMATION_SPEED_MULTIPLIER, Property.OPEN_STATUS));
 
-        // Execute
+        // execute
         final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
 
-        // Verify
+        // verify
         assertThat(deserialized.hasProperty(Property.ANIMATION_SPEED_MULTIPLIER)).isTrue();
         assertThat(deserialized.hasProperty(Property.OPEN_STATUS)).isTrue();
 
-        AssertionBuilder
-            .assertLogged(logCaptor)
-            .atFiner()
-            .message(
+
+        logCaptor.getTraceLogs().forEach(System.out::println);
+
+
+        assertThatLogCaptor(logCaptor)
+            .atTrace()
+            .singleWithMessageExactly(
                 "Property '%s' was not supplied for structure type '%s', using default value '%s'.",
                 PropertyContainer.mapKey(Property.OPEN_STATUS),
                 structureType,
-                Property.OPEN_STATUS.getDefaultValue())
-            .assertLogged();
+                Property.OPEN_STATUS.getDefaultValue()
+            );
     }
 
     @Test
     void deserializeValue_shouldThrowExceptionForPropertyKeyMismatch()
     {
-        // Setup
+        // setup
         final String propertyKey = "animatedarchitecture:" + "undefined_property_" + UUID.randomUUID();
         final String serialized = "{\"" + propertyKey + "\":{\"value\":5}}";
         final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
         final var value = Objects.requireNonNull((UndefinedPropertyValue) deserialized.getRawValue(propertyKey));
 
-        // Execute & Verify
+        // execute & Verify
         assertThatExceptionOfType(IllegalArgumentException.class)
             .isThrownBy(() -> value.deserializeValue(mock()))
             .withMessageContaining("Property key mismatch: Expected '%s', got '%s'", propertyKey, null);
@@ -221,10 +224,10 @@ public class PropertyContainerSerializerTest
     @Test
     void deserialize_shouldThrowExceptionForInvalidJson()
     {
-        // Setup
+        // setup
         final String invalidJson = "asdfasdfasdf";
 
-        // Execute & Verify
+        // execute & Verify
         assertThatExceptionOfType(IllegalArgumentException.class)
             .isThrownBy(() -> PropertyContainerSerializer.deserialize(structureType, invalidJson))
             .withMessageContaining("Could not deserialize PropertyContainer from JSON: '%s'", invalidJson);
@@ -256,25 +259,25 @@ public class PropertyContainerSerializerTest
         @Test
         void write_shouldNotReserializeUndefinedProperties()
         {
-            // Setup
+            // setup
             final String valueJson = "{\"value\":5}";
             final var entry = new UndefinedPropertyValue(propertyKey, JSON.parseObject(valueJson), false);
 
-            // Execute
+            // execute
             undefinedPropertyValueSerializer.write(jsonWriter, entry);
 
-            // Verify
+            // verify
             verify(jsonWriter).write(entry.serializedValue());
         }
 
         @Test
         void write_shouldThrowExceptionForNotUndefinedPropertyValue()
         {
-            // Setup
+            // setup
             final PropertyContainer.ProvidedPropertyValue<String> providedValue =
                 new PropertyContainer.ProvidedPropertyValue<>(String.class, "test", true);
 
-            // Execute & Verify
+            // execute & Verify
             assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> undefinedPropertyValueSerializer.write(jsonWriter, providedValue))
                 .withMessage("Object '%s' is not an instance of UndefinedPropertyValue", providedValue);

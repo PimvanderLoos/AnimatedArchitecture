@@ -214,7 +214,7 @@ public abstract class BaseCommand
                     return;
                 }
 
-                log.atTrace().withCause(throwable).log("Failed to execute command: %s", this);
+                log.atTrace().withCause(throwable).log("Failed to run command: %s", this);
                 ret.completeExceptionally(new RuntimeException(throwable));
             });
 

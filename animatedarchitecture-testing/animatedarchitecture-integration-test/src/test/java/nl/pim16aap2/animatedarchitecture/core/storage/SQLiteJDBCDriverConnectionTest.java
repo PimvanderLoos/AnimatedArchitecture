@@ -33,7 +33,6 @@ import nl.pim16aap2.animatedarchitecture.structures.portcullis.StructureTypePort
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorld;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorldFactory;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
-import nl.pim16aap2.testing.assertions.LogAssertionsUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,7 +55,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBuilder;
-import static nl.pim16aap2.testing.assertions.LogAssertionsUtil.MessageComparisonMethod;
+import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
 
 @WithLogCapture
 @ExtendWith(MockitoExtension.class)
@@ -738,27 +737,23 @@ public class SQLiteJDBCDriverConnectionTest
 
         storage.getStructure(PLAYER_DATA_1.getUUID(), 1L);
 
-        LogAssertionsUtil.assertThrowableLogged(
-            logCaptor,
-            0,
-            "Database connection could not be created! " +
-                "Requested database for state 'OK' while it is actually in state 'ERROR'!",
-            LogSiteStackTrace.class
-        );
+        assertThatLogCaptor(logCaptor)
+            .atError()
+            .singleWithMessageExactly(
+                "Database connection could not be created! " +
+                    "Requested database for state '%s' while it is actually in state '%s'!",
+                IStorage.DatabaseState.OK,
+                IStorage.DatabaseState.ERROR
+            );
 
-        LogAssertionsUtil.assertThrowableLogged(
-            logCaptor,
-            1,
-            "Failed to execute query: Connection is null!",
-            LogSiteStackTrace.class
-        );
+        assertThatLogCaptor(logCaptor)
+            .atError()
+            .hasAnyWithThrowableExactlyOfType(LogSiteStackTrace.class)
+            .singleWithMessageExactly("Failed to execute query: Connection is null!");
 
-        LogAssertionsUtil.assertLogged(
-            logCaptor,
-            2,
-            "Executed statement: ",
-            MessageComparisonMethod.STARTS_WITH
-        );
+        assertThatLogCaptor(logCaptor)
+            .atTrace()
+            .singleWithMessageStartingWith("Executed statement: ");
 
         // Set the database state to enabled again and verify that it's now possible to retrieve structures again.
         databaseLock.set(storage, IStorage.DatabaseState.OK);
