@@ -125,7 +125,8 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarn().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarn().log(
+                "Failed to retrieve structures from powerblock location %s: Unknown world '%s'.", loc, worldName);
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
         return mapUidsToStructures(powerBlockWorld.getPowerBlocksAtLocation(loc));
@@ -145,7 +146,8 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarn().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarn().log(
+                "Failed to retrieve structures in chunk for location %s: Unknown world '%s'.", loc, worldName);
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
         return mapUidsToStructures(powerBlockWorld.getPowerBlocksInChunk(loc));
@@ -175,7 +177,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarn().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarn().log("Failed to check if world uses AnimatedArchitecture: Unknown world '%s'.", worldName);
             return false;
         }
         return powerBlockWorld.isAnimatedArchitectureWorld();
@@ -194,7 +196,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarn().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarn().log("Failed to invalidate chunk for location %s: Unknown world '%s'.", pos, worldName);
             return;
         }
         powerBlockWorld.invalidatePosition(pos);
@@ -214,7 +216,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            log.atWarn().log("Failed to load power blocks for world: '%s'.", worldName);
+            log.atWarn().log("Failed to invalidate chunk %s: Unknown world '%s'.", chunk, worldName);
             return;
         }
         powerBlockWorld.invalidatePosition(new Vector3Di(chunk.x(), 64, chunk.y()));
