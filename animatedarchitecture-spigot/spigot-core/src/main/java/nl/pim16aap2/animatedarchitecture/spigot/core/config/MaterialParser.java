@@ -2,8 +2,8 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 
 
 import lombok.Builder;
+import lombok.CustomLog;
 import lombok.Singular;
-import lombok.extern.flogger.Flogger;
 import org.bukkit.Material;
 import org.jspecify.annotations.Nullable;
 
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * Represents a parser for materials from strings.
  */
-@Flogger
+@CustomLog
 @Builder
 public class MaterialParser
 {
@@ -42,7 +42,7 @@ public class MaterialParser
     {
         if (names == null || names.isEmpty())
         {
-            log.atFine().log("No materials provided for %s. Using default materials: %s", context, defaultMaterials);
+            log.atDebug().log("No materials provided for %s. Using default materials: %s", context, defaultMaterials);
             return defaultMaterials;
         }
 
@@ -60,7 +60,7 @@ public class MaterialParser
     private Material returnDefaultMaterial(@Nullable String name)
     {
         final Material defaultMaterial = getFirstDefaultMaterial();
-        log.atFine().log(
+        log.atDebug().log(
             "[%s] Failed to parse material '%s'. Using default material: %s",
             context,
             name,
@@ -123,7 +123,7 @@ public class MaterialParser
             case WARN_AND_SKIP ->
             {
                 if (!silent)
-                    log.atSevere().log("[%s] Invalid material: %s. Skipping.", context, name);
+                    log.atError().log("[%s] Invalid material: %s. Skipping.", context, name);
             }
             case FAIL -> throw new IllegalArgumentException("[%s] Invalid material: %s".formatted(context, name));
             case SKIP ->

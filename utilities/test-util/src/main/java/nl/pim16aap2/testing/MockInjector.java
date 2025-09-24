@@ -1,8 +1,7 @@
 package nl.pim16aap2.testing;
 
-import jakarta.inject.Inject;
-import org.mockito.Mockito;
 import dagger.Lazy;
+import jakarta.inject.Inject;
 import nl.pim16aap2.util.LazyValue;
 
 import java.lang.reflect.Constructor;
@@ -69,7 +68,7 @@ public class MockInjector<T>
      */
     public T createInstance(Object... additionalParameters)
     {
-        Map<Class<?>, Object> additionalParametersMap = Stream.of(additionalParameters)
+        final Map<Class<?>, Object> additionalParametersMap = Stream.of(additionalParameters)
             .collect(Collectors.toMap(
                 Object::getClass,
                 Function.identity(),
@@ -129,8 +128,8 @@ public class MockInjector<T>
         {
             if (rawType == Lazy.class && genericType instanceof ParameterizedType parameterizedType)
             {
-                Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
-                Class<?> lazyType = (Class<?>) actualTypeArgument;
+                final Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
+                final Class<?> lazyType = (Class<?>) actualTypeArgument;
                 return new ConstructorParameterType(lazyType, true);
             }
             return new ConstructorParameterType(rawType, false);

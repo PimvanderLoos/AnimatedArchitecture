@@ -1,12 +1,12 @@
 package nl.pim16aap2.testing;
 
 import dagger.Lazy;
+import jakarta.inject.Inject;
 import nl.pim16aap2.util.LazyValue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.inject.Inject;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;

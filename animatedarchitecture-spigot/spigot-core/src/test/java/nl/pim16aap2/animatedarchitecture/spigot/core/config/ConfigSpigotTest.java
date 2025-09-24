@@ -19,7 +19,6 @@ import nl.pim16aap2.animatedarchitecture.structures.windmill.StructureTypeWindmi
 import nl.pim16aap2.testing.MockInjector;
 import nl.pim16aap2.testing.annotations.FileSystemTest;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
-import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import org.bukkit.Material;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -36,6 +35,7 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -78,10 +78,10 @@ class ConfigSpigotTest
         assertThat(logCaptor.getInfoLogs()).doesNotMatch(entry -> entry.contains(expectedPartialMessage));
 
         config.initialize();
-        AssertionBuilder.assertLogged(logCaptor)
+
+        assertThatLogCaptor(logCaptor)
             .atInfo()
-            .messageContaining(expectedPartialMessage)
-            .assertLogged();
+            .singleWithMessageContaining(expectedPartialMessage);
     }
 
 

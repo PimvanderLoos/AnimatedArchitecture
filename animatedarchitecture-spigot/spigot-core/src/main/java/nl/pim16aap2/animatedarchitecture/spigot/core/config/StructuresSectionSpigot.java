@@ -2,9 +2,9 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 
 import dagger.Lazy;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfigSectionResult;
 import nl.pim16aap2.animatedarchitecture.core.config.IStructureSubSection;
 import nl.pim16aap2.animatedarchitecture.core.config.IStructureSubSectionFlag;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * This class extends the StructuresSection to provide additional comments and configurations specific to the Spigot
  * platform.
  */
-@Flogger
+@CustomLog
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 public class StructuresSectionSpigot extends StructuresSection<StructuresSectionSpigot.Result>
@@ -125,7 +125,7 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
         {
             if (!silent)
             {
-                log.atWarning().log(
+                log.atWarn().log(
                     "Structure '%s' is not configured in the configuration file.",
                     structureType.getFullKey()
                 );

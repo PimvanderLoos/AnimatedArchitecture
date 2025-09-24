@@ -2,9 +2,9 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 
 import dagger.Lazy;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfigSectionResult;
 import nl.pim16aap2.animatedarchitecture.core.config.ProtectionHooksSection;
 import nl.pim16aap2.animatedarchitecture.spigot.core.hooks.ProtectionHookManagerSpigot;
@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 /**
  * Represents a section in the configuration for protection hooks specific to the Spigot implementation.
  */
-@Flogger
+@CustomLog
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 public class ProtectionHooksSectionSpigot extends ProtectionHooksSection<ProtectionHooksSectionSpigot.Result>
@@ -108,7 +108,7 @@ public class ProtectionHooksSectionSpigot extends ProtectionHooksSection<Protect
                 {
                     if (!silent)
                     {
-                        log.atWarning().log(
+                        log.atWarn().log(
                             "Protection hook '%s' is enabled in the configuration, but it is not registered!",
                             hookName
                         );

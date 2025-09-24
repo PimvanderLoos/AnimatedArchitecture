@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.config;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
-import dagger.Lazy;
+import jakarta.inject.Named;
 import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,7 +15,6 @@ import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
-import javax.inject.Named;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
