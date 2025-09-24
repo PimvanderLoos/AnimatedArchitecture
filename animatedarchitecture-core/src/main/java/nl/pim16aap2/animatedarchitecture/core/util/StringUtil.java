@@ -81,49 +81,49 @@ public final class StringUtil
     }
 
     /**
-     * Checks if a {@link CharSequence} has a trailing new line.
+     * Checks if a {@link CharSequence} has a trailing newline.
      *
      * @param charSequence
      *     The {@link CharSequence} to check.
-     * @return True if the {@link CharSequence} has a trailing new line.
+     * @return True if the {@link CharSequence} has a trailing newline.
      */
-    static boolean hasTrailingNewLine(CharSequence charSequence)
+    static boolean hasTrailingNewline(CharSequence charSequence)
     {
         return !charSequence.isEmpty() && charSequence.charAt(charSequence.length() - 1) == '\n';
     }
 
     /**
-     * Removes all trailing new lines from a {@link StringBuilder}.
+     * Removes all trailing newlines from a {@link StringBuilder}.
      *
      * @param sb
-     *     The {@link StringBuilder} to remove the trailing new lines from.
+     *     The {@link StringBuilder} to remove the trailing newlines from.
      *     <p>
      *     This object is modified in place.
      *     <p>
-     *     If the {@link StringBuilder} is empty or does not end with a new line, nothing is done.
+     *     If the {@link StringBuilder} is empty or does not end with a newline, nothing is done.
      * @return The {@link StringBuilder} for chaining.
      */
     @Contract("_ -> param1")
-    public static StringBuilder removeTrailingNewLines(StringBuilder sb)
+    public static StringBuilder removeTrailingNewlines(StringBuilder sb)
     {
-        while (hasTrailingNewLine(sb))
+        while (hasTrailingNewline(sb))
             sb.deleteCharAt(sb.length() - 1);
         return sb;
     }
 
     /**
-     * Removes all trailing new lines from a {@link String}.
+     * Removes all trailing newlines from a {@link String}.
      *
      * @param string
-     *     The {@link String} to remove the trailing new lines from.
+     *     The {@link String} to remove the trailing newlines from.
      *     <p>
-     *     If the {@link String} is empty or does not end with a new line, the same object is returned.
-     * @return The {@link String} without trailing new lines.
+     *     If the {@link String} is empty or does not end with a newline, the same object is returned.
+     * @return The {@link String} without trailing newlines.
      */
-    public static String removeTrailingNewLines(CharSequence string)
+    public static String removeTrailingNewlines(CharSequence string)
     {
         String ret = string.toString();
-        while (hasTrailingNewLine(ret))
+        while (hasTrailingNewline(ret))
             ret = ret.substring(0, ret.length() - 1);
         return ret;
     }

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>structures-bundle</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <description>Meta package that has all structure types as compiled dependencies</description>
 
     <parent>
@@ -69,5 +69,16 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${dependency.maven-jar.version}</version>
+                <configuration combine.self="override"/>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

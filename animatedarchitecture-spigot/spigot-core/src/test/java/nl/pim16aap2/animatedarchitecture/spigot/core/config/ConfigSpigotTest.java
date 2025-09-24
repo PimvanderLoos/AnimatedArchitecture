@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
 import static org.assertj.core.api.Assertions.*;
@@ -48,20 +49,90 @@ class ConfigSpigotTest
     void initialize_shouldCreateConfig(Path rootDirectory)
         throws Exception
     {
-        // Initialize the config file and check some values. Random sampling?
-        // Or check all values by programmatically checking the values?
+        // setup
+        final var availableProtectionHooks = AbstractProtectionHookSpecification.DEFAULT_HOOK_DEFINITIONS;
+        final ProtectionHookManagerSpigot protectionHookManager = mock();
+        when(protectionHookManager
+            .getRegisteredHookDefinitions())
+            .thenReturn(availableProtectionHooks.stream()
+                .collect(Collectors.toMap(IProtectionHookSpigotSpecification::getName, Function.identity())));
 
-        final ConfigSpigot config = newConfig(rootDirectory);
-    }
+        final List<StructureType> structureTypes = List.of(
+            StructureTypeBigDoor.get(),
+            StructureTypeClock.get(),
+            StructureTypeDrawbridge.get(),
+            StructureTypeFlag.get(),
+            StructureTypeGarageDoor.get(),
+            StructureTypePortcullis.get(),
+            StructureTypeRevolvingDoor.get(),
+            StructureTypeSlidingDoor.get(),
+            StructureTypeWindmill.get()
+        );
+        final StructureTypeManager structureTypeManager = mock();
+        when(structureTypeManager
+            .getRegisteredStructureTypes())
+            .thenReturn(new HashSet<>(structureTypes));
 
-    @FileSystemTest
-    void initialize_shouldAddValuesToPartialConfig(Path rootDirectory)
-        throws Exception
-    {
-        // Add only a single value per section to the config + a single structure + a single protection hook.
-        // Then initialize the config and check if:
-        // 1) The original values are still there.
-        // 2) The new values are added.
+        final ConfigSpigot config = newConfig(rootDirectory, protectionHookManager, structureTypeManager);
+
+        // execute
+        config.initialize();
+
+        // verify
+        final List<String> lines = Files.readAllLines(config.configPath());
+
+        assertThat(lines)
+            .contains(
+                "  resource_pack_enabled: %b".formatted(GeneralSectionSpigot.DEFAULT_RESOURCE_PACK_ENABLED),
+                "  material_blacklist: []",
+                "  allow_redstone: %b".formatted(RedstoneSectionSpigot.DEFAULT_ALLOW_REDSTONE),
+                "  powerblock_types:",
+                "  load_chunks_for_toggle: %b".formatted(AnimationsSectionSpigot.DEFAULT_LOAD_CHUNKS_FOR_TOGGLE),
+                "  skip_animations_by_default: %b".formatted(
+                    AnimationsSectionSpigot.DEFAULT_SKIP_ANIMATIONS_BY_DEFAULT),
+                "  max_structure_count: %d".formatted(LimitsSectionSpigot.DEFAULT_MAX_STRUCTURE_COUNT),
+                "  max_structure_size: %d".formatted(LimitsSectionSpigot.DEFAULT_MAX_STRUCTURE_SIZE),
+                "  max_blocks_to_move: %d".formatted(LimitsSectionSpigot.DEFAULT_MAX_BLOCKS_TO_MOVE),
+                "  max_powerblock_distance: %d".formatted(LimitsSectionSpigot.DEFAULT_MAX_POWERBLOCK_DISTANCE),
+                "  max_block_speed: %.1f".formatted(LimitsSectionSpigot.DEFAULT_MAX_BLOCK_SPEED),
+                "  locale: %s".formatted(LocaleSectionSpigot.DEFAULT_LOCALE),
+                "  allow_client_locale: %b".formatted(LocaleSectionSpigot.DEFAULT_ALLOW_CLIENT_LOCALE),
+                "  powerblock_cache_timeout: %d".formatted(CachingSectionSpigot.DEFAULT_POWERBLOCK_CACHE_TIMEOUT),
+                "  head_cache_timeout: %d".formatted(CachingSectionSpigot.DEFAULT_HEAD_CACHE_TIMEOUT),
+                "  log_level: %s".formatted(LoggingSectionSpigot.DEFAULT_LOG_LEVEL.getName()),
+                "  debug: %b".formatted(LoggingSectionSpigot.DEFAULT_DEBUG)
+            );
+
+        for (final var block : RedstoneSectionSpigot.DEFAULT_POWERBLOCK_TYPES)
+            assertThat(lines)
+                .contains("    - %s".formatted(block));
+
+        for (final var hook : AbstractProtectionHookSpecification.DEFAULT_HOOK_DEFINITIONS)
+            assertThat(lines)
+                .containsSequence(
+                    "  %s:".formatted(hook.getName()),
+                    "    enabled: true"
+                );
+
+        for (final var entry : structureTypes)
+        {
+            assertThat(lines)
+                .containsSequence(
+                    "  %s:".formatted(entry.getFullKey()),
+                    "    animation_speed_multiplier: 1.0",
+                    "    price_formula: \"0\"",
+                    "    gui_material: %s".formatted(StructureSubSectionSpigot.getDefaultGuiMaterial(entry))
+                );
+        }
+
+        // Check that comments are written correctly
+        assertThat(lines)
+            .containsSequence(
+                Stream.concat(
+                    GeneralSectionSpigot.SECTION_COMMENT.lines().map(str -> "# " + str),
+                    Stream.of(GeneralSectionSpigot.SECTION_TITLE + ":")
+                ).toList()
+            );
     }
 
     @FileSystemTest
@@ -83,7 +154,6 @@ class ConfigSpigotTest
             .atInfo()
             .singleWithMessageContaining(expectedPartialMessage);
     }
-
 
     @FileSystemTest
     void initialize_shouldReadExistingValues(Path rootDirectory)
@@ -299,7 +369,6 @@ class ConfigSpigotTest
         {
             final StructureType structureType = entry.getKey();
             final StructureEntry structureEntry = entry.getValue();
-            System.out.println("Checking structure type: " + structureType);
 
             assertThat(config.guiMaterial(structureType))
                 .as("GUI material for structure type: %s", structureType)

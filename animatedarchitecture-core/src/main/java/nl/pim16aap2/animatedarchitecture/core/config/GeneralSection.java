@@ -12,15 +12,16 @@ import org.spongepowered.configurate.serialize.SerializationException;
 public abstract class GeneralSection<T extends IConfigSectionResult> extends ConfigSection<T>
 {
     public static final String SECTION_TITLE = "general";
+    public static final String SECTION_COMMENT = """
+        General settings for the Animated Architecture plugin.
+        """;
 
     @Override
     public CommentedConfigurationNode buildInitialLimitsNode()
         throws SerializationException
     {
         return CommentedConfigurationNode.root()
-            .comment("""
-                General settings for the Animated Architecture plugin.
-                """);
+            .comment(SECTION_COMMENT);
     }
 
     @Override

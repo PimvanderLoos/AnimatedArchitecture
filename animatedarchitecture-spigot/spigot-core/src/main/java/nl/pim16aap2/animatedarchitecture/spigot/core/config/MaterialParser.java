@@ -31,27 +31,6 @@ public class MaterialParser
     @Builder.Default
     private Action onInvalid = Action.WARN_AND_SKIP;
 
-    /**
-     * Parses a material name to a {@link Material} object.
-     *
-     * @param names
-     *     The name of the material to parse.
-     * @return The parsed material object, or null if the material could not be parsed.
-     */
-    public Set<Material> parse(@Nullable List<String> names, boolean silent)
-    {
-        if (names == null || names.isEmpty())
-        {
-            log.atDebug().log("No materials provided for %s. Using default materials: %s", context, defaultMaterials);
-            return defaultMaterials;
-        }
-
-        return names.stream()
-            .map(name -> parseMaterial(name, silent))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
-    }
-
     private @Nullable Material getFirstDefaultMaterial()
     {
         return defaultMaterials.stream().findFirst().orElse(null);
@@ -73,6 +52,27 @@ public class MaterialParser
         }
 
         return defaultMaterial;
+    }
+
+    /**
+     * Parses a material name to a {@link Material} object.
+     *
+     * @param names
+     *     The name of the material to parse.
+     * @return The parsed material object, or null if the material could not be parsed.
+     */
+    public Set<Material> parse(@Nullable List<String> names, boolean silent)
+    {
+        if (names == null || names.isEmpty())
+        {
+            log.atDebug().log("No materials provided for %s. Using default materials: %s", context, defaultMaterials);
+            return defaultMaterials;
+        }
+
+        return names.stream()
+            .map(name -> parseMaterial(name, silent))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
     }
 
     /**
