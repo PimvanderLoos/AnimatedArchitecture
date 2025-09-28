@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
+import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolderConst;
@@ -27,6 +28,36 @@ import java.util.UUID;
  */
 public interface IStructureConst extends IPropertyHolderConst
 {
+    /**
+     * Gets the permission level of a command sender for this structure.
+     *
+     * @param commandSender
+     *     The command sender to check the permission level for.
+     * @return The permission level of the command sender for this structure.
+     */
+    default PermissionLevel getPermissionLevel(ICommandSender commandSender)
+    {
+        return commandSender
+            .getPlayer()
+            .map(this::getPermissionLevel)
+            // Default to ADMIN for non-players (e.g. console).
+            .orElse(PermissionLevel.ADMIN);
+    }
+
+    /**
+     * Gets the permission level of a player for this structure.
+     *
+     * @param player
+     *     The player to check the permission level for.
+     * @return The permission level of the player for this structure.
+     */
+    default PermissionLevel getPermissionLevel(IPlayer player)
+    {
+        return getOwner(player)
+            .map(StructureOwner::permission)
+            .orElse(PermissionLevel.NO_PERMISSION);
+    }
+
     /**
      * @return A {@link StructureSnapshot} of this {@link IStructureConst}.
      */

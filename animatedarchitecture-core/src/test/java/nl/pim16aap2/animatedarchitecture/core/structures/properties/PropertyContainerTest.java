@@ -34,14 +34,14 @@ class PropertyContainerTest
     private static final Property<String> REQUIRED_PROPERTY = Property
         .builder(Constants.PLUGIN_NAME, "required_property", String.class)
         .withDefaultValue(REQUIRED_PROPERTY_VALUE)
-        .isEditable()
+        .withUserAccessLevels(PropertyAccessLevel.EDIT)
         .build();
 
     private static final String OPTIONAL_PROPERTY_VALUE = "optional_value";
     private static final Property<String> OPTIONAL_PROPERTY = Property
         .builder(Constants.PLUGIN_NAME, "optional_property", String.class)
         .withDefaultValue(OPTIONAL_PROPERTY_VALUE)
-        .isEditable()
+        .withUserAccessLevels(PropertyAccessLevel.EDIT)
         .build();
 
     private static final String UNSET_PROPERTY_VALUE = "unset_value";
@@ -113,7 +113,7 @@ class PropertyContainerTest
         final Property<Integer> integerProperty = spy(Property
             .builder(Constants.PLUGIN_NAME, UUID.randomUUID().toString(), Integer.class)
             .withDefaultValue(42)
-            .isEditable()
+            .withUserAccessLevels(PropertyAccessLevel.EDIT)
             .build());
 
         // Hack to be able to insert a value for the given key while bypassing the property registry.
@@ -219,7 +219,7 @@ class PropertyContainerTest
         final Property<Integer> integerProperty = spy(Property
             .builder(Constants.PLUGIN_NAME, UUID.randomUUID().toString(), Integer.class)
             .withDefaultValue(42)
-            .isEditable()
+            .withUserAccessLevels(PropertyAccessLevel.EDIT)
             .build());
 
         // Hack to be able to insert a value for the given key while bypassing the property registry.
@@ -731,7 +731,7 @@ class PropertyContainerTest
             properties.add(Property
                 .builder(Constants.PLUGIN_NAME, "property_" + i, String.class)
                 .withDefaultValue("value_" + i)
-                .isEditable()
+                .withUserAccessLevels(PropertyAccessLevel.EDIT)
                 .build());
         }
         return properties;

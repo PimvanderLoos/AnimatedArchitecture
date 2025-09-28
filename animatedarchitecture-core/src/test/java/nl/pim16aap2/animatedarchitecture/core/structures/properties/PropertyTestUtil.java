@@ -12,20 +12,23 @@ public class PropertyTestUtil
     static final Property<Integer> PROPERTY_UNSET = Property
         .builder("external", "unset_property", Integer.class)
         .withDefaultValue(5)
-        .isEditable()
+        .withUserAccessLevels(PropertyAccessLevel.READ, PropertyAccessLevel.EDIT)
+        .withAdminAccessLevels(PropertyAccessLevel.ADD, PropertyAccessLevel.REMOVE)
         .build();
 
     static final String PROPERTY_STRING_DEFAULT = "default";
     static final Property<String> PROPERTY_STRING = Property
         .builder(Constants.PLUGIN_NAME, "string_property", String.class)
         .withDefaultValue(PROPERTY_STRING_DEFAULT)
-        .isEditable()
+        .withUserAccessLevels(PropertyAccessLevel.READ, PropertyAccessLevel.EDIT)
+        .withAdminAccessLevels(PropertyAccessLevel.ADD, PropertyAccessLevel.REMOVE)
         .build();
 
     static final Property<Boolean> PROPERTY_BOOLEAN = Property
         .builder(Constants.PLUGIN_NAME, "boolean_property", Boolean.class)
         .withDefaultValue(true)
-        .isEditable()
+        .withUserAccessLevels(PropertyAccessLevel.READ, PropertyAccessLevel.EDIT)
+        .withAdminAccessLevels(PropertyAccessLevel.ADD, PropertyAccessLevel.REMOVE)
         .build();
 
     static final List<Property<?>> PROPERTIES = List.of(

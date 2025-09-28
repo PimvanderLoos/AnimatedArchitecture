@@ -39,7 +39,8 @@ class PropertyContainerSerializerTest
     private static final Property<Integer> OPTIONAL_PROPERTY = Property
         .builder("external", "optional_property", Integer.class)
         .withDefaultValue(5)
-        .isEditable()
+        .withUserAccessLevels(PropertyAccessLevel.READ, PropertyAccessLevel.EDIT)
+        .withAdminAccessLevels(PropertyAccessLevel.ADD, PropertyAccessLevel.REMOVE)
         .build();
 
     @Mock
@@ -163,7 +164,6 @@ class PropertyContainerSerializerTest
         final Property<Integer> property = Property
             .builder("animatedarchitecture", propertyKey, Integer.class)
             .withDefaultValue(0)
-            .isEditable()
             .build();
         final IPropertyValue<?> value = deserialized.getPropertyValue(property);
 

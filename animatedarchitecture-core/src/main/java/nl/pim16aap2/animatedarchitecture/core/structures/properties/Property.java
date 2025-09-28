@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import lombok.CustomLog;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -7,19 +8,20 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
+import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.RedstoneMode;
-import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -42,6 +44,79 @@ public final class Property<T> implements IKeyed
     private static final Registry REGISTRY = new Registry();
 
     /**
+     * A property for structures whose animation speed is variable.
+     */
+    public static final Property<Double> ANIMATION_SPEED_MULTIPLIER =
+        builder("ANIMATION_SPEED_MULTIPLIER", Double.class)
+            .withDefaultValue(1.0D)
+            // I am not sure if the animator currently uses this property.
+            .withoutUserOrAdminAccess()
+            .build();
+
+    /**
+     * A property for structures that move a certain amount of blocks when activated.
+     */
+    public static final Property<Integer> BLOCKS_TO_MOVE =
+        builder("BLOCKS_TO_MOVE", Integer.class)
+            .withDefaultValue(0)
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT)
+            // Changing the blocks to move may affect things like animation range.
+            .withPropertyScopes(PropertyScope.ANIMATION)
+            .build();
+
+    /**
+     * A property for structures that have a defined open and closed state.
+     */
+    public static final Property<Boolean> OPEN_STATUS =
+        builder("OPEN_STATUS", Boolean.class)
+            .withDefaultValue(false)
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT)
+            .withPropertyScopes(
+                // The open status affects things like animation direction.
+                PropertyScope.ANIMATION,
+                // Changing the open status may affect the current redstone action.
+                PropertyScope.REDSTONE)
+            .build();
+
+    /**
+     * A property for structures that can rotate multiples of 90 degrees.
+     */
+    public static final Property<Integer> QUARTER_CIRCLES =
+        builder("QUARTER_CIRCLES", Integer.class)
+            .withDefaultValue(1)
+            // Quarter circles are not yet fully supported.
+            .withoutUserOrAdminAccess()
+            // Changing the quarter circles may affect things like animation range.
+            .withPropertyScopes(PropertyScope.ANIMATION)
+            .build();
+
+    /**
+     * A property for structures that can have different redstone modes.
+     */
+    public static final Property<RedstoneMode> REDSTONE_MODE =
+        builder("REDSTONE_MODE", RedstoneMode.class)
+            .withDefaultValue(RedstoneMode.DEFAULT)
+            // There are currently no implementations for the alternative redstone modes.
+            .withoutUserOrAdminAccess()
+            // Changing the redstone mode may affect the current redstone action.
+            .withPropertyScopes(PropertyScope.REDSTONE)
+            .build();
+
+    /**
+     * A property for structures that have a defined rotation point.
+     */
+    public static final Property<Vector3Di> ROTATION_POINT =
+        builder("ROTATION_POINT", Vector3Di.class)
+            .withDefaultValue(new Vector3Di(0, Integer.MAX_VALUE, 0))
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT)
+            // Changing the rotation point may affect things like animation range.
+            .withPropertyScopes(PropertyScope.ANIMATION)
+            .build();
+
+    /**
      * The namespace and key of the property.
      * <p>
      * Note that this name should be unique for each property.
@@ -50,14 +125,6 @@ public final class Property<T> implements IKeyed
      */
     @Getter
     private final NamespacedKey namespacedKey;
-
-    /**
-     * The type of the property.
-     *
-     * @return The type of the property.
-     */
-    @Getter
-    private final PropertyAccessLevel propertyAccessLevel;
 
     /**
      * The type of the property.
@@ -76,6 +143,22 @@ public final class Property<T> implements IKeyed
     private final T defaultValue;
 
     /**
+     * The level of access users have to this property.
+     * <p>
+     * This is a bit flag whose values refer to the {@link PropertyAccessLevel} enum.
+     */
+    @Getter
+    private final int userAccessLevel;
+
+    /**
+     * The level of access admins have to this property.
+     * <p>
+     * This is a bit flag whose values refer to the {@link PropertyAccessLevel} enum.
+     */
+    @Getter
+    private final int adminAccessLevel;
+
+    /**
      * The scopes in which this property is used.
      * <p>
      * This is used to prevent side effects of changing the property value. For example, clearing cached values related
@@ -84,171 +167,27 @@ public final class Property<T> implements IKeyed
     @Getter
     private final List<PropertyScope> propertyScopes;
 
-    private final boolean canBeAddedByUser;
-
-    /**
-     * A property for structures whose animation speed is variable.
-     */
-    public static final Property<Double> ANIMATION_SPEED_MULTIPLIER =
-        builder("ANIMATION_SPEED_MULTIPLIER", Double.class)
-            .canBeAddedByUser()
-            .withDefaultValue(1.0D)
-            .isHidden() // I am not sure if the animator currently uses this property.
-            .build();
-
-    /**
-     * A property for structures that move a certain amount of blocks when activated.
-     */
-    public static final Property<Integer> BLOCKS_TO_MOVE =
-        builder("BLOCKS_TO_MOVE", Integer.class)
-            .isEditable()
-            .withDefaultValue(0)
-            // Changing the blocks to move may affect things like animation range.
-            .withPropertyScopes(PropertyScope.ANIMATION)
-            .build();
-
-    /**
-     * A property for structures that have a defined open and closed state.
-     */
-    public static final Property<Boolean> OPEN_STATUS =
-        builder("OPEN_STATUS", Boolean.class)
-            .isEditable()
-            .withDefaultValue(false)
-            .withPropertyScopes(PropertyScope.ANIMATION, PropertyScope.REDSTONE)
-            .build();
-
-    /**
-     * A property for structures that can rotate multiples of 90 degrees.
-     */
-    public static final Property<Integer> QUARTER_CIRCLES =
-        builder("QUARTER_CIRCLES", Integer.class)
-            .isEditable()
-            .withDefaultValue(1)
-            .isHidden() // Quarter circles are not yet fully supported.
-            // Changing the quarter circles may affect things like animation range.
-            .withPropertyScopes(PropertyScope.ANIMATION)
-            .build();
-
-    /**
-     * A property for structures that can have different redstone modes.
-     */
-    public static final Property<RedstoneMode> REDSTONE_MODE =
-        builder("REDSTONE_MODE", RedstoneMode.class)
-            .isReadOnly()
-            .withDefaultValue(RedstoneMode.DEFAULT)
-            // Changing the redstone mode may affect the current redstone action.
-            .withPropertyScopes(PropertyScope.REDSTONE)
-            .build();
-
-    /**
-     * A property for structures that have a defined rotation point.
-     */
-    public static final Property<Vector3Di> ROTATION_POINT =
-        builder("ROTATION_POINT", Vector3Di.class)
-            .isEditable()
-            .withDefaultValue(new Vector3Di(0, 0, 0))
-            // Changing the rotation point may affect things like animation range.
-            .withPropertyScopes(PropertyScope.ANIMATION)
-            .build();
-
     @VisibleForTesting
     Property(
         NamespacedKey namespacedKey,
         Class<T> type,
         T defaultValue,
-        PropertyAccessLevel propertyAccessLevel,
-        List<PropertyScope> scopes,
-        boolean canBeAddedByUser)
+        int userAccessLevel,
+        int adminAccessLevel,
+        List<PropertyScope> scopes)
     {
         this.namespacedKey = Util.requireNonNull(namespacedKey, "NamespacedKey");
         this.type = Util.requireNonNull(type, "Property type");
         this.defaultValue = Util.requireNonNull(defaultValue, "Default Property value");
-        this.propertyAccessLevel = Util.requireNonNull(propertyAccessLevel, "Property access level");
         this.propertyScopes = List.copyOf(scopes);
-        this.canBeAddedByUser = canBeAddedByUser;
+
+        this.userAccessLevel = userAccessLevel;
+        this.adminAccessLevel = userAccessLevel | adminAccessLevel;
 
         if (!type.isInstance(defaultValue))
             throw new IllegalArgumentException("Default value " + defaultValue + " is not of type " + type.getName());
 
         REGISTRY.register(this);
-    }
-
-    /**
-     * Determines whether this property can be added to a structure if it is not defined in the list of default
-     * properties of the structure type.
-     * <p>
-     * When false, attempting to add this property to a structure via a command will result in an exception. It can only
-     * be part of a structure if it is defined in the list of default properties of the structure type (see
-     * {@link StructureType#getProperties()}) or by adding it programmatically.
-     *
-     * @return {@code true} if the property can be added by the user, {@code false} otherwise.
-     */
-    public boolean canBeAddedByUser()
-    {
-        return canBeAddedByUser;
-    }
-
-    /**
-     * Gets the property with the given
-     *
-     * @param propertyKey
-     *     The key of the property.
-     * @return The property with the given key, or null if no property with that key exists.
-     */
-    public static @Nullable Property<?> fromKey(NamespacedKey propertyKey)
-    {
-        return fromName(propertyKey.getFullKey());
-    }
-
-    /**
-     * Gets the property with the given name (see {@link Property#getFullKey()}).
-     *
-     * @param propertyName
-     *     The name of the property.
-     * @return The property with the given name, or null if no property with that name exists.
-     */
-    public static @Nullable Property<?> fromName(String propertyName)
-    {
-        return REGISTRY.fromName(propertyName);
-    }
-
-    /**
-     * Casts the given value to the type of the property.
-     * <p>
-     * This method is a wrapper around {@link Class#cast(Object)} for {@link #getType()}.
-     *
-     * @param value
-     *     The value to cast.
-     * @return The value cast to the type of the property.
-     *
-     * @throws ClassCastException
-     *     If the value cannot be cast to the type of the property.
-     */
-    @Contract("null -> null; !null -> !null")
-    public @Nullable T cast(@Nullable Object value)
-    {
-        try
-        {
-            if (value == null)
-                return null;
-            return getType().cast(value);
-        }
-        catch (ClassCastException exception)
-        {
-            throw new IllegalArgumentException(
-                String.format(
-                    "Provided value '%s' is not of type '%s' for property '%s'.",
-                    value,
-                    getType(),
-                    getFullKey()),
-                exception
-            );
-        }
-    }
-
-    public static IDebuggable getDebuggableRegistry()
-    {
-        return REGISTRY;
     }
 
     /**
@@ -312,6 +251,141 @@ public final class Property<T> implements IKeyed
     }
 
     /**
+     * Gets the debuggable registry of all registered properties.
+     *
+     * @return The debuggable registry of all registered properties.
+     */
+    public static IDebuggable getDebuggableRegistry()
+    {
+        return REGISTRY;
+    }
+
+    /**
+     * Gets the full key of the property.
+     *
+     * @param propertyAccessLevel
+     *     The access level to check.
+     * @return True if the user has the given access level.
+     */
+    public boolean userHasAccessLevel(PropertyAccessLevel propertyAccessLevel)
+    {
+        return PropertyAccessLevel.hasFlag(userAccessLevel, propertyAccessLevel);
+    }
+
+    /**
+     * Checks if the admin has the given access level.
+     *
+     * @param propertyAccessLevel
+     *     The access level to check.
+     * @return True if the admin has the given access level.
+     */
+    public boolean adminHasAccessLevel(PropertyAccessLevel propertyAccessLevel)
+    {
+        return PropertyAccessLevel.hasFlag(adminAccessLevel, propertyAccessLevel);
+    }
+
+    /**
+     * Gets the property with the given serialization name.
+     * <p>
+     * Shortcut for {@link Registry#fromName(String)} with {@link #REGISTRY}.
+     *
+     * @param propertyKey
+     *     The serialization name of the property.
+     * @return The property with the given serialization name, or null if no property with that name exists.
+     */
+    public static @Nullable Property<?> fromName(String propertyKey)
+    {
+        return REGISTRY.fromName(propertyKey);
+    }
+
+    /**
+     * Gets the property with the given
+     *
+     * @param propertyKey
+     *     The key of the property.
+     * @return The property with the given key, or null if no property with that key exists.
+     */
+    public static @Nullable Property<?> fromKey(NamespacedKey propertyKey)
+    {
+        return fromName(propertyKey.getFullKey());
+    }
+
+    /**
+     * Casts the given value to the type of the property.
+     * <p>
+     * This method is a wrapper around {@link Class#cast(Object)} for {@link #getType()}.
+     *
+     * @param value
+     *     The value to cast.
+     * @return The value cast to the type of the property.
+     *
+     * @throws ClassCastException
+     *     If the value cannot be cast to the type of the property.
+     */
+    @Contract("null -> null; !null -> !null")
+    public @Nullable T cast(@Nullable Object value)
+    {
+        try
+        {
+            if (value == null)
+                return null;
+            return getType().cast(value);
+        }
+        catch (ClassCastException exception)
+        {
+            throw new IllegalArgumentException(
+                String.format(
+                    "Provided value '%s' is not of type '%s' for property '%s'.",
+                    value,
+                    getType(),
+                    getFullKey()),
+                exception
+            );
+        }
+    }
+
+    /**
+     * Gets the access level to this property for the given command sender and structure.
+     * <p>
+     * Defaults to 0 if the command sender is not an owner of the structure.
+     * <p>
+     * The returned value is a bit flag whose values refer to the {@link PropertyAccessLevel} enum.
+     *
+     * @param commandSender
+     *     The command sender to get the access level for.
+     * @param structure
+     *     The structure to get the access level for.
+     * @return The access level for the given command sender and structure.
+     */
+    @CheckReturnValue
+    public int getAccessLevel(ICommandSender commandSender, IStructureConst structure)
+    {
+        return getAccessLevel(structure.getPermissionLevel(commandSender));
+    }
+
+    /**
+     * Gets the access level for the given permission level.
+     * <p>
+     * Defaults to 0 if the command sender is not an owner of the structure.
+     * <p>
+     * The returned value is a bit flag whose values refer to the {@link PropertyAccessLevel} enum.
+     *
+     * @param permissionLevel
+     *     The permission level to get the access level for.
+     * @return The access level for the given permission level.
+     */
+    @CheckReturnValue
+    public int getAccessLevel(PermissionLevel permissionLevel)
+    {
+        return switch (permissionLevel)
+        {
+            case CREATOR, ADMIN -> adminAccessLevel;
+            case USER -> userAccessLevel;
+            default -> 0;
+        };
+    }
+
+    /**
      * Represents a builder for a property.
      * <p>
      * You can create a new property using
@@ -325,13 +399,13 @@ public final class Property<T> implements IKeyed
 
         private final Class<T> type;
 
-        private PropertyAccessLevel propertyAccessLevel = PropertyAccessLevel.READ_ONLY;
+        private int userAccessLevel;
+
+        private int adminAccessLevel;
 
         private List<PropertyScope> propertyScopes = List.of();
 
         private @Nullable T defaultValue = null;
-
-        private boolean canBeAddedByUser = false;
 
         private PropertyBuilder(NamespacedKey namespacedKey, Class<T> type)
         {
@@ -342,7 +416,7 @@ public final class Property<T> implements IKeyed
         /**
          * Builds the property.
          *
-         * @return The property.
+         * @return The newly built property.
          */
         public Property<T> build()
         {
@@ -350,63 +424,86 @@ public final class Property<T> implements IKeyed
                 namespacedKey,
                 type,
                 Util.requireNonNull(defaultValue, "Default Property value"),
-                propertyAccessLevel,
-                propertyScopes,
-                canBeAddedByUser
+                userAccessLevel,
+                adminAccessLevel,
+                propertyScopes
             );
         }
 
         /**
-         * Sets the property access level.
+         * Sets up the access levels of both users and admins to ensure neither has any kind of access to this
+         * property.
          * <p>
-         * This determines to what extent a user can interact with the property.
-         * <p>
-         * This defaults to {@link PropertyAccessLevel#READ_ONLY}.
+         * This is the default state, so calling this method does nothing unless anything else was configured
+         * previously.
          *
-         * @param propertyAccessLevel
-         *     The property access level.
-         * @return The builder.
+         * @return This builder.
          */
-        public PropertyBuilder<T> withPropertyAccessLevel(PropertyAccessLevel propertyAccessLevel)
+        public PropertyBuilder<T> withoutUserOrAdminAccess()
         {
-            this.propertyAccessLevel = propertyAccessLevel;
+            this.userAccessLevel = PropertyAccessLevel.NONE.getFlag();
+            this.adminAccessLevel = PropertyAccessLevel.NONE.getFlag();
             return this;
         }
 
         /**
-         * Sets the property access level to {@link PropertyAccessLevel#USER_EDITABLE}.
-         * <p>
-         * See {@link #withPropertyAccessLevel(PropertyAccessLevel)} for more information.
+         * Sets the property access level for users.
          *
-         * @return The builder.
+         * @param userAccessLevel
+         *     The level of access a user had over this property as a bitflag. See {@link PropertyAccessLevel}.
+         * @return This builder.
          */
-        public PropertyBuilder<T> isHidden()
+        public PropertyBuilder<T> withUserAccessLevels(int userAccessLevel)
         {
-            return withPropertyAccessLevel(PropertyAccessLevel.HIDDEN);
+            this.userAccessLevel = userAccessLevel;
+            return this;
         }
 
         /**
-         * Sets the property access level to {@link PropertyAccessLevel#READ_ONLY}.
-         * <p>
-         * See {@link #withPropertyAccessLevel(PropertyAccessLevel)} for more information.
+         * Sets the property access level for users.
          *
-         * @return The builder.
+         * @param levels
+         *     The level(s) of access a user should have over this property.
+         * @return This builder.
          */
-        public PropertyBuilder<T> isReadOnly()
+        public PropertyBuilder<T> withUserAccessLevels(PropertyAccessLevel... levels)
         {
-            return withPropertyAccessLevel(PropertyAccessLevel.READ_ONLY);
+            return withUserAccessLevels(PropertyAccessLevel.getFlagOf(levels));
         }
 
         /**
-         * Sets the property access level to {@link PropertyAccessLevel#USER_EDITABLE}.
+         * Sets the property access level for users.
          * <p>
-         * See {@link #withPropertyAccessLevel(PropertyAccessLevel)} for more information.
+         * This is a superset of the user access level by definition.
+         * <p>
+         * For example, if the user access level is 1 and the admin access level is 2, the resulting admin access level
+         * is 1 + 2.
          *
-         * @return The builder.
+         * @param adminAccessLevel
+         *     The level of access an admin had over this property as a bitflag. See {@link PropertyAccessLevel}.
+         * @return This builder.
          */
-        public PropertyBuilder<T> isEditable()
+        public PropertyBuilder<T> withAdminAccessLevels(int adminAccessLevel)
         {
-            return withPropertyAccessLevel(PropertyAccessLevel.USER_EDITABLE);
+            this.adminAccessLevel = adminAccessLevel;
+            return this;
+        }
+
+        /**
+         * Sets the property access level for users.
+         * <p>
+         * This is a superset of the user access level by definition.
+         * <p>
+         * For example, if the user access level is 1 and the admin access level is 2, the resulting admin access level
+         * is 1 + 2.
+         *
+         * @param levels
+         *     The level(s) of access an admin should have over this property.
+         * @return This builder.
+         */
+        public PropertyBuilder<T> withAdminAccessLevels(PropertyAccessLevel... levels)
+        {
+            return withAdminAccessLevels(PropertyAccessLevel.getFlagOf(levels));
         }
 
         /**
@@ -421,7 +518,7 @@ public final class Property<T> implements IKeyed
          *
          * @param propertyScopes
          *     The scopes in which this property is used.
-         * @return The builder.
+         * @return This builder.
          */
         public PropertyBuilder<T> withPropertyScopes(PropertyScope... propertyScopes)
         {
@@ -439,41 +536,11 @@ public final class Property<T> implements IKeyed
          *
          * @param defaultValue
          *     The default value of the property.
-         * @return The builder.
+         * @return This builder.
          */
-        public PropertyBuilder<T> withDefaultValue(T defaultValue)
+        public PropertyBuilder<T> withDefaultValue(@Nullable T defaultValue)
         {
-            this.defaultValue = Objects.requireNonNull(defaultValue);
-            return this;
-        }
-
-        /**
-         * Sets whether this property can be added to a structure if it is not defined in the list of default properties
-         * of the structure type.
-         * <p>
-         * When false, attempting to add this property to a structure via a command will result in an exception. It can
-         * only be part of a structure if it is defined in the list of default properties of the structure type (see
-         * {@link StructureType#getProperties()}) or by adding it programmatically.
-         * <p>
-         * This defaults to {@code false}.
-         *
-         * @return The builder.
-         */
-        public PropertyBuilder<T> canBeAddedByUser()
-        {
-            return canBeAddedByUser(true);
-        }
-
-        /**
-         * See {@link #canBeAddedByUser()} for more information.
-         *
-         * @param canBeAddedByUser
-         *     True if the property can be added by the user, false otherwise.
-         * @return The builder.
-         */
-        public PropertyBuilder<T> canBeAddedByUser(boolean canBeAddedByUser)
-        {
-            this.canBeAddedByUser = canBeAddedByUser;
+            this.defaultValue = Util.requireNonNull(defaultValue, "Default Property value");
             return this;
         }
     }
