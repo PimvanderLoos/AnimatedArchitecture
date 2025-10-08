@@ -109,6 +109,8 @@ public final class Step
     }
 
     /**
+     * Returns the {@link StepExecutor} for the current step.
+     *
      * @return The {@link StepExecutor} for the current step.
      */
     public StepExecutor getStepExecutor()
@@ -127,6 +129,8 @@ public final class Step
     }
 
     /**
+     * Returns the localized {@link String} that belongs to the current step.
+     *
      * @return The localized {@link String} that belongs to the current step.
      */
     public Text getLocalizedMessage(IMessageable messageable)

@@ -23,7 +23,9 @@ import java.lang.reflect.Type;
 public record AudioSet(@Nullable AudioDescription activeAudio, @Nullable AudioDescription endAudio)
 {
     /**
-     * @return True if all audio descriptions in this set are empty.
+     * Returns whether all audio descriptions in this set are empty.
+     *
+     * @return {@code true} if all audio descriptions in this set are empty.
      */
     boolean isEmpty()
     {

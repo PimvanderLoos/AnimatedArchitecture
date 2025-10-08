@@ -60,7 +60,11 @@ import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;
 public interface IAnimationHook
 {
     /**
-     * @return The name of this hook. Used for logging purposes.
+     * Returns the name of this hook.
+     * <p>
+     * This is mostly used for logging purposes.
+     *
+     * @return The name of this hook.
      */
     String getName();
 

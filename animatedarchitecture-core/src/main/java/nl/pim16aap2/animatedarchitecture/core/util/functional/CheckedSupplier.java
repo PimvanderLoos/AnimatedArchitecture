@@ -18,7 +18,7 @@ public interface CheckedSupplier<T, E extends Exception>
      * Returns the result of the method.
      *
      * @throws E
-     *     The exception that might be thrown.
+     *     An exception that occurred while performing the operation.
      */
     T get()
         throws E;

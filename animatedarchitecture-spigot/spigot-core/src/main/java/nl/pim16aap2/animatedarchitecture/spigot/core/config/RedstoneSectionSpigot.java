@@ -10,6 +10,7 @@ import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -22,7 +23,7 @@ public class RedstoneSectionSpigot extends RedstoneSection<RedstoneSectionSpigot
     public static final String PATH_POWERBLOCK_TYPES = "powerblock_types";
 
     public static final Material DEFAULT_POWERBLOCK_MATERIAL = Material.GOLD_BLOCK;
-    public static final String[] DEFAULT_POWERBLOCK_TYPES = new String[]{DEFAULT_POWERBLOCK_MATERIAL.name()};
+    public static final List<String> DEFAULT_POWERBLOCK_TYPES = List.of(DEFAULT_POWERBLOCK_MATERIAL.name());
 
     private static final MaterialParser POWER_BLOCK_TYPE_PARSER = MaterialParser.builder()
         .context("Powerblock types")

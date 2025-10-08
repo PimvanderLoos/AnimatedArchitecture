@@ -14,11 +14,15 @@ import java.util.logging.Level;
 public interface IConfig extends IRestartable
 {
     /**
+     * Returns whether debug mode is enabled.
+     *
      * @return True if debug mode is enabled.
      */
     boolean debug();
 
     /**
+     * Returns whether redstone is enabled.
+     *
      * @return True if redstone is enabled.
      */
     boolean allowRedstone();
@@ -37,6 +41,8 @@ public interface IConfig extends IRestartable
     }
 
     /**
+     * Returns the movement formula of a flag.
+     *
      * @return The movement formula of a flag.
      */
     String flagMovementFormula();
@@ -93,11 +99,15 @@ public interface IConfig extends IRestartable
     OptionalInt maxBlocksToMove();
 
     /**
+     * Returns the global maximum speed of a block in blocks per second.
+     *
      * @return The global maximum speed of a block.
      */
     OptionalDouble maxBlockSpeed();
 
     /**
+     * Returns whether we should try to load any unloaded chunks for a toggle.
+     *
      * @return True if we should try to load any unloaded chunks for a toggle.
      */
     boolean loadChunksForToggle();

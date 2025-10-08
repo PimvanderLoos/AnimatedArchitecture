@@ -39,8 +39,12 @@ public enum AnimationType
     }
 
     /**
-     * @return Whether this animation needs write access. When true, the state of the world or the structure will be
-     * affected by the animation. When false, the animation is side effect free.
+     * Returns whether this animation needs write access.
+     * <p>
+     * When true, the state of the world or the structure will be affected by the animation. When false, the animation
+     * is side effect free.
+     *
+     * @return Whether this animation needs write access.
      */
     public boolean requiresWriteAccess()
     {
@@ -48,6 +52,8 @@ public enum AnimationType
     }
 
     /**
+     * Returns whether animations of this type support perpetual animation.
+     *
      * @return True if animations of this type support perpetual animation.
      */
     public boolean allowsPerpetualAnimation()
@@ -56,8 +62,11 @@ public enum AnimationType
     }
 
     /**
-     * @return The time limit (in seconds) for an animation of this time. This value is set to {@link Double#MAX_VALUE}
-     * for any type that has no limit.
+     * Returns the time limit (in seconds) for an animation of this type.
+     * <p>
+     * This value is set to {@link Double#MAX_VALUE} for any type that has no limit.
+     *
+     * @return The time limit (in seconds) for an animation of this time.
      */
     public double getAnimationDurationLimit()
     {

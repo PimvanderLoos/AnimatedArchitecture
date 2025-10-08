@@ -114,9 +114,11 @@ public enum StructureAttribute
     }
 
     /**
-     * @return All values in this enum as an unmodifiable list.
+     * Returns all values in this enum as an unmodifiable list.
      * <p>
      * Unlike {@link #values()}, this does not create a new object.
+     *
+     * @return All values in this enum as an unmodifiable list.
      */
     public static List<StructureAttribute> getValues()
     {

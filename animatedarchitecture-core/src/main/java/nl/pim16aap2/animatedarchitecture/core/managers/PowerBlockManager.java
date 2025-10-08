@@ -382,7 +382,7 @@ public final class PowerBlockManager extends Restartable implements StructureDel
         @Getter
         private final LongList powerBlocks;
 
-        public PowerBlockChunk(Int2ObjectMap<LongList> powerBlocksMap)
+        private PowerBlockChunk(Int2ObjectMap<LongList> powerBlocksMap)
         {
             this.powerBlocksMap = powerBlocksMap;
             this.powerBlocks = LongImmutableList.toList(

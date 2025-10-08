@@ -71,6 +71,7 @@ public final class TestUtil
         }
     }
 
+    @SuppressWarnings("BooleanLiteral")
     private static @Nullable Object getDefaultValue(Class<?> type)
     {
         if (Integer.class.isAssignableFrom(type))

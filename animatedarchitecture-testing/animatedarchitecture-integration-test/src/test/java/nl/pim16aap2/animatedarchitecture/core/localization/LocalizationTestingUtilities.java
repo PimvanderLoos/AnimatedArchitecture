@@ -38,6 +38,7 @@ class LocalizationTestingUtilities
      * @return A new {@link URLClassLoader}.
      *
      * @throws MalformedURLException
+     *     When the jar path is not a valid URL.
      */
     static URLClassLoader loadJar(Path jar, ClassLoader parentClassLoader)
         throws MalformedURLException
@@ -71,6 +72,7 @@ class LocalizationTestingUtilities
      * @param lines
      *     The lines to write to the file.
      * @throws IOException
+     *     When the file could not be created or written to.
      */
     static void writeToFile(Path file, List<String> lines)
         throws IOException
@@ -89,6 +91,7 @@ class LocalizationTestingUtilities
      * @param lines
      *     The lines to write to the entry.
      * @throws IOException
+     *     When the entry could not be written to the zip file.
      */
     static void writeEntry(ZipOutputStream outputStream, String fileName, List<String> lines)
         throws IOException
@@ -110,6 +113,7 @@ class LocalizationTestingUtilities
      * @param data
      *     The data to write to the entry.
      * @throws IOException
+     *     When the entry could not be written to the zip file.
      */
     static void writeEntry(ZipOutputStream outputStream, String fileName, byte[] data)
         throws IOException

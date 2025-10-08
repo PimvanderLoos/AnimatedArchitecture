@@ -18,6 +18,11 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
     }
 
     /**
+     * Creates a {@link Vector3Dd} from a {@link IVector3D}.
+     * <p>
+     * If the provided {@link IVector3D} is already a {@link Vector3Dd}, the same instance is returned, otherwise a new
+     * instance is created.
+     *
      * @param other
      *     A {@link IVector3D} to retrieve as {@link Vector3Dd}
      * @return A {@link Vector3Dd} representing the provided {@link IVector3D}. If the provided {@link IVector3D} was
@@ -323,6 +328,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
     }
 
     /**
+     * Returns the highest value in this vector.
+     *
      * @return The highest value in this vector.
      */
     @CheckReturnValue
@@ -333,6 +340,8 @@ public record Vector3Dd(double x, double y, double z) implements IVector3D
     }
 
     /**
+     * Returns the lowest value in this vector.
+     *
      * @return The lowest value in this vector.
      */
     @CheckReturnValue

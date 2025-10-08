@@ -28,8 +28,12 @@ public interface IAnimatedBlockContainer
     boolean createAnimatedBlocks(StructureSnapshot snapshot, IAnimationComponent animationComponent);
 
     /**
-     * @return All the animated blocks that are part of the animation. In case an error occurred during the creation,
-     * this will contain all the animated blocks that have been created up to the point that the problem occurred.
+     * Returns all the animated blocks that are part of this animation.
+     * <p>
+     * In case an error occurred during the creation, this will contain all the animated blocks that have been created
+     * up to the point that the problem occurred.
+     *
+     * @return All the animated blocks that are part of the animation that have been created.
      */
     List<IAnimatedBlock> getAnimatedBlocks();
 

@@ -139,6 +139,7 @@ final class CustomLog4j2Backend extends LoggerBackend
         return toLog4jLogEvent1(TO_LOG4J_LOG_EVENT_WITH_ERROR_METHOD, getLoggerName(), error, logData);
     }
 
+    @SuppressWarnings("CatchAndPrintStackTrace")
     private @Nullable LogEvent toLog4jLogEvent1(@Nullable Method method, Object... args)
     {
         if (method == null)

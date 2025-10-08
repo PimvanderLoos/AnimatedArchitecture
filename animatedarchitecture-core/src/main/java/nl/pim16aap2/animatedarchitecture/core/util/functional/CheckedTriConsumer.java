@@ -26,6 +26,7 @@ public interface CheckedTriConsumer<T, U, V, E extends Exception>
      * @param v
      *     The third function argument.
      * @throws E
+     *     An exception that occurred while performing the operation.
      */
     void accept(T t, U u, V v)
         throws E;

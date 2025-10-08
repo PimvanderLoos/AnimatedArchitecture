@@ -39,8 +39,8 @@ import java.util.Objects;
  * By default, captured logs are not written to the console. If you want to see the logs in the console, you can use
  * {@link LogCaptor#enableConsoleOutput()}. Note that this will need to be done in each test.
  * <p>
- * You can use {@link nl.pim16aap2.testing.assertions.LogCaptorAssert(nl.altindag.log.LogCaptor)} to run assertions for
- * logs captured during the test.
+ * You can use {@link nl.pim16aap2.testing.assertions.LogCaptorAssert#assertThatLogCaptor(nl.altindag.log.LogCaptor)} to
+ * run assertions for logs captured during the test.
  */
 public class LogCaptorExtension
     implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback, AfterEachCallback, ParameterResolver

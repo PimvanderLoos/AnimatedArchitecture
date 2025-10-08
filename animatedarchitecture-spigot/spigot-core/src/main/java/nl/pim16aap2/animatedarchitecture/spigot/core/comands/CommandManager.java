@@ -45,6 +45,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static net.kyori.adventure.text.Component.text;
+import static nl.pim16aap2.animatedarchitecture.spigot.core.comands.CommandParameterInfo.*;
 
 @Singleton
 @CustomLog
@@ -229,10 +230,10 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.ADD_OWNER, "commands.add_owner.description")
-                .argument(PlayerArgument.of("newOwner"))
+                .argument(PlayerArgument.of(PARAM_NEW_OWNER.name()))
                 .argument(PermissionLevelArgument
                     .builder()
-                    .name("permissionLevel")
+                    .name(PARAM_PERMISSION_LEVEL.name())
                     .required(true)
                     .minimumLevel(PermissionLevel.ADMIN)
                     .maximumLevel(PermissionLevel.USER)
@@ -313,7 +314,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.LIST_STRUCTURES, "commands.list_structures.description")
-                .argument(StringArgument.optional("structureName"))
+                .argument(StringArgument.optional(PARAM_STRUCTURE_NAME.name()))
                 .handler(commandExecutor::listStructures)
         );
     }
@@ -324,7 +325,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.LOCK, "commands.lock.description")
-                .argument(BooleanArgument.<ICommandSender>builder("lockStatus").withLiberal(true).build())
+                .argument(BooleanArgument.<ICommandSender>builder(PARAM_LOCK_STATUS.name()).withLiberal(true).build())
                 .argument(defaultStructureArgument(true, StructureAttribute.INFO).build())
                 .argument(newHiddenSendInfoArgument().build())
                 .handler(commandExecutor::lock)
@@ -337,7 +338,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.MENU, "commands.menu.description")
-                .argument(PlayerArgument.<ICommandSender>builder("targetPlayer").asOptional())
+                .argument(PlayerArgument.<ICommandSender>builder(PARAM_TARGET_PLAYER.name()).asOptional())
                 .handler(commandExecutor::menu)
         );
     }
@@ -360,7 +361,7 @@ public final class CommandManager
         manager.command(
             baseInit(builder, CommandDefinition.NEW_STRUCTURE, "commands.new_structure.description")
                 .argument(defaultStructureTypeArgument(true).build())
-                .argument(StringArgument.<ICommandSender>builder("structureName").asOptional().build())
+                .argument(StringArgument.<ICommandSender>builder(PARAM_STRUCTURE_NAME.name()).asOptional().build())
                 .permission(this::hasPermissionForNewStructure)
                 .handler(commandExecutor::newStructure)
         );
@@ -385,7 +386,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.REMOVE_OWNER, "commands.remove_owner.description")
-                .argument(PlayerArgument.of("targetPlayer"))
+                .argument(PlayerArgument.of(PARAM_TARGET_PLAYER.name()))
                 .argument(defaultStructureArgument(false, StructureAttribute.REMOVE_OWNER).build())
                 .handler(commandExecutor::removeOwner)
         );
@@ -407,7 +408,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.SET_BLOCKS_TO_MOVE, "commands.set_blocks_to_move.description")
-                .argument(IntegerArgument.of("blocksToMove"))
+                .argument(IntegerArgument.of(PARAM_BLOCKS_TO_MOVE.name()))
                 .argument(
                     defaultStructureArgument(
                         false,
@@ -424,7 +425,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.SET_NAME, "commands.set_name.description")
-                .argument(StringArgument.of("name"))
+                .argument(StringArgument.of(PARAM_NAME.name()))
                 .handler(commandExecutor::setName)
         );
     }
@@ -461,7 +462,7 @@ public final class CommandManager
     {
         manager.command(
             baseInit(builder, CommandDefinition.SPECIFY, "commands.specify.description")
-                .argument(StringArgument.of("data"))
+                .argument(StringArgument.of(PARAM_DATA.name()))
                 .handler(commandExecutor::specify)
         );
     }
@@ -543,8 +544,8 @@ public final class CommandManager
         manager.command(
             builder.literal(CommandDefinition.UPDATE_CREATOR.getName().replace("_", "").toLowerCase(Locale.ROOT))
                 .permission(CommandDefinition.UPDATE_CREATOR.getLowestPermission())
-                .argument(StringArgument.of("stepName"))
-                .argument(StringArgument.optional("stepValue"))
+                .argument(StringArgument.of(PARAM_STEP_NAME.name()))
+                .argument(StringArgument.optional(PARAM_STEP_VALUE.name()))
                 .hidden()
                 .handler(commandExecutor::updateCreator)
         );
@@ -571,7 +572,7 @@ public final class CommandManager
         return StructureArgument
             .builder()
             .required(required)
-            .name("structureRetriever")
+            .name(PARAM_STRUCTURE_RETRIEVER.name())
             .asyncSuggestions(asyncCompletions)
             .executor(executor)
             .structureRetrieverFactory(structureRetrieverFactory)
@@ -581,23 +582,32 @@ public final class CommandManager
 
     private IsOpenArgument.IsOpenArgumentBuilder defaultOpenStatusArgument(boolean required)
     {
-        return IsOpenArgument.builder().required(required).name("isOpen").parser(isOpenParser);
+        return IsOpenArgument.builder()
+            .required(required)
+            .name(PARAM_IS_OPEN.name())
+            .parser(isOpenParser);
     }
 
     private DirectionArgument.DirectionArgumentBuilder defaultDirectionArgument(boolean required)
     {
-        return DirectionArgument.builder().required(required).name("direction").parser(directionParser);
+        return DirectionArgument.builder().
+            required(required)
+            .name(PARAM_DIRECTION.name())
+            .parser(directionParser);
     }
 
     private StructureTypeArgument.StructureTypeArgumentBuilder defaultStructureTypeArgument(boolean required)
     {
-        return StructureTypeArgument.builder().required(required).name("structureType").parser(structureTypeParser);
+        return StructureTypeArgument.builder()
+            .required(required)
+            .name(PARAM_STRUCTURE_TYPE.name())
+            .parser(structureTypeParser);
     }
 
     private static CommandArgument.Builder<ICommandSender, Boolean> newHiddenSendInfoArgument()
     {
         return BooleanArgument
-            .<ICommandSender>builder("sendUpdatedInfo")
+            .<ICommandSender>builder(PARAM_SEND_UPDATED_INFO.name())
             .withLiberal(true)
             .asOptionalWithDefault("false")
             .withSuggestionsProvider((iCommandSenderCommandContext, s) -> Collections.emptyList())

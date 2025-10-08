@@ -90,6 +90,8 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     }
 
     /**
+     * Reads the configuration from file and merges it with the default values provided by the structure types.
+     *
      * @return The configured data based on the defaults provided by the structure types and the user-specified
      * configurations.
      */

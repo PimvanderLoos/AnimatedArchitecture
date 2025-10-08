@@ -28,6 +28,7 @@ import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("JavaTimeDefaultTimeZone")
 class LogCaptorAssertTest
 {
     private static final Function<LogCaptorAssert, LogCaptor> ACTUAL_EXTRACTOR = LogCaptorAssert::actual;
@@ -313,7 +314,7 @@ class LogCaptorAssertTest
         LOG4J2_TRACE(Level.TRACE.name(), LogCaptorAssert::hasNoTraceLogs, LogCaptorAssert::atTrace),
         ;
 
-        public static final List<LevelWrapper> LEVELS = List.of(values());
+        private static final List<LevelWrapper> LEVELS = List.of(values());
 
         private final String levelName;
         private final UnaryOperator<LogCaptorAssert> hasNoLogsMethod;

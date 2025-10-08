@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("JavaTimeDefaultTimeZone")
 class LogAssertionsUtilTest
 {
     @Test
