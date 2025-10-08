@@ -144,56 +144,56 @@ public class LoginResourcePackListener extends AbstractListener
             "https://www.dropbox.com/scl/fi/htm9qmsg9ovkzsnnqfkrp/AnimatedArchitectureResourcePack-Format15.zip?" +
                 "rlkey=vynzgqlxrxq5kj0s1x0vkksz2&st=lxa7d8ra&dl=1",
             "4694dfab385719f08d74f6a15c720a065f4347d5",
-            Semver.of(1, 20, 0),
-            Semver.of(1, 20, 1)
+            Semver.create(1, 20, 0),
+            Semver.create(1, 20, 1)
         ),
 
         FORMAT_18(
             "https://www.dropbox.com/scl/fi/jqcas7ctevgtwemy5igfy/AnimatedArchitectureResourcePack-Format18.zip?" +
                 "rlkey=wfvtyfk1x7x7h04idy5xlo7b2&st=ass65deo&dl=1",
             "1edf3c8147d5df17a17bc074c82f5bc10a978a67",
-            Semver.of(1, 20, 2),
-            Semver.of(1, 20, 2)
+            Semver.create(1, 20, 2),
+            Semver.create(1, 20, 2)
         ),
 
         FORMAT_22(
             "https://www.dropbox.com/scl/fi/ldpyekzkiuzg3pgwji1u5/AnimatedArchitectureResourcePack-Format22.zip?" +
                 "rlkey=3l4dzu7kqjecn7p21i9pd9v8g&st=xmhz5un0&dl=1",
             "891223422d266bf1a66c5190c5b506c75b46e7c3",
-            Semver.of(1, 20, 3),
-            Semver.of(1, 20, 4)
+            Semver.create(1, 20, 3),
+            Semver.create(1, 20, 4)
         ),
 
         FORMAT_32(
             "https://www.dropbox.com/scl/fi/xhk4p6uypesrucxhmqvxu/AnimatedArchitectureResourcePack-Format32.zip?" +
                 "rlkey=29clxqbyhpn7hxq5r1b1prvgc&st=ghksx4ly&dl=1",
             "7b91f73c3cd69a1a7bb380c291d4cbb38871253e",
-            Semver.of(1, 20, 5),
-            Semver.of(1, 20, 6)
+            Semver.create(1, 20, 5),
+            Semver.create(1, 20, 6)
         ),
 
         FORMAT_34(
             "https://www.dropbox.com/scl/fi/tz3ic040ehv45xr6kemqy/AnimatedArchitectureResourcePack-Format34.zip?" +
                 "rlkey=7k9jkblzxj3xb5my7dugfyj7a&st=s9sv8vl0&dl=1",
             "c49b27c4a7a5abd923048397db1c8024eaadb40a",
-            Semver.of(1, 21, 0),
-            Semver.of(1, 21, 3)
+            Semver.create(1, 21, 0),
+            Semver.create(1, 21, 3)
         ),
 
         FORMAT_46(
             "https://www.dropbox.com/scl/fi/vr0cxjomuukfj88c6k66k/AnimatedArchitectureResourcePack-Format46.zip?" +
                 "rlkey=0ttpgjt13mpgi2cwxqc5etvxh&st=hlesau5y&dl=1",
             "489ac0b5b00a33ba37483232c18ad13f1c4b1967",
-            Semver.of(1, 21, 4),
-            Semver.of(1, 21, 4)
+            Semver.create(1, 21, 4),
+            Semver.create(1, 21, 4)
         ),
 
         FORMAT_51(
             "https://www.dropbox.com/scl/fi/sfrr6z8v4eqmw820yfhl9/AnimatedArchitectureResourcePack-Format51.zip?" +
                 "rlkey=gnimfw7oynixyygxpf62i5fux&st=waxn7itz&dl=1",
             "2d3e655de27896f8c5c14661cb5eb8c13b678d07",
-            Semver.of(1, 21, 5),
-            Semver.of(1, 21, 5)
+            Semver.create(1, 21, 5),
+            Semver.create(1, 21, 5)
         ),
 
         ;

@@ -23,7 +23,7 @@ import org.semver4j.Semver;
 @SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 public abstract class SpigotSubPlatformModule
 {
-    private static final Semver MINIMUM_SUPPORTED_VERSION = Semver.of(1, 20, 0);
+    private static final Semver MINIMUM_SUPPORTED_VERSION = Semver.create(1, 20, 0);
 
     @Provides
     @Singleton

@@ -81,7 +81,7 @@ class StructureTypeLoaderTest
     @Test
     void testIsSupported()
     {
-        final var apiVersion = Semver.of(1, 2, 3);
+        final var apiVersion = Semver.create(1, 2, 3);
 
         for (final String allowed : new String[]{
             "=1.2.3",
@@ -126,7 +126,7 @@ class StructureTypeLoaderTest
         final String alreadyLoadedTypeName = "already-loaded-type";
         final String unloadedTypeName = "not-loaded-type";
 
-        final Semver apiVersion = Semver.of(1, 0, 0);
+        final Semver apiVersion = Semver.create(1, 0, 0);
 
         final var alreadyLoadedTypes = new HashSet<String>();
 

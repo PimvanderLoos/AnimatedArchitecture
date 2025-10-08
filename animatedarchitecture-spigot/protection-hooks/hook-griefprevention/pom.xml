@@ -16,7 +16,7 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <version.griefprevention>17.0.0</version.griefprevention>
+        <version.griefprevention>18.0.0</version.griefprevention>
     </properties>
 
     <dependencies>

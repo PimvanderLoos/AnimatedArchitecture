@@ -30,13 +30,13 @@ class ResourcePackDetailsTest
     {
         final ResourcePackDetails latest = ResourcePackDetails.LATEST;
 
-        assertThat(latest).isEqualTo(ResourcePackDetails.getForVersion(Semver.of(2, 0, 0)));
+        assertThat(latest).isEqualTo(ResourcePackDetails.getForVersion(Semver.create(2, 0, 0)));
     }
 
     @Test
     void getForVersion_shouldThrowExceptionForVersionsBelow1_20_0()
     {
-        assertThatThrownBy(() -> ResourcePackDetails.getForVersion(Semver.of(1, 19, 0)))
+        assertThatThrownBy(() -> ResourcePackDetails.getForVersion(Semver.create(1, 19, 0)))
             .isExactlyInstanceOf(IllegalArgumentException.class)
             .hasMessage("Version '1.19.0' is lower than the lowest supported version '1.20.0'");
     }
@@ -52,33 +52,33 @@ class ResourcePackDetailsTest
     {
         return Stream.of(
             // FORMAT_15 (1.20.0 - 1.20.1)
-            Arguments.of(Semver.of(1, 20, 0), ResourcePackDetails.FORMAT_15),
-            Arguments.of(Semver.of(1, 20, 1), ResourcePackDetails.FORMAT_15),
+            Arguments.of(Semver.create(1, 20, 0), ResourcePackDetails.FORMAT_15),
+            Arguments.of(Semver.create(1, 20, 1), ResourcePackDetails.FORMAT_15),
             Arguments.of(Semver.parse("1.20.1-rc1"), ResourcePackDetails.FORMAT_15),
 
             // FORMAT_18 (1.20.2)
-            Arguments.of(Semver.of(1, 20, 2), ResourcePackDetails.FORMAT_18),
+            Arguments.of(Semver.create(1, 20, 2), ResourcePackDetails.FORMAT_18),
             Arguments.of(Semver.parse("1.20.2-SNAPSHOT"), ResourcePackDetails.FORMAT_18),
 
             // FORMAT_22 (1.20.3 - 1.20.4)
-            Arguments.of(Semver.of(1, 20, 3), ResourcePackDetails.FORMAT_22),
-            Arguments.of(Semver.of(1, 20, 4), ResourcePackDetails.FORMAT_22),
+            Arguments.of(Semver.create(1, 20, 3), ResourcePackDetails.FORMAT_22),
+            Arguments.of(Semver.create(1, 20, 4), ResourcePackDetails.FORMAT_22),
 
             // FORMAT_32 (1.20.5 - 1.20.6)
-            Arguments.of(Semver.of(1, 20, 5), ResourcePackDetails.FORMAT_32),
-            Arguments.of(Semver.of(1, 20, 6), ResourcePackDetails.FORMAT_32),
+            Arguments.of(Semver.create(1, 20, 5), ResourcePackDetails.FORMAT_32),
+            Arguments.of(Semver.create(1, 20, 6), ResourcePackDetails.FORMAT_32),
 
             // FORMAT_34 (1.21.0 - 1.21.3)
-            Arguments.of(Semver.of(1, 21, 0), ResourcePackDetails.FORMAT_34),
-            Arguments.of(Semver.of(1, 21, 1), ResourcePackDetails.FORMAT_34),
-            Arguments.of(Semver.of(1, 21, 2), ResourcePackDetails.FORMAT_34),
-            Arguments.of(Semver.of(1, 21, 3), ResourcePackDetails.FORMAT_34),
+            Arguments.of(Semver.create(1, 21, 0), ResourcePackDetails.FORMAT_34),
+            Arguments.of(Semver.create(1, 21, 1), ResourcePackDetails.FORMAT_34),
+            Arguments.of(Semver.create(1, 21, 2), ResourcePackDetails.FORMAT_34),
+            Arguments.of(Semver.create(1, 21, 3), ResourcePackDetails.FORMAT_34),
 
             // FORMAT_46 (1.21.4)
-            Arguments.of(Semver.of(1, 21, 4), ResourcePackDetails.FORMAT_46),
+            Arguments.of(Semver.create(1, 21, 4), ResourcePackDetails.FORMAT_46),
 
             // FORMAT_51 (1.21.5)
-            Arguments.of(Semver.of(1, 21, 5), ResourcePackDetails.FORMAT_51)
+            Arguments.of(Semver.create(1, 21, 5), ResourcePackDetails.FORMAT_51)
         );
     }
 
@@ -140,7 +140,7 @@ class ResourcePackDetailsTest
     @Test
     void enum_shouldNotHaveOverlappingVersionRanges()
     {
-        Semver previousMax = Semver.of(0, 0, 0);
+        Semver previousMax = Semver.create(0, 0, 0);
 
         for (final var entry : ResourcePackDetails.VALUES)
         {
