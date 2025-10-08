@@ -11,6 +11,8 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
+import java.util.Objects;
+
 /**
  * A JUnit 5 extension to capture logs during tests.
  * <p>
@@ -61,7 +63,7 @@ public class LogCaptorExtension
     @Override
     public void beforeEach(ExtensionContext context)
     {
-        final LogCaptor logCaptor = context.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class);
+        final LogCaptor logCaptor = getLogCaptor(context);
         logCaptor.disableConsoleOutput();
         logCaptor.setLogLevelToDebug();
         logCaptor.clearLogs();
@@ -70,15 +72,13 @@ public class LogCaptorExtension
     @Override
     public void afterEach(ExtensionContext context)
     {
-        final LogCaptor logCaptor = context.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class);
-        logCaptor.clearLogs();
+        getLogCaptor(context).clearLogs();
     }
 
     @Override
     public void afterAll(ExtensionContext context)
     {
-        final LogCaptor logCaptor = context.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class);
-        logCaptor.close();
+        getLogCaptor(context).close();
     }
 
     @Override
@@ -92,6 +92,11 @@ public class LogCaptorExtension
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
         throws ParameterResolutionException
     {
-        return extensionContext.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class);
+        return Objects.requireNonNull(extensionContext.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class));
+    }
+
+    private LogCaptor getLogCaptor(ExtensionContext context)
+    {
+        return Objects.requireNonNull(context.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class));
     }
 }

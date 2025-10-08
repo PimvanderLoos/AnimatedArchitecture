@@ -411,7 +411,7 @@ public sealed abstract class StructureRetriever
     /**
      * Represents a {@link StructureRetriever} that references a structure by the object itself.
      */
-    @AllArgsConstructor()
+    @AllArgsConstructor
     @ToString(doNotUseGetters = true)
     @EqualsAndHashCode(callSuper = false, doNotUseGetters = true)
     static final class StructureObjectRetriever extends StructureRetriever
@@ -438,7 +438,7 @@ public sealed abstract class StructureRetriever
      * Represents a {@link StructureRetriever} that references a list of structures by the object themselves.
      */
     @ToString
-    @AllArgsConstructor()
+    @AllArgsConstructor
     @EqualsAndHashCode(callSuper = false, doNotUseGetters = true)
     @CustomLog
     static final class StructureListRetriever extends StructureRetriever

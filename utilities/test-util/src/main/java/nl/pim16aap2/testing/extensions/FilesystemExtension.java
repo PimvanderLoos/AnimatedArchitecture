@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -100,6 +101,7 @@ public class FilesystemExtension implements TestTemplateInvocationContextProvide
         final FileSystem fs = extensionContext
             .getStore(EXTENSION_NAMESPACE)
             .get(FILE_SYSTEM_KEY, FileSystem.class);
+        Objects.requireNonNull(fs);
 
         return switch (parameterContext.getParameter().getType().getSimpleName())
         {
@@ -154,10 +156,12 @@ public class FilesystemExtension implements TestTemplateInvocationContextProvide
         public void afterEach(ExtensionContext context)
             throws Exception
         {
-            context
-                .getStore(EXTENSION_NAMESPACE)
-                .get(FILE_SYSTEM_KEY, FileSystem.class)
-                .close();
+            final var fs = Objects.requireNonNull(
+                context
+                    .getStore(EXTENSION_NAMESPACE)
+                    .get(FILE_SYSTEM_KEY, FileSystem.class)
+            );
+            fs.close();
         }
     }
 }
