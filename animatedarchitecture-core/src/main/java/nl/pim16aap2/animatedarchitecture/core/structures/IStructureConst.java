@@ -59,11 +59,18 @@ public interface IStructureConst extends IPropertyHolderConst
     }
 
     /**
-     * @return A {@link StructureSnapshot} of this {@link IStructureConst}.
+     * Returns a (read-only) {@link StructureSnapshot} of this structure.
+     * <p>
+     * Repeated calls to this method may or may not return the same instance unless the underlying structure has been
+     * modified, in which case a new snapshot reflecting the changes will be returned.
+     *
+     * @return A {@link StructureSnapshot} of this structure.
      */
     StructureSnapshot getSnapshot();
 
     /**
+     * Returns the {@link StructureType} of this structure.
+     *
      * @return The {@link StructureType} of this structure.
      */
     StructureType getType();
@@ -107,6 +114,8 @@ public interface IStructureConst extends IPropertyHolderConst
     }
 
     /**
+     * Gets the name and UID of this structure formatted as "name (uid)".
+     *
      * @return The name and UID of this structure formatted as "name (uid)".
      */
     default String getNameAndUid()
@@ -325,7 +334,11 @@ public interface IStructureConst extends IPropertyHolderConst
     }
 
     /**
-     * @return The simple hash of the chunk in which the power block resides.
+     * Gets the id of the chunk in which the power block resides.
+     * <p>
+     * See {@link LocationUtil#getChunkId(Vector3Di)} for more information about chunk ids.
+     *
+     * @return The chunk id of the chunk in which the power block resides.
      */
     default long getChunkId()
     {

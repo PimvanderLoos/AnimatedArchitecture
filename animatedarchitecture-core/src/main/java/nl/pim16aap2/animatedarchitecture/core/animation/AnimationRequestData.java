@@ -83,6 +83,8 @@ public final class AnimationRequestData
     public interface IFactory
     {
         /**
+         * Creates a new {@link AnimationRequestData} for a toggle request.
+         *
          * @param structureSnapshot
          *     A snapshot of the structure, created before the toggle. The data in this snapshot is used as ground-truth
          *     for all actions of the mover.

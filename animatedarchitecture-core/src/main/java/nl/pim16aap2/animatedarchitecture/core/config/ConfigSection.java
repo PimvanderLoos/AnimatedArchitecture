@@ -6,6 +6,7 @@ import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -60,9 +61,9 @@ public abstract class ConfigSection<T extends IConfigSectionResult>
      *     The values to format as a collection.
      * @return A string representation of the collection, or "[]" if no values are provided.
      */
-    protected String formatDefaultCollection(String... values)
+    protected String formatDefaultCollection(Collection<String> values)
     {
-        return values.length == 0
+        return values.isEmpty()
             ? "[]"
             : StringUtil.formatCollection(List.of(values), Object::toString, 0, false);
     }

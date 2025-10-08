@@ -83,6 +83,8 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
     }
 
     /**
+     * Returns the magnitude of this vector.
+     *
      * @return The magnitude of this vector.
      */
     @CheckReturnValue
@@ -93,16 +95,22 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
     }
 
     /**
+     * Returns a new vector with {@link Math#floor(double)} applied to the current values.
+     *
      * @return A new vector with {@link Math#floor(double)} applied to the current values.
      */
     IVector3D floor();
 
     /**
+     * Returns a new vector with {@link Math#round(double)} applied to the current values.
+     *
      * @return A new vector with {@link Math#round(double)} applied to the current values.
      */
     IVector3D round();
 
     /**
+     * Returns a new vector with {@link Math#ceil(double)} applied to the current values.
+     *
      * @return A new vector with {@link Math#ceil(double)} applied to the current values.
      */
     IVector3D ceil();

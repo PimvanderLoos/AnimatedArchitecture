@@ -38,6 +38,8 @@ public interface IPlayer extends IPlayerDataContainer, ICommandSender
     CompletableFuture<PermissionsStatus> hasPermission(CommandDefinition command);
 
     /**
+     * Returns whether this player is online.
+     *
      * @return True if this player is online.
      */
     boolean isOnline();

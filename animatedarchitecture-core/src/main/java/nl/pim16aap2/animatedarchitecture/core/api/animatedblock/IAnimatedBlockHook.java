@@ -61,7 +61,9 @@ import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 public interface IAnimatedBlockHook
 {
     /**
-     * @return The name of this hook to use for logging purposes.
+     * Returns the name of this hook to use for logging purposes.
+     *
+     * @return The name of this hook.
      */
     String getName();
 

@@ -126,6 +126,7 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
      *     The structure.
      * @return True if an entry exists for the exact instance of the provided {@link Structure}.
      */
+    @SuppressWarnings("ReferenceEquality")
     public boolean isRegistered(Structure structure)
     {
         return structure.getUid() > 0 &&

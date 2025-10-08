@@ -25,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
+import static nl.pim16aap2.animatedarchitecture.spigot.core.comands.CommandParameterInfo.*;
+
 /**
  * Class that contains the executors for all commands.
  * <p>
@@ -60,9 +62,9 @@ class CommandExecutor
     @SuppressWarnings("NullAway")
     void addOwner(CommandContext<ICommandSender> context)
     {
-        final IPlayer newOwner = playerFactory.wrapPlayer((Player) context.get("newOwner"));
-        final @Nullable PermissionLevel permissionLevel = nullable(context, "permissionLevel");
-        final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
+        final IPlayer newOwner = playerFactory.wrapPlayer(PARAM_NEW_OWNER.get(context));
+        final @Nullable PermissionLevel permissionLevel = PARAM_PERMISSION_LEVEL.getNullable(context);
+        final @Nullable StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
 
         final ICommandSender commandSender = context.getSender();
         if (structureRetriever != null)
@@ -109,7 +111,7 @@ class CommandExecutor
 
     void delete(CommandContext<ICommandSender> context)
     {
-        final StructureRetriever structureRetriever = context.get("structureRetriever");
+        final StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.get(context);
         commandFactory
             .newDelete(context.getSender(), structureRetriever)
             .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -118,7 +120,7 @@ class CommandExecutor
 
     void info(CommandContext<ICommandSender> context)
     {
-        final StructureRetriever structureRetriever = context.get("structureRetriever");
+        final StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.get(context);
         commandFactory
             .newInfo(context.getSender(), structureRetriever)
             .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -135,7 +137,7 @@ class CommandExecutor
 
     void listStructures(CommandContext<ICommandSender> context)
     {
-        final @Nullable String query = context.<String>getOptional("structureName").orElse("");
+        final @Nullable String query = PARAM_STRUCTURE_NAME.getOrDefault(context, "");
         final StructureRetriever retriever = structureRetrieverFactory
             .search(
                 context.getSender(),
@@ -151,9 +153,9 @@ class CommandExecutor
 
     void lock(CommandContext<ICommandSender> context)
     {
-        final StructureRetriever structureRetriever = context.get("structureRetriever");
-        final boolean lockStatus = context.get("lockStatus");
-        final boolean sendUpdatedInfo = context.getOrDefault("sendUpdatedInfo", false);
+        final StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.get(context);
+        final boolean lockStatus = PARAM_LOCK_STATUS.get(context);
+        final boolean sendUpdatedInfo = PARAM_SEND_UPDATED_INFO.getOrDefault(context, false);
         commandFactory
             .newLock(context.getSender(), structureRetriever, lockStatus, sendUpdatedInfo)
             .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -162,7 +164,7 @@ class CommandExecutor
 
     void menu(CommandContext<ICommandSender> context)
     {
-        final @Nullable Player player = nullable(context, "targetPlayer");
+        final @Nullable Player player = PARAM_TARGET_PLAYER.getNullable(context);
         final ICommandSender commandSender = context.getSender();
         final IPlayer targetPlayer;
         if (player != null)
@@ -177,7 +179,7 @@ class CommandExecutor
 
     void movePowerBlock(CommandContext<ICommandSender> context)
     {
-        final StructureRetriever structureRetriever = context.get("structureRetriever");
+        final StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.get(context);
         commandFactory
             .newMovePowerBlock(context.getSender(), structureRetriever)
             .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -188,8 +190,8 @@ class CommandExecutor
     @SuppressWarnings("NullAway")
     void newStructure(CommandContext<ICommandSender> context)
     {
-        final StructureType structureType = context.get("structureType");
-        final @Nullable String structureName = nullable(context, "structureName");
+        final StructureType structureType = PARAM_STRUCTURE_TYPE.get(context);
+        final @Nullable String structureName = PARAM_STRUCTURE_NAME.getNullable(context);
         commandFactory
             .newNewStructure(context.getSender(), structureType, structureName)
             .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -198,8 +200,8 @@ class CommandExecutor
 
     void removeOwner(CommandContext<ICommandSender> context)
     {
-        final IPlayer targetPlayer = playerFactory.wrapPlayer((Player) context.get("targetPlayer"));
-        final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
+        final IPlayer targetPlayer = playerFactory.wrapPlayer(PARAM_TARGET_PLAYER.get(context));
+        final @Nullable StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
 
         final ICommandSender commandSender = context.getSender();
         if (structureRetriever != null)
@@ -228,8 +230,8 @@ class CommandExecutor
 
     void setBlocksToMove(CommandContext<ICommandSender> context)
     {
-        final int blocksToMove = context.get("blocksToMove");
-        final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
+        final int blocksToMove = PARAM_BLOCKS_TO_MOVE.get(context);
+        final @Nullable StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
 
         final ICommandSender commandSender = context.getSender();
         if (structureRetriever != null)
@@ -248,17 +250,17 @@ class CommandExecutor
     void setName(CommandContext<ICommandSender> context)
     {
         commandFactory
-            .newSetName(context.getSender(), context.get("name"))
+            .newSetName(context.getSender(), PARAM_NAME.get(context))
             .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "setName"));
     }
 
     void setOpenStatus(CommandContext<ICommandSender> context)
     {
-        final boolean isOpen = context.get("isOpen");
-        final boolean sendUpdatedInfo = context.getOrDefault("sendUpdatedInfo", false);
+        final boolean isOpen = PARAM_IS_OPEN.get(context);
+        final boolean sendUpdatedInfo = PARAM_SEND_UPDATED_INFO.getOrDefault(context, false);
         final ICommandSender commandSender = context.getSender();
-        final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
+        final @Nullable StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
 
         if (structureRetriever != null)
             commandFactory
@@ -275,10 +277,10 @@ class CommandExecutor
 
     void setOpenDirection(CommandContext<ICommandSender> context)
     {
-        final MovementDirection direction = context.get("direction");
-        final boolean sendUpdatedInfo = context.getOrDefault("sendUpdatedInfo", false);
+        final MovementDirection direction = PARAM_DIRECTION.get(context);
+        final boolean sendUpdatedInfo = PARAM_SEND_UPDATED_INFO.getOrDefault(context, false);
         final ICommandSender commandSender = context.getSender();
-        final @Nullable StructureRetriever structureRetriever = nullable(context, "structureRetriever");
+        final @Nullable StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
 
         if (structureRetriever != null)
             commandFactory
@@ -296,7 +298,7 @@ class CommandExecutor
     void specify(CommandContext<ICommandSender> context)
     {
         commandFactory
-            .newSpecify(context.getSender(), context.get("data"))
+            .newSpecify(context.getSender(), PARAM_DATA.get(context))
             .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "specify"));
     }
@@ -313,7 +315,7 @@ class CommandExecutor
     {
         structureAnimationRequestBuilder
             .builder()
-            .structure(context.<StructureRetriever>get("structureRetriever"))
+            .structure(PARAM_STRUCTURE_RETRIEVER.get(context))
             .structureActionCause(
                 context.getSender().isPlayer() ?
                     StructureActionCause.PLAYER :
@@ -346,7 +348,7 @@ class CommandExecutor
     {
         structureAnimationRequestBuilder
             .builder()
-            .structure(context.<StructureRetriever>get("structureRetriever"))
+            .structure(PARAM_STRUCTURE_RETRIEVER.get(context))
             .structureActionCause(StructureActionCause.PLAYER)
             .structureActionType(StructureActionType.TOGGLE)
             .responsible(context.getSender().getPlayer().orElse(null))
@@ -365,18 +367,17 @@ class CommandExecutor
             .handleExceptional(ex -> handleException(context, ex, "version"));
     }
 
+    // NullAway doesn't see the @Nullable on stepValue.
+    @SuppressWarnings("NullAway")
     void updateCreator(CommandContext<ICommandSender> context)
     {
         commandFactory
-            .newUpdateCreator(context.getSender(), context.get("stepName"), context.getOrDefault("stepValue", null))
+            .newUpdateCreator(
+                context.getSender(),
+                PARAM_STEP_NAME.get(context),
+                PARAM_STEP_VALUE.getNullable(context))
             .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .handleExceptional(ex -> handleException(context, ex, "updateCreator"));
-    }
-
-    private <T> @Nullable T nullable(CommandContext<ICommandSender> context, String key)
-    {
-        final @Nullable T ret = context.getOrDefault(key, null);
-        return ret;
     }
 
     /**

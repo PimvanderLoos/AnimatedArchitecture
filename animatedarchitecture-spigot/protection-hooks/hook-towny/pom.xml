@@ -16,14 +16,14 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <dependency.towny.version>0.101.2.4</dependency.towny.version>
+        <version.towny>0.101.2.4</version.towny>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.TownyAdvanced</groupId>
             <artifactId>towny</artifactId>
-            <version>${dependency.towny.version}</version>
+            <version>${version.towny}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

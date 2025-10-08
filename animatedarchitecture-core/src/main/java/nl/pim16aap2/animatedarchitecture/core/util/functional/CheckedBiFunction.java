@@ -28,6 +28,7 @@ public interface CheckedBiFunction<T, U, R, E extends Exception>
      * @return The function result.
      *
      * @throws E
+     *     An exception that occurred while performing the operation.
      */
     R apply(T t, U u)
         throws E;

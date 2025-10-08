@@ -386,6 +386,8 @@ public final class Cuboid
     }
 
     /**
+     * Returns all 8 corners of this cuboid.
+     *
      * @return All 8 corners of this cuboid.
      */
     @CheckReturnValue
@@ -402,6 +404,9 @@ public final class Cuboid
     }
 
     /**
+     * Returns a {@link Rectangle} that describes the area of this cuboid when you disregard the vertical (y)
+     * dimension.
+     *
      * @return The area described by this cuboid when you disregard the vertical (y) dimension.
      */
     public Rectangle asFlatRectangle()

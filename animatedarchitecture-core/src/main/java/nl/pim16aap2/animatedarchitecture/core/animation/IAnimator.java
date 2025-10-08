@@ -10,7 +10,9 @@ import java.util.List;
 public interface IAnimator
 {
     /**
-     * @return All the animated blocks that are part of the animation.
+     * Returns all the animated blocks that are part of this animation.
+     *
+     * @return An unmodifiable list with the animated blocks that are part of the animation.
      */
     List<IAnimatedBlock> getAnimatedBlocks();
 

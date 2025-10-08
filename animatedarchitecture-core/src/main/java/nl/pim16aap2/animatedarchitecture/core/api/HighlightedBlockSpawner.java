@@ -171,6 +171,8 @@ public abstract class HighlightedBlockSpawner
     }
 
     /**
+     * Creates a new builder for a highlighted block.
+     *
      * @return A new builder for a highlighted block.
      */
     public Builder builder()
@@ -204,8 +206,11 @@ public abstract class HighlightedBlockSpawner
         }
 
         /**
+         * Sets the player who will see the highlighted block.
+         *
          * @param player
          *     The player who will see the highlighted block.
+         * @return This builder.
          */
         public Builder forPlayer(IPlayer player)
         {
@@ -214,8 +219,11 @@ public abstract class HighlightedBlockSpawner
         }
 
         /**
+         * Sets the location where the highlighted block will be spawned.
+         *
          * @param location
          *     The location where the highlighted block will be spawned. This sets the coordinates and the world.
+         * @return This builder.
          */
         public Builder atLocation(ILocation location)
         {
@@ -227,8 +235,11 @@ public abstract class HighlightedBlockSpawner
         }
 
         /**
+         * Sets the world where the highlighted block will be spawned.
+         *
          * @param world
          *     The world the highlighted block will be spawned in.
+         * @return This builder.
          */
         public Builder inWorld(IWorld world)
         {
@@ -237,8 +248,11 @@ public abstract class HighlightedBlockSpawner
         }
 
         /**
+         * Sets the duration the highlighted block should exist for after it has been spawned.
+         *
          * @param duration
          *     The amount of time the highlighted block should exist for after it has been spawned.
+         * @return This builder.
          */
         public Builder forDuration(@Nullable Duration duration)
         {
@@ -247,8 +261,11 @@ public abstract class HighlightedBlockSpawner
         }
 
         /**
+         * Sets the position to spawn the highlighted block at.
+         *
          * @param position
          *     The position to spawn the highlighted block at. This only sets the coordinates; not the world.
+         * @return This builder.
          */
         public Builder atPosition(IVector3D position)
         {
@@ -256,7 +273,17 @@ public abstract class HighlightedBlockSpawner
         }
 
         /**
-         * Sets the x, y, and z coordinates to spawn the highlighted block at.
+         * Sets the position to spawn the highlighted block at.
+         * <p>
+         * Note that this only sets the coordinates; not the world.
+         *
+         * @param x
+         *     The x-coordinate.
+         * @param y
+         *     The y-coordinate.
+         * @param z
+         *     The z-coordinate.
+         * @return This builder.
          */
         public Builder atPosition(double x, double y, double z)
         {
@@ -268,17 +295,29 @@ public abstract class HighlightedBlockSpawner
 
         /**
          * Sets the rotation components of the highlighted block.
+         *
+         * @param roll
+         *     The roll in degrees.
+         * @param pitch
+         *     The pitch in degrees.
+         * @param yaw
+         *     The yaw in degrees.
+         * @return This builder.
          */
-        public Builder withRotation(double x, double y, double z)
+        public Builder withRotation(double roll, double pitch, double yaw)
         {
-            this.rotX = x;
-            this.rotY = y;
-            this.rotZ = z;
+            this.rotX = roll;
+            this.rotY = pitch;
+            this.rotZ = yaw;
             return this;
         }
 
         /**
          * Sets the rotation components of the highlighted block.
+         *
+         * @param rotation
+         *     The rotation vector, where x=roll, y=pitch, z=yaw.
+         * @return This builder.
          */
         public Builder withRotation(IVector3D rotation)
         {
@@ -286,7 +325,11 @@ public abstract class HighlightedBlockSpawner
         }
 
         /**
-         * Sets the rotation components of the highlighted block.
+         * Sets both the position and rotation of the highlighted block.
+         *
+         * @param rotatedPosition
+         *     The rotated position.
+         * @return This builder.
          */
         public Builder atPosition(RotatedPosition rotatedPosition)
         {
@@ -296,8 +339,11 @@ public abstract class HighlightedBlockSpawner
         }
 
         /**
+         * Sets the color of the highlighted block.
+         *
          * @param color
          *     The color of the highlighted block.
+         * @return This builder.
          */
         public Builder withColor(Color color)
         {

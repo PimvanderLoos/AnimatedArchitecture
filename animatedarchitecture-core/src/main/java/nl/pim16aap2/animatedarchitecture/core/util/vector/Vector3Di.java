@@ -17,6 +17,11 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     }
 
     /**
+     * Creates a {@link Vector3Di} from a {@link IVector3D}.
+     * <p>
+     * If the provided {@link IVector3D} is already a {@link Vector3Di}, the same instance is returned, otherwise a new
+     * instance is created by rounding the x/y/z values to the nearest integer.
+     *
      * @param other
      *     A {@link Vector3Di} to retrieve as {@link Vector3Di}
      * @return A {@link Vector3Di} representing the provided {@link Vector3Di}. If the provided {@link Vector3Di} was
@@ -537,6 +542,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     }
 
     /**
+     * Returns the highest value in this vector.
+     *
      * @return The highest value in this vector.
      */
     @CheckReturnValue
@@ -547,6 +554,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     }
 
     /**
+     * Returns the lowest value in this vector.
+     *
      * @return The lowest value in this vector.
      */
     @CheckReturnValue
@@ -557,6 +566,8 @@ public record Vector3Di(int x, int y, int z) implements IVector3D
     }
 
     /**
+     * Returns the sum of the x, y, and z values.
+     *
      * @return The sum of the x, y, and z values.
      */
     public int sum()

@@ -22,6 +22,7 @@ public interface CheckedFunction<T, R, E extends Exception>
      * @return The function result.
      *
      * @throws E
+     *     An exception that occurred while performing the operation.
      */
     R apply(T t)
         throws E;

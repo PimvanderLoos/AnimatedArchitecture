@@ -344,6 +344,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      * @throws IllegalStateException
      *     If the acyclic constraint of this graph has been violated.
      */
+    @SuppressWarnings("JdkObsolete")
     Set<Node<T>> verifyAcyclic()
     {
         if (nodes.isEmpty())

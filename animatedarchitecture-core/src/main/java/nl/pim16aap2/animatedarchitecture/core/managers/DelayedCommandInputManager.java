@@ -82,6 +82,7 @@ public class DelayedCommandInputManager implements IDebuggable
      *     The {@link DelayedCommandInputRequest} instance to compare any registered requests to. If the reference of
      *     the registered request and this one are the same, it will be deregistered.
      */
+    @SuppressWarnings("ReferenceEquality")
     public void deregister(ICommandSender commandSender, DelayedCommandInputRequest<?> delayedCommandInputRequest)
     {
         requests.computeIfPresent(

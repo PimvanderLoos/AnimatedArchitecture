@@ -16,14 +16,14 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <dependency.lands-api.version>7.15.20</dependency.lands-api.version>
+        <version.lands-api>7.15.20</version.lands-api>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.Angeschossen</groupId>
             <artifactId>LandsAPI</artifactId>
-            <version>${dependency.lands-api.version}</version>
+            <version>${version.lands-api}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

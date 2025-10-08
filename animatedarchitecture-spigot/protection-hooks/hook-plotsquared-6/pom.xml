@@ -16,7 +16,7 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <dependency.plotsquared.version>6.11.1</dependency.plotsquared.version>
+        <version.plotsquared>6.11.1</version.plotsquared>
     </properties>
 
     <repositories>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-core</artifactId>
-            <version>${dependency.worldedit.version}</version>
+            <version>${version.worldedit}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
-            <version>${dependency.worldedit.version}</version>
+            <version>${version.worldedit}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -55,7 +55,7 @@
         <dependency>
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
-            <version>${dependency.paperlib.version}</version>
+            <version>${version.paperlib}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>com.plotsquared</groupId>
             <artifactId>PlotSquared-Core</artifactId>
-            <version>${dependency.plotsquared.version}</version>
+            <version>${version.plotsquared}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -80,7 +80,7 @@
         <dependency>
             <groupId>com.plotsquared</groupId>
             <artifactId>PlotSquared-Bukkit</artifactId>
-            <version>${dependency.plotsquared.version}</version>
+            <version>${version.plotsquared}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>

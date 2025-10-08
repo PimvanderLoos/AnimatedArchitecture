@@ -62,7 +62,11 @@ public interface IAnimatedArchitecturePlatform
     Semver getProjectVersion();
 
     /**
-     * @return The build data. This provides access to items such as the commit hash, the build id, etc.
+     * Returns the build data.
+     * <p>
+     * This provides access to items such as the commit hash, the build id, etc.
+     *
+     * @return The build data.
      */
     BuildDataReader.BuildData getBuildData();
 
@@ -102,11 +106,15 @@ public interface IAnimatedArchitecturePlatform
     IPlayerFactory getPlayerFactory();
 
     /**
+     * Returns the manager for {@link IAnimatedBlockHook}s.
+     *
      * @return The manager for {@link IAnimatedBlockHook}s.
      */
     AnimatedBlockHookManager getAnimatedBlockHookManager();
 
     /**
+     * Returns the manager for {@link IAnimationHook}s.
+     *
      * @return The manager for {@link IAnimationHook}s.
      */
     AnimationHookManager getAnimationHookManager();
@@ -175,7 +183,9 @@ public interface IAnimatedArchitecturePlatform
     StructureRegistry getStructureRegistry();
 
     /**
-     * @return The instance of the {@link IConfig} for this platform.
+     * Returns the {@link IChunkLoader}.
+     *
+     * @return The {@link IChunkLoader}.
      */
     IChunkLoader getChunkLoader();
 
@@ -243,16 +253,22 @@ public interface IAnimatedArchitecturePlatform
     IPermissionsManager getPermissionsManager();
 
     /**
+     * Returns the command factory.
+     *
      * @return The command factory.
      */
     CommandFactory getCommandFactory();
 
     /**
+     * Returns the factory used to create new {@link StructureRetriever} and {@link StructureFinder} instances.
+     *
      * @return The factory used to create new {@link StructureRetriever} and {@link StructureFinder} instances.
      */
     StructureRetrieverFactory getStructureRetrieverFactory();
 
     /**
+     * Returns a new builder used to create new {@link StructureAnimationRequest} instances.
+     *
      * @return A new builder used to create new {@link StructureAnimationRequest} instances.
      */
     StructureAnimationRequestBuilder.IBuilderStructure getStructureAnimationRequestBuilder();

@@ -15,8 +15,8 @@
     <properties>
         <project.root-dir>${project.basedir}/..</project.root-dir>
 
-        <dependency.paperlib.version>1.0.8</dependency.paperlib.version>
-        <dependency.spigot-base.version>1.20-R0.1-SNAPSHOT</dependency.spigot-base.version>
+        <version.paperlib>1.0.8</version.paperlib>
+        <version.spigot-base>1.20-R0.1-SNAPSHOT</version.spigot-base>
     </properties>
 
     <modules>
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>${dependency.spigot-base.version}</version>
+            <version>${version.spigot-base}</version>
             <scope>provided</scope>
         </dependency>
 

@@ -35,7 +35,10 @@ public interface IProtectionHookManager
     CompletableFuture<HookCheckResult> canBreakBlocksInCuboid(IPlayer player, Cuboid cuboid, IWorld world);
 
     /**
-     * @return True if all checks for block-breaking access can be skipped. This may happen when no hooks are enabled.
+     * Returns whether all checks for block-breaking access can be skipped.
+     *
+     * @return {@code true} if all checks for block-breaking access can be skipped. This may happen when no hooks are
+     * enabled.
      */
     boolean canSkipCheck();
 

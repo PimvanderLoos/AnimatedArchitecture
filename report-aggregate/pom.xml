@@ -104,7 +104,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${dependency.jacoco.version}</version>
+                <version>${version.jacoco}</version>
                 <executions>
                     <execution>
                         <id>report-aggregate</id>

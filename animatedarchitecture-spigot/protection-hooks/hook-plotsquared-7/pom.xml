@@ -16,7 +16,7 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <dependency.plotsquared.version>7.5.8</dependency.plotsquared.version>
+        <version.plotsquared>7.5.8</version.plotsquared>
     </properties>
 
     <repositories>
@@ -30,27 +30,27 @@
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
-            <version>${dependency.worldedit.version}</version>
+            <version>${version.worldedit}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
-            <version>${dependency.paperlib.version}</version>
+            <version>${version.paperlib}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.intellectualsites.plotsquared</groupId>
             <artifactId>plotsquared-core</artifactId>
-            <version>${dependency.plotsquared.version}</version>
+            <version>${version.plotsquared}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.intellectualsites.plotsquared</groupId>
             <artifactId>plotsquared-bukkit</artifactId>
-            <version>${dependency.plotsquared.version}</version>
+            <version>${version.plotsquared}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

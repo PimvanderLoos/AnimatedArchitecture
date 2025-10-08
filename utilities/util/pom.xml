@@ -21,7 +21,7 @@
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>${dependency.bytebuddy.version}</version>
+            <version>${version.bytebuddy}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

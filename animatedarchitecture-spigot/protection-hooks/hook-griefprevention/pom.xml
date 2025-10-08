@@ -16,14 +16,14 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <dependency.griefprevention.version>17.0.0</dependency.griefprevention.version>
+        <version.griefprevention>18.0.0</version.griefprevention>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.TechFortress</groupId>
             <artifactId>GriefPrevention</artifactId>
-            <version>${dependency.griefprevention.version}</version>
+            <version>${version.griefprevention}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>

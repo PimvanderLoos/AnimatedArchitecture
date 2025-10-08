@@ -14,6 +14,8 @@ public final class LocationUtil
 {
     /**
      * Gets the ID of the chunk associated with a position.
+     * <p>
+     * The upper 32 bits store the x-coordinate of the chunk, and the lower 32 bits store the z coordinate.
      *
      * @param position
      *     The position from which to retrieve the chunk.
@@ -26,14 +28,16 @@ public final class LocationUtil
 
     /**
      * Gets the ID of the chunk from its coordinates.
+     * <p>
+     * The upper 32 bits store the x-coordinate of the chunk, and the lower 32 bits store the z coordinate.
      *
-     * @param chunkCoords
+     * @param chunkCoordinates
      *     The coordinates of the chunk.
      * @return The ID of the chunk.
      */
-    public static long getChunkId(Vector2Di chunkCoords)
+    public static long getChunkId(Vector2Di chunkCoordinates)
     {
-        return getChunkId(chunkCoords.x(), chunkCoords.y());
+        return getChunkId(chunkCoordinates.x(), chunkCoordinates.y());
     }
 
     /**

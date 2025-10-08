@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("JavaTimeDefaultTimeZone")
 class LogEventAssertTest
 {
     private static final Function<LogEventAssert, LogEvent> ACTUAL_EXTRACTOR = LogEventAssert::actual;

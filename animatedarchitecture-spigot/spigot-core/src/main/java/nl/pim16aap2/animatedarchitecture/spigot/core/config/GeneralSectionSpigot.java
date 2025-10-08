@@ -25,12 +25,12 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
     public static final String PATH_COMMAND_ALIASES = "command_aliases";
 
     public static final boolean DEFAULT_RESOURCE_PACK_ENABLED = true;
-    public static final String[] DEFAULT_MATERIAL_BLACKLIST = new String[0];
-    public static final String[] DEFAULT_COMMAND_ALIASES = new String[]{
+    public static final List<String> DEFAULT_MATERIAL_BLACKLIST = List.of();
+    public static final List<String> DEFAULT_COMMAND_ALIASES = List.of(
         "animatedarchitecture",
         "AnimatedArchitecture",
         "aa"
-    };
+    );
 
     private static final MaterialParser MATERIAL_BLACKLIST_PARSER = MaterialParser.builder()
         .context("Material blacklist")
@@ -132,7 +132,7 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
     private List<String> getCommandAliases(ConfigurationNode sectionNode)
         throws SerializationException
     {
-        return sectionNode.node(PATH_COMMAND_ALIASES).getList(String.class, List.of(DEFAULT_COMMAND_ALIASES));
+        return sectionNode.node(PATH_COMMAND_ALIASES).getList(String.class, DEFAULT_COMMAND_ALIASES);
     }
 
     /**
@@ -157,7 +157,7 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
         public static final Result DEFAULT = new Result(
             Set.of(),
             DEFAULT_RESOURCE_PACK_ENABLED,
-            List.of(DEFAULT_COMMAND_ALIASES)
+            DEFAULT_COMMAND_ALIASES
         );
 
         public Result

@@ -16,7 +16,7 @@
     <properties>
         <project.root-dir>${project.basedir}/../..</project.root-dir>
 
-        <dependency.worldedit.version>7.3.15</dependency.worldedit.version>
+        <version.worldedit>7.3.15</version.worldedit>
     </properties>
 
     <repositories>

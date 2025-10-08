@@ -11,6 +11,8 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
+import java.util.Objects;
+
 /**
  * A JUnit 5 extension to capture logs during tests.
  * <p>
@@ -37,8 +39,8 @@ import org.junit.jupiter.api.extension.ParameterResolver;
  * By default, captured logs are not written to the console. If you want to see the logs in the console, you can use
  * {@link LogCaptor#enableConsoleOutput()}. Note that this will need to be done in each test.
  * <p>
- * You can use {@link nl.pim16aap2.testing.assertions.LogCaptorAssert(nl.altindag.log.LogCaptor)} to run assertions for
- * logs captured during the test.
+ * You can use {@link nl.pim16aap2.testing.assertions.LogCaptorAssert#assertThatLogCaptor(nl.altindag.log.LogCaptor)} to
+ * run assertions for logs captured during the test.
  */
 public class LogCaptorExtension
     implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback, AfterEachCallback, ParameterResolver
@@ -61,7 +63,7 @@ public class LogCaptorExtension
     @Override
     public void beforeEach(ExtensionContext context)
     {
-        final LogCaptor logCaptor = context.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class);
+        final LogCaptor logCaptor = getLogCaptor(context);
         logCaptor.disableConsoleOutput();
         logCaptor.setLogLevelToDebug();
         logCaptor.clearLogs();
@@ -70,15 +72,13 @@ public class LogCaptorExtension
     @Override
     public void afterEach(ExtensionContext context)
     {
-        final LogCaptor logCaptor = context.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class);
-        logCaptor.clearLogs();
+        getLogCaptor(context).clearLogs();
     }
 
     @Override
     public void afterAll(ExtensionContext context)
     {
-        final LogCaptor logCaptor = context.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class);
-        logCaptor.close();
+        getLogCaptor(context).close();
     }
 
     @Override
@@ -92,6 +92,11 @@ public class LogCaptorExtension
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
         throws ParameterResolutionException
     {
-        return extensionContext.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class);
+        return Objects.requireNonNull(extensionContext.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class));
+    }
+
+    private LogCaptor getLogCaptor(ExtensionContext context)
+    {
+        return Objects.requireNonNull(context.getStore(NAMESPACE).get(LOG_CAPTOR, LogCaptor.class));
     }
 }

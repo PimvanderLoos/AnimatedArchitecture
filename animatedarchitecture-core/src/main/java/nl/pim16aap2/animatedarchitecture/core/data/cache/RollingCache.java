@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.AbstractCollection;
 import java.util.Arrays;
@@ -221,6 +222,9 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
     }
 
     /**
+     * Retrieves, but does not remove, the element at the head of this stack. This is the element that has been in the
+     * stack the shortest.
+     *
      * @return The last value. This is the value that has been in the stack the shortest.
      *
      * @throws NoSuchElementException
@@ -234,6 +238,9 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
     }
 
     /**
+     * Retrieves, but does not remove, the element at the tail of this stack. This is the element that has been in the
+     * stack the longest.
+     *
      * @return The first value. This is the value that has been in the stack the longest.
      *
      * @throws NoSuchElementException
@@ -331,9 +338,11 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
     }
 
     /**
+     * Returns a copy of the raw underlying array.
+     *
      * @return A copy of the raw underlying array.
      */
-    // For testing.
+    @VisibleForTesting
     T[] rawArray()
     {
         return Arrays.copyOf(arr, limit);
@@ -395,7 +404,8 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         }
     }
 
-    @AllArgsConstructor final class RollingSpliterator implements Spliterator<T>
+    @AllArgsConstructor
+    final class RollingSpliterator implements Spliterator<T>
     {
         private int expectedModCount;
         private int index;

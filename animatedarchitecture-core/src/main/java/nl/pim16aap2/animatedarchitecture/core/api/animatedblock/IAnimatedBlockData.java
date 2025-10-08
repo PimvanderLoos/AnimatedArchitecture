@@ -42,6 +42,8 @@ public interface IAnimatedBlockData
     boolean rotateBlock(MovementDirection movementDirection, int times);
 
     /**
+     * Places the block at the provided location.
+     *
      * @param loc
      *     The position where the block will be placed.
      */

@@ -48,7 +48,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>${dependency.maven-antrun.version}</version>
+                <version>${version.maven-antrun}</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -91,7 +91,7 @@
             <plugin>
                 <groupId>io.github.git-commit-id</groupId>
                 <artifactId>git-commit-id-maven-plugin</artifactId>
-                <version>${dependency.git-commit-id.version}</version>
+                <version>${version.git-commit-id}</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>

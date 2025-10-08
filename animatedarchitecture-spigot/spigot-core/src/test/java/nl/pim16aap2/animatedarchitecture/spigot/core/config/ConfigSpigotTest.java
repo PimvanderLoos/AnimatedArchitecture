@@ -156,6 +156,7 @@ class ConfigSpigotTest
     }
 
     @FileSystemTest
+    @SuppressWarnings("JdkObsolete")
     void initialize_shouldReadExistingValues(Path rootDirectory)
         throws Exception
     {

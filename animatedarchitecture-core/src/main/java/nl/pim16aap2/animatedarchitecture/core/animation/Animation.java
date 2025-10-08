@@ -116,10 +116,13 @@ public class Animation<T extends IAnimatedBlock>
     }
 
     /**
-     * @return The number of animation steps remaining in this animation. This only includes the steps to be executed by
-     * the animation and not any steps required for the cleanup phase.
+     * Returns the number of animation steps remaining in this animation.
+     * <p>
+     * This only includes the steps to be executed by the animation and not any steps required for the cleanup phase.
      * <p>
      * When {@link #isPerpetual()} is true, this method always returns {@link #getDuration()}.
+     *
+     * @return The number of animation steps remaining in this animation.
      */
     public int getRemainingSteps()
     {

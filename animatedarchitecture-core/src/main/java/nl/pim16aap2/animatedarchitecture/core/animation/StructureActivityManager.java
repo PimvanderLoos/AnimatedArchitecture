@@ -419,7 +419,7 @@ public final class StructureActivityManager extends Restartable
 
         private final Structure targetStructure;
 
-        protected RegisteredAnimatorEntry(Structure targetStructure)
+        private RegisteredAnimatorEntry(Structure targetStructure)
         {
             this.targetStructure = targetStructure;
         }
@@ -443,6 +443,8 @@ public final class StructureActivityManager extends Restartable
         }
 
         /**
+         * Verifies that the provided stamp matches the stamp of this entry and throws an exception if it does not.
+         *
          * @param stamp
          *     The stamp to verify against the stamp of this entry.
          * @throws IllegalArgumentException
