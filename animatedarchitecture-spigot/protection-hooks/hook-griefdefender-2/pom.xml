@@ -16,7 +16,7 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <dependency.griefdefender.version>2.1.0-SNAPSHOT</dependency.griefdefender.version>
+        <version.griefdefender>2.1.0-SNAPSHOT</version.griefdefender>
     </properties>
 
     <repositories>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.griefdefender</groupId>
             <artifactId>api</artifactId>
-            <version>${dependency.griefdefender.version}</version>
+            <version>${version.griefdefender}</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>

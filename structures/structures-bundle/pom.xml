@@ -75,7 +75,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>${dependency.maven-jar.version}</version>
+                <version>${version.maven-jar}</version>
                 <configuration combine.self="override"/>
             </plugin>
         </plugins>

@@ -16,14 +16,14 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <dependency.worldguard.version>7.0.14</dependency.worldguard.version>
+        <version.worldguard>7.0.14</version.worldguard>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>
-            <version>${dependency.worldguard.version}</version>
+            <version>${version.worldguard}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

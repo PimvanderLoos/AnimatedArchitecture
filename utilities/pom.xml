@@ -28,13 +28,13 @@
         <dependency>
             <groupId>com.google.flogger</groupId>
             <artifactId>flogger</artifactId>
-            <version>${dependency.flogger.version}</version>
+            <version>${version.flogger}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.flogger</groupId>
             <artifactId>flogger-log4j2-backend</artifactId>
-            <version>${dependency.flogger.version}</version>
+            <version>${version.flogger}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
