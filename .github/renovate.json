@@ -5,7 +5,7 @@
   ],
   "packageRules": [
     {
-      "packageNames": [
+      "matchPackageNames": [
         "actions/checkout",
         "actions/setup-java",
         "com.alibaba:fastjson",
@@ -39,16 +39,11 @@
         "org.projectlombok:lombok",
         "org.semver4j:semver4j",
         "org.slf4j:slf4j-api",
-        "org.xerial:sqlite-jdbc"
-      ],
-      "packagePatterns": [
-        "^org\\.apache\\.maven\\.plugins:.*"
+        "org.xerial:sqlite-jdbc",
+        "/^org\\.apache\\.maven\\.plugins:.*/"
       ],
       "automerge": true,
-      "automergeType": "branch",
-      "requiredStatusChecks": [
-        "build"
-      ]
+      "automergeType": "branch"
     },
     {
       "matchFileNames": [
@@ -58,16 +53,13 @@
         "on the first day of the month"
       ],
       "automerge": true,
-      "automergeType": "branch",
-      "requiredStatusChecks": [
-        "build"
-      ]
+      "automergeType": "branch"
     },
     {
-      "matchPackagePatterns": [
-        "^nl\\.pim16aap2\\.animatedarchitecture:"
-      ],
-      "enabled": false
+      "enabled": false,
+      "matchPackageNames": [
+        "/^nl\\.pim16aap2\\.animatedarchitecture:/"
+      ]
     }
   ],
   "ignoreDeps": [
