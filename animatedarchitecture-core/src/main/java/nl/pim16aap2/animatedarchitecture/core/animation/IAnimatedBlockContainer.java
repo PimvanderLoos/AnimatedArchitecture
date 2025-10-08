@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.animation;
 
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -42,8 +42,7 @@ public interface IAnimatedBlockContainer
      *
      * @return The animation region.
      */
-    @Nullable
-    AnimationRegion getAnimationRegion();
+    @Nullable AnimationRegion getAnimationRegion();
 
     /**
      * Tries to replace the original blocks with the animated blocks in the world.

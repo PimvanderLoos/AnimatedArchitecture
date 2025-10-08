@@ -18,7 +18,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -99,7 +99,7 @@ public final class StructureActivityManager extends Restartable
      */
     private void abort(AtomicReference<@Nullable RegisteredAnimatorEntry> entryRef)
     {
-        final @Nullable StructureActivityManager.RegisteredAnimatorEntry entry = entryRef.get();
+        final StructureActivityManager.RegisteredAnimatorEntry entry = entryRef.get();
         if (entry != null)
             entry.abort();
     }
@@ -167,7 +167,7 @@ public final class StructureActivityManager extends Restartable
 
         abort(abortEntryRef);
 
-        final @Nullable StructureActivityManager.RegisteredAnimatorEntry newEntry = newEntryRef.get();
+        final StructureActivityManager.RegisteredAnimatorEntry newEntry = newEntryRef.get();
         return newEntry == null ? OptionalLong.empty() : OptionalLong.of(newEntry.getStamp());
     }
 
@@ -347,7 +347,7 @@ public final class StructureActivityManager extends Restartable
     @Override
     public void onStructureDeletion(IStructureConst structure)
     {
-        final @Nullable StructureActivityManager.RegisteredAnimatorEntry removed = animators.remove(structure.getUid());
+        final StructureActivityManager.RegisteredAnimatorEntry removed = animators.remove(structure.getUid());
         if (removed == null)
             return;
 

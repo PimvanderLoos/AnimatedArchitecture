@@ -18,7 +18,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyVal
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -254,7 +254,7 @@ public final class Animator implements IAnimator
     private void abort(boolean blocking)
     {
         aborted = true;
-        final @Nullable TimerTask moverTask0 = moverTask;
+        final TimerTask moverTask0 = moverTask;
         if (moverTask0 != null)
             executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
         finishAnimation(blocking);
@@ -407,7 +407,7 @@ public final class Animator implements IAnimator
     {
         executeFinishingStep(animation.getAnimatedBlocks());
 
-        final @Nullable var animationRegion = this.animatedBlockContainer.getAnimationRegion();
+        final var animationRegion = this.animatedBlockContainer.getAnimationRegion();
         if (animationRegion != null)
         {
             executeFinishingStep(animationRegion.getMarkerBlocks());
@@ -425,7 +425,7 @@ public final class Animator implements IAnimator
     {
         if (animation != null)
         {
-            final @Nullable var animationRegion = this.animatedBlockContainer.getAnimationRegion();
+            final var animationRegion = this.animatedBlockContainer.getAnimationRegion();
             if (animationRegion != null)
                 animation.setRegion(animationRegion.getRegion());
             animation.setState(AnimationState.STOPPING);
@@ -435,7 +435,7 @@ public final class Animator implements IAnimator
 
         finishAnimation(false);
 
-        final @Nullable TimerTask moverTask0 = moverTask;
+        final TimerTask moverTask0 = moverTask;
         if (moverTask0 == null)
         {
             log.atWarn().log("MoverTask unexpectedly null for BlockMover:\n%s", this);
@@ -659,7 +659,7 @@ public final class Animator implements IAnimator
 
     private void forEachHook(String actionName, Consumer<IAnimationHook> call)
     {
-        final @Nullable var hooks0 = hooks;
+        final var hooks0 = hooks;
         if (hooks0 == null)
             return;
 

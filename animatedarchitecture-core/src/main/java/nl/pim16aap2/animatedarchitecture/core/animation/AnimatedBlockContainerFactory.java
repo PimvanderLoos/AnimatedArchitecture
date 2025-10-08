@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A factory for creating {@link IAnimatedBlockContainer}s.
