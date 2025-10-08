@@ -74,22 +74,20 @@
     <rule ref="category/java/codestyle.xml/FieldNamingConventions"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#forloopshouldbewhileloop -->
     <rule ref="category/java/codestyle.xml/ForLoopShouldBeWhileLoop"/>
-    <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#genericsnaming -->
-    <rule ref="category/java/codestyle.xml/GenericsNaming"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#identicalcatchbranches -->
     <rule ref="category/java/codestyle.xml/IdenticalCatchBranches"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#localvariablecouldbefinal -->
     <rule ref="category/java/codestyle.xml/LocalVariableCouldBeFinal"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#nopackage -->
     <rule ref="category/java/codestyle.xml/NoPackage"/>
+    <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#typeparameternamingconventions -->
+    <rule ref="category/java/codestyle.xml/TypeParameterNamingConventions"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#unnecessarycast -->
     <rule ref="category/java/codestyle.xml/UnnecessaryCast"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#unnecessaryconstructor -->
     <rule ref="category/java/codestyle.xml/UnnecessaryConstructor"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#unnecessaryimport -->
     <rule ref="category/java/codestyle.xml/UnnecessaryImport"/>
-    <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#unnecessarylocalbeforereturn -->
-    <rule ref="category/java/codestyle.xml/UnnecessaryLocalBeforeReturn"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#unnecessarymodifier -->
     <rule ref="category/java/codestyle.xml/UnnecessaryModifier"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#unnecessaryreturn -->
@@ -98,6 +96,8 @@
     <rule ref="category/java/codestyle.xml/UseDiamondOperator"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#useunderscoresinnumericliterals -->
     <rule ref="category/java/codestyle.xml/UseUnderscoresInNumericLiterals"/>
+    <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#variablecanbeinlined -->
+    <rule ref="category/java/codestyle.xml/VariableCanBeInlined"/>
 
 
     <!-- https://pmd.github.io/pmd/pmd_rules_java_design.html#abstractclasswithoutanymethod -->
@@ -138,8 +138,6 @@
     <rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingTypeName"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#avoidinstanceofchecksincatchclause -->
     <rule ref="category/java/errorprone.xml/AvoidInstanceofChecksInCatchClause"/>
-    <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#avoidlosingexceptioninformation -->
-    <rule ref="category/java/errorprone.xml/AvoidLosingExceptionInformation"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#avoidmultipleunaryoperators -->
     <rule ref="category/java/errorprone.xml/AvoidMultipleUnaryOperators"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#avoidusingoctalvalues -->
@@ -229,8 +227,8 @@
     <rule ref="category/java/errorprone.xml/UseCorrectExceptionLogging"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#useequalstocomparestrings -->
     <rule ref="category/java/errorprone.xml/UseEqualsToCompareStrings"/>
-    <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#uselessoperationonimmutable -->
-    <rule ref="category/java/errorprone.xml/UselessOperationOnImmutable"/>
+    <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#uselesspuremethodcall -->
+    <rule ref="category/java/errorprone.xml/UselessPureMethodCall"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#uselocalewithcaseconversions -->
     <rule ref="category/java/errorprone.xml/UseLocaleWithCaseConversions"/>
 
