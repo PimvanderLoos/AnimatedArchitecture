@@ -6,11 +6,11 @@ api-version: 1.20
 depend:
   - Vault
 libraries:
-  - it.unimi.dsi:fastutil:${dependency.fastutil.version}
-  - com.alibaba:fastjson:${dependency.fastjson.version}
-  - net.bytebuddy:byte-buddy:${dependency.bytebuddy.version}
-  - org.flywaydb:flyway-core:${dependency.flyway.version}
-  - com.google.flogger:flogger:${dependency.flogger.version}
-  - com.google.flogger:flogger-log4j2-backend:${dependency.flogger.version}
-  - com.google.dagger:dagger:${dependency.dagger.version}
-  - nl.pim16aap2.jcalculator:jcalculator:${dependency.jcalculator.version}
+  - it.unimi.dsi:fastutil:${version.fastutil}
+  - com.alibaba:fastjson:${version.fastjson}
+  - net.bytebuddy:byte-buddy:${version.bytebuddy}
+  - org.flywaydb:flyway-core:${version.flyway}
+  - com.google.flogger:flogger:${version.flogger}
+  - com.google.flogger:flogger-log4j2-backend:${version.flogger}
+  - com.google.dagger:dagger:${version.dagger}
+  - nl.pim16aap2.jcalculator:jcalculator:${version.jcalculator}
