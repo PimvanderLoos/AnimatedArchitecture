@@ -8,7 +8,7 @@
  * {@link nl.pim16aap2.animatedarchitecture.core.tooluser.Step.Factory} objects for common components of structures (e.g. for region
  * selection), but not a full procedure. Subclasses of the creator class will have to define that on their own.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.tooluser.creator;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;
