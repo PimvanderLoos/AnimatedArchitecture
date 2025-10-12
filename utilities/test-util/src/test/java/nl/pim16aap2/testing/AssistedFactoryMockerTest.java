@@ -5,7 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import jakarta.inject.Named;
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

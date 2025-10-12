@@ -4,7 +4,7 @@
  * For example, the {@link nl.pim16aap2.testing.annotations.WithLogCapture} annotation is used to capture logs during
  * tests.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.testing.annotations;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

@@ -1,7 +1,7 @@
 /**
  * The package contains general-purpose utilities that are not directly related to the AnimatedArchitecture project.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.util;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

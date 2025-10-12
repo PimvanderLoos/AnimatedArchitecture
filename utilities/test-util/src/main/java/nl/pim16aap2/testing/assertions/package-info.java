@@ -6,7 +6,7 @@
  * New instances of the builders can be created through the {@link nl.pim16aap2.testing.assertions.AssertionBuilder}
  * class.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.testing.assertions;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

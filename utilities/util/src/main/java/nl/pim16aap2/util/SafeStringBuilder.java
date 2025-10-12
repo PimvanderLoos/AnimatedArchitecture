@@ -1,7 +1,7 @@
 package nl.pim16aap2.util;
 
 import lombok.CustomLog;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.function.Supplier;

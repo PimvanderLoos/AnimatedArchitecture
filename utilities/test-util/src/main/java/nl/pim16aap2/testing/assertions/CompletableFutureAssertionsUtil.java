@@ -5,7 +5,7 @@ import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
 import nl.pim16aap2.util.exceptions.ContextualOperationException;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -136,7 +136,7 @@ public final class CompletableFutureAssertionsUtil
             () -> builder.future.orTimeout(builder.timeout, TimeUnit.MILLISECONDS).join()
         );
 
-        @Nullable var contextException = getNextContextualOperationException(baseException);
+        var contextException = getNextContextualOperationException(baseException);
         while (contextException != null)
         {
             if (Objects.equals(contextException.getMessage(), builder.message))

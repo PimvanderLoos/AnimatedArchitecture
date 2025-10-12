@@ -1,6 +1,6 @@
 package nl.pim16aap2.util.reflection;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;

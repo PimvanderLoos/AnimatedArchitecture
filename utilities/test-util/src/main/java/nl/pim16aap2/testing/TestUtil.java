@@ -1,6 +1,6 @@
 package nl.pim16aap2.testing;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
 import org.mockito.exceptions.base.MockitoException;

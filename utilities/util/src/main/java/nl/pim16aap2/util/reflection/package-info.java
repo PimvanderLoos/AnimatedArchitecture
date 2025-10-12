@@ -4,7 +4,7 @@
  * <p>
  * The various utilities are accessed through the {@link nl.pim16aap2.util.reflection.ReflectionBuilder} class.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.util.reflection;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

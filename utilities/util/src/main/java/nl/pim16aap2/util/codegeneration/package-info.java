@@ -1,7 +1,7 @@
 /**
  * Contains some utility classes for generating code.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.util.codegeneration;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.util.reflection.ReflectionBuilder;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;

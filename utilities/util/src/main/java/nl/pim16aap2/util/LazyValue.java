@@ -1,7 +1,7 @@
 package nl.pim16aap2.util;
 
 import dagger.Lazy;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Objects;
