@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.text;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a factory for {@link TextComponent}s that can be used to create specialized text components with

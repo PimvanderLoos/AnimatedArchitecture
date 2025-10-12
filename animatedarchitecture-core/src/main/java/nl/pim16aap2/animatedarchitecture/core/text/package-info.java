@@ -5,7 +5,7 @@
  * specific style for each {@link nl.pim16aap2.animatedarchitecture.core.text.TextType} is defined in a
  * {@link nl.pim16aap2.animatedarchitecture.core.text.ColorScheme}.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.text;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

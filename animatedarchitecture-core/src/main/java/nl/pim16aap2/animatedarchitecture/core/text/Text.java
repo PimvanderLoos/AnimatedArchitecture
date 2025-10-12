@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.text;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
