@@ -14,7 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.semver4j.Semver;
 
