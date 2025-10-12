@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.testimplementations;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.util.WorldTime;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class TestWorld implements IWorld
 {
