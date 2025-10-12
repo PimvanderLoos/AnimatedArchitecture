@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.semver4j.Semver;
 
 import java.io.IOException;
