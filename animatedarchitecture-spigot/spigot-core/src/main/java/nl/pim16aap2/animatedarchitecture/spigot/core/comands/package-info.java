@@ -10,7 +10,7 @@
  * The execution of the commands is handled by the commands in the
  * {@link nl.pim16aap2.animatedarchitecture.core.commands} package.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.spigot.core.comands;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

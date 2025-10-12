@@ -48,4 +48,7 @@
  * For more information and example usage, please refer to the documentation of the
  * {@link nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureFinder} class.
  */
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.structures.retriever;
+
+import org.jspecify.annotations.NullMarked;

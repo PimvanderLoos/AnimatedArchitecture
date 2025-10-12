@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;

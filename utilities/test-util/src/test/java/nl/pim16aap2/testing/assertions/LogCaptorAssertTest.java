@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.event.Level;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,6 @@ import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("JavaTimeDefaultTimeZone")
 class LogCaptorAssertTest
 {
     private static final Function<LogCaptorAssert, LogCaptor> ACTUAL_EXTRACTOR = LogCaptorAssert::actual;
@@ -293,7 +293,7 @@ class LogCaptorAssertTest
             level,
             "TestLogger",
             "TestThread",
-            ZonedDateTime.now(),
+            ZonedDateTime.now(ZoneOffset.UTC),
             List.of(),
             throwable,
             Map.of(),

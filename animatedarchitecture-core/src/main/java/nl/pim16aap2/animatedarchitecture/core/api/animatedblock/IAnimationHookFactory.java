@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.api.animatedblock;
 
 import nl.pim16aap2.animatedarchitecture.core.animation.Animation;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a factory for {@link IAnimationHook}s.

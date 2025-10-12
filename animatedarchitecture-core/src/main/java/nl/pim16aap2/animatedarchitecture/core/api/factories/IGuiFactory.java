@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.api.factories;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Factory for GUI instances.

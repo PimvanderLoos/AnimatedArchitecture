@@ -4,7 +4,7 @@
  * <p>
  * Most of the implementations for the interfaces are provided by the modules for specific platforms (e.g. Spigot).
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.api;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;
