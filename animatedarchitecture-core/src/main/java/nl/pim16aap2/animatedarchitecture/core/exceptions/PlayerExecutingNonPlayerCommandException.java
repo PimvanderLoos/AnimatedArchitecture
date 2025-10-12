@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.exceptions;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An exception that is thrown when a player tries to execute a non-player command.
