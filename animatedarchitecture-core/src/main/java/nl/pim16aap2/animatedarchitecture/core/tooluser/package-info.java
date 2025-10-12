@@ -10,7 +10,7 @@
  * {@link nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor} to process the user input and perform some kind
  * of action.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.tooluser;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;
