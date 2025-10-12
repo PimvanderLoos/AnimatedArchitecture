@@ -8,7 +8,7 @@
  * for handling requests to specify a structure to operate on when more than one structure fits a given identifier. For
  * example when a user tries to change a structure named "MyDoor", but there are 2 structures with that name.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.util.delayedinput;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

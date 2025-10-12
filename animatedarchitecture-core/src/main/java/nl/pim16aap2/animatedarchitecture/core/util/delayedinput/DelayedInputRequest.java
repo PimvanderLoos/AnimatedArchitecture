@@ -9,7 +9,7 @@ import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Optional;
