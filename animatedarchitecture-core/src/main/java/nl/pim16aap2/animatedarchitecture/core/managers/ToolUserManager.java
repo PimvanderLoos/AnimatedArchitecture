@@ -13,7 +13,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Map;

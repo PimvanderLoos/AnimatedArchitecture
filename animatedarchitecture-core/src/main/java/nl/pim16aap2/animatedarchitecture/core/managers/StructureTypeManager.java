@@ -11,7 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;

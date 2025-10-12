@@ -34,7 +34,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;

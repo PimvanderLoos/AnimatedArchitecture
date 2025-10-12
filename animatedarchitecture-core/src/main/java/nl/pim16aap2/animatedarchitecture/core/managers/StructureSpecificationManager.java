@@ -6,7 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
