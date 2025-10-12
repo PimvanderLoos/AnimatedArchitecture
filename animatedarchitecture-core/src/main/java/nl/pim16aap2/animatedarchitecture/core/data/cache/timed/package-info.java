@@ -6,7 +6,7 @@
  * <p>
  * You can configure things such as the timeout value, whether to use a soft reference, and how to handle a timeout.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.data.cache.timed;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

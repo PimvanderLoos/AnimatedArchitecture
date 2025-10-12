@@ -29,7 +29,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.SoftReference;
 import java.time.Clock;
@@ -317,7 +317,7 @@ public sealed class TimedCache<K, V>
         {
             if (timedValue == null || timedValue.timedOut())
                 return null;
-            final @Nullable var value = timedValue.getValue(refresh);
+            final var value = timedValue.getValue(refresh);
             return createTimedValue(remappingFunction, k, value);
         })).map(entry -> entry.getValue(refresh));
     }
@@ -335,11 +335,7 @@ public sealed class TimedCache<K, V>
         validateState();
         return Util.requireNonNull(cache.compute(key, (k, timedValue) ->
         {
-            final @Nullable V value;
-            if (timedValue == null || timedValue.timedOut())
-                value = null;
-            else
-                value = timedValue.getValue(refresh);
+            final V value = timedValue != null && !timedValue.timedOut() ? timedValue.getValue(refresh) : null;
             return createTimedValue(mappingFunction, k, value);
         }).getValue(refresh), "Computed cache value for key: \"" + key + "\"");
     }
@@ -366,11 +362,11 @@ public sealed class TimedCache<K, V>
     public Optional<V> get(K key)
     {
         validateState();
-        final @Nullable AbstractTimedValue<V> entry = cache.get(key);
+        final AbstractTimedValue<V> entry = cache.get(key);
         if (entry == null)
             return Optional.empty();
 
-        final @Nullable var value = entry.getValue(refresh);
+        final V value = entry.getValue(refresh);
         if (value == null)
         {
             cache.remove(key);
