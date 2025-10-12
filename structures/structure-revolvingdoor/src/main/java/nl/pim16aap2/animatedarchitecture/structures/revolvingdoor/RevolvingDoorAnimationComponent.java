@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockDa
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.structures.bigdoor.BigDoorAnimationComponent;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 

@@ -14,7 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutorInteger;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Limit;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
