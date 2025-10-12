@@ -9,7 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.Reader;
