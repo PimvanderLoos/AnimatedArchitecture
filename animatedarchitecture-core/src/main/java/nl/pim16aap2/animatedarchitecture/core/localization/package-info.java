@@ -6,7 +6,7 @@
  * {@link nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer} using
  * {@link nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatform#getLocalizer()}.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;
