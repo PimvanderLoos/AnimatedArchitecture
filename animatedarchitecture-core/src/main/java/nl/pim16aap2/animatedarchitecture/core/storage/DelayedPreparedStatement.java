@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.storage;
 import it.unimi.dsi.fastutil.ints.IntImmutableList;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.functional.CheckedTriConsumer;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.sql.Connection;

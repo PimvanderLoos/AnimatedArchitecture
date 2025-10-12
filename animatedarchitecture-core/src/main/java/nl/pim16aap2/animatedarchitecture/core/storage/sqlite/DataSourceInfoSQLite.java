@@ -6,7 +6,7 @@ import lombok.CustomLog;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.storage.IDataSourceInfo;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sqlite.JDBC;
 import org.sqlite.SQLiteDataSource;
 
