@@ -24,7 +24,7 @@
  * Another example is situations where the action requires interaction with the database. The non-"prepare" event will
  * only be fired if both allowed by the "prepare" event and if the database interaction was successful.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.spigot.core.events;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

@@ -17,7 +17,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.util.text.TextRendererSpigot;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Optional;

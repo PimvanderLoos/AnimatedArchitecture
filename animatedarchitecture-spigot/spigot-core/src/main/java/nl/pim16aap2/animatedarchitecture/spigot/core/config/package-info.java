@@ -5,7 +5,7 @@
  * configuration file, including reading values, setting values, and saving changes. Default values are provided for all
  * configuration options, so if a user does not have a configuration file, one will be generated with default values.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

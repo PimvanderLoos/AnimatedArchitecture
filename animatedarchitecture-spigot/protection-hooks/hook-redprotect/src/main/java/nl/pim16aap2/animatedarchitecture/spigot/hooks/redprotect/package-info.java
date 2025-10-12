@@ -1,7 +1,7 @@
 /**
  * This package contains the protection hook for RedProtect.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.spigot.hooks.redprotect;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

@@ -29,7 +29,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareCrea
 import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareDeleteEvent;
 import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareLockChangeEvent;
 import nl.pim16aap2.animatedarchitecture.spigot.core.events.StructurePrepareRemoveOwnerEvent;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The implementation of {@link IAnimatedArchitectureEventFactory} for the Spigot platform.

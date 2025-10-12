@@ -1,7 +1,7 @@
 /**
  * Implementations of animation-related objects for the Spigot platform that do not use version-specific code.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

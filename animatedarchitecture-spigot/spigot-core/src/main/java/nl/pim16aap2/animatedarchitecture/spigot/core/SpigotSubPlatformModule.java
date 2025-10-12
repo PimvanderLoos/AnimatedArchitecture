@@ -11,7 +11,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
 import nl.pim16aap2.animatedarchitecture.spigot.v1_20.SubPlatform_V1_20;
 import nl.pim16aap2.animatedarchitecture.spigot.v1_21.SubPlatform_V1_21;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.semver4j.Semver;
 
 /**

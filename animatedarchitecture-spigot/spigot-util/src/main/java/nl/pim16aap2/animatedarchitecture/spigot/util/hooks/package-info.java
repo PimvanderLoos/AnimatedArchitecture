@@ -1,7 +1,7 @@
 /**
  * Contains a set of utility classes that provide compatibility with other plugins.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.spigot.util.hooks;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

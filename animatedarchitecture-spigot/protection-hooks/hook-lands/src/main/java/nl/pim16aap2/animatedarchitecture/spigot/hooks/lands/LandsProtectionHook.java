@@ -12,7 +12,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.ProtectionHookContext
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 

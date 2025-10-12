@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.hooks;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents the specification of a {@link IProtectionHookSpigot}.

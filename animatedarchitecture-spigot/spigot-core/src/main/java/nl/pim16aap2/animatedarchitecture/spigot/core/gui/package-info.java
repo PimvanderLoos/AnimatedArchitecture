@@ -6,7 +6,7 @@
  * An instance of that class can be obtained using
  * {@link nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitectureSpigotPlatform#getGuiFactory()}.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

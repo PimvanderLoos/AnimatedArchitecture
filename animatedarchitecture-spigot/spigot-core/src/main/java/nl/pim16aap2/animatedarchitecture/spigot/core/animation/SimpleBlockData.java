@@ -24,7 +24,7 @@ import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.Orientable;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Stairs;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 import java.util.function.Consumer;
@@ -148,7 +148,7 @@ public class SimpleBlockData implements IAnimatedBlockData
      */
     private synchronized void rotateDirectional(Directional bd, MovementDirection dir, int steps)
     {
-        final @Nullable var rotationFunction = BlockFace.getRotationFunction(dir);
+        final var rotationFunction = BlockFace.getRotationFunction(dir);
         if (rotationFunction == null)
         {
             log.atError().withStackTrace(StackSize.FULL).log(
@@ -176,7 +176,7 @@ public class SimpleBlockData implements IAnimatedBlockData
      */
     private synchronized void rotateMultipleFacing(MultipleFacing bd, MovementDirection dir, int steps)
     {
-        final @Nullable var rotationFunction = BlockFace.getRotationFunction(dir);
+        final var rotationFunction = BlockFace.getRotationFunction(dir);
         if (rotationFunction == null)
         {
             log.atError().withStackTrace(StackSize.FULL).log(

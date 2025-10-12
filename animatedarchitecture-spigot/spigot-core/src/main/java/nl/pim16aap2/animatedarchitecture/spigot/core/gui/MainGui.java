@@ -26,7 +26,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFacto
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Comparator;

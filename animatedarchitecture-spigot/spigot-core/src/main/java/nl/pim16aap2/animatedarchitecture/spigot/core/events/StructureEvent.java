@@ -4,7 +4,7 @@ import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructureEvent;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
