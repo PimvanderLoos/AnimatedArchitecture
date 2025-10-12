@@ -12,7 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.exceptions.CommandExecutionExcepti
 import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -59,8 +59,7 @@ public final class UpdateCreator extends BaseCommand
     @Override
     protected CompletableFuture<?> executeCommand(PermissionsStatus permissions)
     {
-        final @Nullable var toolUser =
-            toolUserManager.getToolUser(((IPlayer) getCommandSender()).getUUID()).orElse(null);
+        final var toolUser = toolUserManager.getToolUser(((IPlayer) getCommandSender()).getUUID()).orElse(null);
 
         if (!(toolUser instanceof Creator creator))
         {
