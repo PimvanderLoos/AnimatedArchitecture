@@ -6,7 +6,7 @@
  * A step executor generally accepts an object of a specific type and then provides it as input for a
  * {@link java.util.function.Function}.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;
