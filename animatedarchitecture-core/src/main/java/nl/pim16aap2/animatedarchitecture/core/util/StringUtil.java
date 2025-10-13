@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.util;
 import it.unimi.dsi.fastutil.ints.IntImmutableList;
 import lombok.CustomLog;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Locale;

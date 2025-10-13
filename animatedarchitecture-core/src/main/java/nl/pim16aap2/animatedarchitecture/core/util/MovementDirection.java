@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.EnumSet;

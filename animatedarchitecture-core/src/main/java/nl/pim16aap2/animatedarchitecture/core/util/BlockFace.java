@@ -1,7 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
