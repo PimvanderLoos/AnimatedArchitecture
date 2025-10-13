@@ -25,7 +25,7 @@
 package nl.pim16aap2.animatedarchitecture.core.data.cache.timed;
 
 import lombok.Setter;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;

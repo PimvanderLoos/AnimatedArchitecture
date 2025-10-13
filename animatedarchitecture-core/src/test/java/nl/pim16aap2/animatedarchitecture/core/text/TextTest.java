@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.text;
 
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

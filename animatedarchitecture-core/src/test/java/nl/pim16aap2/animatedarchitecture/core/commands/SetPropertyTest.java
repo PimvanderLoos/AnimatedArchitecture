@@ -19,7 +19,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetr
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

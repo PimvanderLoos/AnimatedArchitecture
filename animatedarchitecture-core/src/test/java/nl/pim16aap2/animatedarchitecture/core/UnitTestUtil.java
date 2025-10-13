@@ -42,7 +42,7 @@ import nl.pim16aap2.testing.TestUtil;
 import nl.pim16aap2.testing.reflection.ReflectionUtil;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.ListAssert;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
