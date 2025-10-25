@@ -1,8 +1,12 @@
 package nl.pim16aap2.animatedarchitecture.core.data.cache;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -17,12 +21,80 @@ import java.util.Spliterator;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import static org.assertj.core.api.Assertions.*;
+
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 class RollingCacheTest
 {
     private static final Consumer<Integer> NO_OP_CONSUMER = (ignored) ->
     {
     };
+
+    @Nested
+    class RollingIteratorTest
+    {
+        @Test
+        void remove_shouldRemoveCurrentObject()
+        {
+            // setup
+            final List<Integer> input = List.of(0, 1, 2);
+            final RollingCache<Integer> cache = new RollingCache<>(input.size());
+            cache.addAll(input);
+            final Iterator<Integer> it = cache.iterator();
+
+            // execute & verify
+            for (Integer value : input)
+            {
+                assertThat(it.hasNext()).isTrue();
+                assertThat(it.next()).isEqualTo(value);
+                it.remove();
+            }
+            assertThat(cache).isEmpty();
+        }
+    }
+
+    @Test
+    @SuppressWarnings({"ModifyingCollectionWithItself", "CollectionAddedToSelf"})
+    void addAll_shouldHandleSelfAddition()
+    {
+        // setup
+        final RollingCache<Integer> cache = new RollingCache<>(5);
+        cache.addAll(List.of(1, 2, 3));
+
+        // execute & verify
+        assertThatNoException()
+            .isThrownBy(() -> cache.addAll(cache));
+        assertThat(cache).containsExactly(2, 3, 1, 2, 3);
+    }
+
+    @Test
+    @SuppressWarnings({"ModifyingCollectionWithItself", "CollectionAddedToSelf"})
+    void addAll_shouldHandleSelfAdditionWhenFull()
+    {
+        // setup
+        final RollingCache<Integer> cache = new RollingCache<>(3);
+        cache.addAll(List.of(1, 2, 3));
+
+        // execute & verify
+        assertThatNoException().isThrownBy(() -> cache.addAll(cache));
+        assertThat(cache).containsExactly(1, 2, 3);
+    }
+
+    @Test
+    void remove_shouldIncrementModCountOnce()
+    {
+        // setup
+        final RollingCache<Integer> cache = new RollingCache<>(10);
+        cache.addAll(List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
+        final int initialModCount = cache.getModCount();
+
+        // execute
+        cache.remove(5);
+
+        // verify
+        assertThat(cache.getModCount()).isEqualTo(initialModCount + 1);
+    }
 
     @Test
     void ensureLimit()
@@ -45,6 +117,7 @@ class RollingCacheTest
     }
 
     @Test
+    @SuppressWarnings("RedundantCollectionOperation")
     void addAll()
     {
         final RollingCache<Integer> cache = new RollingCache<>(3);
@@ -80,7 +153,7 @@ class RollingCacheTest
         Assertions.assertTrue(mc > 0);
 
         for (int idx = 0; idx < 50; ++idx)
-            cache.insertLast(idx);
+            cache.addLast(idx);
         Assertions.assertEquals(3, cache.size());
         testEquals(cache, 49, 48, 47);
 
@@ -91,15 +164,15 @@ class RollingCacheTest
     void doubleSidedInserts()
     {
         final RollingCache<Integer> cache = new RollingCache<>(3);
-        cache.insertLast(1);
-        cache.insertLast(0);
-        cache.insertFirst(2);
+        cache.addLast(1);
+        cache.addLast(0);
+        cache.addFirst(2);
         testEquals(cache, 0, 1, 2);
 
-        cache.insertLast(3);
+        cache.addLast(3);
         testEquals(cache, 3, 0, 1);
 
-        cache.insertFirst(2);
+        cache.addFirst(2);
         testEquals(cache, 0, 1, 2);
     }
 
@@ -185,16 +258,16 @@ class RollingCacheTest
         final RollingCache<Integer> cache = new RollingCache<>(5);
         cache.addAll(List.of(10, 11));
 
-        Assertions.assertFalse(cache.remove((Integer) 3));
-        Assertions.assertTrue(cache.remove((Integer) 10));
-        Assertions.assertEquals(cache.size(), 1);
+        assertThat(cache.remove((Integer) 3)).isFalse();
+        assertThat(cache.remove((Integer) 10)).isTrue();
+        assertThat(cache.size()).isOne();
 
         cache.addAll(List.of(10, 11, 12, 13, 14));
-        Assertions.assertTrue(cache.remove((Integer) 11));
-        Assertions.assertEquals(cache.size(), 4);
+        assertThat(cache.remove((Integer) 11)).isTrue();
+        Assertions.assertEquals(4, cache.size());
 
-        Assertions.assertTrue(cache.remove((Integer) 13));
-        Assertions.assertEquals(cache.size(), 3);
+        assertThat(cache.remove((Integer) 13)).isTrue();
+        Assertions.assertEquals(3, cache.size());
 
         testEquals(cache, 10, 12, 14);
     }
@@ -246,17 +319,17 @@ class RollingCacheTest
         cache.addAll(List.of(0, 1, 2));
         cache.add(3);
 
-        Assertions.assertTrue(cache.getPtrHead() != 0);
-        Assertions.assertTrue(cache.getPtrTail() != 0);
-        Assertions.assertFalse(cache.isEmpty());
+        assertThat(cache.getPtrHead()).isNotZero();
+        assertThat(cache.getPtrTail()).isNotZero();
+        assertThat(cache).isNotEmpty();
 
         final int mc = cache.getModCount();
         cache.clear();
 
-        Assertions.assertTrue(cache.getModCount() > mc);
-        Assertions.assertTrue(cache.isEmpty());
-        Assertions.assertEquals(0, cache.getPtrHead());
-        Assertions.assertEquals(0, cache.getPtrTail());
+        assertThat(cache.getModCount()).isGreaterThan(mc);
+        assertThat(cache).isEmpty();
+        assertThat(cache.getPtrHead()).isZero();
+        assertThat(cache.getPtrTail()).isZero();
 
         //noinspection ConstantConditions
         testEquals(new Object[]{null, null, null}, cache.rawArray());
@@ -266,12 +339,12 @@ class RollingCacheTest
     void peek()
     {
         final RollingCache<Integer> cache = new RollingCache<>(3);
-        Assertions.assertThrows(NoSuchElementException.class, cache::peekFirst);
-        Assertions.assertThrows(NoSuchElementException.class, cache::peekLast);
+        Assertions.assertThrows(NoSuchElementException.class, cache::getFirst);
+        Assertions.assertThrows(NoSuchElementException.class, cache::getLast);
 
         cache.addAll(List.of(0, 1, 2));
-        Assertions.assertEquals(0, cache.peekFirst());
-        Assertions.assertEquals(2, cache.peekLast());
+        Assertions.assertEquals(0, cache.getFirst());
+        Assertions.assertEquals(2, cache.getLast());
     }
 
     @Test
@@ -366,6 +439,49 @@ class RollingCacheTest
         Assertions.assertThrows(NoSuchElementException.class, it::next);
     }
 
+    @ParameterizedTest
+    @CsvSource(
+        {
+            "0,0",
+            "1,1",
+            "2,2",
+            "3,0",
+            "4,1",
+            "5,2",
+            "6,0",
+            "7,1",
+            "-1,2",
+            "-2,1",
+            "-3,0",
+            "-4,2",
+            "-5,1",
+            "-6,0",
+            "-7,2",
+            "300,0",
+            "-300,0",
+        }
+    )
+    void loopedIndex_shouldReturnValidIndex(int input, int expected)
+    {
+        // setup
+        final RollingCache<Integer> cache = new RollingCache<>(3);
+
+        // execute
+        final int loopedIndex = cache.loopedIndex(input);
+
+        // verify
+        assertThat(loopedIndex).isEqualTo(expected);
+    }
+
+    @Test
+    void loopedIndex_shouldNotWraparoundWhenNotNeeded()
+    {
+        final RollingCache<Integer> cache = new RollingCache<>(5);
+        assertThat(cache.loopedIndex(2)).isEqualTo(2);
+        assertThat(cache.loopedIndex(0)).isEqualTo(0);
+        assertThat(cache.loopedIndex(4)).isEqualTo(4);
+    }
+
     @Test
     void spliterator()
     {
@@ -377,17 +493,16 @@ class RollingCacheTest
         // Now: 0, 1, 2, 3, 4
 
         final RollingCache<Integer>.RollingSpliterator spliterator = cache.spliterator();
-        Assertions.assertEquals(
-            spliterator.characteristics(),
-            Spliterator.NONNULL |
-                Spliterator.ORDERED |
-                Spliterator.SIZED |
-                Spliterator.SUBSIZED |
-                Spliterator.IMMUTABLE
-        );
+        assertThat(spliterator.characteristics())
+            .isEqualTo(
+                Spliterator.NONNULL |
+                    Spliterator.ORDERED |
+                    Spliterator.SIZED |
+                    Spliterator.SUBSIZED
+            );
         Assertions.assertEquals(5, spliterator.estimateSize());
 
-        final AtomicReference<Integer> ref = new AtomicReference<>();
+        final AtomicReference<@Nullable Integer> ref = new AtomicReference<>();
         spliterator.tryAdvance(ref::set);
         Assertions.assertEquals(0, ref.get());
 

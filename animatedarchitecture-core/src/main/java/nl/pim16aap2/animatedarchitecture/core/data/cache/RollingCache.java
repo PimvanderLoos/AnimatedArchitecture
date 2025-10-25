@@ -3,10 +3,12 @@ package nl.pim16aap2.animatedarchitecture.core.data.cache;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.AbstractCollection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
@@ -17,12 +19,15 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 /**
- * Represents a LIFO (Last-In-First-Out) stack of objects with a limited capacity.
+ * Represents a bounded deque with a fixed maximum capacity.
  * <p>
- * When the capacity is exceeded, the last element is evicted to make space for the new element.
+ * When the capacity is exceeded, elements are evicted to make space for the new element.
  * <p>
- * The head contains the element that has been in the stack the shortest and the tail contains the element that has been
- * in the stack the longest.
+ * When adding an element to the head, the oldest element (i.e. the element at the tail) is evicted. When adding an
+ * element to the tail, the newest element (i.e. the element at the head) is evicted.
+ * <p>
+ * The head contains the element that has been in the cache the shortest and the tail contains the element that has been
+ * in the cache the longest.
  * <p>
  * Note that access to this class is not thread-safe and that as such, external synchronization is required if used in a
  * multithreaded environment.
@@ -46,7 +51,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
     public RollingCache(int limit)
     {
         if (limit <= 0)
-            throw new IllegalArgumentException("Limit of rolling stack must be greater than 0!");
+            throw new IllegalArgumentException("Limit of rolling cache must be greater than 0!");
         this.limit = limit;
         //noinspection unchecked
         arr = (T[]) new Object[limit];
@@ -65,12 +70,12 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
     }
 
     /**
-     * See {@link #insertFirst(Object)}.
+     * See {@link #addFirst(Object)}.
      */
     @Override
     public boolean add(T t)
     {
-        insertFirst(t);
+        addFirst(t);
         return true;
     }
 
@@ -95,7 +100,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
      * @return The value that was removed.
      *
      * @throws IndexOutOfBoundsException
-     *     If the given index is negative or exceeds the current size of the stack.
+     *     If the given index is negative or exceeds the current size of the cache.
      */
     public T remove(int index)
     {
@@ -105,10 +110,12 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         if (index == (size - 1))
             return removeLast();
 
+        final boolean onSecondHalf = onSecondHalf(index);
+
         --size;
         ++modCount;
         final int realIndex = loopedIndex(ptrTail + index);
-        return onSecondHalf(index) ? shiftFromHead(realIndex) : shiftFromTail(realIndex);
+        return onSecondHalf ? shiftFromHead(realIndex) : shiftFromTail(realIndex);
     }
 
     /**
@@ -116,7 +123,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
      *
      * @param index
      *     The index to check.
-     * @return True if the index lies on the second half of the data stored in this stack.
+     * @return True if the index lies on the second half of the data stored in this cache.
      */
     boolean onSecondHalf(int index)
     {
@@ -129,7 +136,6 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         @Nullable T previousValue = null;
         for (int idx = ptrHead; idx != targetIdx; idx = loopedIndex(idx - 1))
             previousValue = replace(idx, previousValue);
-        ++modCount;
         return replace(targetIdx, previousValue);
     }
 
@@ -139,7 +145,6 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         for (int idx = ptrTail; idx != targetIdx; idx = loopedIndex(idx + 1))
             previousValue = replace(idx, previousValue);
         ptrTail = loopedIndex(ptrTail + 1);
-        ++modCount;
         return replace(targetIdx, previousValue);
     }
 
@@ -148,7 +153,6 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         final T tmp = arr[realIdx];
         //noinspection ConstantConditions
         arr[realIdx] = value;
-        ++modCount;
         return tmp;
     }
 
@@ -158,9 +162,13 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         if (c.isEmpty())
             return false;
 
-        final Collection<? extends T> add = cropCollection(limit, c);
+        Collection<? extends T> add = cropCollection(limit, c);
+        if (c == this)
+            add = new ArrayList<>(add);
+
         for (final var val : add)
             add(val);
+
         return true;
     }
 
@@ -178,19 +186,19 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
     }
 
     /**
-     * Adds an element to this stack. The element is inserted at the head of the stack.
+     * Adds an element to this cache. The element is inserted at the head of the cache.
      * <p>
-     * If the stack is currently at capacity, the oldest element (i.e. the element at the tail) will be evicted.
+     * If the cache is currently at capacity, the oldest element (i.e. the element at the tail) will be evicted.
      *
      * @param t
      *     The element to add.
      */
-    public void insertFirst(T t)
+    public void addFirst(T t)
     {
         Objects.requireNonNull(t);
         arr[ptrHead] = t;
         ptrHead = loopedIndex(ptrHead + 1);
-        // When the stack is full, move the tail forward,
+        // When the cache is full, move the tail forward,
         // as it has been overwritten by the head now.
         if (size == limit)
             ptrTail = loopedIndex(ptrTail + 1);
@@ -200,19 +208,19 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
     }
 
     /**
-     * Adds an element to this stack. The element is inserted at the tail of the stack.
+     * Adds an element to this cache. The element is inserted at the tail of the cache.
      * <p>
-     * If the stack is currently at capacity, the newest element (i.e. the element at the head) will be evicted.
+     * If the cache is currently at capacity, the newest element (i.e. the element at the head) will be evicted.
      *
      * @param t
      *     The element to add.
      */
-    public void insertLast(T t)
+    public void addLast(T t)
     {
         Objects.requireNonNull(t);
         ptrTail = loopedIndex(ptrTail - 1);
         arr[ptrTail] = t;
-        // When the stack is full, move the head back,
+        // When the cache is full, move the head back,
         // as it has been overwritten by the tail now.
         if (size == limit)
             ptrHead = loopedIndex(ptrHead - 1);
@@ -222,49 +230,49 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
     }
 
     /**
-     * Retrieves, but does not remove, the element at the head of this stack. This is the element that has been in the
-     * stack the shortest.
+     * Retrieves, but does not remove, the element at the head of this cache. This is the element that has been in the
+     * cache the shortest.
      *
-     * @return The last value. This is the value that has been in the stack the shortest.
+     * @return The last value. This is the value that has been in the cache the shortest.
      *
      * @throws NoSuchElementException
-     *     If this stack is empty.
+     *     If this cache is empty.
      */
-    public T peekLast()
+    public T getLast()
     {
         if (size == 0)
-            throw new NoSuchElementException("Cannot retrieve items from empty stack!");
+            throw new NoSuchElementException("Cannot retrieve items from empty cache!");
         return arr[loopedIndex(ptrHead - 1)];
     }
 
     /**
-     * Retrieves, but does not remove, the element at the tail of this stack. This is the element that has been in the
-     * stack the longest.
+     * Retrieves, but does not remove, the element at the tail of this cache. This is the element that has been in the
+     * cache the longest.
      *
-     * @return The first value. This is the value that has been in the stack the longest.
+     * @return The first value. This is the value that has been in the cache the longest.
      *
      * @throws NoSuchElementException
-     *     If this stack is empty.
+     *     If this cache is empty.
      */
-    public T peekFirst()
+    public T getFirst()
     {
         if (size == 0)
-            throw new NoSuchElementException("Cannot retrieve items from empty stack!");
+            throw new NoSuchElementException("Cannot retrieve items from empty cache!");
         return arr[ptrTail];
     }
 
     /**
-     * Removes the element at the head of this stack. This is the element that has been in this stack the shortest.
+     * Removes the element at the head of this cache. This is the element that has been in this cache the shortest.
      *
      * @return The removed element.
      *
      * @throws NoSuchElementException
-     *     If this stack is empty.
+     *     If this cache is empty.
      */
     public T removeLast()
     {
         if (size == 0)
-            throw new NoSuchElementException("Cannot retrieve items from empty stack!");
+            throw new NoSuchElementException("Cannot retrieve items from empty cache!");
 
         ptrHead = loopedIndex(ptrHead - 1);
         final T ret = arr[ptrHead];
@@ -275,17 +283,17 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
     }
 
     /**
-     * Removes the element at the tail of this stack. This is the element that has been in this stack the longest.
+     * Removes the element at the tail of this cache. This is the element that has been in this cache the longest.
      *
      * @return The removed element.
      *
      * @throws NoSuchElementException
-     *     If this stack is empty.
+     *     If this cache is empty.
      */
     public T removeFirst()
     {
         if (size == 0)
-            throw new NoSuchElementException("Cannot retrieve items from empty stack!");
+            throw new NoSuchElementException("Cannot retrieve items from empty cache!");
 
         final T ret = arr[ptrTail];
         setNull(ptrTail);
@@ -303,7 +311,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
      * @return The value at the given position.
      *
      * @throws IndexOutOfBoundsException
-     *     If the given index is negative or exceeds the current size of the stack.
+     *     If the given index is negative or exceeds the current size of the cache.
      */
     public T get(int index)
     {
@@ -318,7 +326,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
     }
 
     /**
-     * Removes all entries from this stack.
+     * Removes all entries from this cache.
      */
     @Override
     public void clear()
@@ -350,9 +358,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
 
     int loopedIndex(int index)
     {
-        if (index < 0)
-            return index + limit;
-        return index % limit;
+        return Math.floorMod(index, limit);
     }
 
     void checkModCount(int expectedModCount)
@@ -361,7 +367,8 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
             throw new ConcurrentModificationException();
     }
 
-    private final class RollingIterator implements Iterator<T>
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public final class RollingIterator implements Iterator<T>
     {
         private int expectedModCount = modCount;
         private int index = -1;
@@ -388,13 +395,12 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         public void remove()
         {
             checkModCount(expectedModCount);
-            checkRemaining();
             if (index < 0)
                 throw new IllegalStateException();
 
             RollingCache.this.remove(index);
             expectedModCount = modCount;
-            --remaining;
+            --index;
         }
 
         private void checkRemaining()
@@ -404,8 +410,8 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         }
     }
 
-    @AllArgsConstructor
-    final class RollingSpliterator implements Spliterator<T>
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public final class RollingSpliterator implements Spliterator<T>
     {
         private int expectedModCount;
         private int index;
@@ -428,6 +434,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
             return true;
         }
 
+        @VisibleForTesting
         @Nullable T peek()
         {
             if (remaining <= 0)
@@ -480,7 +487,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         public int characteristics()
         {
             return Spliterator.NONNULL | Spliterator.ORDERED |
-                Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.IMMUTABLE;
+                Spliterator.SIZED | Spliterator.SUBSIZED;
         }
     }
 }
