@@ -50,6 +50,9 @@ public class Version extends BaseCommand
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * The factory interface for creating {@link Version} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -61,6 +64,7 @@ public class Version extends BaseCommand
          *     containing the current version.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Version newVersion(ICommandSender commandSender);
     }
 }

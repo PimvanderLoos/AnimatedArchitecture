@@ -364,10 +364,7 @@ public final class Step
         }
 
         /**
-         * Nested factory used to create new {@link Step.Factory} instances.
-         * <p>
-         * It is preferred to use this over the direct constructor as this ensures that all required dependencies are
-         * included.
+         * The factory interface for creating {@link Step.Factory} instances.
          */
         @AssistedFactory
         public interface IFactory
@@ -381,6 +378,7 @@ public final class Step
              *     The name of the step to be created.
              * @return The new factory.
              */
+            @SuppressWarnings("NullableProblems")
             Step.Factory stepName(PersonalizedLocalizer localizer, String stepName);
         }
     }

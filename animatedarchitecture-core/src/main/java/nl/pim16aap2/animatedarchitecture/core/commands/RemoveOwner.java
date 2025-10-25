@@ -142,6 +142,9 @@ public class RemoveOwner extends StructureTargetCommand
         }
     }
 
+    /**
+     * The factory interface for creating {@link RemoveOwner} instances.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -157,6 +160,7 @@ public class RemoveOwner extends StructureTargetCommand
          *     The co-owner that is requested to be removed.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         RemoveOwner newRemoveOwner(
             ICommandSender commandSender,
             StructureRetriever structureRetriever,

@@ -64,6 +64,9 @@ public class Menu extends BaseCommand
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * The factory interface for creating {@link Menu} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -81,6 +84,7 @@ public class Menu extends BaseCommand
          *     When this is null (default), the command sender's own structures will be used.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Menu newMenu(ICommandSender commandSender, @Nullable IPlayer source);
 
         /**

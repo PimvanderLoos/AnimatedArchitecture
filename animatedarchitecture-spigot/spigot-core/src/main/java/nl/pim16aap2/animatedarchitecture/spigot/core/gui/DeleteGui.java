@@ -133,9 +133,22 @@ class DeleteGui implements IGuiPage
         return "DeleteGui";
     }
 
+    /**
+     * The factory interface for creating {@link DeleteGui} instances.
+     */
     @AssistedFactory
     interface IFactory
     {
+        /**
+         * Creates and opens a new {@link DeleteGui} for the given structure and player.
+         *
+         * @param structure
+         *     The structure whose deletion is being confirmed.
+         * @param playerSpigot
+         *     The player who is deleting the structure.
+         * @return The created {@link DeleteGui} instance.
+         */
+        @SuppressWarnings("NullableProblems")
         DeleteGui newDeleteGui(Structure structure, WrappedPlayer playerSpigot);
     }
 }

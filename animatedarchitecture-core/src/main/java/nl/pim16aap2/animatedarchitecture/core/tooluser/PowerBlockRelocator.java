@@ -141,9 +141,22 @@ public class PowerBlockRelocator extends ToolUser
         return newLoc;
     }
 
+    /**
+     * The factory interface for creating {@link PowerBlockRelocator} instances.
+     */
     @AssistedFactory
     public interface IFactory
     {
+        /**
+         * Creates a new {@link PowerBlockRelocator} instance.
+         *
+         * @param player
+         *     The player that will use the tool.
+         * @param structure
+         *     The structure to relocate the powerblock of.
+         * @return The created {@link PowerBlockRelocator} instance.
+         */
+        @SuppressWarnings("NullableProblems")
         PowerBlockRelocator create(IPlayer player, Structure structure);
     }
 }

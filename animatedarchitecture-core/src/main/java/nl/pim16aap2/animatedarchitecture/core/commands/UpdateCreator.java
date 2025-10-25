@@ -77,6 +77,9 @@ public final class UpdateCreator extends BaseCommand
             );
     }
 
+    /**
+     * The factory interface for creating {@link UpdateCreator} commands.
+     */
     @AssistedFactory
     public interface IFactory
     {
@@ -91,6 +94,7 @@ public final class UpdateCreator extends BaseCommand
          *     The optional value to provide to the step.
          * @return The new command.
          */
+        @SuppressWarnings("NullableProblems")
         UpdateCreator newUpdateCreator(ICommandSender commandSender, String stepName, @Nullable Object stepValue);
     }
 }

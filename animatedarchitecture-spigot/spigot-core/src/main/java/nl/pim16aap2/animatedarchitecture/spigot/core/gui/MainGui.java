@@ -404,6 +404,9 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         }
     }
 
+    /**
+     * The factory interface for creating {@link MainGui} instances.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -415,6 +418,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
          * @param structures
          *     The structures to show in the GUI.
          */
+        @SuppressWarnings("NullableProblems")
         MainGui newGUI(IPlayer inventoryHolder, List<NamedStructure> structures);
     }
 }

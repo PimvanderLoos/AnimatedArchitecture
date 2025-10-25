@@ -61,6 +61,9 @@ public class Specify extends BaseCommand
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * The factory interface for creating {@link Specify} instances.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -74,6 +77,7 @@ public class Specify extends BaseCommand
          *     registered by the {@link StructureSpecificationManager}.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Specify newSpecify(ICommandSender commandSender, String data);
     }
 }

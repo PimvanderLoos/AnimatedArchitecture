@@ -56,6 +56,9 @@ public class Cancel extends BaseCommand
             getCommandSender().sendError("commands.cancel.no_process");
     }
 
+    /**
+     * The factory interface for creating {@link Cancel} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -66,6 +69,7 @@ public class Cancel extends BaseCommand
          *     The {@link ICommandSender} for which to cancel any active processes.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Cancel newCancel(ICommandSender commandSender);
     }
 }

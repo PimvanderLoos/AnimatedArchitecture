@@ -82,6 +82,7 @@ public final class HighlightedBlockDisplay implements IHighlightedBlock
         this.entity.setViewRange(1F);
         this.entity.setGlowing(true);
         this.entity.setBrightness(new Display.Brightness(15, 15));
+        //noinspection UnstableApiUsage
         this.entity.setVisibleByDefault(false);
     }
 

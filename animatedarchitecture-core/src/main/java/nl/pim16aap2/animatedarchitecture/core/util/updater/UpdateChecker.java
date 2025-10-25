@@ -61,7 +61,6 @@ public final class UpdateChecker implements IDebuggable
      */
     public void checkForUpdates()
     {
-        //noinspection DataFlowIssue
         CompletableFuture
             .supplyAsync(this::checkForUpdates0, Executors.newVirtualThreadPerTaskExecutor())
             .orTimeout(10, TimeUnit.MINUTES)

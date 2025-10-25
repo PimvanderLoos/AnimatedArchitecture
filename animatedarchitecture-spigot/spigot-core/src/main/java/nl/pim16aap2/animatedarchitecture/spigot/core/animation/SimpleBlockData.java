@@ -270,7 +270,7 @@ public class SimpleBlockData implements IAnimatedBlockData
     }
 
     /**
-     * Factory for creating {@link SimpleBlockData} instances.
+     * The factory interface for creating {@link SimpleBlockData} instances.
      */
     @AssistedFactory
     public interface IFactory
@@ -288,6 +288,7 @@ public class SimpleBlockData implements IAnimatedBlockData
          *     The start position of the block.
          * @return The created {@link SimpleBlockData} instance.
          */
+        @SuppressWarnings("NullableProblems")
         SimpleBlockData create(
             AnimatedBlockDisplay animatedBlock,
             @Nullable Consumer<IAnimatedBlockData> blockDataRotator,

@@ -189,6 +189,9 @@ public final class AddOwner extends StructureTargetCommand
         }
     }
 
+    /**
+     * The factory interface for creating {@link AddOwner} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -210,6 +213,7 @@ public final class AddOwner extends StructureTargetCommand
          *     The permission level of the new owner's ownership.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         AddOwner newAddOwner(
             ICommandSender commandSender,
             StructureRetriever structureRetriever,

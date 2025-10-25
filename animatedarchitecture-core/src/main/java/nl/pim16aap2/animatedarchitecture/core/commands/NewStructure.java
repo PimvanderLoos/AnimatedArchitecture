@@ -99,6 +99,9 @@ public class NewStructure extends BaseCommand
             .thenApply(this::hasPermission);
     }
 
+    /**
+     * The factory interface for creating {@link NewStructure} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -116,6 +119,7 @@ public class NewStructure extends BaseCommand
          *     specified, this step will be skipped.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         NewStructure newNewStructure(
             ICommandSender commandSender,
             StructureType structureType,

@@ -195,7 +195,7 @@ public class StructureAnimationRequest
     }
 
     /**
-     * The factory class for {@link StructureAnimationRequest} instances.
+     * The factory interface for creating {@link StructureAnimationRequest} instances.
      */
     @AssistedFactory
     public interface IFactory
@@ -230,6 +230,7 @@ public class StructureAnimationRequest
          *     The type of movement to apply.
          * @return The new {@link AnimationRequestData}.
          */
+        @SuppressWarnings("NullableProblems")
         StructureAnimationRequest create(
             StructureRetriever structureRetriever,
             StructureActionCause cause,

@@ -74,6 +74,9 @@ public class Delete extends StructureTargetCommand
             .thenAccept(result -> handleDatabaseActionResult(result, structure));
     }
 
+    /**
+     * The factory interface for creating {@link Delete} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -87,6 +90,7 @@ public class Delete extends StructureTargetCommand
          *     deletion.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Delete newDelete(ICommandSender commandSender, StructureRetriever structureRetriever);
     }
 }

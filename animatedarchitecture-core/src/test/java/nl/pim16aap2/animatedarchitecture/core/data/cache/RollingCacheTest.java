@@ -185,8 +185,8 @@ class RollingCacheTest
         Assertions.assertFalse(cache.onSecondHalf(0));
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
+    @SuppressWarnings("DataFlowIssue")
     void testShift()
     {
         // We don't really care about _if_ shifting works; the tests
@@ -590,7 +590,7 @@ class RollingCacheTest
         testEquals(expected, cache.toArray());
     }
 
-    private void testEquals(Object[] expected, Object[] provided)
+    private void testEquals(Object @Nullable [] expected, Object @Nullable [] provided)
     {
         // Use Strings so that we can see all the values when they aren't equal,
         // rather than just a message saying the size doesn't match or a single value doesn't.

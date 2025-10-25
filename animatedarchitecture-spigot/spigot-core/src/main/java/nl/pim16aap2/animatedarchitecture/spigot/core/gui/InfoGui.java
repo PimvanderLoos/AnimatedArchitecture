@@ -192,6 +192,16 @@ class InfoGui implements IGuiPage
     @AssistedFactory
     interface IFactory
     {
+        /**
+         * Creates and opens a new {@link InfoGui} for the given structure and player.
+         *
+         * @param structure
+         *     The structure to use to populate the GUI.
+         * @param playerSpigot
+         *     The player to open the GUI for.
+         * @return The created {@link InfoGui} instance.
+         */
+        @SuppressWarnings("NullableProblems")
         InfoGui newInfoGUI(Structure structure, WrappedPlayer playerSpigot);
     }
 }

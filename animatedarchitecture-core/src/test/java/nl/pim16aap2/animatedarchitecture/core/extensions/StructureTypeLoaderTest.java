@@ -98,7 +98,6 @@ class StructureTypeLoaderTest
             );
         }
 
-        //noinspection DataFlowIssue
         for (final String disallowed : new String[]{
             "",
             null,

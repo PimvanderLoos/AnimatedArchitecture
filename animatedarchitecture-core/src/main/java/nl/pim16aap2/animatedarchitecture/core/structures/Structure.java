@@ -1226,9 +1226,15 @@ public final class Structure implements IStructureConst, IPropertyHolder
         }
     }
 
+    /**
+     * Factory for creating {@link Structure} instances.
+     * <p>
+     * This method should not be used directly. Instead, use {@link StructureBuilder}.
+     */
     @AssistedFactory
     interface IFactory
     {
+        @SuppressWarnings("NullableProblems")
         Structure create(
             long structureUID,
             String name,

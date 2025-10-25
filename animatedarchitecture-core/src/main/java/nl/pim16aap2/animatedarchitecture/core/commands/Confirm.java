@@ -56,6 +56,9 @@ public class Confirm extends BaseCommand
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * The factory interface for creating {@link Confirm} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -66,6 +69,7 @@ public class Confirm extends BaseCommand
          *     The {@link ICommandSender} for which to confirm any active processes.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Confirm newConfirm(ICommandSender commandSender);
     }
 }

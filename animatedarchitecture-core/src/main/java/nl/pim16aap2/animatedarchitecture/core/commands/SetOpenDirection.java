@@ -82,6 +82,9 @@ public class SetOpenDirection extends StructureTargetCommand
             .thenRunAsync(() -> sendUpdatedInfo(structure), executor.getVirtualExecutor());
     }
 
+    /**
+     * The factory interface for creating {@link SetOpenDirection} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -99,6 +102,7 @@ public class SetOpenDirection extends StructureTargetCommand
          *     True to send the updated info text to the user after the command has been executed.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         SetOpenDirection newSetOpenDirection(
             ICommandSender commandSender,
             StructureRetriever structureRetriever,

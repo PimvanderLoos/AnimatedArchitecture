@@ -82,7 +82,6 @@ public interface IExecutor
         return runOnMainThread(() ->
         {
             runnable.run();
-            //noinspection DataFlowIssue
             return null;
         });
     }

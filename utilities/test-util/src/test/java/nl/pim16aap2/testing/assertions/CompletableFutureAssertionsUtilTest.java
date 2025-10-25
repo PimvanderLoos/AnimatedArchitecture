@@ -101,7 +101,6 @@ class CompletableFutureAssertionsUtilTest
     @Test
     void getNextContextualOperationException_shouldReturnNullWhenNullInput()
     {
-        //noinspection DataFlowIssue
         assertThat(getNextContextualOperationException(null)).isNull();
     }
 

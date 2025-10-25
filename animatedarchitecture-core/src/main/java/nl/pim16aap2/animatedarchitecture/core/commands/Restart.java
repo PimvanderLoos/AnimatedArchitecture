@@ -56,6 +56,9 @@ public class Restart extends BaseCommand
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * The factory interface for creating {@link Restart} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -66,6 +69,7 @@ public class Restart extends BaseCommand
          *     The {@link ICommandSender} responsible for restarting AnimatedArchitecture.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Restart newRestart(ICommandSender commandSender);
     }
 }

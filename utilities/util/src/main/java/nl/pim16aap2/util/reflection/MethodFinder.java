@@ -202,7 +202,6 @@ public final class MethodFinder
         @Override
         public Method get()
         {
-            //noinspection ConstantConditions
             return Objects.requireNonNull(getNullable(), getNullErrorMessage(name, null));
         }
 
@@ -238,7 +237,6 @@ public final class MethodFinder
         @Override
         public Method get()
         {
-            //noinspection ConstantConditions
             return Objects.requireNonNull(getNullable(), getNullErrorMessage(null, returnType));
         }
 

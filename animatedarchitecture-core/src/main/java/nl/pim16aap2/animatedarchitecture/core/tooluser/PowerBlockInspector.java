@@ -101,11 +101,31 @@ public class PowerBlockInspector extends ToolUser
         return Collections.singletonList(stepBlocksToMove);
     }
 
+    /**
+     * The factory interface for creating {@link PowerBlockInspector} instances.
+     */
     @AssistedFactory
     public interface IFactory
     {
+        /**
+         * Creates a new {@link PowerBlockInspector} instance.
+         *
+         * @param player
+         *     The player using the tool.
+         * @param bypassPermission
+         *     Whether to bypass permission checks.
+         * @return The created {@link PowerBlockInspector} instance.
+         */
+        @SuppressWarnings("NullableProblems")
         PowerBlockInspector create(IPlayer player, boolean bypassPermission);
 
+        /**
+         * Creates a new {@link PowerBlockInspector} instance without bypassing permission checks.
+         *
+         * @param player
+         *     The player using the tool.
+         * @return The created {@link PowerBlockInspector} instance.
+         */
         default PowerBlockInspector create(IPlayer player)
         {
             return create(player, false);

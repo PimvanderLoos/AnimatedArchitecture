@@ -92,6 +92,9 @@ public class SetBlocksToMove extends StructureTargetCommand
         return REQUIRED_PROPERTIES;
     }
 
+    /**
+     * The factory interface for creating {@link SetBlocksToMove} command instances.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -107,6 +110,7 @@ public class SetBlocksToMove extends StructureTargetCommand
          *     The new blocks-to-move distance.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         SetBlocksToMove newSetBlocksToMove(
             ICommandSender commandSender,
             StructureRetriever structureRetriever,

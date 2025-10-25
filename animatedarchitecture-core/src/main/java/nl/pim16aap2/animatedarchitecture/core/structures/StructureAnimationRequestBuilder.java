@@ -245,12 +245,15 @@ public class StructureAnimationRequestBuilder
                 return;
 
             if (structureActionCause == StructureActionCause.PLAYER)
-                //noinspection ConstantConditions
+            {
                 messageReceiver = Objects.requireNonNull(
                     responsible,
                     "Responsible player must be set when the structure action is caused by a player!");
+            }
             else
+            {
                 messageReceiver = messageableServer;
+            }
         }
     }
 

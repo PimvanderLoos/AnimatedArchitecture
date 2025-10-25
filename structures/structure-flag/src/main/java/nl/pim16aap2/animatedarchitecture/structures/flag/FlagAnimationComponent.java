@@ -20,7 +20,6 @@ import java.util.function.BiFunction;
 /**
  * Represents an {@link IAnimationComponent} for {@link Flag} structure types.
  */
-@SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "PMD"})
 @CustomLog
 @ToString
 public final class FlagAnimationComponent implements IAnimationComponent

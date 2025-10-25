@@ -131,6 +131,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
             log.atError().log("Failed to create glowing entity!");
             return Optional.empty();
         }
+        //noinspection UnstableApiUsage
         spigotPlayer.showEntity(plugin, entity);
 
         onBlockSpawn(block, time);

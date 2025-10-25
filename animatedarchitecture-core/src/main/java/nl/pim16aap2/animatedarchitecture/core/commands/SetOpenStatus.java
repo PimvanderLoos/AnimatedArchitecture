@@ -109,6 +109,9 @@ public class SetOpenStatus extends StructureTargetCommand
         return REQUIRED_PROPERTIES;
     }
 
+    /**
+     * The factory interface for creating {@link SetOpenStatus} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -126,6 +129,7 @@ public class SetOpenStatus extends StructureTargetCommand
          *     True to send the updated info text to the user after the command has been executed.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         SetOpenStatus newSetOpenStatus(
             ICommandSender commandSender,
             StructureRetriever structureRetriever,

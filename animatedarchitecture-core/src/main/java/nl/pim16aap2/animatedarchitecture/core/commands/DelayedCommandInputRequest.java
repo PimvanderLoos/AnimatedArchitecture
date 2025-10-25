@@ -245,10 +245,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     }
 
     /**
-     * Factory interface for creating {@link DelayedCommandInputRequest} instances.
-     * <p>
-     * This factory is used with Dagger's assisted injection to create instances where some parameters are provided at
-     * creation time rather than being injected.
+     * The factory interface for creating {@link DelayedCommandInputRequest} instances.
      *
      * @param <T>
      *     The type of data that is to be retrieved from the player
@@ -275,6 +272,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
          *     The context to include in the exception if the future completes exceptionally (can be null).
          * @return A new DelayedCommandInputRequest instance.
          */
+        @SuppressWarnings("NullableProblems")
         DelayedCommandInputRequest<T> create(
             long timeout,
             ICommandSender commandSender,

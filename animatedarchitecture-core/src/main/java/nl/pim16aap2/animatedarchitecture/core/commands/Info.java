@@ -343,6 +343,9 @@ public class Info extends StructureTargetCommand
             .orElse(true);
     }
 
+    /**
+     * The factory interface for creating {@link Info} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -357,6 +360,7 @@ public class Info extends StructureTargetCommand
          *     retrieved.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Info newInfo(ICommandSender commandSender, StructureRetriever structureRetriever);
     }
 }

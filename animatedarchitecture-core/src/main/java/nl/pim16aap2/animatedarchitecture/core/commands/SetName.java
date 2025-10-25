@@ -62,6 +62,9 @@ public class SetName extends BaseCommand
         return CompletableFuture.failedFuture(new CommandExecutionException(true, "No pending process."));
     }
 
+    /**
+     * The factory interface for creating {@link SetName} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -74,6 +77,7 @@ public class SetName extends BaseCommand
          *     The new name specified by the command sender.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         SetName newSetName(ICommandSender commandSender, String name);
     }
 }

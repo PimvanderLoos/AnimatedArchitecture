@@ -98,6 +98,9 @@ public class Lock extends StructureTargetCommand
             .thenRunAsync(() -> sendUpdatedInfo(structure), executor.getVirtualExecutor());
     }
 
+    /**
+     * The factory interface for creating {@link Lock} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -115,6 +118,7 @@ public class Lock extends StructureTargetCommand
          *     True to send the updated info text to the user after the command has been executed.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Lock newLock(
             ICommandSender commandSender,
             StructureRetriever structureRetriever,

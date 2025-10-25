@@ -106,7 +106,7 @@ public class AssistedFactoryMocker<T, U>
      * <p>
      * The keys of the map are provided by {@link MappedParameter#getNamedTypeHash(Class, String)}.
      */
-    private final Int2ObjectMap<MappedParameter> injectedParameters;
+    private final Int2ObjectMap<@Nullable MappedParameter> injectedParameters;
 
     /**
      * The mock settings that are used to create the injected objects for the factory (i.e. the objects that are not
@@ -328,12 +328,11 @@ public class AssistedFactoryMocker<T, U>
         {
             final int idx = parameter.getTargetIdx();
 
-            final @Nullable Object value =
-                parameter.isInjected() ?
-                    parameter.getValue() :
-                    factoryParams[parameter.getFactoryIdx()];
+            final Object value = parameter.isInjected() ?
+                parameter.getValue() :
+                factoryParams[parameter.getFactoryIdx()];
 
-            //noinspection ConstantConditions
+            //noinspection DataFlowIssue
             ctorParams[idx] = value;
         }
 
@@ -388,7 +387,7 @@ public class AssistedFactoryMocker<T, U>
      * @param type
      *     The type of the mocked object to get.
      * @param name
-     *     The name of the mocked object, as specified by {@link Assisted#value()} in the constructor..
+     *     The name of the mocked object, as specified by {@link Assisted#value()} in the constructor.
      * @param <V>
      *     The type of the mocked object to get.
      * @return The mocked object of the given type with the given name.
@@ -398,9 +397,9 @@ public class AssistedFactoryMocker<T, U>
      */
     public <V> V getParameter(Class<V> type, @Nullable String name)
     {
-        final @Nullable MappedParameter param = injectedParameters.get(MappedParameter.getNamedTypeHash(type, name));
+        final MappedParameter param = injectedParameters.get(MappedParameter.getNamedTypeHash(type, name));
         //noinspection unchecked
-        final @Nullable V ret = param == null ? null : (V) param.getValue();
+        final V ret = param == null ? null : (V) param.getValue();
         if (ret == null)
             throw new IllegalArgumentException(
                 "Could not find a mapping for a mocked object with type: " + type + " and name: " + name);
@@ -504,9 +503,9 @@ public class AssistedFactoryMocker<T, U>
      *
      * @return The map of the mocked parameters with the {@link MappedParameter#getNamedTypeHash()}
      */
-    private Int2ObjectMap<MappedParameter> insertMocks()
+    private Int2ObjectMap<@Nullable MappedParameter> insertMocks()
     {
-        final Int2ObjectMap<MappedParameter> ret = new Int2ObjectOpenHashMap<>();
+        final Int2ObjectMap<@Nullable MappedParameter> ret = new Int2ObjectOpenHashMap<>();
         for (final MappedParameter parameter : mappedParameters)
         {
             if (!parameter.isInjected())
@@ -549,11 +548,10 @@ public class AssistedFactoryMocker<T, U>
         Parameter parameter,
         Function<T, @Nullable String> mapper)
     {
-        final @Nullable T annotation = parameter.getAnnotation(annotationType);
-        //noinspection ConstantConditions
+        final T annotation = parameter.getAnnotation(annotationType);
         if (annotation == null)
             return null;
-        final @Nullable String val = mapper.apply(annotation);
+        final String val = mapper.apply(annotation);
         if ("".equals(val))
             return null;
         return val;
@@ -572,7 +570,7 @@ public class AssistedFactoryMocker<T, U>
         ret.ensureCapacity(parameters.length);
         for (final Parameter parameter : parameters)
         {
-            @Nullable String named = getAnnotationValue(Assisted.class, parameter, Assisted::value);
+            String named = getAnnotationValue(Assisted.class, parameter, Assisted::value);
             if (named == null)
                 named = getAnnotationValue(Named.class, parameter, Named::value);
 
@@ -695,7 +693,7 @@ public class AssistedFactoryMocker<T, U>
     static Method findFactoryMethod(@Nullable Class<?> targetClass, Class<?> factoryClass)
         throws IllegalArgumentException
     {
-        @Nullable Method result = null;
+        Method result = null;
         for (final Method method : factoryClass.getDeclaredMethods())
         {
             if (method.isDefault() || Modifier.isStatic(method.getModifiers()))
@@ -850,7 +848,7 @@ public class AssistedFactoryMocker<T, U>
          */
         default void inject(boolean skipMissing, AssistedFactoryMocker<?, ?> afm, @Nullable String name)
         {
-            final @Nullable MappedParameter param = getMappedParameter(afm, name);
+            final MappedParameter param = getMappedParameter(afm, name);
             if (param == null)
             {
                 if (skipMissing)
@@ -866,7 +864,7 @@ public class AssistedFactoryMocker<T, U>
     private record InjectedParameterExact<T>(Class<T> type, T value) implements IInjectedParameter<T>
     {
         @Override
-        public MappedParameter getMappedParameter(AssistedFactoryMocker<?, ?> afm, @Nullable String name)
+        public @Nullable MappedParameter getMappedParameter(AssistedFactoryMocker<?, ?> afm, @Nullable String name)
         {
             return afm.injectedParameters.get(MappedParameter.getNamedTypeHash(type, name));
         }
