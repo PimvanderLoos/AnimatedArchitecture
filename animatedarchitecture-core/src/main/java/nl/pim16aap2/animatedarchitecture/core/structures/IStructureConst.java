@@ -6,7 +6,9 @@ import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyContainerConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolderConst;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyAccessLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSnapshot;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyValuePair;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
@@ -14,6 +16,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -372,4 +375,64 @@ public interface IStructureConst extends IPropertyHolderConst
      * @return True if this structure can move perpetually.
      */
     boolean canMovePerpetually();
+
+    /**
+     * Retrieves a filtered snapshot of properties that the given owner can access at the specified access level.
+     * <p>
+     * This method determines the owner's permission level and filters the structure's properties to include only those
+     * where the owner's permission level grants the requested access level.
+     * <p>
+     * For example, if requesting {@link PropertyAccessLevel#READ} access for an owner with
+     * {@link PermissionLevel#USER}, only properties that grant read access to users will be included.
+     * <p>
+     * A structure owner with a higher permission level (e.g., ADMIN) will always have access to all properties that a
+     * lower permission level (e.g., USER) has access to.
+     *
+     * @param structureOwner
+     *     The UUID of the owner whose permission level determines what properties can be accessed.
+     * @param propertyAccessLevel
+     *     The access level required (e.g., READ, WRITE). Only properties that grant this access level to the owner's
+     *     permission level will be included.
+     * @return A snapshot containing only the properties accessible at the specified level for the given owner.
+     */
+    default PropertyContainerSnapshot getPropertiesForOwnerFilteredByAccessLevel(
+        UUID structureOwner,
+        PropertyAccessLevel propertyAccessLevel)
+    {
+        return getOwner(structureOwner)
+            .map(owner -> getPropertiesForOwnerFilteredByAccessLevel(owner, propertyAccessLevel))
+            .orElse(PropertyContainerSnapshot.EMPTY);
+    }
+
+    /**
+     * Retrieves a filtered snapshot of properties that the given owner can access at the specified access level.
+     * <p>
+     * This method determines the owner's permission level and filters the structure's properties to include only those
+     * where the owner's permission level grants the requested access level.
+     * <p>
+     * For example, if requesting {@link PropertyAccessLevel#READ} access for an owner with
+     * {@link PermissionLevel#USER}, only properties that grant read access to users will be included.
+     * <p>
+     * A structure owner with a higher permission level (e.g., ADMIN) will always have access to all properties that a
+     * lower permission level (e.g., USER) has access to.
+     *
+     * @param structureOwner
+     *     The owner whose permission level determines what properties can be accessed.
+     * @param propertyAccessLevel
+     *     The access level required (e.g., READ, WRITE). Only properties that grant this access level to the owner's
+     *     permission level will be included.
+     * @return A snapshot containing only the properties accessible at the specified level for the given owner.
+     */
+    default PropertyContainerSnapshot getPropertiesForOwnerFilteredByAccessLevel(
+        StructureOwner structureOwner,
+        PropertyAccessLevel propertyAccessLevel)
+    {
+        final PermissionLevel structurePermissionLevel = structureOwner.permission();
+
+        final List<PropertyValuePair<?>> filteredProperties = getPropertyContainerSnapshot().stream()
+            .filter(pair -> pair.property().hasAccessLevel(structurePermissionLevel, propertyAccessLevel))
+            .toList();
+
+        return new PropertyContainerSnapshot(filteredProperties);
+    }
 }

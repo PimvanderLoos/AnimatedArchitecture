@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
+import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -25,6 +27,209 @@ class PropertyTest
         .withPropertyScopes(PropertyScope.REDSTONE)
         .build();
 
+    @Test
+    void userHasAccessLevel_shouldReturnTrueForGrantedAccessLevel()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withUserAccessLevels(PropertyAccessLevel.READ, PropertyAccessLevel.EDIT)
+            .build();
+
+        // execute & verify
+        assertThat(property.userHasAccessLevel(PropertyAccessLevel.READ)).isTrue();
+        assertThat(property.userHasAccessLevel(PropertyAccessLevel.EDIT)).isTrue();
+    }
+
+    @Test
+    void userHasAccessLevel_shouldReturnFalseForNotGrantedAccessLevel()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .build();
+
+        // execute & verify
+        assertThat(property.userHasAccessLevel(PropertyAccessLevel.EDIT)).isFalse();
+    }
+
+    @Test
+    void adminHasAccessLevel_shouldReturnTrueForGrantedAccessLevel()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT, PropertyAccessLevel.ADD)
+            .build();
+
+        // execute & verify
+        assertThat(property.adminHasAccessLevel(PropertyAccessLevel.EDIT)).isTrue();
+        assertThat(property.adminHasAccessLevel(PropertyAccessLevel.ADD)).isTrue();
+    }
+
+    @Test
+    void adminHasAccessLevel_shouldReturnFalseForNotGrantedAccessLevel()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT)
+            .build();
+
+        // execute & verify
+        assertThat(property.adminHasAccessLevel(PropertyAccessLevel.READ)).isFalse();
+    }
+
+    @Test
+    void adminHasAccessLevel_shouldIncludeUserAccessLevel()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT)
+            .build();
+
+        // execute & verify
+        assertThat(property.adminHasAccessLevel(PropertyAccessLevel.READ)).isTrue();
+        assertThat(property.adminHasAccessLevel(PropertyAccessLevel.EDIT)).isTrue();
+    }
+
+    @Test
+    void hasAccessLevel_withPermissionLevel_shouldReturnTrueForUserWithGrantedLevel()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .build();
+
+        // execute & verify
+        assertThat(property.hasAccessLevel(PermissionLevel.USER, PropertyAccessLevel.READ)).isTrue();
+    }
+
+    @Test
+    void hasAccessLevel_withPermissionLevel_shouldReturnFalseForUserWithoutGrantedLevel()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .build();
+
+        // execute & verify
+        assertThat(property.hasAccessLevel(PermissionLevel.USER, PropertyAccessLevel.EDIT)).isFalse();
+    }
+
+    @Test
+    void hasAccessLevel_withPermissionLevel_shouldReturnTrueForAdminWithGrantedLevel()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT)
+            .build();
+
+        // execute & verify
+        assertThat(property.hasAccessLevel(PermissionLevel.ADMIN, PropertyAccessLevel.EDIT)).isTrue();
+    }
+
+    @Test
+    void hasAccessLevel_withPermissionLevel_shouldReturnTrueForCreatorWithGrantedLevel()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT)
+            .build();
+
+        // execute & verify
+        assertThat(property.hasAccessLevel(PermissionLevel.CREATOR, PropertyAccessLevel.EDIT)).isTrue();
+    }
+
+    @Test
+    void hasAccessLevel_withPermissionLevel_shouldReturnTrueForCreatorWithLevelGrantedToUsers()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withUserAccessLevels(PropertyAccessLevel.EDIT)
+            .build();
+
+        // execute & verify
+        assertThat(property.hasAccessLevel(PermissionLevel.CREATOR, PropertyAccessLevel.EDIT)).isTrue();
+    }
+
+    @Test
+    void hasAccessLevel_withPermissionLevel_shouldReturnFalseForNoAccessPermissionLevel()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT)
+            .build();
+
+        // execute & verify
+        assertThat(property.hasAccessLevel(PermissionLevel.NO_PERMISSION, PropertyAccessLevel.READ)).isFalse();
+        assertThat(property.hasAccessLevel(PermissionLevel.NO_PERMISSION, PropertyAccessLevel.EDIT)).isFalse();
+        assertThat(property.hasAccessLevel(PermissionLevel.NO_PERMISSION, PropertyAccessLevel.ADD)).isFalse();
+        assertThat(property.hasAccessLevel(PermissionLevel.NO_PERMISSION, PropertyAccessLevel.REMOVE)).isFalse();
+    }
+
+    @Test
+    void getAccessLevel_shouldReturnAdminAccessLevelForAdmin()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT)
+            .build();
+
+        // execute
+        final int accessLevel = property.getAccessLevel(PermissionLevel.ADMIN);
+
+        // verify
+        assertThat(accessLevel).isEqualTo(property.getAdminAccessLevel());
+    }
+
+    @Test
+    void getAccessLevel_shouldReturnAdminAccessLevelForCreator()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT)
+            .build();
+
+        // execute
+        final int accessLevel = property.getAccessLevel(PermissionLevel.CREATOR);
+
+        // verify
+        assertThat(accessLevel).isEqualTo(property.getAdminAccessLevel());
+    }
+
+    @Test
+    void getAccessLevel_shouldReturnUserAccessLevelForUser()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT)
+            .build();
+
+        // execute
+        final int accessLevel = property.getAccessLevel(PermissionLevel.USER);
+
+        // verify
+        assertThat(accessLevel).isEqualTo(property.getUserAccessLevel());
+    }
+
+    @Test
+    void getAccessLevel_shouldReturnZeroForNoPermission()
+    {
+        // setup
+        final Property<String> property = newPropertyBuilder()
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .withAdminAccessLevels(PropertyAccessLevel.EDIT)
+            .build();
+
+        // execute
+        final int accessLevel = property.getAccessLevel(PermissionLevel.NO_PERMISSION);
+
+        // verify
+        assertThat(accessLevel).isEqualTo(0);
+    }
 
     @Test
     @SuppressWarnings("ConstantValue")
@@ -322,5 +527,12 @@ class PropertyTest
                 0, 0,
                 null
             ));
+    }
+
+    private static Property.PropertyBuilder<String> newPropertyBuilder()
+    {
+        return Property
+            .builder(NamespacedKey.of("animatedarchitecture:test-" + UUID.randomUUID()), String.class)
+            .withDefaultValue("defaultValue");
     }
 }
