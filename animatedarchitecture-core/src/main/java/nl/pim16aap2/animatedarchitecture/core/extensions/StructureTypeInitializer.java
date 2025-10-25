@@ -197,8 +197,7 @@ final class StructureTypeInitializer
      *     The {@link StructureTypeInfo} to load.
      * @return The {@link StructureType} that resulted from loading the {@link StructureTypeInfo}, if possible.
      */
-    @Nullable
-    StructureType loadStructureType(StructureTypeInfo structureTypeInfo)
+    @Nullable StructureType loadStructureType(StructureTypeInfo structureTypeInfo)
     {
         if (!structureTypeClassLoader.loadJar(structureTypeInfo.getJarFile()))
         {

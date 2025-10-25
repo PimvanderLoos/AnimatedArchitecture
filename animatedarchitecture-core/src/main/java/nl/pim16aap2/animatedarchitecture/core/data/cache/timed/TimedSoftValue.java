@@ -24,6 +24,7 @@
 
 package nl.pim16aap2.animatedarchitecture.core.data.cache.timed;
 
+import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.SoftReference;
@@ -131,9 +132,8 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
      *
      * @return The raw hard reference to the value.
      */
-    // Useful for testing.
-    @Nullable
-    T getRawHardReference()
+    @VisibleForTesting
+    @Nullable T getRawHardReference()
     {
         return hardReference;
     }

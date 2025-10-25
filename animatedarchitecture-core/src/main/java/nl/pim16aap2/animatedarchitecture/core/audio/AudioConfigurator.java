@@ -165,8 +165,7 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         private final @Nullable AudioSet defaultSet;
         private final Map<StructureType, @Nullable AudioSet> sets;
 
-        @Nullable
-        AudioSet defaultSet()
+        @Nullable AudioSet defaultSet()
         {
             return defaultSet;
         }

@@ -23,9 +23,9 @@ import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.time.Duration;
 import java.util.ArrayDeque;
@@ -680,7 +680,7 @@ public final class StructureFinder
      */
     private CompletableFuture<List<MinimalStructureDescription>> getNewStructureIdentifiers(String input)
     {
-        final @Nullable IPlayer player = commandSender.getPlayer().orElse(null);
+        final IPlayer player = commandSender.getPlayer().orElse(null);
         return databaseManager
             .getIdentifiersFromPartial(input, player, maxPermission, properties)
             .thenApply(ids ->
@@ -790,7 +790,7 @@ public final class StructureFinder
             {
                 try
                 {
-                    @Nullable List<MinimalStructureDescription> newCache = null;
+                    List<MinimalStructureDescription> newCache = null;
                     synchronized (msg)
                     {
                         final long deadline = System.nanoTime() + Duration.ofSeconds(DEFAULT_TIMEOUT).toNanos();

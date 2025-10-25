@@ -335,8 +335,7 @@ public class Text implements CharSequence
      * @return The new text component if one was created or null if no specific decoration should be applied to the
      * text.
      */
-    @Nullable
-    TextComponent newTextComponent(@Nullable TextType type)
+    @Nullable TextComponent newTextComponent(@Nullable TextType type)
     {
         return textComponentFactory.newComponent(type);
     }
@@ -373,9 +372,11 @@ public class Text implements CharSequence
      * @return The new text component if one was created or null if no specific decoration should be applied to the
      * text.
      */
-    @Nullable
-    TextComponent newClickableTextComponent(
-        @Nullable TextType type, String command, @Nullable String info)
+    @Nullable TextComponent newClickableTextComponent(
+        @Nullable TextType type,
+        String command,
+        @Nullable String info
+    )
     {
         return textComponentFactory.newClickableTextComponent(type, command, info);
     }

@@ -18,8 +18,7 @@ public record StructureTypeConfigurationOption<T>(
     String name,
     T defaultValue,
     Class<T> type,
-    @Nullable
-    String comment
+    @Nullable String comment
 )
 {
     /**

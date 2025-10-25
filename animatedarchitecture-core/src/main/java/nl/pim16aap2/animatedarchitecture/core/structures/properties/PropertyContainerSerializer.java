@@ -10,8 +10,8 @@ import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -229,7 +229,7 @@ public final class PropertyContainerSerializer
                 continue;
             }
 
-            final @Nullable Property<?> property = Property.fromName(key);
+            final Property<?> property = Property.fromName(key);
             if (property != null)
                 addNonDefaultProperty(propertyMap, property, key, jsonObject);
             else

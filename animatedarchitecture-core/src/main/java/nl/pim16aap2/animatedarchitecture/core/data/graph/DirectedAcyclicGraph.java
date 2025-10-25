@@ -4,8 +4,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -182,7 +182,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
 
     private @Nullable Node<T> remove0(T val)
     {
-        final @Nullable Node<T> removed = nodes.remove(val);
+        final Node<T> removed = nodes.remove(val);
         if (removed == null)
             return null;
 
@@ -206,7 +206,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      */
     public @Nullable T remove(T val)
     {
-        final @Nullable Node<T> removed = remove0(val);
+        final Node<T> removed = remove0(val);
         return removed == null ? null : removed.getObj();
     }
 

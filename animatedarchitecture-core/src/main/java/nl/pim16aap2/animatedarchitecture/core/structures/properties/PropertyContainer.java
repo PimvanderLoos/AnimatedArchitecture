@@ -473,8 +473,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      * @return The raw value mapped to the given key, or {@code null} if no value is mapped to the key.
      */
     @VisibleForTesting
-    @Nullable
-    IPropertyValue<?> getRawValue(String key)
+    @Nullable IPropertyValue<?> getRawValue(String key)
     {
         return propertyMap.get(key);
     }

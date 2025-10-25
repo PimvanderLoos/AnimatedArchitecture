@@ -565,11 +565,11 @@ public class UnitTestUtil
      * @return The value from the supplier, or the fallback value if the supplier fails.
      */
     @SuppressWarnings("EmptyCatch")
-    private static <T> T safeSupplierSimple(T fallback, CheckedSupplier<T, ?> supplier)
+    private static <T> T safeSupplierSimple(T fallback, CheckedSupplier<@Nullable T, ?> supplier)
     {
         try
         {
-            final @Nullable T ret = supplier.get();
+            final T ret = supplier.get();
             if (ret != null)
                 return ret;
         }

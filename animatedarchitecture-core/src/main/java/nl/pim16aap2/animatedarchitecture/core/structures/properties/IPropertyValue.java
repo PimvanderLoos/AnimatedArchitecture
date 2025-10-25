@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents the immutable value of a property.
@@ -38,8 +38,7 @@ public sealed interface IPropertyValue<T>
      *
      * @return The value of this property.
      */
-    @Nullable
-    T value();
+    @Nullable T value();
 
     /**
      * Gets the type of the value.

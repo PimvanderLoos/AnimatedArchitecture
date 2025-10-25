@@ -10,8 +10,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -77,7 +77,7 @@ public class SetOpenStatus extends StructureTargetCommand
     @Override
     protected CompletableFuture<?> performAction(Structure structure)
     {
-        final @Nullable Boolean oldStatus = structure.setPropertyValue(Property.OPEN_STATUS, isOpen).value();
+        final Boolean oldStatus = structure.setPropertyValue(Property.OPEN_STATUS, isOpen).value();
         if (oldStatus == null || oldStatus != isOpen)
         {
             // The open status has changed, so we need to update the database and inform the user.
