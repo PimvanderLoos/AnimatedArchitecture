@@ -1,5 +1,6 @@
 /**
- * Contains the {@link nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor} class and its subclasses.
+ * Contains the {@link nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor} class and its
+ * subclasses.
  * <p>
  * Step executors for several types are provided, but more can be defined when needed.
  * <p>

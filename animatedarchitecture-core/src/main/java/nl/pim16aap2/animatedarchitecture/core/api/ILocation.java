@@ -18,7 +18,8 @@ public interface ILocation
      *     The new coordinate.
      * @return A new {@link ILocation}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     ILocation setX(double newVal);
 
     /**
@@ -28,7 +29,8 @@ public interface ILocation
      *     The new coordinate.
      * @return A new {@link ILocation}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     ILocation setY(double newVal);
 
     /**
@@ -38,7 +40,8 @@ public interface ILocation
      *     The new coordinate.
      * @return A new {@link ILocation}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     ILocation setZ(double newVal);
 
     /**
@@ -52,7 +55,8 @@ public interface ILocation
      *     The value to add to the z coordinate.
      * @return A new {@link ILocation}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     ILocation add(double x, double y, double z);
 
     /**
@@ -62,7 +66,8 @@ public interface ILocation
      *     The vector to add to the coordinates.
      * @return A new {@link ILocation}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     ILocation add(Vector3Di vector);
 
     /**
@@ -72,7 +77,8 @@ public interface ILocation
      *     The vector to add to the coordinates.
      * @return A new {@link ILocation}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     ILocation add(Vector3Dd vector);
 
     /**
@@ -80,7 +86,8 @@ public interface ILocation
      *
      * @return The world of this location.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     IWorld getWorld();
 
     /**
@@ -88,7 +95,8 @@ public interface ILocation
      *
      * @return The chunk coordinates of this location.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     Vector2Di getChunk();
 
     /**
@@ -96,7 +104,8 @@ public interface ILocation
      *
      * @return The X value of this location.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     int getBlockX();
 
     /**
@@ -104,7 +113,8 @@ public interface ILocation
      *
      * @return The Y value of this location.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     int getBlockY();
 
     /**
@@ -112,7 +122,8 @@ public interface ILocation
      *
      * @return The Z value of this location.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     int getBlockZ();
 
     /**
@@ -120,7 +131,8 @@ public interface ILocation
      *
      * @return The X value of this location.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     double getX();
 
     /**
@@ -128,7 +140,8 @@ public interface ILocation
      *
      * @return The Y value of this location.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     double getY();
 
     /**
@@ -136,16 +149,19 @@ public interface ILocation
      *
      * @return The Z value of this location.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     double getZ();
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     default Vector3Di getPosition()
     {
         return new Vector3Di(getBlockX(), getBlockY(), getBlockZ());
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     default Vector3Dd getPositionDouble()
     {
         return new Vector3Dd(getX(), getY(), getZ());
@@ -156,7 +172,8 @@ public interface ILocation
      *
      * @return The position in integers as a String.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     default String toIntPositionString()
     {
         return String.format("(%d;%d;%d)", getBlockX(), getBlockY(), getBlockZ());
@@ -167,7 +184,8 @@ public interface ILocation
      *
      * @return The position in double as a String.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     default String toDoublePositionString()
     {
         return String.format("(%.2f;%.2f;%.2f)", getX(), getY(), getZ());

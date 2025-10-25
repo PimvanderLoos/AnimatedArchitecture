@@ -10,8 +10,7 @@ public interface IStructurePrepareCreateEvent extends IStructureEvent, ICancella
     /**
      * Gets the {@link Structure} that was created.
      * <p>
-     * Note that this is NOT the final {@link Structure} that will exist after creation; it is merely a
-     * preview!
+     * Note that this is NOT the final {@link Structure} that will exist after creation; it is merely a preview!
      *
      * @return The {@link Structure} that will be created.
      */

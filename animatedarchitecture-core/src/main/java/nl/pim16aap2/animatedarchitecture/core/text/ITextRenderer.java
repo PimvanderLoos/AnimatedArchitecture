@@ -56,8 +56,8 @@ public interface ITextRenderer<T>
     default <U extends ITextDecorator> Stream<U> getDecoratorsOfType(Class<U> clz, TextComponent component)
     {
         return component.decorators().stream()
-                        .filter(clz::isInstance)
-                        .map(clz::cast);
+            .filter(clz::isInstance)
+            .map(clz::cast);
     }
 
     /**

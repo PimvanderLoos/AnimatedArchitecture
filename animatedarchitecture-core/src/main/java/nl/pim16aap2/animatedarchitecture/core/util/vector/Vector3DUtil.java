@@ -13,19 +13,22 @@ final class Vector3DUtil
         // utility class
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     static double getDistance(double x0, double y0, double z0, double x1, double y1, double z1)
     {
         return Math.sqrt(Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2) + Math.pow(z0 - z1, 2));
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     static double getDistance(IVector3D from, IVector3D to)
     {
         return getDistance(from.xD(), from.yD(), from.zD(), to.xD(), to.yD(), to.zD());
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     static Vector3Dd rotateAroundXAxis(IVector3D basePoint, IVector3D pivotPoint, double radians)
     {
         final double cos = Math.cos(radians);
@@ -43,7 +46,8 @@ final class Vector3DUtil
         return new Vector3Dd(basePoint.xD(), newY, newZ);
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     static Vector3Dd rotateAroundYAxis(IVector3D basePoint, IVector3D pivotPoint, double radians)
     {
         final double cos = Math.cos(radians);
@@ -60,7 +64,8 @@ final class Vector3DUtil
         return new Vector3Dd(newX, basePoint.yD(), newZ);
     }
 
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     static Vector3Dd rotateAroundZAxis(IVector3D basePoint, IVector3D pivotPoint, double radians)
     {
         final double cos = Math.cos(radians);

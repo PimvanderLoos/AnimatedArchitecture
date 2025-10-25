@@ -4,7 +4,8 @@
  * that throw checked exceptions.
  * <p>
  * Other classes in this package are versions of functional interfaces with different types or counts of parameters
- * compared to existing interfaces. For example the {@link nl.pim16aap2.animatedarchitecture.core.util.functional.TriIntConsumer}.
+ * compared to existing interfaces. For example the
+ * {@link nl.pim16aap2.animatedarchitecture.core.util.functional.TriIntConsumer}.
  */
 @NullMarked
 package nl.pim16aap2.animatedarchitecture.core.util.functional;

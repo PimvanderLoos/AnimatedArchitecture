@@ -10,8 +10,7 @@ public interface IStructurePrepareLockChangeEvent extends IStructureEvent, ICanc
     /**
      * The new lock status of the {@link Structure} that will be applied if this event is not cancelled.
      *
-     * @return The new lock status of the {@link Structure}, where true indicates locked, and false indicates
-     * unlocked.
+     * @return The new lock status of the {@link Structure}, where true indicates locked, and false indicates unlocked.
      */
     boolean newLockStatus();
 }
