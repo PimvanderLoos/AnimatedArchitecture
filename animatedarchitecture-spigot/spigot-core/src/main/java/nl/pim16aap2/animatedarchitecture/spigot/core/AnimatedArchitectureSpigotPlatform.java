@@ -296,9 +296,14 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private void initPlatform()
         throws InitializationException
     {
-        safeGetter(AnimatedArchitectureSpigotComponent::getDebuggableRegistry).registerDebuggable(restartableHolder);
+        safeGetter(AnimatedArchitectureSpigotComponent::getDebuggableRegistry)
+            .registerDebuggable(restartableHolder);
+
         getAnimationHookManager().registerFactory(
             safeGetter(AnimatedArchitectureSpigotComponent::getAudioAnimationHookFactory));
+
+        safeGetter(AnimatedArchitectureSpigotComponent::getPropertyGuiAdapterInitializer)
+            .initialize();
     }
 
     private <T> T safeGetter(Function<AnimatedArchitectureSpigotComponent, @Nullable T> fun)
