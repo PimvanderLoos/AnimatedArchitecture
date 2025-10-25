@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
 import org.jspecify.annotations.Nullable;
+import java.util.Objects;
 
 /**
  * Represents a property-value pair.
@@ -16,6 +17,11 @@ public record PropertyValuePair<T>(
     Property<T> property,
     IPropertyValue<T> value)
 {
+    public PropertyValuePair
+    {
+        Objects.requireNonNull(property);
+    }
+
     /**
      * Creates a new property-value pair.
      *
