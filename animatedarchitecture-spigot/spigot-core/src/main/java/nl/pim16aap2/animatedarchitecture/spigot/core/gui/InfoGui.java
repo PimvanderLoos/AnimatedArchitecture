@@ -168,7 +168,6 @@ class InfoGui implements IGuiPage
             .getValues()
             .stream()
             .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
-            .filter(attr -> attr != StructureAttribute.SWITCH)
             .toList();
     }
 

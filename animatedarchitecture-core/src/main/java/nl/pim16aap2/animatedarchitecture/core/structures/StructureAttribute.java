@@ -73,13 +73,9 @@ public enum StructureAttribute
     /**
      * Sets a {@link Property} for a structure.
      */
-    SET_PROPERTY(PermissionLevel.ADMIN),
+    SET_PROPERTY(PermissionLevel.USER),
 
-    /**
-     * Turns a structure on or off. When on, the structure will rotate until turned off or until the chunks are
-     * unloaded.
-     */
-    SWITCH(PermissionLevel.USER);
+    ;
 
     private static final List<StructureAttribute> VALUES = Arrays.asList(values());
 

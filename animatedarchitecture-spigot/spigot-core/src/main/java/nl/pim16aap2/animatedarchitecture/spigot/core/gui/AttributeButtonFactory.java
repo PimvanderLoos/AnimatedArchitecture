@@ -413,9 +413,7 @@ class AttributeButtonFactory
             case PREVIEW -> this.previewButton(structure, player, slotChar);
             case RELOCATE_POWERBLOCK -> this.relocatePowerBlockButton(structure, player, slotChar);
             case REMOVE_OWNER -> this.removeOwnerButton(structure, player, slotChar);
-            case SET_PROPERTY ->
-                throw new UnsupportedOperationException("Set property attribute has not been implemented yet.");
-            case SWITCH -> throw new UnsupportedOperationException("Switch attribute has not been implemented yet.");
+            case SET_PROPERTY -> null;
             case TOGGLE -> this.toggleButton(structure, player, slotChar);
         };
     }
