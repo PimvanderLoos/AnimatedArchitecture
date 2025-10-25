@@ -90,7 +90,7 @@ public final class LocalizationUtil
 
         for (final String line : newLines)
         {
-            final @Nullable LocalizationEntry entry = getEntryFromLine(line);
+            final LocalizationEntry entry = getEntryFromLine(line);
             if (entry == null || keys.contains(entry.key()))
                 continue;
             merged.add(line);
@@ -112,7 +112,7 @@ public final class LocalizationUtil
         final Set<String> ret = new LinkedHashSet<>();
         readFile(inputStream, line ->
         {
-            final @Nullable LocalizationEntry entry = getEntryFromLine(line);
+            final LocalizationEntry entry = getEntryFromLine(line);
             if (entry != null)
                 ret.add(entry.key());
         });
@@ -153,7 +153,7 @@ public final class LocalizationUtil
         final Set<String> ret = new LinkedHashSet<>(MathUtil.ceil(1.25 * lines.size()));
         for (final String line : lines)
         {
-            final @Nullable LocalizationEntry entry = getEntryFromLine(line);
+            final LocalizationEntry entry = getEntryFromLine(line);
             if (entry != null)
                 ret.add(entry.key());
         }
@@ -172,7 +172,7 @@ public final class LocalizationUtil
         final Map<String, String> ret = new TreeMap<>();
         readFile(inputStream, line ->
         {
-            final @Nullable LocalizationEntry key = getEntryFromLine(line);
+            final LocalizationEntry key = getEntryFromLine(line);
             if (key != null)
                 ret.put(key.key(), key.value());
         });
@@ -235,7 +235,7 @@ public final class LocalizationUtil
         {
             for (String line; (line = bufferedReader.readLine()) != null; )
             {
-                if (line.length() == 0)
+                if (line.isEmpty())
                     continue;
                 if (line.charAt(0) == '#')
                     continue;
@@ -321,7 +321,7 @@ public final class LocalizationUtil
         final ArrayList<LocaleFile> ret = new ArrayList<>(files.size());
         for (final Path file : files)
         {
-            final @Nullable String locale = parseLocaleFile(baseName, file.getFileName().toString());
+            final String locale = parseLocaleFile(baseName, file.getFileName().toString());
             if (locale != null)
                 ret.add(new LocaleFile(file, locale));
         }
@@ -356,7 +356,7 @@ public final class LocalizationUtil
         final ArrayList<LocaleFile> ret = new ArrayList<>(resources.size());
         for (final String resource : resources)
         {
-            final @Nullable String locale = parseLocaleFile(resource);
+            final String locale = parseLocaleFile(resource);
             if (locale != null)
                 ret.add(new LocaleFile(fileSystem.getPath(resource), locale));
         }
@@ -386,7 +386,7 @@ public final class LocalizationUtil
         if (baseName != null)
             locale = locale.replace(baseName, "");
 
-        if (locale.length() > 0)
+        if (!locale.isEmpty())
         {
             if (locale.charAt(0) != '_')
                 return null;
@@ -423,7 +423,7 @@ public final class LocalizationUtil
      */
     static String getOutputLocaleFileName(String outputBaseName, String locale)
     {
-        return String.format("%s%s.properties", outputBaseName, locale.length() == 0 ? "" : ("_" + locale));
+        return String.format("%s%s.properties", outputBaseName, locale.isEmpty() ? "" : ("_" + locale));
     }
 
     /**

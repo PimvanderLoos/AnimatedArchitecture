@@ -310,7 +310,7 @@ public class Text implements CharSequence
         final int currentLength = stringBuilder.length();
         for (final var section : messageFormatSections)
         {
-            final @Nullable TextComponent component;
+            final TextComponent component;
             if (section.argumentIdx() == -1)
                 component = base;
             else

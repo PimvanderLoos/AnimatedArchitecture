@@ -65,7 +65,7 @@ class AudioConfigIO
         for (final Map.Entry<String, JsonElement> entry : base.getAsJsonObject().entrySet())
         {
             final String name = entry.getKey();
-            final @Nullable AudioSet audioSet;
+            final AudioSet audioSet;
             audioSet = GSON.fromJson(entry.getValue(), AudioSet.class);
             parsed.put(name, audioSet);
         }

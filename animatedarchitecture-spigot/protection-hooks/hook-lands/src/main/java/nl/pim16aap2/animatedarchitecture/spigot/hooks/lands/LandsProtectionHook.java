@@ -78,7 +78,7 @@ public class LandsProtectionHook implements IProtectionHookSpigot
                 {
                     loc.setY(y);
 
-                    final @Nullable Area area = landsAddon.getArea(loc);
+                    final Area area = landsAddon.getArea(loc);
                     if (area == null)
                         continue;
 

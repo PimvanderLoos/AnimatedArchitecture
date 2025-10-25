@@ -7,7 +7,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareLockChangeEvent;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -34,7 +33,7 @@ public class StructurePrepareLockChangeEvent extends StructureEvent implements I
     }
 
     @Override
-    public @NotNull HandlerList getHandlers()
+    public HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }

@@ -53,7 +53,7 @@ public final class TestUtil
     {
         if (type.isPrimitive())
             return getPrimitiveDefault(type);
-        final @Nullable Object defaultValue = getDefaultValue(type);
+        final Object defaultValue = getDefaultValue(type);
         if (defaultValue != null)
             return defaultValue;
         return tryMock(type, mockSettings);

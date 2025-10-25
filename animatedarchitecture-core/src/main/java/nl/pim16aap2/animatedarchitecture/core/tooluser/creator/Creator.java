@@ -251,7 +251,7 @@ public abstract class Creator extends ToolUser
             .propertyName(localizer.getMessage("creator.base.property.cuboid"))
             .propertyValueSupplier(() ->
             {
-                final @Nullable Cuboid cuboid0 = getCuboid();
+                final Cuboid cuboid0 = getCuboid();
                 return cuboid0 == null ? "[]" :
                     String.format("[%s; %s]", formatVector(cuboid0.getMin()), formatVector(cuboid0.getMax()));
             })
@@ -291,7 +291,7 @@ public abstract class Creator extends ToolUser
             .propertyName(localizer.getMessage("creator.base.property.open_direction"))
             .propertyValueSupplier(() ->
             {
-                final @Nullable MovementDirection openDir0 = getMovementDirection();
+                final MovementDirection openDir0 = getMovementDirection();
                 return openDir0 == null ? "NULL" : localizer.getMessage(openDir0.getLocalizationKey());
             })
             .updatable(true)

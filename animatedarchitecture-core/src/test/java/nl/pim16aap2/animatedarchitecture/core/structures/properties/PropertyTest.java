@@ -3,7 +3,6 @@ package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.util.reflection.ReflectionBuilder;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +31,7 @@ class PropertyTest
     void cast_shouldReturnNullForNullValue()
     {
         // execute
-        final @Nullable String castedValue = CREATED_PROPERTY.cast(null);
+        final String castedValue = CREATED_PROPERTY.cast(null);
 
         // Verify
         assertThat(castedValue).isNull();

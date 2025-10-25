@@ -786,7 +786,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                 if (event.isCancelled())
                     return ActionResult.CANCELLED;
 
-                final @Nullable StructureOwner oldOwner = structureModifier.removeOwner(structure, playerUUID);
+                final StructureOwner oldOwner = structureModifier.removeOwner(structure, playerUUID);
                 if (oldOwner == null)
                 {
                     log.atError().log("Failed to remove owner %s from structure %s!", structureOwner.get(), structure);

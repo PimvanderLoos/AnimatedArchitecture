@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.AdditionalAnswers.delegatesTo;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(1)
@@ -35,7 +34,7 @@ import static org.mockito.Mockito.*;
 class SetBlocksToMoveDelayedTest
 {
     @Spy
-    private DelayedCommandInputManager delayedCommandInputManager =
+    private final DelayedCommandInputManager delayedCommandInputManager =
         new DelayedCommandInputManager(mock(DebuggableRegistry.class));
 
     @Mock

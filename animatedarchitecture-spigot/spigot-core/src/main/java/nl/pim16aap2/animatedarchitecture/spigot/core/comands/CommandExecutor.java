@@ -21,7 +21,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
 import org.bukkit.entity.Player;
-import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -63,8 +62,8 @@ class CommandExecutor
     void addOwner(CommandContext<ICommandSender> context)
     {
         final IPlayer newOwner = playerFactory.wrapPlayer(PARAM_NEW_OWNER.get(context));
-        final @Nullable PermissionLevel permissionLevel = PARAM_PERMISSION_LEVEL.getNullable(context);
-        final @Nullable StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
+        final PermissionLevel permissionLevel = PARAM_PERMISSION_LEVEL.getNullable(context);
+        final StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
 
         final ICommandSender commandSender = context.getSender();
         if (structureRetriever != null)
@@ -137,7 +136,7 @@ class CommandExecutor
 
     void listStructures(CommandContext<ICommandSender> context)
     {
-        final @Nullable String query = PARAM_STRUCTURE_NAME.getOrDefault(context, "");
+        final String query = PARAM_STRUCTURE_NAME.getOrDefault(context, "");
         final StructureRetriever retriever = structureRetrieverFactory
             .search(
                 context.getSender(),
@@ -164,7 +163,7 @@ class CommandExecutor
 
     void menu(CommandContext<ICommandSender> context)
     {
-        final @Nullable Player player = PARAM_TARGET_PLAYER.getNullable(context);
+        final Player player = PARAM_TARGET_PLAYER.getNullable(context);
         final ICommandSender commandSender = context.getSender();
         final IPlayer targetPlayer;
         if (player != null)
@@ -191,7 +190,7 @@ class CommandExecutor
     void newStructure(CommandContext<ICommandSender> context)
     {
         final StructureType structureType = PARAM_STRUCTURE_TYPE.get(context);
-        final @Nullable String structureName = PARAM_STRUCTURE_NAME.getNullable(context);
+        final String structureName = PARAM_STRUCTURE_NAME.getNullable(context);
         commandFactory
             .newNewStructure(context.getSender(), structureType, structureName)
             .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -201,7 +200,7 @@ class CommandExecutor
     void removeOwner(CommandContext<ICommandSender> context)
     {
         final IPlayer targetPlayer = playerFactory.wrapPlayer(PARAM_TARGET_PLAYER.get(context));
-        final @Nullable StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
+        final StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
 
         final ICommandSender commandSender = context.getSender();
         if (structureRetriever != null)
@@ -231,7 +230,7 @@ class CommandExecutor
     void setBlocksToMove(CommandContext<ICommandSender> context)
     {
         final int blocksToMove = PARAM_BLOCKS_TO_MOVE.get(context);
-        final @Nullable StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
+        final StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
 
         final ICommandSender commandSender = context.getSender();
         if (structureRetriever != null)
@@ -260,7 +259,7 @@ class CommandExecutor
         final boolean isOpen = PARAM_IS_OPEN.get(context);
         final boolean sendUpdatedInfo = PARAM_SEND_UPDATED_INFO.getOrDefault(context, false);
         final ICommandSender commandSender = context.getSender();
-        final @Nullable StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
+        final StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
 
         if (structureRetriever != null)
             commandFactory
@@ -280,7 +279,7 @@ class CommandExecutor
         final MovementDirection direction = PARAM_DIRECTION.get(context);
         final boolean sendUpdatedInfo = PARAM_SEND_UPDATED_INFO.getOrDefault(context, false);
         final ICommandSender commandSender = context.getSender();
-        final @Nullable StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
+        final StructureRetriever structureRetriever = PARAM_STRUCTURE_RETRIEVER.getNullable(context);
 
         if (structureRetriever != null)
             commandFactory

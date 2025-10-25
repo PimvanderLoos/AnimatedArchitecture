@@ -51,7 +51,6 @@ class RemoveOwnerTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);
 

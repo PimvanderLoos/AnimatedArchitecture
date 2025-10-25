@@ -186,10 +186,10 @@ final class LocalizationGenerator implements ILocalizationGenerator
         final Set<String> usedPatches = new HashSet<>(MathUtil.ceil(1.25 * patches.size()));
         for (int idx = 0; idx < lines.size(); ++idx)
         {
-            final @Nullable LocalizationEntry entry = LocalizationUtil.getEntryFromLine(lines.get(idx));
+            final LocalizationEntry entry = LocalizationUtil.getEntryFromLine(lines.get(idx));
             if (entry == null)
                 continue;
-            final @Nullable String newLine = patches.get(entry.key());
+            final String newLine = patches.get(entry.key());
             if (newLine == null)
                 continue;
             lines.set(idx, newLine);

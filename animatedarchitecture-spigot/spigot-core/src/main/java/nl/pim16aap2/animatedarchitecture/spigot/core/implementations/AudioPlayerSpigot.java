@@ -59,7 +59,7 @@ public class AudioPlayerSpigot implements IAudioPlayer
         double range,
         @Nullable DoubleUnaryOperator attenuationFunction)
     {
-        final @Nullable World world = loc.getWorld();
+        final World world = loc.getWorld();
         if (world == null)
             return;
 

@@ -61,7 +61,7 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
     public void prepareAnimation(IAnimator animator)
     {
         // Gets the first block, which will be used as a base for the movement of all other blocks in the animation.
-        firstBlockData = animator.getAnimatedBlocks().isEmpty() ? null : animator.getAnimatedBlocks().get(0);
+        firstBlockData = animator.getAnimatedBlocks().isEmpty() ? null : animator.getAnimatedBlocks().getFirst();
     }
 
     protected RotatedPosition getGoalPos(IAnimatedBlock animatedBlock, double stepSum)

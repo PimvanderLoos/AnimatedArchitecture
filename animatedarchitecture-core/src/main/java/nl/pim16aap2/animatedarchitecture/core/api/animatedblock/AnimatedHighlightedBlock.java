@@ -135,7 +135,7 @@ public class AnimatedHighlightedBlock implements IAnimatedBlock
     @Override
     public synchronized void kill()
     {
-        final @Nullable IHighlightedBlock currentBlock = this.highlightedBlock;
+        final IHighlightedBlock currentBlock = this.highlightedBlock;
         if (currentBlock != null)
         {
             highlightedBlock = null;

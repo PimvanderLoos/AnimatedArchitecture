@@ -44,7 +44,6 @@ class ListStructuresTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
 

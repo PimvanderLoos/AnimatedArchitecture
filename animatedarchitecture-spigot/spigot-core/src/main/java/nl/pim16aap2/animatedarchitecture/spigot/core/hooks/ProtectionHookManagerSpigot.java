@@ -35,7 +35,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -173,7 +172,7 @@ public final class ProtectionHookManagerSpigot
         if (!isActive)
             throw new IllegalStateException("Cannot load hooks when the manager is not active!");
 
-        final @Nullable IProtectionHookSpigotSpecification spec = registeredDefinitions.get(pluginName);
+        final IProtectionHookSpigotSpecification spec = registeredDefinitions.get(pluginName);
         if (spec == null)
         {
             log.atTrace().log("Skipping plugin '%s' because no hook implementation exists for it", pluginName);
@@ -186,10 +185,10 @@ public final class ProtectionHookManagerSpigot
             return;
         }
 
-        @Nullable String version = null;
+        String version = null;
         try
         {
-            final @Nullable Plugin plugin = Bukkit.getPluginManager().getPlugin(spec.getName());
+            final Plugin plugin = Bukkit.getPluginManager().getPlugin(spec.getName());
             if (plugin == null)
             {
                 log.atInfo().log("Not loading hook for plugin '%s' because it is not loaded!", pluginName);
@@ -257,7 +256,7 @@ public final class ProtectionHookManagerSpigot
     private Optional<Player> getPlayer(IPlayer player, Location location)
     {
         final OfflinePlayer offlinePlayer = PlayerFactorySpigot.unwrapOfflinePlayer(player);
-        final @Nullable Player onlinePlayer = offlinePlayer.getPlayer();
+        final Player onlinePlayer = offlinePlayer.getPlayer();
         if (onlinePlayer != null)
             return Optional.of(onlinePlayer);
         return fakePlayerCreator.createPlayer(offlinePlayer, location);

@@ -202,11 +202,11 @@ public class EventListeners extends AbstractListener
     {
         try
         {
-            final @Nullable ItemStack currentItem = event.getCurrentItem();
+            final ItemStack currentItem = event.getCurrentItem();
             if (currentItem == null || !animatedArchitectureToolUtil.isTool(currentItem))
                 return;
 
-            final @Nullable Inventory clickedInventory = event.getClickedInventory();
+            final Inventory clickedInventory = event.getClickedInventory();
             if (clickedInventory == null)
                 return;
 

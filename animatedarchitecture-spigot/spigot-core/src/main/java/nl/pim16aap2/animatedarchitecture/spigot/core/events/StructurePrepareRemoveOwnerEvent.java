@@ -8,7 +8,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareRemoveOwne
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -41,7 +40,7 @@ public class StructurePrepareRemoveOwnerEvent extends StructureEvent implements 
     }
 
     @Override
-    public @NotNull HandlerList getHandlers()
+    public HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }

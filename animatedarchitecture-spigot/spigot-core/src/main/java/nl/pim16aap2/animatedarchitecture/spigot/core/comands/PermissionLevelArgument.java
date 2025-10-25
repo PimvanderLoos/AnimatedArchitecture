@@ -92,8 +92,8 @@ public class PermissionLevelArgument extends CommandArgument<ICommandSender, Per
             CommandContext<ICommandSender> commandContext,
             Queue<String> inputQueue)
         {
-            final @Nullable String input = inputQueue.peek();
-            final @Nullable PermissionLevel level =
+            final String input = inputQueue.peek();
+            final PermissionLevel level =
                 input == null ? null : suggestions.get(input.toLowerCase(Locale.ROOT));
 
             if (level == null)

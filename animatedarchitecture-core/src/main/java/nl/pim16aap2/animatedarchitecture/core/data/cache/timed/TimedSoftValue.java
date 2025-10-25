@@ -64,7 +64,11 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
      *     of whether it may still be available. Similarly, {@link #getValue(boolean)} will return null after the value
      *     has timed out.
      */
-    public TimedSoftValue(Clock clock, T val, long timeOut, boolean keepAfterTimeOut)
+    public TimedSoftValue(
+        Clock clock,
+        @SuppressWarnings("NullableProblems") T val,
+        long timeOut,
+        boolean keepAfterTimeOut)
     {
         super(clock, timeOut);
         this.keepAfterTimeOut = keepAfterTimeOut;
@@ -78,7 +82,7 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
     {
         if (!keepAfterTimeOut && timedOut())
             return null;
-        final @Nullable T val = value.get();
+        final T val = value.get();
         if (val == null)
             return null;
         if (refresh)

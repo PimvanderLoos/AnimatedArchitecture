@@ -304,7 +304,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private <T> T safeGetter(Function<AnimatedArchitectureSpigotComponent, @Nullable T> fun)
         throws InitializationException
     {
-        final @Nullable T ret;
+        final T ret;
         try
         {
             ret = fun.apply(animatedArchitectureSpigotComponent);

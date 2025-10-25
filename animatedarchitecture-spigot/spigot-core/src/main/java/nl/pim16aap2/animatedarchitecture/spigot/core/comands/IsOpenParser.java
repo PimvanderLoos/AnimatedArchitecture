@@ -36,8 +36,8 @@ class IsOpenParser implements ArgumentParser<ICommandSender, Boolean>, IRestarta
         CommandContext<ICommandSender> commandContext,
         Queue<String> inputQueue)
     {
-        final @Nullable String input = inputQueue.peek();
-        final @Nullable Boolean result = parseInput(input);
+        final String input = inputQueue.peek();
+        final Boolean result = parseInput(input);
 
         if (result == null)
             return ArgumentParseResult.failure(

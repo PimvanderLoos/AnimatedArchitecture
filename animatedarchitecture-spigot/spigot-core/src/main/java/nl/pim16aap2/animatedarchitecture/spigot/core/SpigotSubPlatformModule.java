@@ -11,7 +11,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
 import nl.pim16aap2.animatedarchitecture.spigot.v1_20.SubPlatform_V1_20;
 import nl.pim16aap2.animatedarchitecture.spigot.v1_21.SubPlatform_V1_21;
 import org.bukkit.Bukkit;
-import org.jspecify.annotations.Nullable;
 import org.semver4j.Semver;
 
 /**
@@ -48,7 +47,7 @@ public abstract class SpigotSubPlatformModule
     @Named("serverVersion")
     static Semver provideServerVersion()
     {
-        @Nullable Semver serverVersion = Semver.coerce(Bukkit.getServer().getBukkitVersion());
+        Semver serverVersion = Semver.coerce(Bukkit.getServer().getBukkitVersion());
         if (serverVersion == null)
             throw new IllegalStateException(
                 "Failed to coerce server version from '" + Bukkit.getServer().getBukkitVersion() + "'.");

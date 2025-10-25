@@ -55,7 +55,6 @@ class AddOwnerTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         assistedFactoryMocker = AssistedFactoryMocker.injectMocksFromTestClass(AddOwner.IFactory.class, this);
 

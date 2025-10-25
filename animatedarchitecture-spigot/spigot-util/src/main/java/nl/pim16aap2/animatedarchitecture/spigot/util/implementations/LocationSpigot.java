@@ -34,7 +34,7 @@ public final class LocationSpigot implements ILocation
 
     public LocationSpigot(IWorld world, double x, double y, double z)
     {
-        final @Nullable World bukkitWorld = retrieveBukkitWorld(world);
+        final World bukkitWorld = retrieveBukkitWorld(world);
         if (bukkitWorld == null)
             log.atDebug().withStackTrace(StackSize.FULL).log("Bukkit world of world '%s' is null!", world);
         location = new Location(bukkitWorld, x, y, z);

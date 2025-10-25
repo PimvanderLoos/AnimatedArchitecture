@@ -44,7 +44,6 @@ class SetOpenDirectionTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         initCommandSenderPermissions(commandSender, true, true);
         structureRetriever = StructureRetrieverFactory.ofStructure(structure);

@@ -73,7 +73,7 @@ final class StructureTypeInitializer
                 continue;
             }
 
-            final @Nullable StructureType result = loadStructureType(loadable.getStructureTypeInfo());
+            final StructureType result = loadStructureType(loadable.getStructureTypeInfo());
             if (result == null)
             {
                 loadable.setLoadFailure(new LoadFailure(
@@ -165,7 +165,7 @@ final class StructureTypeInitializer
 
         for (final StructureTypeInfo.Dependency dependency : dependencies)
         {
-            final @Nullable Loadable parent = loadables.get(dependency.getFullKey());
+            final Loadable parent = loadables.get(dependency.getFullKey());
             if (parent == null)
                 loadable.setLoadFailure(
                     new LoadFailure(

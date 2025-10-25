@@ -111,7 +111,7 @@ final class LocalizationPatcher
         final Map<String, String> ret = new LinkedHashMap<>();
         LocalizationUtil.readFile(localeFile.path(), line ->
         {
-            final @Nullable LocalizationEntry entry = LocalizationUtil.getEntryFromLine(line);
+            final LocalizationEntry entry = LocalizationUtil.getEntryFromLine(line);
             if (isValidPatch(entry))
                 ret.put(entry.key(), line);
         });

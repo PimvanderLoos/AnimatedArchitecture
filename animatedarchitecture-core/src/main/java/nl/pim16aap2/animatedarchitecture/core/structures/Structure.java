@@ -55,6 +55,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
@@ -74,6 +75,8 @@ import java.util.function.Supplier;
 public final class Structure implements IStructureConst, IPropertyHolder
 {
     private static final double DEFAULT_ANIMATION_SPEED = 1.5D;
+
+    private static final Object DUMMY = new Object();
 
     @EqualsAndHashCode.Exclude
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
@@ -834,7 +837,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         withWriteLock0(resetAnimationData, () ->
         {
             runnable.run();
-            return null;
+            return DUMMY;
         });
     }
 
@@ -862,12 +865,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
     // so no need to check it's possible.
     @Locked.Read("lock")
     public <T> T withReadLock(Supplier<T> supplier)
-    {
-        return supplier.get();
-    }
-
-    @Locked.Read("lock")
-    public <T> @Nullable T withReadLockNullable(Supplier<@Nullable T> supplier)
     {
         return supplier.get();
     }
@@ -1050,7 +1047,8 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     @Nullable StructureOwner removeOwner(UUID ownerUUID)
     {
-        return withWriteLock(false, () ->
+        final AtomicReference<@Nullable StructureOwner> ret = new AtomicReference<>();
+        withWriteLock(false, () ->
         {
             if (primeOwner.playerData().getUUID().equals(ownerUUID))
             {
@@ -1060,13 +1058,16 @@ public final class Structure implements IStructureConst, IPropertyHolder
                     primeOwner.playerData(),
                     this.getUid()
                 );
-                return null;
             }
-            final @Nullable StructureOwner removed = owners.remove(ownerUUID);
-            if (removed != null)
-                invalidateSnapshot();
-            return removed;
+            else
+            {
+                final StructureOwner removed = owners.remove(ownerUUID);
+                if (removed != null)
+                    invalidateSnapshot();
+                ret.set(removed);
+            }
         });
+        return ret.get();
     }
 
     /**

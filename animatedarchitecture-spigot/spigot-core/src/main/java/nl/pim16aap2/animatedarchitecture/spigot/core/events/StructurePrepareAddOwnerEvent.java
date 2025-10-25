@@ -8,7 +8,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareAddOwnerEv
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -36,7 +35,7 @@ public class StructurePrepareAddOwnerEvent extends StructureEvent implements ISt
     }
 
     @Override
-    public @NotNull HandlerList getHandlers()
+    public HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }

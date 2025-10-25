@@ -89,7 +89,7 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
             CommandContext<ICommandSender> commandContext,
             Queue<String> inputQueue)
         {
-            final @Nullable String input = inputQueue.peek();
+            final String input = inputQueue.peek();
             if (input == null || input.isEmpty())
                 return ArgumentParseResult.failure(
                     new NoInputProvidedException(StructureArgumentParser.class, commandContext));

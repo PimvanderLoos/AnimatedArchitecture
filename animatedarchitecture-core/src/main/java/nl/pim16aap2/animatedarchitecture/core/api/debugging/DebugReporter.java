@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
 import nl.pim16aap2.util.SafeStringBuilder;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a class that can generate a debug report.
@@ -53,7 +52,7 @@ public abstract class DebugReporter
     private static void appendDebuggable(SafeStringBuilder sb, IDebuggable debuggable)
     {
         final String debuggableName = debuggable.getClass().getName();
-        @Nullable String msg;
+        String msg;
 
         try
         {

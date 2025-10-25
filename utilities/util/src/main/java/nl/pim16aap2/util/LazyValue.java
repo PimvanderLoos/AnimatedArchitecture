@@ -41,7 +41,7 @@ public final class LazyValue<T> implements Lazy<T>
     @Override
     public T get()
     {
-        @Nullable T tmp = value;
+        T tmp = value;
         if (tmp != null)
             return tmp;
 
@@ -71,7 +71,7 @@ public final class LazyValue<T> implements Lazy<T>
      */
     public @Nullable T reset()
     {
-        @Nullable T tmp = this.value;
+        T tmp = this.value;
         if (tmp != null)
         {
             synchronized (this)

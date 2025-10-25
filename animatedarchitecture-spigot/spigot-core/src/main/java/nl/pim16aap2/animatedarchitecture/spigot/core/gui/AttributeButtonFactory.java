@@ -249,7 +249,7 @@ class AttributeButtonFactory
 
     private @Nullable GuiElement openStatusButton(Structure structure, WrappedPlayer player, char slotChar)
     {
-        final @Nullable Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
+        final Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
         if (isOpen == null)
             return null;
 

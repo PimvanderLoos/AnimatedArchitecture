@@ -153,7 +153,7 @@ public final class StructureTypeManager implements IDebuggable
     @Locked.Read
     public boolean isStructureTypeEnabled(StructureType structureType)
     {
-        final @Nullable Boolean result = registeredStructureTypes0.get(structureType);
+        final Boolean result = registeredStructureTypes0.get(structureType);
         return result != null && result;
     }
 
@@ -163,7 +163,7 @@ public final class StructureTypeManager implements IDebuggable
         log.atInfo().log(
             "Registering structure type: '%s'. Enabled: %s", structureType.getFullNameWithVersion(), isEnabled);
 
-        final @Nullable Boolean result = registeredStructureTypes0.put(structureType, isEnabled);
+        final Boolean result = registeredStructureTypes0.put(structureType, isEnabled);
         if (result != null && result == isEnabled)
             return;
 

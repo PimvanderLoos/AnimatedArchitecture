@@ -326,7 +326,7 @@ public final class Procedure
         if (currentStep == null)
             return null;
 
-        final @Nullable Runnable preparation = currentStep.getStepPreparation();
+        final Runnable preparation = currentStep.getStepPreparation();
         if (preparation != null)
             preparation.run();
 

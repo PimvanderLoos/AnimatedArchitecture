@@ -233,7 +233,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     private Optional<Structure> constructStructure(ResultSet structureRS)
         throws Exception
     {
-        final @Nullable String structureTypeResult = structureRS.getString("type");
+        final String structureTypeResult = structureRS.getString("type");
         final Optional<StructureType> structureTypeOpt = structureTypeManager.getFromFullName(structureTypeResult);
 
         if (!structureTypeOpt.map(structureTypeManager::isRegistered).orElse(false))
@@ -578,7 +578,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         query.setNextInt(maxPermission.getValue());
 
-        final @Nullable String uuid = player == null ? null : player.getUUID().toString();
+        final String uuid = player == null ? null : player.getUUID().toString();
         query.setNextString(uuid);
         query.setNextString(uuid);
 
@@ -602,7 +602,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         while (resultSet.next())
         {
-            final @Nullable String structureTypeResult = resultSet.getString("type");
+            final String structureTypeResult = resultSet.getString("type");
             final Optional<StructureType> structureType = structureTypeManager.getFromFullName(structureTypeResult);
 
             if (!structureType.map(structureTypeManager::isRegistered).orElse(false))
@@ -1124,7 +1124,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Write("lock")
     private int executeUpdate(DelayedPreparedStatement delayedPreparedStatement)
     {
-        try (@Nullable Connection conn = getConnection())
+        try (Connection conn = getConnection())
         {
             if (conn == null)
             {
@@ -1158,7 +1158,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         {
             return ps.executeUpdate();
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
             log.atError().withCause(e).log("Failed to execute update: %s", delayedPreparedStatement);
         }
@@ -1185,7 +1185,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         CheckedFunction<ResultSet, T, Exception> fun,
         @Nullable T fallback)
     {
-        try (@Nullable Connection conn = getConnection())
+        try (Connection conn = getConnection())
         {
             if (conn == null)
             {
@@ -1223,7 +1223,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         CheckedFunction<ResultSet, T, Exception> fun,
         @Nullable T fallback)
     {
-        try (@Nullable Connection conn = getConnection())
+        try (Connection conn = getConnection())
         {
             if (conn == null)
             {
@@ -1232,7 +1232,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 return fallback;
             }
             conn.setAutoCommit(false);
-            final @Nullable T result = executeQuery(conn, query, fun, fallback);
+            final T result = executeQuery(conn, query, fun, fallback);
             conn.commit();
             conn.setAutoCommit(true);
             return result;
@@ -1320,7 +1320,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         @Nullable T fallback,
         FailureAction failureAction)
     {
-        try (@Nullable Connection conn = getConnection())
+        try (Connection conn = getConnection())
         {
             try
             {

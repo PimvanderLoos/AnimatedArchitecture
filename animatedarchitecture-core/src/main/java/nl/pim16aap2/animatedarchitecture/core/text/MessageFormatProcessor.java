@@ -92,7 +92,7 @@ final class MessageFormatProcessor
 
     private void processMessageFormatIterator(AttributedCharacterIterator iter)
     {
-        @Nullable Integer argumentIdx = null;
+        Integer argumentIdx = null;
 
         for (char c = iter.first(); c != CharacterIterator.DONE; c = iter.next())
         {

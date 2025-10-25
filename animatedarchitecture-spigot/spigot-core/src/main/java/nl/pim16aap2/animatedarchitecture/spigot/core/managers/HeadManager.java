@@ -95,7 +95,7 @@ public final class HeadManager extends Restartable
     {
         final OfflinePlayer oPlayer = Bukkit.getOfflinePlayer(playerUUID);
         final ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
-        final @Nullable SkullMeta sMeta = (SkullMeta) skull.getItemMeta();
+        final SkullMeta sMeta = (SkullMeta) skull.getItemMeta();
         if (sMeta == null)
             return Optional.empty();
 

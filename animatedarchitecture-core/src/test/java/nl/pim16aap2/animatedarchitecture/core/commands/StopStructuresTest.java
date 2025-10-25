@@ -38,7 +38,6 @@ class StopStructuresTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
 

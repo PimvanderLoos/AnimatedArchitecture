@@ -42,7 +42,7 @@ public class PlotSquared7ProtectionHook implements IProtectionHookSpigot
     public CompletableFuture<Boolean> canBreakBlock(Player player, Location loc)
     {
         final com.plotsquared.core.location.Location psLocation = BukkitUtil.adapt(loc);
-        final @Nullable PlotArea area = psLocation.getPlotArea();
+        final PlotArea area = psLocation.getPlotArea();
 
         if (area == null)
             return CompletableFuture.completedFuture(true);

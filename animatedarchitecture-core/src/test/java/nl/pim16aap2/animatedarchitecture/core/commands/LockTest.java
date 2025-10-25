@@ -53,7 +53,6 @@ class LockTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         initCommandSenderPermissions(commandSender, true, true);
         when(door.isOwner(any(UUID.class), any())).thenReturn(true);
@@ -74,7 +73,6 @@ class LockTest
 
     @Test
     void test()
-        throws Exception
     {
         final boolean lock = true;
         when(event.isCancelled()).thenReturn(true);

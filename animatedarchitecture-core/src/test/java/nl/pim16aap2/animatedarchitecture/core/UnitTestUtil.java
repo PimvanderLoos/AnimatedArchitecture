@@ -80,7 +80,7 @@ import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingPro
 
 public class UnitTestUtil
 {
-    public static ILocalizer DUMMY_LOCALIZER = new ILocalizer()
+    public static final ILocalizer DUMMY_LOCALIZER = new ILocalizer()
     {
         @Override
         public String getMessage(String key, @Nullable Locale clientLocale, Object... args)
@@ -212,12 +212,12 @@ public class UnitTestUtil
     }
 
     @SuppressWarnings("unused")
-    public static ILocation getLocation(Vector3Dd vec, IWorld world)
+    public static ILocation getLocation(Vector3Dd vec, @Nullable IWorld world)
     {
         return getLocation(vec.x(), vec.y(), vec.z(), world);
     }
 
-    public static ILocation getLocation(Vector3Di vec, IWorld world)
+    public static ILocation getLocation(Vector3Di vec, @Nullable IWorld world)
     {
         return getLocation(vec.x(), vec.y(), vec.z(), world);
     }
@@ -227,7 +227,7 @@ public class UnitTestUtil
         return getLocation(x, y, z, getWorld());
     }
 
-    public static ILocation getLocation(double x, double y, double z, IWorld world)
+    public static ILocation getLocation(double x, double y, double z, @Nullable IWorld world)
     {
         final ILocation loc = mock();
 
@@ -594,11 +594,11 @@ public class UnitTestUtil
      * @return The value from the supplier, or the fallback value if the supplier fails.
      */
     @SuppressWarnings("EmptyCatch")
-    private static <T> T safeSupplier(Supplier<T> fallbackSupplier, CheckedSupplier<T, ?> supplier)
+    private static <T> T safeSupplier(Supplier<T> fallbackSupplier, CheckedSupplier<@Nullable T, ?> supplier)
     {
         try
         {
-            final @Nullable T ret = supplier.get();
+            final T ret = supplier.get();
             if (ret != null)
                 return ret;
         }

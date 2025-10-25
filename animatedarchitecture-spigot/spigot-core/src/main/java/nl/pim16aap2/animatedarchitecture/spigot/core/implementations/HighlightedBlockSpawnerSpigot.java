@@ -105,9 +105,9 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
             return Optional.empty();
         }
 
-        final @Nullable Long time = duration == null ? null : Math.max(50, duration.toMillis());
+        final Long time = duration == null ? null : Math.max(50, duration.toMillis());
 
-        final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
+        final Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
             log.atError().withStackTrace(StackSize.FULL).log(
@@ -115,7 +115,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
             return Optional.empty();
         }
 
-        final @Nullable World spigotWorld = SpigotAdapter.getBukkitWorld(world);
+        final World spigotWorld = SpigotAdapter.getBukkitWorld(world);
         if (spigotWorld == null)
         {
             log.atError().withStackTrace(StackSize.FULL).log(
@@ -124,7 +124,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
         }
 
         final HighlightedBlockDisplay block = Objects.requireNonNull(newPreviewBlock(world, rotatedPosition, color));
-        final @Nullable Entity entity = block.getEntity();
+        final Entity entity = block.getEntity();
         if (entity == null || !setEntityTeam(entity, color))
         {
             block.kill();
@@ -153,7 +153,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
 
     private boolean setEntityTeam(Entity entity, Color color)
     {
-        final @Nullable Team team = teams.get(color);
+        final Team team = teams.get(color);
         if (team == null)
         {
             log.atWarn().log("Failed to spawn glowing block: Could not find team for color: %s", color);
@@ -195,7 +195,7 @@ public class HighlightedBlockSpawnerSpigot extends HighlightedBlockSpawner imple
         final ChatColor chatColor = SpigotUtil.toBukkitColor(color);
         final String name = "AnimatedArchitecture" + color.name();
         // Try to get an existing team, in case something had gone wrong unregistering them last time.
-        @Nullable Team team = scoreboard.getTeam(name);
+        Team team = scoreboard.getTeam(name);
         if (team == null)
             team = scoreboard.registerNewTeam(name);
         team.setColor(chatColor);

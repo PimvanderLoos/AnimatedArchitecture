@@ -1,6 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -156,7 +155,7 @@ class LocalizationUtilTest
         Assertions.assertEquals(Locale.ROOT, parseLocale(""));
         Assertions.assertNull(parseLocale("not-a-language"));
 
-        final @Nullable Locale traditionalChinese = parseLocale("zh_Hant");
+        final Locale traditionalChinese = parseLocale("zh_Hant");
         Assertions.assertNotNull(traditionalChinese);
         Assertions.assertEquals("Chinese (Traditional)", traditionalChinese.getDisplayName());
         Assertions.assertEquals("Hant", traditionalChinese.getScript());

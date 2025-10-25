@@ -57,7 +57,6 @@ class SetPropertyTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         assistedFactoryMocker =
             new AssistedFactoryMocker<>(SetProperty.class, SetProperty.IFactory.class).injectParameter(databaseManager);

@@ -19,7 +19,6 @@ import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Set;
@@ -141,7 +140,7 @@ public class RedstoneListener extends AbstractListener implements IDebuggable
     @EventHandler
     public void onBlockRedstoneChange(BlockRedstoneEvent event)
     {
-        final @Nullable ExecutorService currentThreadPool = executor.getVirtualExecutor();
+        final ExecutorService currentThreadPool = executor.getVirtualExecutor();
         if (currentThreadPool.isShutdown())
         {
             log.atWarn().log(

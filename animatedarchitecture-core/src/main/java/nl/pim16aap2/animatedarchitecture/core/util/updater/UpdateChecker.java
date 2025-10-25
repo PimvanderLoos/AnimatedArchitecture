@@ -84,7 +84,7 @@ public final class UpdateChecker implements IDebuggable
      */
     private @Nullable UpdateInformation setCurrentUpdateInformation(@Nullable UpdateInformation newInformation)
     {
-        final @Nullable UpdateInformation current = this.updateInformation;
+        final UpdateInformation current = this.updateInformation;
         if (newInformation == null)
         {
             log.atWarn().log("Received invalid update information!");
@@ -116,7 +116,7 @@ public final class UpdateChecker implements IDebuggable
      */
     private @Nullable UpdateInformation checkForUpdates0()
     {
-        final @Nullable JsonElement element = readUrl();
+        final JsonElement element = readUrl();
         if (element == null)
             return setCurrentUpdateInformation(UpdateInformation.ofErrorState(UpdateCheckResult.ERROR));
 
@@ -124,7 +124,7 @@ public final class UpdateChecker implements IDebuggable
             return setCurrentUpdateInformation(UpdateInformation.ofErrorState(UpdateCheckResult.INVALID_JSON));
         final JsonObject jsonObject = element.getAsJsonObject();
 
-        final @Nullable Semver newVersion = getNewVersion(jsonObject);
+        final Semver newVersion = getNewVersion(jsonObject);
         if (newVersion == null)
             return setCurrentUpdateInformation(UpdateInformation.ofErrorState(UpdateCheckResult.ERROR));
 

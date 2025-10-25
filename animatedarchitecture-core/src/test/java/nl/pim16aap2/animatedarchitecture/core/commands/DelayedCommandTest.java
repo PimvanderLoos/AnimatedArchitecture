@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.assertThatMessageable;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(1)
@@ -48,7 +47,7 @@ class DelayedCommandTest
     private StructureRetrieverFactory structureRetrieverFactory;
 
     @Spy
-    private DelayedCommandInputManager delayedCommandInputManager =
+    private final DelayedCommandInputManager delayedCommandInputManager =
         new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
 
     @Mock

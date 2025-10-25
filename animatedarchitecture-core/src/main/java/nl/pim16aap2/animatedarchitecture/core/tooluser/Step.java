@@ -154,7 +154,7 @@ public final class Step
         if (propertyName == null || propertyValueSupplier == null)
             return;
 
-        final @Nullable Object value = propertyValueSupplier.get();
+        final Object value = propertyValueSupplier.get();
 
         final Text.ArgumentCreator argument;
         if (updatable && value != null)

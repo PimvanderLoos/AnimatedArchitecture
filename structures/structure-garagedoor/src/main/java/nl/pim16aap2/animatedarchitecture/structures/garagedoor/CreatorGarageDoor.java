@@ -151,7 +151,7 @@ public class CreatorGarageDoor extends Creator
      */
     protected synchronized void updateRotationPoint()
     {
-        final @Nullable Cuboid cuboid = getCuboid();
+        final Cuboid cuboid = getCuboid();
         if (cuboid == null)
             return;
 

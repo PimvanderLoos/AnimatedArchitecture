@@ -102,7 +102,7 @@ public class LoginResourcePackListener extends AbstractListener
     private static @Nullable MethodHandle getAddResourcePackMethodHandle()
     {
         final MethodHandles.Lookup lookup = MethodHandles.lookup();
-        final @Nullable Method method = ReflectionBuilder
+        final Method method = ReflectionBuilder
             .findMethod()
             .inClass(Player.class)
             .withName("addResourcePack")

@@ -60,7 +60,7 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
     {
         IDataSourceInfo.super.configureFlyway(config);
 
-        final @Nullable BaselineVersion baselineVersion = handleOldDatabase();
+        final BaselineVersion baselineVersion = handleOldDatabase();
         if (baselineVersion != null)
             // Because the SQLite database already existed before Flyway was introduced,
             // we use a baseline version to get it under Flyway's control.

@@ -182,7 +182,7 @@ final class Localizer implements ILocalizer
         // When skipping this step, the ResourceBundle will not see any changes
         // made to the files since the last time the UCL was recreated.
         //noinspection EmptyTryBlock
-        try (@Nullable InputStream ignored = ucl.getResourceAsStream(baseName + ".properties"))
+        try (InputStream ignored = ucl.getResourceAsStream(baseName + ".properties"))
         {
             // ignored
         }

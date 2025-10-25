@@ -32,7 +32,6 @@ class CancelTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         factory = AssistedFactoryMocker.injectMocksFromTestClass(Cancel.IFactory.class, this);
     }

@@ -78,7 +78,7 @@ public final class LoginMessageListener extends AbstractListener
 
     private void addErrorMessage(Text text)
     {
-        final @Nullable String msg = spigotPlugin.getInitErrorMessage();
+        final String msg = spigotPlugin.getInitErrorMessage();
         if (msg == null)
             return;
         text.append("\nERROR: ", TextType.ERROR)
@@ -90,7 +90,7 @@ public final class LoginMessageListener extends AbstractListener
         if (updateChecker == null)
             return;
 
-        final @Nullable UpdateInformation info = updateChecker.getUpdateInformation();
+        final UpdateInformation info = updateChecker.getUpdateInformation();
         if (info == null)
             return;
 

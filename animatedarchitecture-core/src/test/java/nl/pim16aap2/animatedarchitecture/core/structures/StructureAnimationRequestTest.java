@@ -39,7 +39,6 @@ class StructureAnimationRequestTest
 
     @BeforeEach
     void beforeEach()
-        throws NoSuchMethodException
     {
         final var localizer = UnitTestUtil.initLocalizer();
         final var playerFactory = UnitTestUtil.createPlayerFactory();

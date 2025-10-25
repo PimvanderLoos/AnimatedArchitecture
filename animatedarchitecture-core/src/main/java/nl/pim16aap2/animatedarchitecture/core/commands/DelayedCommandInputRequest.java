@@ -142,7 +142,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     private void init()
     {
         delayedCommandInputManager.register(commandSender, this);
-        final @Nullable String initMessage = initMessageSupplier == null ? null : initMessageSupplier.get();
+        final String initMessage = initMessageSupplier == null ? null : initMessageSupplier.get();
         if (initMessage != null && !initMessage.isBlank())
             // We don't use sendInfo here because the msg is already localized
             commandSender.sendMessage(commandSender.newText().append(initMessage, TextType.INFO));
