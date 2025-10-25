@@ -8,8 +8,6 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
-import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
-import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.RedstoneMode;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
@@ -261,7 +259,7 @@ public final class Property<T> implements IKeyed
     }
 
     /**
-     * Gets the full key of the property.
+     * Checks if the user has the given access level.
      *
      * @param propertyAccessLevel
      *     The access level to check.
@@ -282,6 +280,28 @@ public final class Property<T> implements IKeyed
     public boolean adminHasAccessLevel(PropertyAccessLevel propertyAccessLevel)
     {
         return PropertyAccessLevel.hasFlag(adminAccessLevel, propertyAccessLevel);
+    }
+
+    /**
+     * Checks whether this property grants the specified access level to the given permission level.
+     * <p>
+     * This method retrieves the property's access configuration for the permission level (as a bit flag) and checks if
+     * the requested access level flag is set. This allows fine-grained control over which permission levels can read,
+     * write, or otherwise interact with this property.
+     *
+     * @param permissionLevel
+     *     The permission level to check (e.g., CREATOR, ADMIN, USER).
+     * @param propertyAccessLevel
+     *     The access level to verify (e.g., READ, WRITE).
+     * @return True if the property grants the specified access level to the given permission level, false otherwise.
+     *
+     * @see #getAccessLevel(PermissionLevel)
+     * @see PropertyAccessLevel#hasFlag(int, PropertyAccessLevel)
+     */
+    public boolean hasAccessLevel(PermissionLevel permissionLevel, PropertyAccessLevel propertyAccessLevel)
+    {
+        final int currentPropertyAccessLevel = getAccessLevel(permissionLevel);
+        return PropertyAccessLevel.hasFlag(currentPropertyAccessLevel, propertyAccessLevel);
     }
 
     /**
@@ -342,25 +362,6 @@ public final class Property<T> implements IKeyed
                 exception
             );
         }
-    }
-
-    /**
-     * Gets the access level to this property for the given command sender and structure.
-     * <p>
-     * Defaults to 0 if the command sender is not an owner of the structure.
-     * <p>
-     * The returned value is a bit flag whose values refer to the {@link PropertyAccessLevel} enum.
-     *
-     * @param commandSender
-     *     The command sender to get the access level for.
-     * @param structure
-     *     The structure to get the access level for.
-     * @return The access level for the given command sender and structure.
-     */
-    @CheckReturnValue
-    public int getAccessLevel(ICommandSender commandSender, IStructureConst structure)
-    {
-        return getAccessLevel(structure.getPermissionLevel(commandSender));
     }
 
     /**

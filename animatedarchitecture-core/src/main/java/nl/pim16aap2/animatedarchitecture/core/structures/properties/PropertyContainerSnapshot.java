@@ -26,15 +26,28 @@ import java.util.Spliterator;
 @ThreadSafe
 public final class PropertyContainerSnapshot implements IPropertyHolderConst, IPropertyContainerConst
 {
+    public static final PropertyContainerSnapshot EMPTY = new PropertyContainerSnapshot(Map.of());
+
     @Getter(AccessLevel.PACKAGE)
     private final Map<String, IPropertyValue<?>> propertyMap;
     @Getter(AccessLevel.PACKAGE)
     private final Set<PropertyValuePair<?>> propertySet;
 
-    PropertyContainerSnapshot(Map<String, IPropertyValue<?>> propertyMap)
+    public PropertyContainerSnapshot(Map<String, IPropertyValue<?>> propertyMap)
     {
         this.propertyMap = Collections.unmodifiableMap(new LinkedHashMap<>(propertyMap));
         this.propertySet = PropertyContainer.getNewPropertySet(this.propertyMap);
+    }
+
+    public PropertyContainerSnapshot(Collection<PropertyValuePair<?>> properties)
+    {
+        final Map<String, IPropertyValue<?>> map = LinkedHashMap.newLinkedHashMap(properties.size());
+        for (final var pair : properties)
+        {
+            map.put(PropertyContainer.mapKey(pair.property()), pair.value());
+        }
+        this.propertyMap = Collections.unmodifiableMap(map);
+        this.propertySet = Set.copyOf(properties);
     }
 
     @Override

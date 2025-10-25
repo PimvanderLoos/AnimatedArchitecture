@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,36 @@ class PropertyContainerSnapshotTest
         // Execute
         final var snapshot = new PropertyContainerSnapshot(propertyMap);
         propertyMap.put(key, new PropertyContainer.ProvidedPropertyValue<>(String.class, updatedValue, false));
+
+        // Verify
+        assertThat(snapshot.propertyCount()).isEqualTo(1);
+        assertThat(snapshot.getMap().get(key).value()).isEqualTo(initialValue);
+
+        assertThat(snapshot.getPropertySet().size()).isEqualTo(1);
+        assertThat(snapshot.getPropertySet().iterator().next().value().value()).isEqualTo(initialValue);
+    }
+
+    @Test
+    void constructor_shouldCreateDeepCopyOfPropertyCollection()
+    {
+        // Setup
+        final String key = PROPERTY.getFullKey();
+        final String initialValue = "initialValue";
+        final String updatedValue = "updatedValue";
+
+        final List<PropertyValuePair<?>> properties = new ArrayList<>();
+        properties.add(new PropertyValuePair<>(
+            PROPERTY,
+            new PropertyContainer.ProvidedPropertyValue<>(String.class, initialValue, false)
+        ));
+
+        // Execute
+        final var snapshot = new PropertyContainerSnapshot(properties);
+        properties.clear();
+        properties.add(new PropertyValuePair<>(
+            PROPERTY,
+            new PropertyContainer.ProvidedPropertyValue<>(String.class, updatedValue, false)
+        ));
 
         // Verify
         assertThat(snapshot.propertyCount()).isEqualTo(1);

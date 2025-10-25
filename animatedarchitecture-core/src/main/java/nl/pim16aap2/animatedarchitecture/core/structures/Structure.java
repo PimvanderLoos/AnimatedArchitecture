@@ -44,7 +44,6 @@ import nl.pim16aap2.util.LazyValue;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -914,9 +913,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Locked.Read("lock")
     public Collection<StructureOwner> getOwners()
     {
-        final List<StructureOwner> ret = new ArrayList<>(owners.size());
-        ret.addAll(owners.values());
-        return ret;
+        return List.copyOf(owners.values());
     }
 
     @Override
