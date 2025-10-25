@@ -49,6 +49,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
     private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
     private final InfoGui.IFactory infoGuiFactory;
+    private final PropertyGui.IFactory propertyGuiFactory;
     private final CreateStructureGui.IFactory createStructureGuiFactory;
     private final GuiStructureDeletionManager deletionManager;
     private final IExecutor executor;
@@ -72,6 +73,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
     MainGui(
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         InfoGui.IFactory infoGuiFactory,
+        PropertyGui.IFactory propertyGuiFactory,
         CreateStructureGui.IFactory createStructureGuiFactory,
         GuiStructureDeletionManager deletionManager,
         IExecutor executor,
@@ -85,6 +87,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         this.executor = executor;
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.infoGuiFactory = infoGuiFactory;
+        this.propertyGuiFactory = propertyGuiFactory;
         this.config = config;
         this.inventoryHolder = Util.requireNonNull(playerFactory.wrapPlayer(inventoryHolder), "InventoryHolder");
         this.structures = getStructuresMap(structures);
@@ -146,7 +149,10 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                 click ->
                 {
                     selectedStructure = structure.structure();
-                    final InfoGui infoGui = infoGuiFactory.newInfoGUI(structure.structure(), inventoryHolder);
+//                    final InfoGui infoGui = infoGuiFactory.newInfoGUI(structure.structure(), inventoryHolder);
+                    final PropertyGui infoGui = propertyGuiFactory.newPropertyGUI(
+                        structure.structure(),
+                        inventoryHolder);
                     infoGui.getInventoryGui().setCloseAction(close ->
                     {
                         infoGui
