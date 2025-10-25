@@ -23,8 +23,8 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -298,7 +298,7 @@ class AttributeButtonFactory
 
     private GuiElement openDirectionButton(Structure structure, WrappedPlayer player, char slotChar)
     {
-        final AtomicReference<StaticGuiElement> staticGuiElementRef = new AtomicReference<>();
+        final AtomicReference<@Nullable StaticGuiElement> staticGuiElementRef = new AtomicReference<>();
 
         final var staticElement = new StaticGuiElement(
             slotChar,

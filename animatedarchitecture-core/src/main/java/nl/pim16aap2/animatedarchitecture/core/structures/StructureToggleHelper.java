@@ -408,11 +408,11 @@ final class StructureToggleHelper
         StructureAnimationRequest request,
         IPlayer responsible)
     {
-        final AtomicReference<StructureSnapshot> snapshot = new AtomicReference<>();
-        final AtomicReference<AnimationRequestData> data = new AtomicReference<>();
-        final AtomicReference<IAnimationComponent> component = new AtomicReference<>();
+        final AtomicReference<@Nullable StructureSnapshot> snapshot = new AtomicReference<>();
+        final AtomicReference<@Nullable AnimationRequestData> data = new AtomicReference<>();
+        final AtomicReference<@Nullable IAnimationComponent> component = new AtomicReference<>();
 
-        final @Nullable CompletableFuture<StructureToggleResult> abortedResult = structure.withReadLock(() ->
+        final CompletableFuture<StructureToggleResult> abortedResult = structure.withReadLock(() ->
         {
             if (request.isSkipAnimation() && !structure.canSkipAnimation())
                 return abort(
@@ -464,7 +464,6 @@ final class StructureToggleHelper
                 structure.constructAnimationComponent(Util.requireNonNull(data.get(), "AnimationRequestData"))
             );
 
-            //noinspection DataFlowIssue
             return null;
         });
 

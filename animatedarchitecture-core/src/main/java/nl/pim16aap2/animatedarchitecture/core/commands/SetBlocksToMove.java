@@ -45,7 +45,7 @@ public class SetBlocksToMove extends StructureTargetCommand
     }
 
     @Override
-    protected void handleDatabaseActionSuccess(@org.jetbrains.annotations.Nullable Structure retrieverResult)
+    protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
     {
         final var desc = getRetrievedStructureDescription(retrieverResult);
 

@@ -132,7 +132,8 @@ final class MessageFormatProcessor
          */
         private final int argumentIdx;
 
-        @VisibleForTesting MessageFormatSection(int start, int end, int argumentIdx)
+        @VisibleForTesting
+        MessageFormatSection(int start, int end, int argumentIdx)
         {
             if (end < start)
                 throw new IllegalArgumentException("Range end " + end + " cannot be lower than range start: " + start);

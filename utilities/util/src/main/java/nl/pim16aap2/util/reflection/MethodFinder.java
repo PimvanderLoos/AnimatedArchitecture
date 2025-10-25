@@ -23,7 +23,8 @@ public final class MethodFinder
      *     The class to analyze.
      * @return The next step in the method finding process.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public MethodFinderInSource inClass(Class<?> source)
     {
         return new MethodFinderInSource(Objects.requireNonNull(source, "Source class cannot be null!"));
@@ -48,7 +49,8 @@ public final class MethodFinder
          *     The name of the method to look for.
          * @return The new {@link MethodFinderBase}.
          */
-        @CheckReturnValue @Contract(pure = true)
+        @CheckReturnValue
+        @Contract(pure = true)
         public MethodFinderBase withName(String name)
         {
             return new NamedMethodFinder(source, name);
@@ -61,7 +63,8 @@ public final class MethodFinder
          *     The return type of the method to look for.
          * @return The new {@link MethodFinderBase}.
          */
-        @CheckReturnValue @Contract(pure = true)
+        @CheckReturnValue
+        @Contract(pure = true)
         public MethodFinderBase withReturnType(Class<?> returnType)
         {
             return new TypedMethodFinder(source, returnType);

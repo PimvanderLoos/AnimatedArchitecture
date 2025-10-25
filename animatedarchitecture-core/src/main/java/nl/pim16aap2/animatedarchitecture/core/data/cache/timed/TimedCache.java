@@ -290,10 +290,10 @@ public sealed class TimedCache<K, V>
     public @Nullable V computeIfAbsent(K key, Function<K, V> mappingFunction)
     {
         validateState();
-        final AtomicReference<V> returnValue = new AtomicReference<>();
+        final AtomicReference<@Nullable V> returnValue = new AtomicReference<>();
         cache.compute(key, (k, tValue) ->
         {
-            @Nullable V innerValue;
+            V innerValue;
             if (tValue == null || tValue.timedOut() || (innerValue = tValue.getValue(refresh)) == null)
             {
                 innerValue = mappingFunction.apply(k);
@@ -335,7 +335,9 @@ public sealed class TimedCache<K, V>
         validateState();
         return Util.requireNonNull(cache.compute(key, (k, timedValue) ->
         {
-            final V value = timedValue != null && !timedValue.timedOut() ? timedValue.getValue(refresh) : null;
+            final V value = timedValue != null && !timedValue.timedOut() ?
+                timedValue.getValue(refresh) :
+                null;
             return createTimedValue(mappingFunction, k, value);
         }).getValue(refresh), "Computed cache value for key: \"" + key + "\"");
     }

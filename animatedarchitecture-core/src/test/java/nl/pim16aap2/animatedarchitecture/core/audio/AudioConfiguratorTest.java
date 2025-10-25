@@ -66,7 +66,8 @@ class AudioConfiguratorTest
             .thenReturn(Set.of(TYPE_0, TYPE_1, TYPE_2, TYPE_3, TYPE_4, TYPE_5));
     }
 
-    @SuppressWarnings("ConstantConditions") @Test
+    @SuppressWarnings("ConstantConditions")
+    @Test
     void generateConfigData()
     {
         Mockito.when(TYPE_0.getAudioSet()).thenReturn(SET_1);

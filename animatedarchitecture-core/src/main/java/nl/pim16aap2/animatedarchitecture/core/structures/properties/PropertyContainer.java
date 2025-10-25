@@ -7,7 +7,6 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.util.LazyValue;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.Nullable;
 
@@ -154,7 +153,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         );
         propertySet.reset();
 
-        final @Nullable IPropertyValue<?> oldValue = oldValueRef.get();
+        final IPropertyValue<?> oldValue = oldValueRef.get();
 
         if (oldValue instanceof PropertyContainerSerializer.UndefinedPropertyValue undefinedPropertyValue)
         {
@@ -566,7 +565,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     }
 
     @Override
-    public @NotNull Iterator<PropertyValuePair<?>> iterator()
+    public Iterator<PropertyValuePair<?>> iterator()
     {
         return propertySet.get().iterator();
     }
@@ -593,7 +592,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
             .stream()
             .map(entry ->
             {
-                final @Nullable Property<?> property = Property.fromName(entry.getKey());
+                final Property<?> property = Property.fromName(entry.getKey());
                 return property == null ? null : PropertyValuePair.of(property, entry.getValue());
             })
             .filter(Objects::nonNull)
