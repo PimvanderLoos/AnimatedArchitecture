@@ -125,8 +125,8 @@ public final class StructureActivityManager extends Restartable
     @CheckReturnValue
     public OptionalLong registerAnimation(Structure targetStructure, boolean requiresWriteAccess)
     {
-        final AtomicReference<@Nullable RegisteredAnimatorEntry> abortEntryRef = new AtomicReference<>(null);
-        final AtomicReference<@Nullable RegisteredAnimatorEntry> newEntryRef = new AtomicReference<>(null);
+        final AtomicReference<@Nullable RegisteredAnimatorEntry> abortEntryRef = new AtomicReference<>();
+        final AtomicReference<@Nullable RegisteredAnimatorEntry> newEntryRef = new AtomicReference<>();
 
         animators.compute(
             targetStructure.getUid(),

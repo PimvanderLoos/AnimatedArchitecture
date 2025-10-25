@@ -348,8 +348,9 @@ final class StructureToggleHelper
                 stamp
             );
 
-        final @Nullable IPlayer responsiblePlayer =
-            data.getCause().equals(StructureActionCause.PLAYER) ? data.getResponsible() : null;
+        final IPlayer responsiblePlayer = data.getCause().equals(StructureActionCause.PLAYER) ?
+            data.getResponsible() :
+            null;
 
         if (animationType.requiresWriteAccess() &&
             !isLocationEmpty(data.getNewCuboid(), snapshot.getCuboid(), responsiblePlayer, snapshot.getWorld()))
@@ -464,9 +465,11 @@ final class StructureToggleHelper
                 structure.constructAnimationComponent(Util.requireNonNull(data.get(), "AnimationRequestData"))
             );
 
+            //noinspection DataFlowIssue
             return null;
         });
 
+        //noinspection ConstantValue
         if (abortedResult != null)
             return abortedResult;
 
@@ -668,7 +671,7 @@ final class StructureToggleHelper
         Cuboid newCuboid,
         StructureActionType actionType)
     {
-        final @Nullable Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
+        final Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
         if (actionType == StructureActionType.OPEN && Boolean.TRUE.equals(isOpen))
             return StructureToggleResult.ALREADY_OPEN;
         else if (actionType == StructureActionType.CLOSE && Boolean.FALSE.equals(isOpen))

@@ -65,8 +65,6 @@ abstract class AbstractTimedValue<T>
      *     Whether to refresh the value. See {@link #refresh()}.
      * @return The value wrapped inside this {@link AbstractTimedValue}.
      */
-    // IntelliJ doesn't understand that overriding methods shouldn't be @NotNull, but @Nullable, like this one...
-    @SuppressWarnings("NullableProblems")
     public abstract @Nullable T getValue(boolean refresh);
 
     /**

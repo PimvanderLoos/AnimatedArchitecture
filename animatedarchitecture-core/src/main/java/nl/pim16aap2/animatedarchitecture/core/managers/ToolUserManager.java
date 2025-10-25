@@ -50,8 +50,7 @@ public final class ToolUserManager extends Restartable
      */
     public void registerToolUser(ToolUser toolUser)
     {
-        final @Nullable ToolUserEntry replaced =
-            toolUsers.put(toolUser.getPlayer().getUUID(), new ToolUserEntry(toolUser, null));
+        final ToolUserEntry replaced = toolUsers.put(toolUser.getPlayer().getUUID(), new ToolUserEntry(toolUser, null));
 
         if (replaced != null)
         {
@@ -133,7 +132,7 @@ public final class ToolUserManager extends Restartable
      */
     public boolean cancelToolUser(UUID uuid)
     {
-        final @Nullable ToolUserEntry removed = toolUsers.remove(uuid);
+        final ToolUserEntry removed = toolUsers.remove(uuid);
         if (removed == null)
             return false;
         removed.toolUser.abort();
@@ -170,7 +169,7 @@ public final class ToolUserManager extends Restartable
      */
     public void startToolUser(ToolUser toolUser, int time)
     {
-        final @Nullable ToolUserEntry pair = toolUsers.get(toolUser.getPlayer().getUUID());
+        final ToolUserEntry pair = toolUsers.get(toolUser.getPlayer().getUUID());
         if (pair == null)
         {
             log.atError().withStackTrace(StackSize.FULL).log(
@@ -232,7 +231,7 @@ public final class ToolUserManager extends Restartable
      */
     public void abortToolUser(ToolUser toolUser)
     {
-        final AtomicReference<@Nullable ToolUserEntry> removed = new AtomicReference<>(null);
+        final AtomicReference<@Nullable ToolUserEntry> removed = new AtomicReference<>();
         toolUsers.computeIfPresent(toolUser.getPlayer().getUUID(), (uuid, entry) ->
         {
             // Make sure we remove the specific ToolUser instance we want to remove, and not some other
@@ -244,7 +243,7 @@ public final class ToolUserManager extends Restartable
             return null;
         });
 
-        final @Nullable ToolUserEntry removedEntry = removed.get();
+        final ToolUserEntry removedEntry = removed.get();
         if (removedEntry == null)
             abortEntry(toolUser, null);
         else

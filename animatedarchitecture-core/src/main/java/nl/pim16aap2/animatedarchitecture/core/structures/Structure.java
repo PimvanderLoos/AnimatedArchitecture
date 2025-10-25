@@ -861,8 +861,13 @@ public final class Structure implements IStructureConst, IPropertyHolder
     // Obtaining a read lock won't cause a deadlock,
     // so no need to check it's possible.
     @Locked.Read("lock")
-    @SuppressWarnings("unused")
     public <T> T withReadLock(Supplier<T> supplier)
+    {
+        return supplier.get();
+    }
+
+    @Locked.Read("lock")
+    public <T> @Nullable T withReadLockNullable(Supplier<@Nullable T> supplier)
     {
         return supplier.get();
     }
@@ -935,7 +940,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Locked.Read("lock")
     public boolean isOwner(UUID uuid, PermissionLevel permissionLevel)
     {
-        final @Nullable StructureOwner owner = owners.get(uuid);
+        final StructureOwner owner = owners.get(uuid);
         return owner != null && owner.permission().isLowerThanOrEquals(permissionLevel);
     }
 
