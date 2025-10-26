@@ -25,6 +25,11 @@
             <property name="optional" value="false"/>
         </module>
 
+        <module name="IllegalImport">
+            <property name="illegalPkgs" value="org.checkerframework.checker.nullness.qual"/>
+            <property name="illegalClasses" value="javax.annotation.Nullable, javax.annotation.Nonnull, org.jetbrains.annotations.Nullable, org.jetbrains.annotations.NotNull"/>
+        </module>
+
         <module name="SuppressionCommentFilter"/>
 
         <module name="SingleSpaceSeparator"/>
