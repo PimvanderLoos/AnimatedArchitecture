@@ -11,12 +11,21 @@
         <property name="ignorePattern" value="(^[ ]*\* .*\{@link .*$)|(^[ ]*(\*|\/\/|#) .*http(s)?:\/\/.*$)"/>
     </module>
 
+    <module name="JavadocPackage">
+        <!-- insists on package-info.java existing in every package -->
+    </module>
+
     <module name="FileTabCharacter"/>
 
     <module name="SuppressionSingleFilter">
         <property name="files"
                   value=".+\.(?:txt|properties|xml)$"/>
         <property name="checks" value=".*"/>
+    </module>
+
+    <module name="SuppressionFilter">
+        <property name="file" value="coderules/checkstyle-file-suppressions.xml"/>
+        <property name="optional" value="false"/>
     </module>
 
     <module name="TreeWalker">
@@ -34,7 +43,10 @@
 
         <module name="SingleSpaceSeparator"/>
 
-        <module name="MethodName"/>
+        <module name="MethodName">
+            <property name="id" value="MethodNameRegular"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9]*([VR0-9_]*)$"/>
+        </module>
 
         <module name="UpperEll"/>
 

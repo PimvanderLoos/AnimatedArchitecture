@@ -13,7 +13,7 @@ import java.util.Set;
 @ExtendWith(MockitoExtension.class)
 class CuboidTest
 {
-    public final double EPSILON = 1E-6;
+    public static final double EPSILON = 1E-6;
 
     @Test
     void getVolume()

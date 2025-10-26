@@ -128,6 +128,7 @@ public abstract class BaseCommand
      * @return null
      */
     @VisibleForTesting
+    @SuppressWarnings("TypeParameterUnusedInFormals") // We return null always, so it's safe.
     final @Nullable <T> T handleRunException(Throwable throwable)
     {
         final boolean shouldInformUser = shouldInformUser(throwable);

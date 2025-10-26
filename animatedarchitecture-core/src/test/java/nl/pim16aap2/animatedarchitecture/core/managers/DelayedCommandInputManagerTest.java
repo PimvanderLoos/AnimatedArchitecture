@@ -19,10 +19,10 @@ import java.util.Optional;
 class DelayedCommandInputManagerTest
 {
     @Mock
-    ICommandSender commandSender;
+    private ICommandSender commandSender;
 
     @Mock
-    DebuggableRegistry debuggableRegistry;
+    private DebuggableRegistry debuggableRegistry;
 
     @Test
     void testRegistration()

@@ -33,7 +33,8 @@ import static org.mockito.Mockito.*;
 class AddOwnerDelayedTest
 {
     @Spy
-    private final DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager(Mockito.mock());
+    private final DelayedCommandInputManager delayedCommandInputManager =
+        new DelayedCommandInputManager(Mockito.mock());
 
     private DelayedCommandInputRequest.IFactory<AddOwnerDelayed.DelayedInput> inputRequestFactory;
 

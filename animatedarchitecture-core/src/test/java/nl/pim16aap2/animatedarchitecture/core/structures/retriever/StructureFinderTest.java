@@ -36,16 +36,16 @@ import static org.mockito.Mockito.*;
 class StructureFinderTest
 {
     @Mock
-    IExecutor executor;
+    private IExecutor executor;
 
     @Mock
-    StructureRetrieverFactory structureRetrieverFactory;
+    private StructureRetrieverFactory structureRetrieverFactory;
 
     @Mock
-    DatabaseManager databaseManager;
+    private DatabaseManager databaseManager;
 
     @Mock
-    ICommandSender commandSender;
+    private ICommandSender commandSender;
 
     @Test
     void propagateMaxPermission()

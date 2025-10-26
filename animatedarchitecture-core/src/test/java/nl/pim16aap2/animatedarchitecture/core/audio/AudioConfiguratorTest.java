@@ -51,13 +51,13 @@ class AudioConfiguratorTest
     static final StructureType TYPE_5 = newStructureType(KEY_5);
 
     @Mock
-    AudioConfigIO audioConfigIO;
+    private AudioConfigIO audioConfigIO;
     @Mock
-    RestartableHolder restartableHolder;
+    private RestartableHolder restartableHolder;
     @Mock
-    DebuggableRegistry debuggableRegistry;
+    private DebuggableRegistry debuggableRegistry;
     @Mock
-    StructureTypeManager structureTypeManager;
+    private StructureTypeManager structureTypeManager;
 
     @BeforeEach
     void init()

@@ -28,4 +28,8 @@
     <!-- Allow functional interfaces to exist with "I" prefix -->
     <suppress-xpath checks="TypeName"
                     query="//*[MODIFIERS/ANNOTATION[*[@text = 'FunctionalInterface']]]/descendant-or-self::node()"/>
+
+    <!-- Allow test method names to have underscores -->
+    <suppress files=".*/src/test/.*" id="MethodNameRegular"/>
+    <suppress files=".*[/\\]src[/\\]main[/\\].*" id="MethodNameTest"/>
 </suppressions>

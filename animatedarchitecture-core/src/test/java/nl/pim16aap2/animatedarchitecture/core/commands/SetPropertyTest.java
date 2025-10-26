@@ -378,7 +378,8 @@ class SetPropertyTest
 
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
         when(structure.getSnapshot()).thenReturn(snapshot);
-        when(databaseManager.syncStructureData(snapshot)).thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
+        when(databaseManager.syncStructureData(snapshot))
+            .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         final SetProperty setProperty =
             spy(setPropertyWithDefaults(assistedFactoryMocker.injectParameter(executor), property, "newValue"));

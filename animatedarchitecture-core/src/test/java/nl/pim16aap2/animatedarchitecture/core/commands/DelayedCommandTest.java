@@ -140,15 +140,15 @@ class DelayedCommandTest
 
         public static final String INPUT_REQUEST_MSG = "DelayedCommandImpl INPUT REQUEST MSG";
 
-        private final TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
+        private final TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFun;
 
         DelayedCommandImpl(
             Context context,
             DelayedCommandInputRequest.IFactory<Object> inputRequestFactory,
-            TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFunction)
+            TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFun)
         {
             super(context, inputRequestFactory, Object.class);
-            this.delayedFunction = delayedFunction;
+            this.delayedFun = delayedFun;
         }
 
         @Override
@@ -163,7 +163,7 @@ class DelayedCommandTest
             StructureRetriever structureRetriever,
             Object delayedInput)
         {
-            return delayedFunction.apply(commandSender, structureRetriever, delayedInput);
+            return delayedFun.apply(commandSender, structureRetriever, delayedInput);
         }
 
         @Override

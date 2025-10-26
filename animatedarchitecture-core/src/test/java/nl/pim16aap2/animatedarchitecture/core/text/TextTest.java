@@ -13,15 +13,15 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TextTest
 {
-    final ColorScheme<Style> colorScheme =
+    private final ColorScheme<Style> colorScheme =
         ColorScheme.<Style>builder()
             .addStyle(TextType.ERROR, new Style("<err>", "</err>"))
             .addStyle(TextType.INFO, new Style("<info>", "</info>"))
             .setDefaultStyle(new Style("", ""))
             .build();
 
-    final TextComponentFactory textComponentFactory = new TextComponentFactory(colorScheme);
-    final PersonalizedLocalizer localizer = new PersonalizedLocalizer(mock(), null);
+    private final TextComponentFactory textComponentFactory = new TextComponentFactory(colorScheme);
+    private final PersonalizedLocalizer localizer = new PersonalizedLocalizer(mock(), null);
 
     @Test
     void subsection()
