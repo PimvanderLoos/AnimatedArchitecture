@@ -18,7 +18,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -123,7 +123,7 @@ public class PlayerFactorySpigot implements IPlayerFactory
         if (player instanceof WrappedPlayer playerSpigot)
             return playerSpigot;
 
-        final @Nullable Player onlinePlayer = Bukkit.getPlayer(player.getUUID());
+        final Player onlinePlayer = Bukkit.getPlayer(player.getUUID());
         if (onlinePlayer != null)
             return wrapPlayer(onlinePlayer);
 
@@ -178,7 +178,7 @@ public class PlayerFactorySpigot implements IPlayerFactory
     @Override
     public IPlayer create(PlayerData playerData)
     {
-        final @Nullable Player player = Bukkit.getPlayer(playerData.getUUID());
+        final Player player = Bukkit.getPlayer(playerData.getUUID());
         if (player != null)
             return wrapPlayer(player);
         return new WrappedOfflinePlayer(playerData);
@@ -187,7 +187,7 @@ public class PlayerFactorySpigot implements IPlayerFactory
     @Override
     public CompletableFuture<Optional<IPlayer>> create(UUID uuid)
     {
-        final @Nullable Player player = Bukkit.getPlayer(uuid);
+        final Player player = Bukkit.getPlayer(uuid);
         if (player != null)
             return CompletableFuture.completedFuture(Optional.of(wrapPlayer(player)));
 

@@ -4,7 +4,7 @@ import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
 import lombok.CustomLog;
 import nl.pim16aap2.util.exceptions.ContextualOperationException;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;

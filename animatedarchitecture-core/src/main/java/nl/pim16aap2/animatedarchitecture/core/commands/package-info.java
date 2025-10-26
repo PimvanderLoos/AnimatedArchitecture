@@ -35,7 +35,7 @@
  *         .exceptionally(ex -> ...);
  * }</pre>
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

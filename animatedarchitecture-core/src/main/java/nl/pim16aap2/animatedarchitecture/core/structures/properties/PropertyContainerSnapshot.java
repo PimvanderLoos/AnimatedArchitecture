@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
@@ -75,7 +74,7 @@ public final class PropertyContainerSnapshot implements IPropertyHolderConst, IP
     }
 
     @Override
-    public @NotNull Iterator<PropertyValuePair<?>> iterator()
+    public Iterator<PropertyValuePair<?>> iterator()
     {
         return propertySet.iterator();
     }

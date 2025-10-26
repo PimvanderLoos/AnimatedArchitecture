@@ -12,7 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.factories.ILocationFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An {@link IAnimatedBlock} that represents a highlighted block. This block can be used to highlight a block in the
@@ -135,7 +135,7 @@ public class AnimatedHighlightedBlock implements IAnimatedBlock
     @Override
     public synchronized void kill()
     {
-        final @Nullable IHighlightedBlock currentBlock = this.highlightedBlock;
+        final IHighlightedBlock currentBlock = this.highlightedBlock;
         if (currentBlock != null)
         {
             highlightedBlock = null;

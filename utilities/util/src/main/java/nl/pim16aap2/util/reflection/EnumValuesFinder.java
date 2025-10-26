@@ -2,7 +2,7 @@ package nl.pim16aap2.util.reflection;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -33,7 +33,8 @@ public class EnumValuesFinder
      *     The name of the enum value to look for.
      * @return The new {@link NamedEnumValueFinder}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public NamedEnumValueFinder withName(String name)
     {
         return new NamedEnumValueFinder(source, Objects
@@ -47,7 +48,8 @@ public class EnumValuesFinder
      *     The index of the enum value to look for.
      * @return The new {@link IndexedEnumValueFinder}.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public IndexedEnumValueFinder atIndex(int index)
     {
         return new IndexedEnumValueFinder(source, index);
@@ -199,7 +201,8 @@ public class EnumValuesFinder
          *     The class to analyze.
          * @return The next step in the enum values finding process.
          */
-        @CheckReturnValue @Contract(pure = true)
+        @CheckReturnValue
+        @Contract(pure = true)
         public EnumValuesFinder inClass(Class<?> source)
         {
             return new EnumValuesFinder(source);

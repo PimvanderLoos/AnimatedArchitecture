@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.util.hooks;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents the specification of a {@link IProtectionHookSpigot}.
@@ -14,8 +14,7 @@ public interface IProtectionHookSpigotSpecification
      *     The version of the plugin to load the hook for.
      * @return The {@link IProtectionHookSpigot} class of the compat.
      */
-    @Nullable
-    Class<? extends IProtectionHookSpigot> getClass(String version);
+    @Nullable Class<? extends IProtectionHookSpigot> getClass(String version);
 
     /**
      * Get the name of the plugin the given compat hooks into.

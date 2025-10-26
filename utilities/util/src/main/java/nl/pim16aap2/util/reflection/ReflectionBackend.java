@@ -1,6 +1,6 @@
 package nl.pim16aap2.util.reflection;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
@@ -97,7 +97,7 @@ final class ReflectionBackend
         if (!checkSuperClasses)
             return ret;
 
-        @Nullable Class<?> check = clz.getSuperclass();
+        Class<?> check = clz.getSuperclass();
         while (check != null)
         {
             ret.addAll(List.of(check.getDeclaredFields()));
@@ -317,7 +317,7 @@ final class ReflectionBackend
         @Nullable Class<?> returnType,
         boolean setAccessible)
     {
-        @Nullable Method m = findMethod(source, name, modifiers, parameters, returnType);
+        Method m = findMethod(source, name, modifiers, parameters, returnType);
         if (m != null)
             return setAccessibleIfNeeded(m, setAccessible);
 

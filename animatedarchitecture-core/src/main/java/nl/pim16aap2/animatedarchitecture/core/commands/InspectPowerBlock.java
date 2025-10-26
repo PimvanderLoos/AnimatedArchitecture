@@ -59,6 +59,9 @@ public class InspectPowerBlock extends BaseCommand
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * The factory interface for creating {@link InspectPowerBlock} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -72,6 +75,7 @@ public class InspectPowerBlock extends BaseCommand
          *     specific location and access to the specific structure(s).
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         InspectPowerBlock newInspectPowerBlock(ICommandSender commandSender);
     }
 }

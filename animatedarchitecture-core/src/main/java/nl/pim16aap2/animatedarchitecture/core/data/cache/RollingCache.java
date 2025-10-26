@@ -4,8 +4,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.jspecify.annotations.Nullable;
 
 import java.util.AbstractCollection;
 import java.util.ArrayList;
@@ -133,7 +133,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
     T shiftFromHead(int targetIdx)
     {
         ptrHead = loopedIndex(ptrHead - 1);
-        @Nullable T previousValue = null;
+        T previousValue = null;
         for (int idx = ptrHead; idx != targetIdx; idx = loopedIndex(idx - 1))
             previousValue = replace(idx, previousValue);
         return replace(targetIdx, previousValue);
@@ -141,7 +141,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
 
     T shiftFromTail(int targetIdx)
     {
-        @Nullable T previousValue = null;
+        T previousValue = null;
         for (int idx = ptrTail; idx != targetIdx; idx = loopedIndex(idx + 1))
             previousValue = replace(idx, previousValue);
         ptrTail = loopedIndex(ptrTail + 1);
@@ -367,6 +367,9 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
             throw new ConcurrentModificationException();
     }
 
+    /**
+     * An iterator for the rolling cache.
+     */
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public final class RollingIterator implements Iterator<T>
     {
@@ -410,6 +413,9 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         }
     }
 
+    /**
+     * A spliterator for the rolling cache.
+     */
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public final class RollingSpliterator implements Spliterator<T>
     {
@@ -434,6 +440,12 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
             return true;
         }
 
+        /**
+         * Peeks at the next element that would be returned by {@link #tryAdvance(Consumer)} without advancing the
+         * iterator.
+         *
+         * @return The next element, or null if there are no more elements.
+         */
         @VisibleForTesting
         @Nullable T peek()
         {
@@ -444,7 +456,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
         }
 
         @Override
-        public @Nullable RollingCache<T>.RollingSpliterator trySplit()
+        public RollingCache<T>.@Nullable RollingSpliterator trySplit()
         {
             final int halfRemaining = remaining / 2;
             if (halfRemaining == 0)

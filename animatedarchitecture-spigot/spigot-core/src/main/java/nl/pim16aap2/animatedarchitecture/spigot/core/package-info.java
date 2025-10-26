@@ -28,7 +28,7 @@
  * {@link nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter}. This class contains some static utility methods
  * to wrap and unwrap Spigot objects to AnimatedArchitecture objects and vice versa.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.spigot.core;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

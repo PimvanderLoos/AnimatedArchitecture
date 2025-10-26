@@ -4,7 +4,7 @@ package nl.pim16aap2.animatedarchitecture.core.api.restartable;
 import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashSet;
 import java.util.Objects;

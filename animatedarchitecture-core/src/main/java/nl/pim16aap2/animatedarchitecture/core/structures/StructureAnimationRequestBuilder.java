@@ -17,7 +17,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -245,12 +245,15 @@ public class StructureAnimationRequestBuilder
                 return;
 
             if (structureActionCause == StructureActionCause.PLAYER)
-                //noinspection ConstantConditions
+            {
                 messageReceiver = Objects.requireNonNull(
                     responsible,
                     "Responsible player must be set when the structure action is caused by a player!");
+            }
             else
+            {
                 messageReceiver = messageableServer;
+            }
         }
     }
 

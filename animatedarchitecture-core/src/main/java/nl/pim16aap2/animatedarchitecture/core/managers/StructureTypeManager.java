@@ -11,7 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
@@ -153,7 +153,7 @@ public final class StructureTypeManager implements IDebuggable
     @Locked.Read
     public boolean isStructureTypeEnabled(StructureType structureType)
     {
-        final @Nullable Boolean result = registeredStructureTypes0.get(structureType);
+        final Boolean result = registeredStructureTypes0.get(structureType);
         return result != null && result;
     }
 
@@ -163,7 +163,7 @@ public final class StructureTypeManager implements IDebuggable
         log.atInfo().log(
             "Registering structure type: '%s'. Enabled: %s", structureType.getFullNameWithVersion(), isEnabled);
 
-        final @Nullable Boolean result = registeredStructureTypes0.put(structureType, isEnabled);
+        final Boolean result = registeredStructureTypes0.put(structureType, isEnabled);
         if (result != null && result == isEnabled)
             return;
 

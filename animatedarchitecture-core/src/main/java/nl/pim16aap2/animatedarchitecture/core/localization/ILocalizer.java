@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.localization;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;

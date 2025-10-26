@@ -4,7 +4,7 @@ import lombok.CustomLog;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -111,7 +111,7 @@ final class LocalizationPatcher
         final Map<String, String> ret = new LinkedHashMap<>();
         LocalizationUtil.readFile(localeFile.path(), line ->
         {
-            final @Nullable LocalizationEntry entry = LocalizationUtil.getEntryFromLine(line);
+            final LocalizationEntry entry = LocalizationUtil.getEntryFromLine(line);
             if (isValidPatch(entry))
                 ret.put(entry.key(), line);
         });

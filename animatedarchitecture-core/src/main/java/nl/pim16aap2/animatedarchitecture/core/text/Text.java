@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.text;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -310,7 +310,7 @@ public class Text implements CharSequence
         final int currentLength = stringBuilder.length();
         for (final var section : messageFormatSections)
         {
-            final @Nullable TextComponent component;
+            final TextComponent component;
             if (section.argumentIdx() == -1)
                 component = base;
             else
@@ -335,8 +335,7 @@ public class Text implements CharSequence
      * @return The new text component if one was created or null if no specific decoration should be applied to the
      * text.
      */
-    @Nullable
-    TextComponent newTextComponent(@Nullable TextType type)
+    @Nullable TextComponent newTextComponent(@Nullable TextType type)
     {
         return textComponentFactory.newComponent(type);
     }
@@ -373,9 +372,11 @@ public class Text implements CharSequence
      * @return The new text component if one was created or null if no specific decoration should be applied to the
      * text.
      */
-    @Nullable
-    TextComponent newClickableTextComponent(
-        @Nullable TextType type, String command, @Nullable String info)
+    @Nullable TextComponent newClickableTextComponent(
+        @Nullable TextType type,
+        String command,
+        @Nullable String info
+    )
     {
         return textComponentFactory.newClickableTextComponent(type, command, info);
     }

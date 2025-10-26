@@ -9,7 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
@@ -92,8 +92,8 @@ public class PermissionLevelArgument extends CommandArgument<ICommandSender, Per
             CommandContext<ICommandSender> commandContext,
             Queue<String> inputQueue)
         {
-            final @Nullable String input = inputQueue.peek();
-            final @Nullable PermissionLevel level =
+            final String input = inputQueue.peek();
+            final PermissionLevel level =
                 input == null ? null : suggestions.get(input.toLowerCase(Locale.ROOT));
 
             if (level == null)

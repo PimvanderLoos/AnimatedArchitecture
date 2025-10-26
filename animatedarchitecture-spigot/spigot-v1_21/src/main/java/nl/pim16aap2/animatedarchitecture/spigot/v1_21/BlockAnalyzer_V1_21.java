@@ -14,7 +14,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.block.data.type.CommandBlock;
 import org.bukkit.inventory.BlockInventoryHolder;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -61,11 +61,11 @@ final class BlockAnalyzer_V1_21 extends BlockAnalyzerSpigot implements IRestarta
             if (tag.isTagged(mat))
                 return MaterialStatus.BLACKLISTED;
 
-        final @Nullable var blockData = safeCreateBlockData(mat);
+        final var blockData = safeCreateBlockData(mat);
         if (blockData instanceof Levelled || blockData instanceof CommandBlock)
             return MaterialStatus.BLACKLISTED;
 
-        final @Nullable var blockState = safeCreateBlockState(blockData);
+        final var blockState = safeCreateBlockState(blockData);
         if (blockState instanceof BlockInventoryHolder)
             return MaterialStatus.BLACKLISTED;
 

@@ -39,7 +39,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 
 import java.time.Duration;
@@ -348,8 +348,9 @@ final class StructureToggleHelper
                 stamp
             );
 
-        final @Nullable IPlayer responsiblePlayer =
-            data.getCause().equals(StructureActionCause.PLAYER) ? data.getResponsible() : null;
+        final IPlayer responsiblePlayer = data.getCause().equals(StructureActionCause.PLAYER) ?
+            data.getResponsible() :
+            null;
 
         if (animationType.requiresWriteAccess() &&
             !isLocationEmpty(data.getNewCuboid(), snapshot.getCuboid(), responsiblePlayer, snapshot.getWorld()))
@@ -408,11 +409,11 @@ final class StructureToggleHelper
         StructureAnimationRequest request,
         IPlayer responsible)
     {
-        final AtomicReference<StructureSnapshot> snapshot = new AtomicReference<>();
-        final AtomicReference<AnimationRequestData> data = new AtomicReference<>();
-        final AtomicReference<IAnimationComponent> component = new AtomicReference<>();
+        final AtomicReference<@Nullable StructureSnapshot> snapshot = new AtomicReference<>();
+        final AtomicReference<@Nullable AnimationRequestData> data = new AtomicReference<>();
+        final AtomicReference<@Nullable IAnimationComponent> component = new AtomicReference<>();
 
-        final @Nullable CompletableFuture<StructureToggleResult> abortedResult = structure.withReadLock(() ->
+        final CompletableFuture<StructureToggleResult> abortedResult = structure.withReadLock(() ->
         {
             if (request.isSkipAnimation() && !structure.canSkipAnimation())
                 return abort(
@@ -468,6 +469,7 @@ final class StructureToggleHelper
             return null;
         });
 
+        //noinspection ConstantValue
         if (abortedResult != null)
             return abortedResult;
 
@@ -669,7 +671,7 @@ final class StructureToggleHelper
         Cuboid newCuboid,
         StructureActionType actionType)
     {
-        final @Nullable Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
+        final Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
         if (actionType == StructureActionType.OPEN && Boolean.TRUE.equals(isOpen))
             return StructureToggleResult.ALREADY_OPEN;
         else if (actionType == StructureActionType.CLOSE && Boolean.FALSE.equals(isOpen))

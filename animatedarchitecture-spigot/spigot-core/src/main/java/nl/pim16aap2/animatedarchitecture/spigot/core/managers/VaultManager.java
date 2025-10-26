@@ -31,7 +31,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +79,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         if (!isEconomyEnabled())
             return true;
 
-        final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
+        final Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
             log.atError().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
@@ -304,7 +304,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     {
         try
         {
-            final @Nullable RegisteredServiceProvider<Economy> economyProvider =
+            final RegisteredServiceProvider<Economy> economyProvider =
                 Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
 
             if (economyProvider == null)
@@ -373,7 +373,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     @Override
     public OptionalInt getMaxPermissionSuffix(IPlayer player, String permissionBase)
     {
-        final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
+        final Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
             return OptionalInt.empty();
         return getMaxPermissionSuffix(bukkitPlayer, permissionBase);
@@ -382,7 +382,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     @Override
     public boolean hasPermission(IPlayer player, String permissionNode)
     {
-        final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
+        final Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
             return false;
 
@@ -398,7 +398,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     @Override
     public boolean hasBypassPermissionsForAttribute(IPlayer player, StructureAttribute structureAttribute)
     {
-        final @Nullable Player bukkitPlayer = getBukkitPlayer(player);
+        final Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
             return false;
 
@@ -428,7 +428,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
 
     private @Nullable Player getBukkitPlayer(IPlayer player)
     {
-        final @Nullable Player bukkitPlayer = PlayerFactorySpigot.unwrapPlayer(player);
+        final Player bukkitPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (bukkitPlayer == null)
         {
             log.atError().withStackTrace(StackSize.FULL).log(

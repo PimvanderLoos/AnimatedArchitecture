@@ -15,7 +15,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @CustomLog
 public final class HighlightedBlockDisplay implements IHighlightedBlock
@@ -82,6 +82,7 @@ public final class HighlightedBlockDisplay implements IHighlightedBlock
         this.entity.setViewRange(1F);
         this.entity.setGlowing(true);
         this.entity.setBrightness(new Display.Brightness(15, 15));
+        //noinspection UnstableApiUsage
         this.entity.setVisibleByDefault(false);
     }
 

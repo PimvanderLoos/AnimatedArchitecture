@@ -16,7 +16,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
@@ -142,7 +142,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     private void init()
     {
         delayedCommandInputManager.register(commandSender, this);
-        final @Nullable String initMessage = initMessageSupplier == null ? null : initMessageSupplier.get();
+        final String initMessage = initMessageSupplier == null ? null : initMessageSupplier.get();
         if (initMessage != null && !initMessage.isBlank())
             // We don't use sendInfo here because the msg is already localized
             commandSender.sendMessage(commandSender.newText().append(initMessage, TextType.INFO));
@@ -245,10 +245,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     }
 
     /**
-     * Factory interface for creating {@link DelayedCommandInputRequest} instances.
-     * <p>
-     * This factory is used with Dagger's assisted injection to create instances where some parameters are provided at
-     * creation time rather than being injected.
+     * The factory interface for creating {@link DelayedCommandInputRequest} instances.
      *
      * @param <T>
      *     The type of data that is to be retrieved from the player
@@ -275,6 +272,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
          *     The context to include in the exception if the future completes exceptionally (can be null).
          * @return A new DelayedCommandInputRequest instance.
          */
+        @SuppressWarnings("NullableProblems")
         DelayedCommandInputRequest<T> create(
             long timeout,
             ICommandSender commandSender,

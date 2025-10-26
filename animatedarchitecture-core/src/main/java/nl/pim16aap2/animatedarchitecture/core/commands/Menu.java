@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IGuiFactory;
 import nl.pim16aap2.animatedarchitecture.core.exceptions.NoAccessToStructureCommandException;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -64,6 +64,9 @@ public class Menu extends BaseCommand
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * The factory interface for creating {@link Menu} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -81,6 +84,7 @@ public class Menu extends BaseCommand
          *     When this is null (default), the command sender's own structures will be used.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Menu newMenu(ICommandSender commandSender, @Nullable IPlayer source);
 
         /**

@@ -107,7 +107,7 @@ class MockInjectorTest
     void createInstance_withMultipleParameters_shouldHandleCorrectly()
     {
         // setup
-        final MockInjector<TestClassWithMultipleParams> injector = new MockInjector<>(TestClassWithMultipleParams.class);
+        final var injector = new MockInjector<>(TestClassWithMultipleParams.class);
         final TestDependency providedDependency = new TestDependency();
 
         // execute
@@ -167,7 +167,7 @@ class MockInjectorTest
     // Test classes
     static class TestClassWithInject
     {
-        final TestDependency dependency;
+        private final TestDependency dependency;
 
         @Inject
         TestClassWithInject(TestDependency dependency)
@@ -178,7 +178,8 @@ class MockInjectorTest
 
     static class TestClassWithoutInject
     {
-        final TestDependency dependency;
+        @SuppressWarnings({"FieldCanBeLocal", "UnusedVariable", "unused"})
+        private final TestDependency dependency;
 
         TestClassWithoutInject(TestDependency dependency)
         {
@@ -188,7 +189,7 @@ class MockInjectorTest
 
     static class TestClassWithLazy
     {
-        final Lazy<TestDependency> lazyDependency;
+        private final Lazy<TestDependency> lazyDependency;
 
         @Inject
         TestClassWithLazy(Lazy<TestDependency> lazyDependency)
@@ -199,8 +200,8 @@ class MockInjectorTest
 
     static class TestClassWithMultipleParams
     {
-        final TestDependency dependency;
-        final OtherTestDependency otherDependency;
+        private final TestDependency dependency;
+        private final OtherTestDependency otherDependency;
 
         @Inject
         TestClassWithMultipleParams(TestDependency dependency, OtherTestDependency otherDependency)

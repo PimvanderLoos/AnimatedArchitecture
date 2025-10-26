@@ -1,7 +1,7 @@
 package nl.pim16aap2.util;
 
 import lombok.CustomLog;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.function.Supplier;
@@ -95,7 +95,7 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
 
     public SafeStringBuilder appendIndented(int indent, Supplier<@Nullable Object> fun)
     {
-        @Nullable Object obj; //NOPMD - False positive: https://github.com/pmd/pmd/issues/5046
+        Object obj; //NOPMD - False positive: https://github.com/pmd/pmd/issues/5046
         try
         {
             obj = fun.get();

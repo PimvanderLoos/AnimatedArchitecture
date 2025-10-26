@@ -1,13 +1,14 @@
 package nl.pim16aap2.testing.assertions;
 
 import nl.altindag.log.model.LogEvent;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.event.Level;
 
-import javax.annotation.Nullable;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,6 @@ import static org.assertj.core.api.Assertions.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("JavaTimeDefaultTimeZone")
 class LogAssertionsUtilTest
 {
     @Test
@@ -124,7 +124,7 @@ class LogAssertionsUtilTest
             level,
             "test-logger",
             "TestThread",
-            ZonedDateTime.now(),
+            ZonedDateTime.now(ZoneOffset.UTC),
             List.of(),
             throwable,
             Map.of(),

@@ -22,14 +22,13 @@ public class MaterialParser
 {
     private String context;
 
-    @Builder.Default
-    private @Nullable Boolean isSolid = null;
+    private @Nullable Boolean isSolid;
 
     @Singular
     private Set<Material> defaultMaterials;
 
     @Builder.Default
-    private Action onInvalid = Action.WARN_AND_SKIP;
+    private final Action onInvalid = Action.WARN_AND_SKIP;
 
     private @Nullable Material getFirstDefaultMaterial()
     {

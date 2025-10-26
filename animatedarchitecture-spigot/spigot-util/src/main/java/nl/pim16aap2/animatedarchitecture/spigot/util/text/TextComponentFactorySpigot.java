@@ -7,7 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.text.ColorScheme;
 import nl.pim16aap2.animatedarchitecture.core.text.ITextComponentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextComponent;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation of the text component factory for the Spigot platform.

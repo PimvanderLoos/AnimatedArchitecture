@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -1348,7 +1349,7 @@ class LogEventsAssertTest
             "INFO",
             loggerName,
             "TestThread",
-            ZonedDateTime.now(),
+            ZonedDateTime.now(ZoneOffset.UTC),
             List.of(),
             throwable,
             Map.of(),

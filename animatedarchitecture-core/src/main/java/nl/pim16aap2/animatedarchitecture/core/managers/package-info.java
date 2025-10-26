@@ -4,7 +4,7 @@
  * the tool users, the hooks for animated blocks, the different types of structures, the database connections, the power
  * blocks and the hook for animations.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.managers;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

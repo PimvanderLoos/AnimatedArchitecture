@@ -49,6 +49,9 @@ public class Debug extends BaseCommand
         getCommandSender().sendSuccess("commands.debug.success");
     }
 
+    /**
+     * The factory interface for creating {@link Debug} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -59,6 +62,7 @@ public class Debug extends BaseCommand
          *     The {@link ICommandSender} responsible for the execution of this command.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Debug newDebug(ICommandSender commandSender);
     }
 }

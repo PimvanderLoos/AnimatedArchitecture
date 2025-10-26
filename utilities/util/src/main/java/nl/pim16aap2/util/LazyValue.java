@@ -1,7 +1,7 @@
 package nl.pim16aap2.util;
 
 import dagger.Lazy;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Objects;
@@ -41,7 +41,7 @@ public final class LazyValue<T> implements Lazy<T>
     @Override
     public T get()
     {
-        @Nullable T tmp = value;
+        T tmp = value;
         if (tmp != null)
             return tmp;
 
@@ -71,7 +71,7 @@ public final class LazyValue<T> implements Lazy<T>
      */
     public @Nullable T reset()
     {
-        @Nullable T tmp = this.value;
+        T tmp = this.value;
         if (tmp != null)
         {
             synchronized (this)

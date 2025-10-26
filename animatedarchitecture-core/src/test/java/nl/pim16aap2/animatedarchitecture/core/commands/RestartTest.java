@@ -40,7 +40,6 @@ class RestartTest
 
     @BeforeEach
     void beforeEach()
-        throws NoSuchMethodException
     {
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
         when(platformProvider.getPlatform()).thenReturn(Optional.of(platform));

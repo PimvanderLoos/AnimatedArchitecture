@@ -18,7 +18,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -189,6 +189,9 @@ public final class AddOwner extends StructureTargetCommand
         }
     }
 
+    /**
+     * The factory interface for creating {@link AddOwner} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -210,6 +213,7 @@ public final class AddOwner extends StructureTargetCommand
          *     The permission level of the new owner's ownership.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         AddOwner newAddOwner(
             ICommandSender commandSender,
             StructureRetriever structureRetriever,

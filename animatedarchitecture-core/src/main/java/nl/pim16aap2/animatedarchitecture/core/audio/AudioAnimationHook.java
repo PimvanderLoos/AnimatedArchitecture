@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimationHook;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimationHookFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents an {@link IAnimationHook} that provides audio for animations.

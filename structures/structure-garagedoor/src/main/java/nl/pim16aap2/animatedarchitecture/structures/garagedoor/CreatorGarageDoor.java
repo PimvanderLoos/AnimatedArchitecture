@@ -15,7 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -151,7 +151,7 @@ public class CreatorGarageDoor extends Creator
      */
     protected synchronized void updateRotationPoint()
     {
-        final @Nullable Cuboid cuboid = getCuboid();
+        final Cuboid cuboid = getCuboid();
         if (cuboid == null)
             return;
 

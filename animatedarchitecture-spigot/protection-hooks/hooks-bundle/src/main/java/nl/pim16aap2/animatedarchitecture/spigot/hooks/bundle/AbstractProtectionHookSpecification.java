@@ -13,7 +13,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.hooks.towny.TownyProtectionHook;
 import nl.pim16aap2.animatedarchitecture.spigot.hooks.worldguard7.WorldGuard7ProtectionHook;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigotSpecification;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 

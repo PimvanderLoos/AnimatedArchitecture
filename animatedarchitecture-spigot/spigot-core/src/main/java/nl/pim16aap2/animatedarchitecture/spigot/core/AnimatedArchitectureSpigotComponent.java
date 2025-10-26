@@ -109,6 +109,7 @@ import org.semver4j.Semver;
 )
 interface AnimatedArchitectureSpigotComponent
 {
+    @SuppressWarnings("NullableProblems")
     @Component.Builder
     interface Builder
     {
@@ -124,6 +125,7 @@ interface AnimatedArchitectureSpigotComponent
         @BindsInstance
         Builder setRestartableHolder(RestartableHolder restartableHolder);
 
+        @SuppressWarnings("ClassEscapesDefinedScope")
         AnimatedArchitectureSpigotComponent build();
     }
 

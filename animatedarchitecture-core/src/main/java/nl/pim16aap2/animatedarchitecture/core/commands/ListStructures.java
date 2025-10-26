@@ -70,6 +70,9 @@ public class ListStructures extends BaseCommand
         getCommandSender().sendMessage(text);
     }
 
+    /**
+     * The factory interface for creating {@link ListStructures} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -84,6 +87,7 @@ public class ListStructures extends BaseCommand
          *     A {@link StructureRetrieverFactory} representing any number of {@link Structure}s.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         ListStructures newListStructures(ICommandSender commandSender, StructureRetriever structureRetriever);
     }
 }

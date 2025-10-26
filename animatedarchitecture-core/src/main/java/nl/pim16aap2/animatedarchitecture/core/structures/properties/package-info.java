@@ -7,7 +7,7 @@
  * Each structure type should have its own set of properties that it supports. The values of these properties can be set
  * per structure.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

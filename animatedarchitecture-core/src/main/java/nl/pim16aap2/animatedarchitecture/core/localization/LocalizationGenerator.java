@@ -4,7 +4,7 @@ import lombok.CustomLog;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -186,10 +186,10 @@ final class LocalizationGenerator implements ILocalizationGenerator
         final Set<String> usedPatches = new HashSet<>(MathUtil.ceil(1.25 * patches.size()));
         for (int idx = 0; idx < lines.size(); ++idx)
         {
-            final @Nullable LocalizationEntry entry = LocalizationUtil.getEntryFromLine(lines.get(idx));
+            final LocalizationEntry entry = LocalizationUtil.getEntryFromLine(lines.get(idx));
             if (entry == null)
                 continue;
-            final @Nullable String newLine = patches.get(entry.key());
+            final String newLine = patches.get(entry.key());
             if (newLine == null)
                 continue;
             lines.set(idx, newLine);

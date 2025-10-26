@@ -12,7 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -60,7 +60,7 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
      */
     public AudioSet getAudioSet(StructureType structureType)
     {
-        final @Nullable AudioSet ret = audioMap.get(structureType);
+        final AudioSet ret = audioMap.get(structureType);
         return ret == null ? EMPTY_AUDIO_SET : ret;
     }
 
@@ -100,7 +100,7 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         final Map<StructureType, @Nullable AudioSet> defaults = getDefaults();
         final Map<String, @Nullable AudioSet> parsed = audioConfigIO.readConfig();
 
-        final @Nullable AudioSet defaultAudioSet = parsed.get(KEY_DEFAULT);
+        final AudioSet defaultAudioSet = parsed.get(KEY_DEFAULT);
         return new ConfigData(defaultAudioSet, mergeMaps(parsed, defaults));
     }
 
@@ -130,7 +130,7 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
             if (KEY_DEFAULT.equals(entry.getKey()))
                 continue;
 
-            final @Nullable StructureType type = types.get(entry.getKey());
+            final StructureType type = types.get(entry.getKey());
             if (type != null)
                 merged.put(type, entry.getValue());
         }
@@ -165,8 +165,7 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         private final @Nullable AudioSet defaultSet;
         private final Map<StructureType, @Nullable AudioSet> sets;
 
-        @Nullable
-        AudioSet defaultSet()
+        @Nullable AudioSet defaultSet()
         {
             return defaultSet;
         }

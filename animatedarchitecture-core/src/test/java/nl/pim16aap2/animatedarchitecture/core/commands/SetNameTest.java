@@ -31,7 +31,6 @@ class SetNameTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         assistedFactoryMocker = AssistedFactoryMocker.injectMocksFromTestClass(SetName.IFactory.class, this);
     }

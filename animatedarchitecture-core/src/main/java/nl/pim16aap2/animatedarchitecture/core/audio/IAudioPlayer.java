@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.audio;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.DoubleUnaryOperator;
 

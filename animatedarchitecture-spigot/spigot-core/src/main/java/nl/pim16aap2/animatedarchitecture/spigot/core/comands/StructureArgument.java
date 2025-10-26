@@ -14,7 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureFinder;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -89,7 +89,7 @@ public class StructureArgument extends CommandArgument<ICommandSender, Structure
             CommandContext<ICommandSender> commandContext,
             Queue<String> inputQueue)
         {
-            final @Nullable String input = inputQueue.peek();
+            final String input = inputQueue.peek();
             if (input == null || input.isEmpty())
                 return ArgumentParseResult.failure(
                     new NoInputProvidedException(StructureArgumentParser.class, commandContext));

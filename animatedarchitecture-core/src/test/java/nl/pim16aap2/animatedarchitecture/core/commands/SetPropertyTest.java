@@ -19,7 +19,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetr
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import nl.pim16aap2.testing.assertions.AssertionBuilder;
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,7 +57,6 @@ class SetPropertyTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         assistedFactoryMocker =
             new AssistedFactoryMocker<>(SetProperty.class, SetProperty.IFactory.class).injectParameter(databaseManager);
@@ -379,7 +378,8 @@ class SetPropertyTest
 
         when(executor.getVirtualExecutor()).thenReturn(Executors.newVirtualThreadPerTaskExecutor());
         when(structure.getSnapshot()).thenReturn(snapshot);
-        when(databaseManager.syncStructureData(snapshot)).thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
+        when(databaseManager.syncStructureData(snapshot))
+            .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         final SetProperty setProperty =
             spy(setPropertyWithDefaults(assistedFactoryMocker.injectParameter(executor), property, "newValue"));

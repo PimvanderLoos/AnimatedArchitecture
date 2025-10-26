@@ -25,7 +25,6 @@
 package nl.pim16aap2.animatedarchitecture.core.data.cache.timed;
 
 import lombok.Setter;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -110,7 +109,7 @@ class TimedCacheTest
         Assertions.assertEquals(1, timedCache.getSize());
 
         // Ensure the value can be retrieved properly.
-        @Nullable String result = timedCache.get("key").orElse(null);
+        String result = timedCache.get("key").orElse(null);
         Assertions.assertNotNull(result);
         Assertions.assertSame(value, result);
 
@@ -145,7 +144,7 @@ class TimedCacheTest
 
     private <T> TimedSoftValue<T> getTimedSoftValue(TimedCache<String, T> cache, String keyName)
     {
-        @Nullable AbstractTimedValue<T> retrieved = cache.getRaw(keyName);
+        AbstractTimedValue<T> retrieved = cache.getRaw(keyName);
         Assertions.assertInstanceOf(TimedSoftValue.class, retrieved);
         return (TimedSoftValue<T>) retrieved;
     }
@@ -231,7 +230,7 @@ class TimedCacheTest
             .build();
 
         timedCache.put("key2", "value");
-        @Nullable AbstractTimedValue<String> retrieved2 = timedCache.getRaw("key2");
+        AbstractTimedValue<String> retrieved2 = timedCache.getRaw("key2");
         Assertions.assertNotNull(retrieved2);
         Assertions.assertInstanceOf(TimedValue.class, retrieved2);
     }
@@ -313,6 +312,7 @@ class TimedCacheTest
         Assertions.assertEquals("newVal", timedCache.computeIfAbsent("key", (k) -> "newVal"));
         optionalEquals(timedCache.get("key"), "newVal");
 
+        //noinspection DataFlowIssue
         Assertions.assertThrows(NullPointerException.class, () -> timedCache.computeIfAbsent(null, (k) -> "value"));
 
         //noinspection DataFlowIssue

@@ -4,8 +4,8 @@ import lombok.CustomLog;
 import lombok.Setter;
 import nl.pim16aap2.animatedarchitecture.core.annotations.Initializer;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -182,7 +182,7 @@ final class Localizer implements ILocalizer
         // When skipping this step, the ResourceBundle will not see any changes
         // made to the files since the last time the UCL was recreated.
         //noinspection EmptyTryBlock
-        try (@Nullable InputStream ignored = ucl.getResourceAsStream(baseName + ".properties"))
+        try (InputStream ignored = ucl.getResourceAsStream(baseName + ".properties"))
         {
             // ignored
         }

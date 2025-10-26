@@ -5,7 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import jakarta.inject.Named;
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -140,7 +140,6 @@ class AssistedFactoryMockerTest
         final var result = factory.create(new Object());
 
         // Verify
-        //noinspection DataFlowIssue
         assertThat(result.getNamedObj()).isSameAs(obj);
     }
 
@@ -323,7 +322,7 @@ class AssistedFactoryMockerTest
     /**
      * Represents a class with the correct AssistedInject parameter on its constructor.
      */
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    @SuppressWarnings("unused")
     @Getter
     static class TestClassWithAnnotation
     {
@@ -374,6 +373,7 @@ class AssistedFactoryMockerTest
         @AssistedFactory
         interface IFactory
         {
+            @SuppressWarnings("NullableProblems")
             TestClassWithAnnotation create(@Assisted("myObj") Object obj, int idx);
 
             default TestClassWithAnnotation create(Object obj)

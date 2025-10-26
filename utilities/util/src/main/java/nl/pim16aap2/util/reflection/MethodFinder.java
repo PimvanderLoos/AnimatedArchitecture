@@ -2,7 +2,7 @@ package nl.pim16aap2.util.reflection;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -23,7 +23,8 @@ public final class MethodFinder
      *     The class to analyze.
      * @return The next step in the method finding process.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public MethodFinderInSource inClass(Class<?> source)
     {
         return new MethodFinderInSource(Objects.requireNonNull(source, "Source class cannot be null!"));
@@ -48,7 +49,8 @@ public final class MethodFinder
          *     The name of the method to look for.
          * @return The new {@link MethodFinderBase}.
          */
-        @CheckReturnValue @Contract(pure = true)
+        @CheckReturnValue
+        @Contract(pure = true)
         public MethodFinderBase withName(String name)
         {
             return new NamedMethodFinder(source, name);
@@ -61,7 +63,8 @@ public final class MethodFinder
          *     The return type of the method to look for.
          * @return The new {@link MethodFinderBase}.
          */
-        @CheckReturnValue @Contract(pure = true)
+        @CheckReturnValue
+        @Contract(pure = true)
         public MethodFinderBase withReturnType(Class<?> returnType)
         {
             return new TypedMethodFinder(source, returnType);
@@ -199,7 +202,6 @@ public final class MethodFinder
         @Override
         public Method get()
         {
-            //noinspection ConstantConditions
             return Objects.requireNonNull(getNullable(), getNullErrorMessage(name, null));
         }
 
@@ -235,7 +237,6 @@ public final class MethodFinder
         @Override
         public Method get()
         {
-            //noinspection ConstantConditions
             return Objects.requireNonNull(getNullable(), getNullErrorMessage(null, returnType));
         }
 

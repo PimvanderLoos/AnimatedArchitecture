@@ -24,7 +24,7 @@
 
 package nl.pim16aap2.animatedarchitecture.core.data.cache.timed;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Clock;
 

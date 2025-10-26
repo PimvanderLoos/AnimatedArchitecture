@@ -34,7 +34,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -786,7 +786,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                 if (event.isCancelled())
                     return ActionResult.CANCELLED;
 
-                final @Nullable StructureOwner oldOwner = structureModifier.removeOwner(structure, playerUUID);
+                final StructureOwner oldOwner = structureModifier.removeOwner(structure, playerUUID);
                 if (oldOwner == null)
                 {
                     log.atError().log("Failed to remove owner %s from structure %s!", structureOwner.get(), structure);

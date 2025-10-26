@@ -8,7 +8,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an event where a structure is toggled.
@@ -39,5 +38,5 @@ abstract class StructureToggleEvent extends AnimatedArchitectureSpigotEvent impl
     protected final boolean animationSkipped;
 
     @Override
-    public abstract @NotNull HandlerList getHandlers();
+    public abstract HandlerList getHandlers();
 }

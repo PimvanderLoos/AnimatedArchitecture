@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.nio.file.Path;

@@ -14,8 +14,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.FileUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.jspecify.annotations.Nullable;
 import org.semver4j.Semver;
 
 import java.io.IOException;
@@ -183,7 +183,7 @@ public final class StructureTypeLoader extends Restartable
             );
         }
 
-        @Nullable Manifest manifest = null;
+        Manifest manifest = null;
         try (
             InputStream fileInputStream = Files.newInputStream(file);
             JarInputStream jarStream = new JarInputStream(fileInputStream))
@@ -561,7 +561,7 @@ public final class StructureTypeLoader extends Restartable
             .append(manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS))
             .append('\n');
 
-        final @Nullable var attributes = manifest.getEntries().get(STRUCTURE_TYPE_METADATA_MANIFEST_SECTION_TITLE);
+        final var attributes = manifest.getEntries().get(STRUCTURE_TYPE_METADATA_MANIFEST_SECTION_TITLE);
         if (attributes == null)
             return sb.append("  ").append(STRUCTURE_TYPE_METADATA_MANIFEST_SECTION_TITLE).append(": null").toString();
 
@@ -613,7 +613,7 @@ public final class StructureTypeLoader extends Restartable
         Manifest manifest)
         throws NullPointerException
     {
-        final @Nullable var attributes = manifest.getEntries().get(entryTitle);
+        final var attributes = manifest.getEntries().get(entryTitle);
 
         if (attributes == null)
             return ParsedStructureTypeInfo.failed(
@@ -625,7 +625,7 @@ public final class StructureTypeLoader extends Restartable
                     entryTitle
                 ));
 
-        final @Nullable String className = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
+        final String className = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
         if (className == null)
             return ParsedStructureTypeInfo.failed(
                 file,
@@ -645,7 +645,7 @@ public final class StructureTypeLoader extends Restartable
                     file
                 ));
 
-        final @Nullable NamespacedKey namespacedKey;
+        final NamespacedKey namespacedKey;
         try
         {
             namespacedKey = new NamespacedKey(
@@ -662,7 +662,7 @@ public final class StructureTypeLoader extends Restartable
             );
         }
 
-        final @Nullable String supportedApiVersions = attributes.getValue("SupportedApiVersions");
+        final String supportedApiVersions = attributes.getValue("SupportedApiVersions");
         if (supportedApiVersions == null)
             return ParsedStructureTypeInfo.failed(
                 file,

@@ -20,5 +20,4 @@ public enum HookPreCheckResult
      * The check is bypassed. This means that the check is not run at all.
      */
     BYPASS,
-    ;
 }

@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.util.updater;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.semver4j.Semver;
 
 /**

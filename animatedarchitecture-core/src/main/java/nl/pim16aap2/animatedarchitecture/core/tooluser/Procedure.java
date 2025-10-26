@@ -7,7 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayDeque;
@@ -326,7 +326,7 @@ public final class Procedure
         if (currentStep == null)
             return null;
 
-        final @Nullable Runnable preparation = currentStep.getStepPreparation();
+        final Runnable preparation = currentStep.getStepPreparation();
         if (preparation != null)
             preparation.run();
 

@@ -2,7 +2,7 @@ package nl.pim16aap2.util.reflection;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -188,7 +188,7 @@ public class FieldFinder
         @CheckReturnValue
         private <V> V get(Field field, @Nullable Object instance, Class<V> type)
         {
-            @Nullable Object object = null;
+            Object object = null;
             try
             {
                 object = field.get(instance);
@@ -270,8 +270,8 @@ public class FieldFinder
         /**
          * Retrieves the object of the field from the given instance.
          * <p>
-         * The field will be retrieved using {@link #getNullable(Object)} first. If the field could not be found, this
-         * method will return null.
+         * The field will be retrieved using {@link #getNullable()} first. If the field could not be found, this method
+         * will return null.
          *
          * @param instance
          *     The instance to retrieve the field from.
@@ -290,7 +290,7 @@ public class FieldFinder
         @CheckReturnValue
         public @Nullable U getNullable(@Nullable Object instance)
         {
-            final @Nullable Field field = getNullable();
+            final Field field = getNullable();
             if (field == null)
                 return null;
             return get(field, instance);

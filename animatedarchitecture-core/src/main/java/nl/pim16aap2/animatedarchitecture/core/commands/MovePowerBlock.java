@@ -68,6 +68,9 @@ public class MovePowerBlock extends StructureTargetCommand
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * The factory interface for creating {@link MovePowerBlock} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -81,6 +84,7 @@ public class MovePowerBlock extends StructureTargetCommand
          *     moved.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         MovePowerBlock newMovePowerBlock(ICommandSender commandSender, StructureRetriever structureRetriever);
     }
 }

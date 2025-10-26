@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.exceptions;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents an exception that is thrown when a user tries to edit a property, but has insufficient permissions to do

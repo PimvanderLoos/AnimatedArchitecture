@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.exceptions;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents an exception that is thrown when a command that requires one or more structures is executed, but no

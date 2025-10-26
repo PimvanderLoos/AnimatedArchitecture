@@ -6,8 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Locale;
@@ -74,12 +73,11 @@ public final class Util
     public static <T> T requireNonNull(@Nullable T obj, String name)
         throws NullPointerException
     {
-        //noinspection ConstantConditions
         return Objects.requireNonNull(obj, name + " must not be null!");
     }
 
     /**
-     * Gets a {@link NotNull} value from a {@link Nullable} one, with a provided fallback in case the value is null.
+     * Gets a not-null value from a nullable one, with a provided fallback in case the value is null.
      *
      * @param value
      *     The value that may or may not be null.

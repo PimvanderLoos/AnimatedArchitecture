@@ -8,7 +8,7 @@ import nl.pim16aap2.animatedarchitecture.core.commands.BaseCommand;
 import nl.pim16aap2.animatedarchitecture.core.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class DelayedCommandInputManager implements IDebuggable
      */
     public void register(ICommandSender commandSender, DelayedCommandInputRequest<?> inputRequest)
     {
-        final @Nullable var existing = requests.put(commandSender, inputRequest);
+        final var existing = requests.put(commandSender, inputRequest);
         if (existing != null)
             existing.cancel();
     }

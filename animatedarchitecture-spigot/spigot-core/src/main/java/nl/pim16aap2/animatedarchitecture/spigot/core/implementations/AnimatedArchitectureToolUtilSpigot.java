@@ -17,7 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -50,7 +50,7 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
     @Override
     public void giveToPlayer(IPlayer player, String nameKey, String loreKey)
     {
-        final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
+        final Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
             log.atError().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: %s", player.getUUID());
@@ -60,8 +60,10 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
         final ItemStack tool = new ItemStack(TOOL_MATERIAL, 1);
         tool.addUnsafeEnchantment(TOOL_ENCHANTMENT, 1);
 
-        final @Nullable ItemMeta itemMeta =
-            tool.hasItemMeta() ? tool.getItemMeta() : Bukkit.getItemFactory().getItemMeta(tool.getType());
+        final ItemMeta itemMeta = tool.hasItemMeta() ?
+            tool.getItemMeta() :
+            Bukkit.getItemFactory().getItemMeta(tool.getType());
+
         if (itemMeta == null)
             throw new IllegalArgumentException("Tried to create tool from invalid item: " + tool);
 
@@ -83,7 +85,7 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
     @Override
     public void removeTool(IPlayer player)
     {
-        final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
+        final Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
             log.atError().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());
@@ -102,7 +104,7 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
         if (item == null || !item.getType().equals(TOOL_MATERIAL))
             return false;
 
-        final @Nullable ItemMeta itemMeta = item.getItemMeta();
+        final ItemMeta itemMeta = item.getItemMeta();
         if (itemMeta == null)
             return false;
 
@@ -112,7 +114,7 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
     @Override
     public boolean isPlayerHoldingTool(IPlayer player)
     {
-        final @Nullable Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
+        final Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
         {
             log.atError().withStackTrace(StackSize.FULL).log("Failed to obtain Spigot player: '%s'", player.getUUID());

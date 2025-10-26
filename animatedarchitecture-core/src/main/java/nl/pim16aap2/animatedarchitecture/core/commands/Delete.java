@@ -11,7 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -74,6 +74,9 @@ public class Delete extends StructureTargetCommand
             .thenAccept(result -> handleDatabaseActionResult(result, structure));
     }
 
+    /**
+     * The factory interface for creating {@link Delete} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -87,6 +90,7 @@ public class Delete extends StructureTargetCommand
          *     deletion.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Delete newDelete(ICommandSender commandSender, StructureRetriever structureRetriever);
     }
 }

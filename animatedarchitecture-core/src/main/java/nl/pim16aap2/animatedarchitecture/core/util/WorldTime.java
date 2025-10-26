@@ -1,6 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.core.util;
 
-
 /**
  * Represents a moment in time in hours and minutes.
  */

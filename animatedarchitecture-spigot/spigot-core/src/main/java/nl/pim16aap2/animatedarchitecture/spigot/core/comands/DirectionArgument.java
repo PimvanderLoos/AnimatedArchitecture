@@ -5,7 +5,7 @@ import cloud.commandframework.arguments.CommandArgument;
 import cloud.commandframework.context.CommandContext;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;

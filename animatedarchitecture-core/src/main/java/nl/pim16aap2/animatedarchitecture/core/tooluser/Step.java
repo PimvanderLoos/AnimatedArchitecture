@@ -12,8 +12,8 @@ import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor.StepExecutor;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -154,7 +154,7 @@ public final class Step
         if (propertyName == null || propertyValueSupplier == null)
             return;
 
-        final @Nullable Object value = propertyValueSupplier.get();
+        final Object value = propertyValueSupplier.get();
 
         final Text.ArgumentCreator argument;
         if (updatable && value != null)
@@ -364,10 +364,7 @@ public final class Step
         }
 
         /**
-         * Nested factory used to create new {@link Step.Factory} instances.
-         * <p>
-         * It is preferred to use this over the direct constructor as this ensures that all required dependencies are
-         * included.
+         * The factory interface for creating {@link Step.Factory} instances.
          */
         @AssistedFactory
         public interface IFactory
@@ -381,6 +378,7 @@ public final class Step
              *     The name of the step to be created.
              * @return The new factory.
              */
+            @SuppressWarnings("NullableProblems")
             Step.Factory stepName(PersonalizedLocalizer localizer, String stepName);
         }
     }

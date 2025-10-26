@@ -10,7 +10,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimationHookFa
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +49,7 @@ public final class AnimationHookManager implements IDebuggable
                 // of animated block being used (e.g. spigot block on Spigot)
                 // and the factories should only be loaded for the specific platform.
                 //noinspection unchecked
-                final @Nullable IAnimationHook hook = ((IAnimationHookFactory<T>) factory).newInstance(animation);
+                final IAnimationHook hook = ((IAnimationHookFactory<T>) factory).newInstance(animation);
                 if (hook != null)
                     instantiated.add(hook);
             }

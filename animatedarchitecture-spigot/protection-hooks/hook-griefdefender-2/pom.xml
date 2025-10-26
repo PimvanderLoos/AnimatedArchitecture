@@ -37,6 +37,10 @@
                     <groupId>net.kyori</groupId>
                     <artifactId>event-api</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.checkerframework</groupId>
+                    <artifactId>checker-qual</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
     </dependencies>

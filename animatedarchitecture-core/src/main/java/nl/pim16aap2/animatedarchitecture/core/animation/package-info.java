@@ -14,7 +14,7 @@
  * {@link nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockHook}s. More information on that topic
  * can be found in {@link nl.pim16aap2.animatedarchitecture.core.api.animatedblock}.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.animation;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

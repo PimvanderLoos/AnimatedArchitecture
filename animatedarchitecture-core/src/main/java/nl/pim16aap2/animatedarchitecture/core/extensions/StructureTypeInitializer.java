@@ -10,7 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.data.graph.Node;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,7 +73,7 @@ final class StructureTypeInitializer
                 continue;
             }
 
-            final @Nullable StructureType result = loadStructureType(loadable.getStructureTypeInfo());
+            final StructureType result = loadStructureType(loadable.getStructureTypeInfo());
             if (result == null)
             {
                 loadable.setLoadFailure(new LoadFailure(
@@ -165,7 +165,7 @@ final class StructureTypeInitializer
 
         for (final StructureTypeInfo.Dependency dependency : dependencies)
         {
-            final @Nullable Loadable parent = loadables.get(dependency.getFullKey());
+            final Loadable parent = loadables.get(dependency.getFullKey());
             if (parent == null)
                 loadable.setLoadFailure(
                     new LoadFailure(
@@ -197,8 +197,7 @@ final class StructureTypeInitializer
      *     The {@link StructureTypeInfo} to load.
      * @return The {@link StructureType} that resulted from loading the {@link StructureTypeInfo}, if possible.
      */
-    @Nullable
-    StructureType loadStructureType(StructureTypeInfo structureTypeInfo)
+    @Nullable StructureType loadStructureType(StructureTypeInfo structureTypeInfo)
     {
         if (!structureTypeClassLoader.loadJar(structureTypeInfo.getJarFile()))
         {

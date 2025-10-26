@@ -41,7 +41,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.util.LazyValue;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
@@ -55,6 +55,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
@@ -74,6 +75,8 @@ import java.util.function.Supplier;
 public final class Structure implements IStructureConst, IPropertyHolder
 {
     private static final double DEFAULT_ANIMATION_SPEED = 1.5D;
+
+    private static final Object DUMMY = new Object();
 
     @EqualsAndHashCode.Exclude
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
@@ -834,7 +837,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         withWriteLock0(resetAnimationData, () ->
         {
             runnable.run();
-            return null;
+            return DUMMY;
         });
     }
 
@@ -861,7 +864,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
     // Obtaining a read lock won't cause a deadlock,
     // so no need to check it's possible.
     @Locked.Read("lock")
-    @SuppressWarnings("unused")
     public <T> T withReadLock(Supplier<T> supplier)
     {
         return supplier.get();
@@ -935,7 +937,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Locked.Read("lock")
     public boolean isOwner(UUID uuid, PermissionLevel permissionLevel)
     {
-        final @Nullable StructureOwner owner = owners.get(uuid);
+        final StructureOwner owner = owners.get(uuid);
         return owner != null && owner.permission().isLowerThanOrEquals(permissionLevel);
     }
 
@@ -1045,7 +1047,8 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     @Nullable StructureOwner removeOwner(UUID ownerUUID)
     {
-        return withWriteLock(false, () ->
+        final AtomicReference<@Nullable StructureOwner> ret = new AtomicReference<>();
+        withWriteLock(false, () ->
         {
             if (primeOwner.playerData().getUUID().equals(ownerUUID))
             {
@@ -1055,13 +1058,16 @@ public final class Structure implements IStructureConst, IPropertyHolder
                     primeOwner.playerData(),
                     this.getUid()
                 );
-                return null;
             }
-            final @Nullable StructureOwner removed = owners.remove(ownerUUID);
-            if (removed != null)
-                invalidateSnapshot();
-            return removed;
+            else
+            {
+                final StructureOwner removed = owners.remove(ownerUUID);
+                if (removed != null)
+                    invalidateSnapshot();
+                ret.set(removed);
+            }
         });
+        return ret.get();
     }
 
     /**
@@ -1221,9 +1227,15 @@ public final class Structure implements IStructureConst, IPropertyHolder
         }
     }
 
+    /**
+     * Factory for creating {@link Structure} instances.
+     * <p>
+     * This method should not be used directly. Instead, use {@link StructureBuilder}.
+     */
     @AssistedFactory
     interface IFactory
     {
+        @SuppressWarnings("NullableProblems")
         Structure create(
             long structureUID,
             String name,

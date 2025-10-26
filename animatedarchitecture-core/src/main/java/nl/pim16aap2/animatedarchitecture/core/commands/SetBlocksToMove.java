@@ -10,8 +10,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -45,7 +45,7 @@ public class SetBlocksToMove extends StructureTargetCommand
     }
 
     @Override
-    protected void handleDatabaseActionSuccess(@org.jetbrains.annotations.Nullable Structure retrieverResult)
+    protected void handleDatabaseActionSuccess(@Nullable Structure retrieverResult)
     {
         final var desc = getRetrievedStructureDescription(retrieverResult);
 
@@ -69,7 +69,7 @@ public class SetBlocksToMove extends StructureTargetCommand
     @Override
     protected CompletableFuture<?> performAction(Structure structure)
     {
-        final @Nullable Integer oldStatus = structure.setPropertyValue(Property.BLOCKS_TO_MOVE, blocksToMove).value();
+        final Integer oldStatus = structure.setPropertyValue(Property.BLOCKS_TO_MOVE, blocksToMove).value();
 
         if (oldStatus == null || oldStatus != blocksToMove)
             return structure
@@ -92,6 +92,9 @@ public class SetBlocksToMove extends StructureTargetCommand
         return REQUIRED_PROPERTIES;
     }
 
+    /**
+     * The factory interface for creating {@link SetBlocksToMove} command instances.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -107,6 +110,7 @@ public class SetBlocksToMove extends StructureTargetCommand
          *     The new blocks-to-move distance.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         SetBlocksToMove newSetBlocksToMove(
             ICommandSender commandSender,
             StructureRetriever structureRetriever,

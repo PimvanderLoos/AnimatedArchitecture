@@ -154,9 +154,20 @@ class CreateStructureGui implements IGuiPage
         return "CreateStructureGui";
     }
 
+    /**
+     * The factory interface for creating {@link CreateStructureGui} instances.
+     */
     @AssistedFactory
     interface IFactory
     {
+        /**
+         * Creates and opens a new {@link CreateStructureGui} page for the given player.
+         *
+         * @param playerSpigot
+         *     The player to open the GUI for.
+         * @return The created {@link CreateStructureGui} instance.
+         */
+        @SuppressWarnings("NullableProblems")
         CreateStructureGui newCreateStructureGui(WrappedPlayer playerSpigot);
     }
 }

@@ -2,7 +2,6 @@ package nl.pim16aap2.animatedarchitecture.core.util;
 
 import lombok.CustomLog;
 import lombok.val;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -229,7 +228,7 @@ public final class FileUtil
 
         try (val zipInputStream = new ZipInputStream(Files.newInputStream(jarFile)))
         {
-            @Nullable ZipEntry entry;
+            ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null)
             {
                 final var name = entry.getName();

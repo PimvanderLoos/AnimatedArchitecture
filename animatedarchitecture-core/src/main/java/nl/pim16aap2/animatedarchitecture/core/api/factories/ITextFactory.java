@@ -4,7 +4,7 @@ package nl.pim16aap2.animatedarchitecture.core.api.factories;
 import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.text.ITextComponentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Factory class that can be used to create new {@link Text} instances.

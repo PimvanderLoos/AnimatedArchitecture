@@ -100,7 +100,8 @@ public class ParameterGroup
      *     The types to compare the parameters against.
      * @return True if the provided types match the defined parameters.
      */
-    @CheckReturnValue @Contract(pure = true)
+    @CheckReturnValue
+    @Contract(pure = true)
     public boolean matches(Class<?>... types)
     {
         if (types.length > parameters.size())

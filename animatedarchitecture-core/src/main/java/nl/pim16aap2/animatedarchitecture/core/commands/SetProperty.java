@@ -20,8 +20,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyAccessLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -233,7 +233,7 @@ public class SetProperty extends StructureTargetCommand
     }
 
     /**
-     * Factory for creating {@link SetProperty} instances.
+     * The factory interface for creating {@link SetProperty} instances.
      */
     @AssistedFactory
     interface IFactory
@@ -253,6 +253,7 @@ public class SetProperty extends StructureTargetCommand
          *     See {@link Property#getType()} for the expected type. This may be null.
          * @return The created {@link SetProperty} instance.
          */
+        @SuppressWarnings("NullableProblems")
         SetProperty newSetProperty(
             ICommandSender commandSender,
             StructureRetriever structureRetriever,

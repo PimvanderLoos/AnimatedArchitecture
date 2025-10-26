@@ -14,7 +14,9 @@ AnimatedArchitecture is a rewrite of the old BigDoors plugin. You can find the l
 (Click the image to go to YouTube and watch the video)
 
 ## Supported structure types
+
 The following structure types are currently supported:
+
 - Big Doors
 - Clocks that display the in-game time
 - Drawbridges

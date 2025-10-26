@@ -7,9 +7,8 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.util.LazyValue;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.Collection;
@@ -154,7 +153,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
         );
         propertySet.reset();
 
-        final @Nullable IPropertyValue<?> oldValue = oldValueRef.get();
+        final IPropertyValue<?> oldValue = oldValueRef.get();
 
         if (oldValue instanceof PropertyContainerSerializer.UndefinedPropertyValue undefinedPropertyValue)
         {
@@ -474,8 +473,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      * @return The raw value mapped to the given key, or {@code null} if no value is mapped to the key.
      */
     @VisibleForTesting
-    @Nullable
-    IPropertyValue<?> getRawValue(String key)
+    @Nullable IPropertyValue<?> getRawValue(String key)
     {
         return propertyMap.get(key);
     }
@@ -566,7 +564,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
     }
 
     @Override
-    public @NotNull Iterator<PropertyValuePair<?>> iterator()
+    public Iterator<PropertyValuePair<?>> iterator()
     {
         return propertySet.get().iterator();
     }
@@ -593,7 +591,7 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
             .stream()
             .map(entry ->
             {
-                final @Nullable Property<?> property = Property.fromName(entry.getKey());
+                final Property<?> property = Property.fromName(entry.getKey());
                 return property == null ? null : PropertyValuePair.of(property, entry.getValue());
             })
             .filter(Objects::nonNull)

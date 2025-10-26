@@ -16,7 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -78,7 +78,7 @@ public final class LoginMessageListener extends AbstractListener
 
     private void addErrorMessage(Text text)
     {
-        final @Nullable String msg = spigotPlugin.getInitErrorMessage();
+        final String msg = spigotPlugin.getInitErrorMessage();
         if (msg == null)
             return;
         text.append("\nERROR: ", TextType.ERROR)
@@ -90,7 +90,7 @@ public final class LoginMessageListener extends AbstractListener
         if (updateChecker == null)
             return;
 
-        final @Nullable UpdateInformation info = updateChecker.getUpdateInformation();
+        final UpdateInformation info = updateChecker.getUpdateInformation();
         if (info == null)
             return;
 

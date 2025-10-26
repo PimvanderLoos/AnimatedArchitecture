@@ -14,7 +14,6 @@ import java.util.function.Supplier;
 
 import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(2)

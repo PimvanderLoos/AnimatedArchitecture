@@ -11,7 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -46,9 +45,10 @@ public class StructureTypeParser implements ArgumentParser<ICommandSender, Struc
         CommandContext<ICommandSender> commandContext,
         Queue<String> inputQueue)
     {
-        final @Nullable String input = inputQueue.peek();
-        final @Nullable StructureType structureTypeType =
-            input == null ? null : suggestions.get(input.toLowerCase(Locale.ROOT));
+        final String input = inputQueue.peek();
+        final StructureType structureTypeType = input == null ?
+            null :
+            suggestions.get(input.toLowerCase(Locale.ROOT));
 
         if (structureTypeType == null)
             return ArgumentParseResult.failure(

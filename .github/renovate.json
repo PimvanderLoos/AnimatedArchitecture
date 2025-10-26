@@ -27,7 +27,6 @@
         "net.sourceforge.pmd:pmd-java",
         "org.apache.logging.log4j:log4j-core",
         "org.bstats:bstats-bukkit",
-        "org.eclipse.jdt:org.eclipse.jdt.annotation",
         "org.flywaydb:flyway-core",
         "org.jacoco:jacoco-maven-plugin",
         "org.jetbrains:annotations",

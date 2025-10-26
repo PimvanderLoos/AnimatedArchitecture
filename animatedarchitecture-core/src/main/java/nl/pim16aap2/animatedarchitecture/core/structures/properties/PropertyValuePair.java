@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a property-value pair.

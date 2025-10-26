@@ -10,7 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents an {@link IAnimationComponent} for {@link SlidingDoor} structure types.
@@ -61,7 +61,7 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
     public void prepareAnimation(IAnimator animator)
     {
         // Gets the first block, which will be used as a base for the movement of all other blocks in the animation.
-        firstBlockData = animator.getAnimatedBlocks().isEmpty() ? null : animator.getAnimatedBlocks().get(0);
+        firstBlockData = animator.getAnimatedBlocks().isEmpty() ? null : animator.getAnimatedBlocks().getFirst();
     }
 
     protected RotatedPosition getGoalPos(IAnimatedBlock animatedBlock, double stepSum)

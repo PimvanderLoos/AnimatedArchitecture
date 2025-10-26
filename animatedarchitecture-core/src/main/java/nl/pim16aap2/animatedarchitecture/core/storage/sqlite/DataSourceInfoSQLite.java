@@ -6,7 +6,7 @@ import lombok.CustomLog;
 import lombok.Getter;
 import nl.pim16aap2.animatedarchitecture.core.storage.IDataSourceInfo;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.sqlite.JDBC;
 import org.sqlite.SQLiteDataSource;
 
@@ -60,7 +60,7 @@ public class DataSourceInfoSQLite implements IDataSourceInfo
     {
         IDataSourceInfo.super.configureFlyway(config);
 
-        final @Nullable BaselineVersion baselineVersion = handleOldDatabase();
+        final BaselineVersion baselineVersion = handleOldDatabase();
         if (baselineVersion != null)
             // Because the SQLite database already existed before Flyway was introduced,
             // we use a baseline version to get it under Flyway's control.

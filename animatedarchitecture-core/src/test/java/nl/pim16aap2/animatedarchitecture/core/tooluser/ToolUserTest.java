@@ -64,7 +64,6 @@ public class ToolUserTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         when(player.newText()).thenReturn(ITextFactory.getSimpleTextFactory().newText());
 

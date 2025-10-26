@@ -6,7 +6,7 @@
  * To make it easy for external plugins to use these events as well, they should be fired using the native event handler
  * on the platform this project is running on.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.events;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

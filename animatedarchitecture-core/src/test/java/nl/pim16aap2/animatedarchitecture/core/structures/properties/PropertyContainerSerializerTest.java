@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainerSerializer.UndefinedPropertyValue;
 import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -108,7 +107,8 @@ class PropertyContainerSerializerTest
         final String inputJson = "{\"" + propertyKey + "\":" + valueJson + "}";
         final JSONObject jsonObject = JSON.parseObject(valueJson);
 
-        final var undefinedPropertyValue = new UndefinedPropertyValue(propertyKey, jsonObject, false);
+        final var undefinedPropertyValue =
+            new PropertyContainerSerializer.UndefinedPropertyValue(propertyKey, jsonObject, false);
         final PropertyContainer toSerialize = new PropertyContainer(Map.of(propertyKey, undefinedPropertyValue));
 
         // execute
@@ -142,9 +142,8 @@ class PropertyContainerSerializerTest
         final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
 
         // verify
-        //noinspection DataFlowIssue
         assertThat(deserialized.getRawValue(propertyKey))
-            .asInstanceOf(InstanceOfAssertFactories.type(UndefinedPropertyValue.class))
+            .asInstanceOf(InstanceOfAssertFactories.type(PropertyContainerSerializer.UndefinedPropertyValue.class))
             .satisfies(
                 value -> assertThat(value.isSet()).isFalse(),
                 value -> assertThat(value.value()).isNull(),
@@ -213,7 +212,8 @@ class PropertyContainerSerializerTest
         final String propertyKey = "animatedarchitecture:" + "undefined_property_" + UUID.randomUUID();
         final String serialized = "{\"" + propertyKey + "\":{\"value\":5}}";
         final PropertyContainer deserialized = PropertyContainerSerializer.deserialize(structureType, serialized);
-        final var value = Objects.requireNonNull((UndefinedPropertyValue) deserialized.getRawValue(propertyKey));
+        final var value = Objects.requireNonNull(
+            (PropertyContainerSerializer.UndefinedPropertyValue) deserialized.getRawValue(propertyKey));
 
         // execute & Verify
         assertThatExceptionOfType(IllegalArgumentException.class)
@@ -261,7 +261,11 @@ class PropertyContainerSerializerTest
         {
             // setup
             final String valueJson = "{\"value\":5}";
-            final var entry = new UndefinedPropertyValue(propertyKey, JSON.parseObject(valueJson), false);
+            final var entry = new PropertyContainerSerializer.UndefinedPropertyValue(
+                propertyKey,
+                JSON.parseObject(valueJson),
+                false
+            );
 
             // execute
             undefinedPropertyValueSerializer.write(jsonWriter, entry);

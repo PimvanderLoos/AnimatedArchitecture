@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.util.implementations;
 
 import nl.pim16aap2.animatedarchitecture.core.api.IConfigReader;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 

@@ -7,8 +7,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareCreateEvent;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents the event where a structure will be created.
@@ -28,7 +27,7 @@ public class StructurePrepareCreateEvent extends StructureEvent implements IStru
     }
 
     @Override
-    public @NotNull HandlerList getHandlers()
+    public HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }

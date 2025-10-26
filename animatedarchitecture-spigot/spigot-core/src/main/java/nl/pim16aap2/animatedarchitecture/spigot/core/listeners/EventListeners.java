@@ -29,7 +29,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -202,11 +202,11 @@ public class EventListeners extends AbstractListener
     {
         try
         {
-            final @Nullable ItemStack currentItem = event.getCurrentItem();
+            final ItemStack currentItem = event.getCurrentItem();
             if (currentItem == null || !animatedArchitectureToolUtil.isTool(currentItem))
                 return;
 
-            final @Nullable Inventory clickedInventory = event.getClickedInventory();
+            final Inventory clickedInventory = event.getClickedInventory();
             if (clickedInventory == null)
                 return;
 

@@ -3,7 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Predicate;
 

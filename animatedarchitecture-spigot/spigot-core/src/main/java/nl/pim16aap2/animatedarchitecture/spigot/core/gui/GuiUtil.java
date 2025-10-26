@@ -3,7 +3,6 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 import de.themoep.inventorygui.InventoryGui;
 import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Deque;
 
@@ -18,7 +17,7 @@ final class GuiUtil
     }
 
     /**
-     * Creates a new CloseAction that unregisters a deletion listener from the structures registry.
+     * Creates a new CloseAction that unregisters a deletion listener from the structures-registry.
      *
      * @param manager
      *     The StructureDeletion manager for the GUI to unregister from.
@@ -46,14 +45,14 @@ final class GuiUtil
     public static void closeAllGuis(WrappedPlayer player)
     {
         final Deque<InventoryGui> history = InventoryGui.getHistory(player.getBukkitPlayer());
-        @Nullable InventoryGui finalGui = null;
+        InventoryGui finalGui = null;
         while (!history.isEmpty())
         {
             final InventoryGui gui = history.removeLast();
             gui.close(false);
 
             // We don't use the close thing anywhere anyway.
-            final @Nullable var closeAction = gui.getCloseAction();
+            final var closeAction = gui.getCloseAction();
             if (closeAction != null)
                 closeAction.onClose(null);
 

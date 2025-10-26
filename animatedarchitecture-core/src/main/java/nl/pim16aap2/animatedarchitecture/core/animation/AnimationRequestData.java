@@ -77,7 +77,7 @@ public final class AnimationRequestData
     }
 
     /**
-     * Factory for new {@link AnimationRequestData} instances.
+     * The factory interface for {@link AnimationRequestData} instances.
      */
     @AssistedFactory
     public interface IFactory
@@ -107,6 +107,7 @@ public final class AnimationRequestData
          *     The type of movement to apply.
          * @return The new {@link AnimationRequestData}.
          */
+        @SuppressWarnings("NullableProblems")
         AnimationRequestData newToggleRequestData(
             StructureSnapshot structureSnapshot,
             StructureActionCause cause,

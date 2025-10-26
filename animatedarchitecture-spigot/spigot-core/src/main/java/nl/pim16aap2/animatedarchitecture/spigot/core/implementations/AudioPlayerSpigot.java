@@ -10,7 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.DoubleUnaryOperator;
 
@@ -59,7 +59,7 @@ public class AudioPlayerSpigot implements IAudioPlayer
         double range,
         @Nullable DoubleUnaryOperator attenuationFunction)
     {
-        final @Nullable World world = loc.getWorld();
+        final World world = loc.getWorld();
         if (world == null)
             return;
 

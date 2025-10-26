@@ -9,7 +9,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.UnaryOperator;
 
@@ -79,8 +78,8 @@ public final class Cuboid
         final double yMax = Math.max(a.y(), b.y());
         final double zMax = Math.max(a.z(), b.z());
 
-        @Nullable Vector3Di min = null;
-        @Nullable Vector3Di max = null;
+        Vector3Di min = null;
+        Vector3Di max = null;
         switch (roundingMode)
         {
             case NEAREST ->

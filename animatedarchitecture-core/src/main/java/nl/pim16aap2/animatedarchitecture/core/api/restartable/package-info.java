@@ -15,7 +15,7 @@
  * <p>
  * Each class can define what is means to be restarted on its own.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.api.restartable;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

@@ -4,7 +4,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,13 +51,13 @@ class AudioConfiguratorTest
     static final StructureType TYPE_5 = newStructureType(KEY_5);
 
     @Mock
-    AudioConfigIO audioConfigIO;
+    private AudioConfigIO audioConfigIO;
     @Mock
-    RestartableHolder restartableHolder;
+    private RestartableHolder restartableHolder;
     @Mock
-    DebuggableRegistry debuggableRegistry;
+    private DebuggableRegistry debuggableRegistry;
     @Mock
-    StructureTypeManager structureTypeManager;
+    private StructureTypeManager structureTypeManager;
 
     @BeforeEach
     void init()
@@ -66,7 +66,7 @@ class AudioConfiguratorTest
             .thenReturn(Set.of(TYPE_0, TYPE_1, TYPE_2, TYPE_3, TYPE_4, TYPE_5));
     }
 
-    @SuppressWarnings("ConstantConditions") @Test
+    @Test
     void generateConfigData()
     {
         Mockito.when(TYPE_0.getAudioSet()).thenReturn(SET_1);

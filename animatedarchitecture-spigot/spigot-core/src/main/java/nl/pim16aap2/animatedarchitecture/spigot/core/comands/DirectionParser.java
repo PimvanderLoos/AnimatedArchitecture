@@ -14,7 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
@@ -61,8 +61,8 @@ public class DirectionParser implements ArgumentParser<ICommandSender, MovementD
         CommandContext<ICommandSender> commandContext,
         Queue<String> inputQueue)
     {
-        final @Nullable String input = inputQueue.peek();
-        final @Nullable MovementDirection direction =
+        final String input = inputQueue.peek();
+        final MovementDirection direction =
             input == null ? null : suggestions.get(input.toLowerCase(Locale.ROOT));
 
         if (direction == null)
@@ -90,11 +90,11 @@ public class DirectionParser implements ArgumentParser<ICommandSender, MovementD
     private @Nullable Stream<String> tryRetrieveGuidedSuggestions(
         CommandContext<ICommandSender> commandContext)
     {
-        final @Nullable UUID uuid = commandContext.getSender().getPlayer().map(IPlayer::getUUID).orElse(null);
+        final UUID uuid = commandContext.getSender().getPlayer().map(IPlayer::getUUID).orElse(null);
         if (uuid == null)
             return null;
 
-        final @Nullable ToolUser toolUser = toolUserManager.getToolUser(uuid).orElse(null);
+        final ToolUser toolUser = toolUserManager.getToolUser(uuid).orElse(null);
         if (!(toolUser instanceof Creator creator))
             return null;
 

@@ -10,7 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -82,6 +82,9 @@ public class SetOpenDirection extends StructureTargetCommand
             .thenRunAsync(() -> sendUpdatedInfo(structure), executor.getVirtualExecutor());
     }
 
+    /**
+     * The factory interface for creating {@link SetOpenDirection} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -99,6 +102,7 @@ public class SetOpenDirection extends StructureTargetCommand
          *     True to send the updated info text to the user after the command has been executed.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         SetOpenDirection newSetOpenDirection(
             ICommandSender commandSender,
             StructureRetriever structureRetriever,

@@ -7,7 +7,6 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Dd;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.UnaryOperator;
 
@@ -74,8 +73,8 @@ public final class Rectangle
         final double xMax = Math.max(a.x(), b.x());
         final double yMax = Math.max(a.y(), b.y());
 
-        @Nullable Vector2Di min = null;
-        @Nullable Vector2Di max = null;
+        Vector2Di min = null;
+        Vector2Di max = null;
         switch (roundingMode)
         {
             case NEAREST ->

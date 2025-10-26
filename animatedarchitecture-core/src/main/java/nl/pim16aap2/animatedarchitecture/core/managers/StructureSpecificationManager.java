@@ -6,7 +6,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.util.delayedinput.DelayedInputRequest;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,7 +70,7 @@ public final class StructureSpecificationManager extends Restartable
      */
     public boolean handleInput(IPlayer player, String input)
     {
-        final @Nullable DelayedInputRequest<String> request = requests.get(player);
+        final DelayedInputRequest<String> request = requests.get(player);
         if (request == null)
             return false;
 
@@ -88,7 +87,7 @@ public final class StructureSpecificationManager extends Restartable
      */
     public boolean cancelRequest(IPlayer player)
     {
-        final @Nullable DelayedInputRequest<String> removed = requests.remove(player);
+        final DelayedInputRequest<String> removed = requests.remove(player);
         if (removed == null)
             return false;
         removed.cancel();

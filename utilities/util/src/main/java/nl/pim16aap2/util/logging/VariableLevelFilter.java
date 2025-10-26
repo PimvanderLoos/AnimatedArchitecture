@@ -15,7 +15,8 @@ import org.apache.logging.log4j.message.Message;
 
 @ToString
 @EqualsAndHashCode(callSuper = true)
-@Accessors(fluent = true) final class VariableLevelFilter extends AbstractFilter
+@Accessors(fluent = true)
+final class VariableLevelFilter extends AbstractFilter
 {
     /**
      * The level to filter on.

@@ -1,21 +1,25 @@
 package nl.pim16aap2.util;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class LazyValueTest
 {
     @Test
     void isInitialized_shouldReturnFalseWhenNotInitialized()
     {
         // Setup
-        final Supplier<Integer> supplier = getIntegerSupplier(42);
+        final Supplier<Integer> supplier = mock();
         final LazyValue<Integer> lazyValue = new LazyValue<>(supplier);
 
         // Execute
@@ -61,15 +65,15 @@ class LazyValueTest
     {
         final Supplier<Integer> supplier = getIntegerSupplier(42);
         final LazyValue<Integer> lazyValue = new LazyValue<>(supplier);
-        Mockito.verify(supplier, Mockito.never()).get();
+        verify(supplier, Mockito.never()).get();
 
         Assertions.assertEquals(42, lazyValue.get());
-        Mockito.verify(supplier, Mockito.atMostOnce()).get();
+        verify(supplier, Mockito.atMostOnce()).get();
 
-        Mockito.when(supplier.get()).thenReturn(16);
+        lenient().when(supplier.get()).thenReturn(16);
         Assertions.assertEquals(42, lazyValue.get());
 
-        Mockito.verify(supplier, Mockito.atMostOnce()).get();
+        verify(supplier, Mockito.atMostOnce()).get();
     }
 
     @Test
@@ -79,15 +83,15 @@ class LazyValueTest
         final LazyValue<Integer> lazyValue = new LazyValue<>(supplier);
 
         Assertions.assertNull(lazyValue.reset());
-        Mockito.verify(supplier, Mockito.never()).get();
+        verify(supplier, Mockito.never()).get();
 
         Assertions.assertEquals(42, lazyValue.get());
         Assertions.assertEquals(42, lazyValue.reset());
-        Mockito.verify(supplier, Mockito.times(1)).get();
+        verify(supplier, Mockito.times(1)).get();
 
-        Mockito.when(supplier.get()).thenReturn(16);
+        when(supplier.get()).thenReturn(16);
         Assertions.assertEquals(16, lazyValue.get());
-        Mockito.verify(supplier, Mockito.times(2)).get();
+        verify(supplier, Mockito.times(2)).get();
     }
 
     @Test

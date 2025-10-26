@@ -23,7 +23,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -253,7 +253,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
     }
 
     /**
-     * Factory for creating {@link AnimatedBlockDisplay} instances.
+     * The factory interface for creating {@link AnimatedBlockDisplay} instances.
      */
     @AssistedFactory
     interface IFactory
@@ -275,6 +275,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
          *     The radius of the block in regard to the rotation point of the animation.
          * @return The created {@link AnimatedBlockDisplay} instance.
          */
+        @SuppressWarnings("NullableProblems")
         AnimatedBlockDisplay create(
             @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
             @Assisted("startPosition") RotatedPosition startPosition,

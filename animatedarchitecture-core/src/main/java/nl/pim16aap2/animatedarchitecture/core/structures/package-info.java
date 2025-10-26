@@ -66,7 +66,7 @@
  * The preferred method to toggle structures is by using
  * {@link nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder}.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

@@ -12,7 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.managers.ToolUserManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.ToolUser;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -99,6 +99,9 @@ public class NewStructure extends BaseCommand
             .thenApply(this::hasPermission);
     }
 
+    /**
+     * The factory interface for creating {@link NewStructure} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -116,6 +119,7 @@ public class NewStructure extends BaseCommand
          *     specified, this step will be skipped.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         NewStructure newNewStructure(
             ICommandSender commandSender,
             StructureType structureType,

@@ -13,7 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -95,7 +95,7 @@ public final class HeadManager extends Restartable
     {
         final OfflinePlayer oPlayer = Bukkit.getOfflinePlayer(playerUUID);
         final ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
-        final @Nullable SkullMeta sMeta = (SkullMeta) skull.getItemMeta();
+        final SkullMeta sMeta = (SkullMeta) skull.getItemMeta();
         if (sMeta == null)
             return Optional.empty();
 

@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.assertThatMessageable;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @Timeout(1)
@@ -48,7 +47,7 @@ class DelayedCommandTest
     private StructureRetrieverFactory structureRetrieverFactory;
 
     @Spy
-    private DelayedCommandInputManager delayedCommandInputManager =
+    private final DelayedCommandInputManager delayedCommandInputManager =
         new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
 
     @Mock
@@ -141,15 +140,15 @@ class DelayedCommandTest
 
         public static final String INPUT_REQUEST_MSG = "DelayedCommandImpl INPUT REQUEST MSG";
 
-        private final TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFunction;
+        private final TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFun;
 
         DelayedCommandImpl(
             Context context,
             DelayedCommandInputRequest.IFactory<Object> inputRequestFactory,
-            TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFunction)
+            TriFunction<ICommandSender, StructureRetriever, Object, CompletableFuture<Boolean>> delayedFun)
         {
             super(context, inputRequestFactory, Object.class);
-            this.delayedFunction = delayedFunction;
+            this.delayedFun = delayedFun;
         }
 
         @Override
@@ -164,7 +163,7 @@ class DelayedCommandTest
             StructureRetriever structureRetriever,
             Object delayedInput)
         {
-            return delayedFunction.apply(commandSender, structureRetriever, delayedInput);
+            return delayedFun.apply(commandSender, structureRetriever, delayedInput);
         }
 
         @Override

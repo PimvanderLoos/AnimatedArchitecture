@@ -22,7 +22,6 @@ class ConfirmTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         assistedFactoryMocker = AssistedFactoryMocker.injectMocksFromTestClass(Confirm.IFactory.class, this);
     }

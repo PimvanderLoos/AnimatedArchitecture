@@ -22,7 +22,7 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetriever;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -195,7 +195,7 @@ public class StructureAnimationRequest
     }
 
     /**
-     * The factory class for {@link StructureAnimationRequest} instances.
+     * The factory interface for creating {@link StructureAnimationRequest} instances.
      */
     @AssistedFactory
     public interface IFactory
@@ -230,6 +230,7 @@ public class StructureAnimationRequest
          *     The type of movement to apply.
          * @return The new {@link AnimationRequestData}.
          */
+        @SuppressWarnings("NullableProblems")
         StructureAnimationRequest create(
             StructureRetriever structureRetriever,
             StructureActionCause cause,

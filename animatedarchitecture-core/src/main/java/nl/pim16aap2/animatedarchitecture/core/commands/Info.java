@@ -23,7 +23,6 @@ import nl.pim16aap2.animatedarchitecture.core.text.TextArgument;
 import nl.pim16aap2.animatedarchitecture.core.text.TextArgumentFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -159,7 +158,7 @@ public class Info extends StructureTargetCommand
 
     private void decorateOpenStatus(StructureSnapshot structure, Text text)
     {
-        final @Nullable Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
+        final Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
         if (isOpen == null)
             return;
 
@@ -212,7 +211,7 @@ public class Info extends StructureTargetCommand
     private void decorateBlocksToMove(StructureSnapshot structure, Text text)
     {
         final var value = structure.getPropertyValue(Property.BLOCKS_TO_MOVE);
-        final @Nullable Integer blocksToMove = value.value();
+        final Integer blocksToMove = value.value();
         if (blocksToMove == null)
             return;
 
@@ -343,6 +342,9 @@ public class Info extends StructureTargetCommand
             .orElse(true);
     }
 
+    /**
+     * The factory interface for creating {@link Info} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -357,6 +359,7 @@ public class Info extends StructureTargetCommand
          *     retrieved.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         Info newInfo(ICommandSender commandSender, StructureRetriever structureRetriever);
     }
 }

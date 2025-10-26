@@ -41,7 +41,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestLocationFactory;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Timeout;
@@ -73,6 +72,12 @@ public class CreatorTestsUtil
     protected final Vector3Di powerblock = max.add(1, 2, 3);
     protected final String structureName = "testDoor123";
     protected final IWorld world = getWorld();
+
+    protected final ILocationFactory locationFactory = new TestLocationFactory();
+
+    protected final DelayedCommandInputManager delayedCommandInputManager =
+        new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
+
     protected MovementDirection openDirection = MovementDirection.COUNTERCLOCKWISE;
 
     protected StructureBuilder structureBuilder;
@@ -113,12 +118,7 @@ public class CreatorTestsUtil
     @Mock
     protected IExecutor executor;
 
-    protected ILocationFactory locationFactory = new TestLocationFactory();
-
     protected ToolUser.Context context;
-
-    protected DelayedCommandInputManager delayedCommandInputManager =
-        new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
 
     private AutoCloseable mocks;
 
@@ -234,7 +234,6 @@ public class CreatorTestsUtil
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void initCommands()
-        throws NoSuchMethodException
     {
         final AssistedFactoryMocker<DelayedCommandInputRequest, DelayedCommandInputRequest.IFactory> assistedFactory =
             new AssistedFactoryMocker<>(DelayedCommandInputRequest.class, DelayedCommandInputRequest.IFactory.class)
@@ -299,7 +298,7 @@ public class CreatorTestsUtil
         for (int idx = 0; idx < input.length; ++idx)
         {
             final Object obj = input[idx];
-            final @Nullable String stepName = creator.getCurrentStep().map(Step::getName).orElse(null);
+            final String stepName = creator.getCurrentStep().map(Step::getName).orElse(null);
             assertNotNull(stepName);
 
             assertTrue(

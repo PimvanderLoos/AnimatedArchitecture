@@ -1,6 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.api.debugging;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a class that is debuggable by reporting debug information to {@link DebugReporter}.

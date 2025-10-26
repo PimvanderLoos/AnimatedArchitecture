@@ -2,7 +2,7 @@ package nl.pim16aap2.animatedarchitecture.core.tooluser.stepexecutor;
 
 import lombok.CustomLog;
 import lombok.ToString;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;

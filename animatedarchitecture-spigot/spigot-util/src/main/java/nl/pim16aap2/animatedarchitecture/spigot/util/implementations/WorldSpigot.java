@@ -5,7 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.WorldTime;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents an implementation of {@link IWorld} for the Spigot platform.

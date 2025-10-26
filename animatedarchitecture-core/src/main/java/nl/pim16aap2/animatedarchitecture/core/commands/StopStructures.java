@@ -44,6 +44,9 @@ public class StopStructures extends BaseCommand
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * The factory interface for creating {@link SetOpenDirection} commands.
+     */
     @AssistedFactory
     interface IFactory
     {
@@ -54,6 +57,7 @@ public class StopStructures extends BaseCommand
          *     The {@link ICommandSender} responsible for stopping all active structures.
          * @return See {@link BaseCommand#run()}.
          */
+        @SuppressWarnings("NullableProblems")
         StopStructures newStopStructures(ICommandSender commandSender);
     }
 }

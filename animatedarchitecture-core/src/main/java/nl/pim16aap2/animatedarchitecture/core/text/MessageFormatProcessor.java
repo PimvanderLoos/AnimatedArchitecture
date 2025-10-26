@@ -4,8 +4,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.jspecify.annotations.Nullable;
 
 import java.text.AttributedCharacterIterator;
 import java.text.CharacterIterator;
@@ -92,7 +92,7 @@ final class MessageFormatProcessor
 
     private void processMessageFormatIterator(AttributedCharacterIterator iter)
     {
-        @Nullable Integer argumentIdx = null;
+        Integer argumentIdx = null;
 
         for (char c = iter.first(); c != CharacterIterator.DONE; c = iter.next())
         {
@@ -132,7 +132,8 @@ final class MessageFormatProcessor
          */
         private final int argumentIdx;
 
-        @VisibleForTesting MessageFormatSection(int start, int end, int argumentIdx)
+        @VisibleForTesting
+        MessageFormatSection(int start, int end, int argumentIdx)
         {
             if (end < start)
                 throw new IllegalArgumentException("Range end " + end + " cannot be lower than range start: " + start);

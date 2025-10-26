@@ -8,7 +8,7 @@
  * with third-party plugins to determine if a structure can be animated or not based on whether a player is allowed to
  * break blocks in the old and the new location.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.spigot.core.hooks;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

@@ -2,7 +2,7 @@
  * This package contains classes related to vectors, including various types of 2D and 3D vectors, as well as utilities
  * for working with these vectors.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.util.vector;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

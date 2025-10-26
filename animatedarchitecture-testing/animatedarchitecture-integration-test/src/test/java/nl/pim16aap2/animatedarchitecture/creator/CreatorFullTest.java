@@ -11,7 +11,6 @@ import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.Creator;
 import nl.pim16aap2.animatedarchitecture.core.tooluser.creator.CreatorTest;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -131,7 +130,7 @@ class CreatorFullTest extends CreatorTestsUtil
         }
 
         @Override
-        protected synchronized @NotNull List<Step> generateSteps()
+        protected synchronized List<Step> generateSteps()
             throws InstantiationException
         {
             return Arrays.asList(
@@ -152,7 +151,7 @@ class CreatorFullTest extends CreatorTestsUtil
         }
 
         @Override
-        protected @NotNull Structure constructStructure()
+        protected Structure constructStructure()
         {
             return structure;
         }

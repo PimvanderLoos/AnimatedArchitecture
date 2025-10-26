@@ -1,7 +1,7 @@
 /**
  * Contains the storage implementation for SQLite.
  */
-@NonNullByDefault
+@NullMarked
 package nl.pim16aap2.animatedarchitecture.core.storage.sqlite;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.jspecify.annotations.NullMarked;

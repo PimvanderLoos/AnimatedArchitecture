@@ -23,8 +23,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -51,7 +51,7 @@ public class WorldGuard7ProtectionHook implements IProtectionHookSpigot
 
     private boolean enabledInWorld(com.sk89q.worldedit.world.World world)
     {
-        final @Nullable RegionManager regionManager = worldGuard.getPlatform().getRegionContainer().get(world);
+        final RegionManager regionManager = worldGuard.getPlatform().getRegionContainer().get(world);
         return regionManager != null && regionManager.size() > 0;
     }
 

@@ -10,7 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.block.data.type.CommandBlock;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -59,13 +58,12 @@ final class BlockAnalyzer_V1_20 extends BlockAnalyzerSpigot
         if (mat.isAir())
             return MaterialStatus.BLACKLISTED;
 
-        final @Nullable var blockData = safeCreateBlockData(mat);
+        final var blockData = safeCreateBlockData(mat);
         if (blockData instanceof Levelled || blockData instanceof CommandBlock)
             return MaterialStatus.BLACKLISTED;
 
         return switch (mat)
         {
-            //noinspection UnstableApiUsage
             case BARREL,
                  BLAST_FURNACE,
                  BREWING_STAND,

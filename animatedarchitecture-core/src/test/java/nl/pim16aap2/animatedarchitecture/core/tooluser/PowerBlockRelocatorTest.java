@@ -52,7 +52,6 @@ class PowerBlockRelocatorTest
 
     @BeforeEach
     void init()
-        throws NoSuchMethodException
     {
         when(structure.getWorld()).thenReturn(world);
         when(structure.getPowerBlock()).thenReturn(currentPowerBlockLoc);

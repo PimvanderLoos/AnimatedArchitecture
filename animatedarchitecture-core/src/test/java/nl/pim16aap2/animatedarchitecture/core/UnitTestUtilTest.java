@@ -83,9 +83,8 @@ class UnitTestUtilTest
             .doesNotThrowAnyException();
     }
 
-    @ParameterizedTest
-    @EnumSource(value = SendMessageMethod.class)
-    void verifyNoMoreMessagesSent_shouldNotThrowExceptionWithoutAnyInteractions(SendMessageMethod method)
+    @Test
+    void verifyNoMoreMessagesSent_shouldNotThrowExceptionWithoutAnyInteractions()
     {
         // Execute & Verify
         assertThatCode(() -> UnitTestUtil.verifyNoMoreMessagesSent(commandSender))

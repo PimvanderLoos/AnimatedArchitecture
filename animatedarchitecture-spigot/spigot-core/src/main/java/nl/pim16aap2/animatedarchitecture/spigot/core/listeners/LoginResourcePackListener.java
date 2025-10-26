@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.semver4j.Semver;
 
 import java.lang.invoke.MethodHandle;
@@ -102,7 +102,7 @@ public class LoginResourcePackListener extends AbstractListener
     private static @Nullable MethodHandle getAddResourcePackMethodHandle()
     {
         final MethodHandles.Lookup lookup = MethodHandles.lookup();
-        final @Nullable Method method = ReflectionBuilder
+        final Method method = ReflectionBuilder
             .findMethod()
             .inClass(Player.class)
             .withName("addResourcePack")

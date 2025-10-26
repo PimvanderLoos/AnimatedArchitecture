@@ -14,7 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents an implementation of {@link ILocation} for the Spigot platform.
@@ -34,7 +34,7 @@ public final class LocationSpigot implements ILocation
 
     public LocationSpigot(IWorld world, double x, double y, double z)
     {
-        final @Nullable World bukkitWorld = retrieveBukkitWorld(world);
+        final World bukkitWorld = retrieveBukkitWorld(world);
         if (bukkitWorld == null)
             log.atDebug().withStackTrace(StackSize.FULL).log("Bukkit world of world '%s' is null!", world);
         location = new Location(bukkitWorld, x, y, z);
