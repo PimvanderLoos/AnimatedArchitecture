@@ -65,6 +65,12 @@
             <artifactId>spigot-api</artifactId>
             <version>${version.spigot-base}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.checkerframework</groupId>
+                    <artifactId>checker-qual</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

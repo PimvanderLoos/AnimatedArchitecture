@@ -46,6 +46,12 @@
             <artifactId>plotsquared-core</artifactId>
             <version>${version.plotsquared}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.checkerframework</groupId>
+                    <artifactId>checker-qual</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.intellectualsites.plotsquared</groupId>
