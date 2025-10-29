@@ -1,0 +1,38 @@
+package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
+
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
+import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
+
+/**
+ * Represents a request to create a property GUI element.
+ *
+ * @param slotChar
+ *     The character representing the slot in the GUI.
+ * @param player
+ *     The player for whom the GUI is being created.
+ * @param permissionLevel
+ *     The permission level of the player for the structure containing the property.
+ * @param propertyValue
+ *     The property value to be represented in the GUI.
+ * @param <T>
+ *     The type of the property value.
+ */
+public record PropertyGuiRequest<T>(
+    char slotChar,
+    WrappedPlayer player,
+    PermissionLevel permissionLevel,
+    IPropertyValue<T> propertyValue
+)
+{
+    /**
+     * Gets the localizer personalized for the player.
+     *
+     * @return The personalized localizer.
+     */
+    public ILocalizer localizer()
+    {
+        return player.getPersonalizedLocalizer();
+    }
+}

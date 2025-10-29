@@ -47,8 +47,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.config.ConfigSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.IConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.gui.GuiFactory;
 import nl.pim16aap2.animatedarchitecture.spigot.core.gui.GuiFactorySpigotModule;
-import nl.pim16aap2.animatedarchitecture.spigot.core.gui.PropertyGuiAdapterInitializer;
-import nl.pim16aap2.animatedarchitecture.spigot.core.gui.PropertyGuiAdapterRegistrySpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.hooks.ProtectionHookManagerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.hooks.ProtectionHookManagerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.AnimatedArchitectureEventsSpigotModule;
@@ -73,6 +71,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PowerBlockRedstoneManagerSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManagerModule;
+import nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter.PropertyAdapterInitializer;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.ExecutorModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.SpigotServerModule;
@@ -99,7 +98,6 @@ import org.semver4j.Semver;
         LocationFactorySpigotModule.class,
         PlayerFactorySpigotModule.class,
         PowerBlockRedstoneManagerSpigotModule.class,
-        PropertyGuiAdapterRegistrySpigotModule.class,
         ProtectionHookManagerModule.class,
         SQLiteStorageModule.class,
         SpigotServerModule.class,
@@ -112,7 +110,7 @@ import org.semver4j.Semver;
 )
 interface AnimatedArchitectureSpigotComponent
 {
-    @Nullable PropertyGuiAdapterInitializer getPropertyGuiAdapterInitializer();
+    @Nullable PropertyAdapterInitializer getPropertyGuiAdapterInitializer();
 
     @Component.Builder
     interface Builder

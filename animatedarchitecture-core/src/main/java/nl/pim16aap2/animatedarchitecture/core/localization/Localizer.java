@@ -92,7 +92,7 @@ final class Localizer implements ILocalizer
     }
 
     @Override
-    public String getMessage(String key, @Nullable Locale clientLocale, Object... args)
+    public String getMessage(String key, @Nullable Locale clientLocale, @Nullable Object... args)
     {
         if (classLoader == null)
         {

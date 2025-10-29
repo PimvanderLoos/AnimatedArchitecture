@@ -24,14 +24,17 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyAcce
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyValuePair;
 import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
+import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PropertyAdapterRegistry;
+import nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter.AbstractPropertyAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter.PropertyGuiRequest;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents the info menu for a structure.
@@ -49,7 +52,8 @@ class InfoGui implements IGuiPage
     private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
     private final ILocalizer localizer;
     private final AttributeButtonFactory attributeButtonFactory;
-    private final PropertyGuiAdapterRegistrySpigot adapterRegistry;
+    private final PropertyAdapterRegistry adapterRegistry;
+    private final PermissionLevel permissionLevel;
 
     @Getter
     private final InventoryGui inventoryGui;
@@ -68,11 +72,6 @@ class InfoGui implements IGuiPage
     @ToString.Include
     private final WrappedPlayer inventoryHolder;
 
-    // Currently not used, but it's needed later on when we can update the elements
-    // When the field in the structure changes.
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-    private final Map<StructureAttribute, GuiElement> attributeElements;
-
     /**
      * Until we implement pagination for the properties, we do not show any properties at all if we cannot fit them all
      * in the GUI.
@@ -89,7 +88,7 @@ class InfoGui implements IGuiPage
         ILocalizer localizer,
         IPermissionsManager permissionsManager,
         AttributeButtonFactory attributeButtonFactory,
-        PropertyGuiAdapterRegistrySpigot adapterRegistry)
+        PropertyAdapterRegistry adapterRegistry)
     {
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.localizer = localizer;
@@ -99,6 +98,8 @@ class InfoGui implements IGuiPage
         this.inventoryHolder = inventoryHolder;
 
         final StructureOwner structureOwner = structure.getOwner(inventoryHolder).orElseGet(this::getDummyOwner);
+        this.permissionLevel = structureOwner.permission();
+
         this.allowedAttributes = analyzeAttributes(structureOwner, inventoryHolder, permissionsManager);
 
         this.visibleProperties = structure
@@ -107,8 +108,6 @@ class InfoGui implements IGuiPage
             .toList();
 
         this.canFitProperties = canFitProperties(this.structure, this.visibleProperties);
-
-        this.attributeElements = HashMap.newHashMap(this.allowedAttributes.size());
 
         this.inventoryGui = createGUI();
 
@@ -169,8 +168,9 @@ class InfoGui implements IGuiPage
     private void populateGUI(InventoryGui gui)
     {
         addHeader(gui);
-        addAttributeElements(gui);
-        addPropertyElements(gui);
+        addElements(gui, 'g', allowedAttributes, this::createAttributeElement);
+        if (canFitProperties)
+            addElements(gui, 'i', visibleProperties, this::createPropertyElement);
     }
 
     private void addHeader(InventoryGui gui)
@@ -191,55 +191,65 @@ class InfoGui implements IGuiPage
         );
     }
 
-    private void addAttributeElements(InventoryGui gui)
+    private <T> void addElements(
+        InventoryGui gui,
+        char slotChar,
+        Collection<T> elements,
+        GuiElementMapper<T> mapper
+    )
     {
-        final GuiElementGroup group = new GuiElementGroup('g');
-        for (final StructureAttribute attribute : allowedAttributes)
+        final GuiElementGroup group = new GuiElementGroup(slotChar);
+        for (final var element : elements)
         {
-            final GuiElement element = attributeButtonFactory.of(attribute, structure, inventoryHolder, 'g');
-            if (element == null)
-                continue;
-            attributeElements.put(attribute, element);
-            group.addElement(element);
-        }
-        group.setFiller(FILLER);
-        gui.addElement(group);
-    }
-
-    private void addPropertyElements(InventoryGui gui)
-    {
-        if (!canFitProperties)
-            return;
-
-        final GuiElementGroup group = new GuiElementGroup('i');
-        for (final PropertyValuePair<?> propertyValuePair : visibleProperties)
-        {
-            final var adapter = adapterRegistry.getAdapter(propertyValuePair.property());
-            if (adapter == null)
+            GuiElement guiElement = mapper.create(slotChar, element);
+            if (guiElement == null)
             {
-                log.atWarn().log(
-                    "No GUI adapter registered for property '%s'. Skipping.",
-                    propertyValuePair.property().getFullKey()
-                );
-                continue;
+                guiElement = createErrorElement(slotChar, Objects.toString(element));
             }
-
-            final ItemStack itemStack = createPropertyItemStack(adapter, propertyValuePair);
-            group.addElement(new StaticGuiElement('i', itemStack));
+            group.addElement(guiElement);
         }
         group.setFiller(FILLER);
         gui.addElement(group);
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> ItemStack createPropertyItemStack(
-        IPropertyGuiAdapterSpigot<?> adapter,
-        PropertyValuePair<T> propertyValuePair)
+    private GuiElement createErrorElement(char slotChar, String context)
     {
-        return ((IPropertyGuiAdapterSpigot<T>) adapter).createItemStack(
-            propertyValuePair.value(),
-            inventoryHolder
+        final ItemStack itemStack = new ItemStack(Material.BARRIER);
+        final var meta = itemStack.getItemMeta();
+        if (meta != null)
+        {
+            meta.setDisplayName(localizer.getMessage("constants.error.generic"));
+            meta.setLore(List.of(context));
+            itemStack.setItemMeta(meta);
+        }
+        return new StaticGuiElement(slotChar, itemStack);
+    }
+
+    private @Nullable GuiElement createAttributeElement(char slotChar, StructureAttribute attribute)
+    {
+        return attributeButtonFactory.of(attribute, structure, inventoryHolder, slotChar);
+    }
+
+    private @Nullable <T> GuiElement createPropertyElement(char slotChar, PropertyValuePair<T> propertyValuePair)
+    {
+        final AbstractPropertyAdapter<T> adapter = adapterRegistry.getAdapter(propertyValuePair.property());
+        if (adapter == null)
+        {
+            log.atWarn().log(
+                "No GUI adapter registered for property '%s'!",
+                propertyValuePair.property().getFullKey()
+            );
+            return null;
+        }
+
+        final var request = new PropertyGuiRequest<>(
+            slotChar,
+            inventoryHolder,
+            permissionLevel,
+            propertyValuePair.value()
         );
+
+        return adapter.createGuiElement(request);
     }
 
     private StructureOwner getDummyOwner()
@@ -280,6 +290,12 @@ class InfoGui implements IGuiPage
     public String getPageName()
     {
         return "InfoGui";
+    }
+
+    @FunctionalInterface
+    private interface GuiElementMapper<T>
+    {
+        @Nullable GuiElement create(char slotChar, T element);
     }
 
     @AssistedFactory
