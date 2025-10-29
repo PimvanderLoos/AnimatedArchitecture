@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 
+import com.google.common.flogger.StackSize;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -14,16 +15,20 @@ import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
+import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
-import nl.pim16aap2.animatedarchitecture.core.util.MathUtil;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyAccessLevel;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyValuePair;
+import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,9 +44,12 @@ class InfoGui implements IGuiPage
 {
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
 
+    private static final int MAX_PROPERTY_SLOTS = 27;
+
     private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
     private final ILocalizer localizer;
     private final AttributeButtonFactory attributeButtonFactory;
+    private final PropertyGuiAdapterRegistrySpigot adapterRegistry;
 
     @Getter
     private final InventoryGui inventoryGui;
@@ -53,6 +61,9 @@ class InfoGui implements IGuiPage
     @ToString.Include
     private final List<StructureAttribute> allowedAttributes;
 
+    @ToString.Include
+    private final List<PropertyValuePair<?>> visibleProperties;
+
     @Getter
     @ToString.Include
     private final WrappedPlayer inventoryHolder;
@@ -62,6 +73,14 @@ class InfoGui implements IGuiPage
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<StructureAttribute, GuiElement> attributeElements;
 
+    /**
+     * Until we implement pagination for the properties, we do not show any properties at all if we cannot fit them all
+     * in the GUI.
+     * <p>
+     * While not ideal, this is preferable to failing silently.
+     */
+    private final boolean canFitProperties;
+
     @AssistedInject
     InfoGui(
         @Assisted Structure structure,
@@ -69,18 +88,27 @@ class InfoGui implements IGuiPage
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         ILocalizer localizer,
         IPermissionsManager permissionsManager,
-        AttributeButtonFactory attributeButtonFactory)
+        AttributeButtonFactory attributeButtonFactory,
+        PropertyGuiAdapterRegistrySpigot adapterRegistry)
     {
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.localizer = localizer;
         this.attributeButtonFactory = attributeButtonFactory;
+        this.adapterRegistry = adapterRegistry;
         this.structure = structure;
         this.inventoryHolder = inventoryHolder;
 
         final StructureOwner structureOwner = structure.getOwner(inventoryHolder).orElseGet(this::getDummyOwner);
         this.allowedAttributes = analyzeAttributes(structureOwner, inventoryHolder, permissionsManager);
 
-        this.attributeElements = new HashMap<>(MathUtil.ceil(1.25 * this.allowedAttributes.size()));
+        this.visibleProperties = structure
+            .getPropertiesForOwnerFilteredByAccessLevel(structureOwner, PropertyAccessLevel.READ)
+            .stream()
+            .toList();
+
+        this.canFitProperties = canFitProperties(this.structure, this.visibleProperties);
+
+        this.attributeElements = HashMap.newHashMap(this.allowedAttributes.size());
 
         this.inventoryGui = createGUI();
 
@@ -94,13 +122,13 @@ class InfoGui implements IGuiPage
 
     private InventoryGui createGUI()
     {
-        final String[] guiSetup = GuiUtil.fillLinesWithChar('g', allowedAttributes.size(), "f   h    ");
+        final String[] guiRowDefinitions = createGuiRowDefinitions();
 
         final InventoryGui gui = new InventoryGui(
             animatedArchitecturePlugin,
             inventoryHolder.getBukkitPlayer(),
             localizer.getMessage("gui.info_page.title", structure.getNameAndUid()),
-            guiSetup
+            guiRowDefinitions
         );
         gui.setFiller(FILLER);
 
@@ -109,10 +137,40 @@ class InfoGui implements IGuiPage
         return gui;
     }
 
+    private String[] createGuiRowDefinitions()
+    {
+        final String[] baseRowDefinitions = GuiUtil.fillLinesWithChar('g', allowedAttributes.size(), "f   h    ");
+
+        if (!this.canFitProperties)
+            return baseRowDefinitions;
+
+        final String[] propertyRowDefinitions = GuiUtil.fillLinesWithChar('i', this.visibleProperties.size());
+        return CollectionsUtil.concat(baseRowDefinitions, propertyRowDefinitions);
+    }
+
+    private static boolean canFitProperties(
+        IStructureConst structure,
+        Collection<PropertyValuePair<?>> visibleProperties
+    )
+    {
+        if (visibleProperties.size() < MAX_PROPERTY_SLOTS)
+            return true;
+
+        log.atError().withStackTrace(StackSize.FULL).log(
+            "Failed to populate GUI with properties for structure %s. " +
+                "Received %d visible properties, which exceeds %d allowed",
+            structure,
+            visibleProperties.size(),
+            MAX_PROPERTY_SLOTS
+        );
+        return false;
+    }
+
     private void populateGUI(InventoryGui gui)
     {
         addHeader(gui);
-        addElements(gui);
+        addAttributeElements(gui);
+        addPropertyElements(gui);
     }
 
     private void addHeader(InventoryGui gui)
@@ -133,7 +191,7 @@ class InfoGui implements IGuiPage
         );
     }
 
-    private void addElements(InventoryGui gui)
+    private void addAttributeElements(InventoryGui gui)
     {
         final GuiElementGroup group = new GuiElementGroup('g');
         for (final StructureAttribute attribute : allowedAttributes)
@@ -146,6 +204,42 @@ class InfoGui implements IGuiPage
         }
         group.setFiller(FILLER);
         gui.addElement(group);
+    }
+
+    private void addPropertyElements(InventoryGui gui)
+    {
+        if (!canFitProperties)
+            return;
+
+        final GuiElementGroup group = new GuiElementGroup('i');
+        for (final PropertyValuePair<?> propertyValuePair : visibleProperties)
+        {
+            final var adapter = adapterRegistry.getAdapter(propertyValuePair.property());
+            if (adapter == null)
+            {
+                log.atWarn().log(
+                    "No GUI adapter registered for property '%s'. Skipping.",
+                    propertyValuePair.property().getFullKey()
+                );
+                continue;
+            }
+
+            final ItemStack itemStack = createPropertyItemStack(adapter, propertyValuePair);
+            group.addElement(new StaticGuiElement('i', itemStack));
+        }
+        group.setFiller(FILLER);
+        gui.addElement(group);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> ItemStack createPropertyItemStack(
+        IPropertyGuiAdapterSpigot<?> adapter,
+        PropertyValuePair<T> propertyValuePair)
+    {
+        return ((IPropertyGuiAdapterSpigot<T>) adapter).createItemStack(
+            propertyValuePair.value(),
+            inventoryHolder
+        );
     }
 
     private StructureOwner getDummyOwner()
@@ -167,6 +261,7 @@ class InfoGui implements IGuiPage
         return StructureAttribute
             .getValues()
             .stream()
+            .filter(attr -> !attr.equals(StructureAttribute.SET_PROPERTY))
             .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
             .toList();
     }
