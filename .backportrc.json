@@ -1,0 +1,8 @@
+{
+  "repoOwner": "PimvanderLoos",
+  "repoName": "AnimatedArchitecture",
+  "commitConflicts": true,
+  "branchLabelMapping": {
+    "^backport-to-(.+)$": "$1"
+  }
+}
