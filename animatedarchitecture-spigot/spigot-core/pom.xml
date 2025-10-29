@@ -19,7 +19,7 @@
         <version.bstats>3.1.0</version.bstats>
         <version.commodore>2.2</version.commodore>
         <version.cloud>1.8.4</version.cloud>
-        <version.inventory-gui>1.6.4-SNAPSHOT</version.inventory-gui>
+        <version.inventory-gui>1.6.5-SNAPSHOT</version.inventory-gui>
         <version.vault-api>1.7.1</version.vault-api>
     </properties>
 
