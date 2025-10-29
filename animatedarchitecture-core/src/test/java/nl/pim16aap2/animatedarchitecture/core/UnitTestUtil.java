@@ -83,7 +83,7 @@ public class UnitTestUtil
     public static final ILocalizer DUMMY_LOCALIZER = new ILocalizer()
     {
         @Override
-        public String getMessage(String key, @Nullable Locale clientLocale, Object... args)
+        public String getMessage(String key, @Nullable Locale clientLocale, @Nullable Object... args)
         {
             StringBuilder sb = new StringBuilder(key);
             Stream.of(args).forEach(arg -> sb.append(' ').append(arg));
@@ -91,7 +91,7 @@ public class UnitTestUtil
         }
 
         @Override
-        public String getMessage(String key, Object... args)
+        public String getMessage(String key, @Nullable Object... args)
         {
             return getMessage(key, null, args);
         }
@@ -301,7 +301,7 @@ public class UnitTestUtil
      */
     public static void setPropertyContainerInMockedStructure(Structure structure, Property<?>... properties)
     {
-        if (properties == null || properties.length == 0)
+        if (properties.length == 0)
             setPropertyContainerInMockedStructure(structure, (List<Property<?>>) null);
         else
             setPropertyContainerInMockedStructure(structure, List.of(properties));

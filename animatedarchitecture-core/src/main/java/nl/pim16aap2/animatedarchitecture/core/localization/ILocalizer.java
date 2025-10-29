@@ -29,7 +29,7 @@ public interface ILocalizer
      *     The arguments of the message, if any.
      * @return The localized message associated with the provided key.
      */
-    String getMessage(String key, @Nullable Locale clientLocale, Object... args);
+    String getMessage(String key, @Nullable Locale clientLocale, @Nullable Object... args);
 
     /**
      * Retrieves a localized message using the default locale.
@@ -43,7 +43,7 @@ public interface ILocalizer
      * @throws MissingResourceException
      *     When no mapping for the key can be found.
      */
-    default String getMessage(String key, Object... args)
+    default String getMessage(String key, @Nullable Object... args)
     {
         return getMessage(key, null, args);
     }
@@ -66,7 +66,7 @@ public interface ILocalizer
         }
 
         @Override
-        public String getMessage(String key, @Nullable Locale clientLocale, Object... args)
+        public String getMessage(String key, @Nullable Locale clientLocale, @Nullable Object... args)
         {
             return key + " [" + clientLocale + "] " + Arrays.toString(args);
         }

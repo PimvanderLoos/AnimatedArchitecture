@@ -302,8 +302,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         getAnimationHookManager().registerFactory(
             safeGetter(AnimatedArchitectureSpigotComponent::getAudioAnimationHookFactory));
 
-        safeGetter(AnimatedArchitectureSpigotComponent::getPropertyGuiAdapterInitializer)
-            .initialize();
+        safeGetter(AnimatedArchitectureSpigotComponent::getPropertyGuiAdapterInitializer);
     }
 
     private <T> T safeGetter(Function<AnimatedArchitectureSpigotComponent, @Nullable T> fun)
