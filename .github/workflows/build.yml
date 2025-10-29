@@ -20,16 +20,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4.7.1
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: 'temurin'
           java-version: '21'
 
       - name: Cache local Maven repository
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -44,7 +44,7 @@ jobs:
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
 
       - name: Upload AnimatedArchitecture-Spigot
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: AnimatedArchitecture-Spigot
           path: animatedarchitecture-spigot/spigot-packager/target/AnimatedArchitecture-Spigot.jar
@@ -52,7 +52,7 @@ jobs:
           compression-level: 0
 
       - name: Deploy Javadoc
-        uses: JamesIves/github-pages-deploy-action@v4.7.3
+        uses: JamesIves/github-pages-deploy-action@6c2d9db40f9296374acc17b90404b6e8864128c8 # v4.7.3
         with:
           branch: gh-pages
           folder: target/reports/apidocs
@@ -60,7 +60,7 @@ jobs:
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           directory: report-aggregate/target/site/jacoco-aggregate
           token: ${{ secrets.CODECOV_TOKEN }}
