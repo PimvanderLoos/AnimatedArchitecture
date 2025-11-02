@@ -9,6 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
@@ -84,7 +85,8 @@ public class ToolUserTest
             mock(StructureAnimationRequestBuilder.class),
             mock(StructureActivityManager.class),
             mock(CommandFactory.class),
-            stepFactory
+            stepFactory,
+            mock(IConfig.class)
         );
     }
 
