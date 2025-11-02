@@ -994,7 +994,7 @@ public abstract class Creator extends ToolUser
 
     protected Text setOpenStatusTextSupplier(Text text)
     {
-        final String cmd = config.primaryCommandName();
+        final String cmd = "/" + config.primaryCommandName();
         return text.append(
             localizer.getMessage("creator.base.set_open_status"),
             TextType.INFO,
@@ -1016,7 +1016,7 @@ public abstract class Creator extends ToolUser
 
     protected Text setOpenDirectionTextSupplier(Text text)
     {
-        final String cmd = config.primaryCommandName();
+        final String cmd = "/" + config.primaryCommandName();
         text.append(
             localizer.getMessage("creator.base.set_open_direction") + "\n",
             TextType.INFO,
@@ -1038,7 +1038,7 @@ public abstract class Creator extends ToolUser
 
     private Text reviewResultTextSupplier(Text text)
     {
-        final String cmd = config.primaryCommandName();
+        final String cmd = "/" + config.primaryCommandName();
         text.append(localizer.getMessage("creator.base.review_result.header") + "\n", TextType.SUCCESS);
         text.append(
             localizer.getMessage("creator.base.property.type") + "\n",
@@ -1068,7 +1068,7 @@ public abstract class Creator extends ToolUser
 
     private Text confirmPriceTextSupplier(Text text)
     {
-        final String cmd = config.primaryCommandName();
+        final String cmd = "/" + config.primaryCommandName();
         return text.append(
             localizer.getMessage("creator.base.confirm_structure_price"),
             TextType.INFO,
