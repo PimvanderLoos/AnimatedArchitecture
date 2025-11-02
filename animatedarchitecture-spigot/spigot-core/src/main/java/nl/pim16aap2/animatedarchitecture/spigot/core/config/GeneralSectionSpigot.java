@@ -111,10 +111,12 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
     protected Result getResult(ConfigurationNode sectionNode, boolean silent)
         throws SerializationException
     {
+        final List<String> aliases = getCommandAliases(sectionNode);
         return new Result(
             getMaterialBlackList(sectionNode, silent),
             getResourcePackEnabled(sectionNode),
-            getCommandAliases(sectionNode)
+            aliases,
+            aliases.isEmpty() ? "animatedarchitecture" : aliases.getFirst()
         );
     }
 
@@ -144,11 +146,14 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
      *     Whether the resource pack should be enabled.
      * @param commandAliases
      *     The list of command aliases for the plugin commands.
+     * @param primaryCommandName
+     *     The primary command name (first alias).
      */
     public record Result(
         Set<Material> materialBlacklist,
         boolean resourcePackEnabled,
-        List<String> commandAliases
+        List<String> commandAliases,
+        String primaryCommandName
     ) implements IConfigSectionResult
     {
         /**
@@ -157,7 +162,8 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
         public static final Result DEFAULT = new Result(
             Set.of(),
             DEFAULT_RESOURCE_PACK_ENABLED,
-            DEFAULT_COMMAND_ALIASES
+            DEFAULT_COMMAND_ALIASES,
+            DEFAULT_COMMAND_ALIASES.getFirst()
         );
 
         public Result

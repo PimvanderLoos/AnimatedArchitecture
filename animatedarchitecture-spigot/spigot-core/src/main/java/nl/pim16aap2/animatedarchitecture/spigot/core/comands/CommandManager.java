@@ -192,7 +192,7 @@ public final class CommandManager
         Command.Builder<ICommandSender> builder)
     {
         final MinecraftHelp<ICommandSender> minecraftHelp = new MinecraftHelp<>(
-            "/animatedarchitecture help",
+            "/" + config.primaryCommandName() + " help",
             sender -> this.bukkitAudiences.sender(PlayerFactorySpigot.unwrapCommandSender(sender)),
             manager
         );
