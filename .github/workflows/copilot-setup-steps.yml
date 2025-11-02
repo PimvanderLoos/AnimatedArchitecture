@@ -7,11 +7,8 @@ name: Setup steps for GitHub Copilot
 # The workflow addresses dependency resolution issues by:
 # - Setting up the correct Java version (21+) required by the project
 # - Caching Maven dependencies to speed up subsequent builds
-# - Explicitly resolving dependencies from multiple repositories:
-#   - Maven Central (repo.maven.apache.org)
-#   - JitPack (jitpack.io) for custom GitHub forks
-#   - GitLab Maven registry for project-specific artifacts
-#   - Sonatype for snapshot dependencies
+# - Resolving dependencies from the configured repositories (Maven Central,
+#   JitPack, GitLab Maven registry, and Sonatype)
 # - Compiling the project to verify all dependencies are accessible
 #
 # This ensures that GitHub Copilot can successfully download and use all
