@@ -150,4 +150,13 @@ public interface IConfig extends IRestartable
      * Reloads the configuration file.
      */
     void reloadConfig();
+
+    /**
+     * Gets the primary command name for the plugin.
+     * <p>
+     * This is the first alias in the command aliases list, or a default value if no aliases are configured.
+     *
+     * @return The primary command name.
+     */
+    String primaryCommandName();
 }

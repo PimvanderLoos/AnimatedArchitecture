@@ -12,6 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
@@ -70,6 +71,8 @@ public abstract class Creator extends ToolUser
     protected final IEconomyManager economyManager;
 
     protected final CommandFactory commandFactory;
+
+    protected final IConfig config;
 
     private final @Nullable StructureAnimationRequestBuilder structureAnimationRequestBuilder;
 
@@ -224,13 +227,15 @@ public abstract class Creator extends ToolUser
         this.databaseManager = context.getDatabaseManager();
         this.economyManager = context.getEconomyManager();
         this.commandFactory = context.getCommandFactory();
+        this.config = context.getConfig();
 
         this.name = name;
 
+        final String cmd = config.primaryCommandName();
         player.sendInfo(
             "creator.base.init",
             arg -> arg.clickable(
-                "/AnimatedArchitecture cancel", TextType.CLICKABLE_REFUSE, "/AnimatedArchitecture cancel")
+                "/" + cmd + " cancel", TextType.CLICKABLE_REFUSE, "/" + cmd + " cancel")
         );
 
         factoryProvideName = stepFactory
@@ -989,6 +994,7 @@ public abstract class Creator extends ToolUser
 
     protected Text setOpenStatusTextSupplier(Text text)
     {
+        final String cmd = config.primaryCommandName();
         return text.append(
             localizer.getMessage("creator.base.set_open_status"),
             TextType.INFO,
@@ -997,19 +1003,20 @@ public abstract class Creator extends ToolUser
 
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.open"),
-                "/animatedarchitecture SetOpenStatus " + localizer.getMessage("constants.open_status.open"),
+                cmd + " SetOpenStatus " + localizer.getMessage("constants.open_status.open"),
                 localizer.getMessage("creator.base.set_open_status.arg2.open.hint")
             ),
 
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.closed"),
-                "/animatedarchitecture SetOpenStatus " + localizer.getMessage("constants.open_status.closed"),
+                cmd + " SetOpenStatus " + localizer.getMessage("constants.open_status.closed"),
                 localizer.getMessage("creator.base.set_open_status.arg2.closed.hint"))
         );
     }
 
     protected Text setOpenDirectionTextSupplier(Text text)
     {
+        final String cmd = config.primaryCommandName();
         text.append(
             localizer.getMessage("creator.base.set_open_direction") + "\n",
             TextType.INFO,
@@ -1022,7 +1029,7 @@ public abstract class Creator extends ToolUser
             .sorted()
             .forEach(dir -> text.appendClickableText(
                 dir + "\n", TextType.CLICKABLE,
-                "/animatedarchitecture SetOpenDirection " + dir,
+                cmd + " SetOpenDirection " + dir,
                 localizer.getMessage("creator.base.set_open_direction.arg0.hint"))
             );
 
@@ -1031,6 +1038,7 @@ public abstract class Creator extends ToolUser
 
     private Text reviewResultTextSupplier(Text text)
     {
+        final String cmd = config.primaryCommandName();
         text.append(localizer.getMessage("creator.base.review_result.header") + "\n", TextType.SUCCESS);
         text.append(
             localizer.getMessage("creator.base.property.type") + "\n",
@@ -1047,12 +1055,12 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.review_result.footer.arg0.message"),
                 TextType.CLICKABLE_CONFIRM,
-                "/animatedarchitecture confirm",
+                cmd + " confirm",
                 localizer.getMessage("creator.base.review_result.footer.arg0.hint")),
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.review_result.footer.arg1.message"),
                 TextType.CLICKABLE_REFUSE,
-                "/animatedarchitecture cancel",
+                cmd + " cancel",
                 localizer.getMessage("creator.base.review_result.footer.arg1.hint"))
         );
         return text;
@@ -1060,6 +1068,7 @@ public abstract class Creator extends ToolUser
 
     private Text confirmPriceTextSupplier(Text text)
     {
+        final String cmd = config.primaryCommandName();
         return text.append(
             localizer.getMessage("creator.base.confirm_structure_price"),
             TextType.INFO,
@@ -1070,13 +1079,13 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.confirm_structure_price.arg2.message"),
                 TextType.CLICKABLE_CONFIRM,
-                "/animatedarchitecture confirm",
+                cmd + " confirm",
                 localizer.getMessage("creator.base.confirm_structure_price.arg2.hint")),
 
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.confirm_structure_price.arg3.message"),
                 TextType.CLICKABLE_REFUSE,
-                "/animatedarchitecture cancel",
+                cmd + " cancel",
                 localizer.getMessage("creator.base.confirm_structure_price.arg3.hint"))
         );
     }

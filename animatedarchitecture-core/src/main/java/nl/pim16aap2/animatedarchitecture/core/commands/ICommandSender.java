@@ -28,6 +28,21 @@ public interface ICommandSender extends IMessageable
     boolean isPlayer();
 
     /**
+     * Formats a command appropriately for this command sender.
+     * <p>
+     * Players receive commands with a leading slash (e.g., "/command"), while non-players (console, command blocks)
+     * receive commands without the leading slash (e.g., "command").
+     *
+     * @param command
+     *     The command to format (without leading slash).
+     * @return The formatted command appropriate for this sender.
+     */
+    default String formatCommand(String command)
+    {
+        return isPlayer() ? "/" + command : command;
+    }
+
+    /**
      * Checks if this sender has a given permission.
      *
      * @param permission
