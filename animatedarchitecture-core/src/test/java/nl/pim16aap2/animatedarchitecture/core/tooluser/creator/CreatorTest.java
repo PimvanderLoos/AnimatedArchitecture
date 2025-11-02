@@ -12,6 +12,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.SetOpenDirectionDelayed;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
@@ -126,7 +127,8 @@ public class CreatorTest
             structureAnimationRequestBuilder,
             mock(StructureActivityManager.class),
             commandFactory,
-            assistedStepFactory
+            assistedStepFactory,
+            mock(IConfig.class)
         );
     }
 
