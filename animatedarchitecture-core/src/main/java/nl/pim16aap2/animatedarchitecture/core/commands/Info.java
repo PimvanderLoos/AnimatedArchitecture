@@ -173,7 +173,8 @@ public class Info extends StructureTargetCommand
             localizer.getMessage(isOpen ? "constants.open_status.closed" : "constants.open_status.open");
 
         final String cmd = getCommandSender().formatCommand(
-            config.primaryCommandName() + " setopenstatus " + oppositeLocalizedOpenStatus + " " + structure.getUid() + " true"
+            config.primaryCommandName() + " setopenstatus " + oppositeLocalizedOpenStatus + " "
+                + structure.getUid() + " true"
         );
 
         final var openStatusArgument = text.getTextArgumentFactory().clickable(
