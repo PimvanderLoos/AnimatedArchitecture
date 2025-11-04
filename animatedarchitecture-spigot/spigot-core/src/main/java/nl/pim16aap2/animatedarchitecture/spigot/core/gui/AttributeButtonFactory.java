@@ -14,7 +14,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAnimationRequestBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.text.TextComponent;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
@@ -28,6 +27,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static nl.pim16aap2.animatedarchitecture.core.util.Constants.DEFAULT_COMMAND_TIMEOUT_SECONDS;
+
 /**
  * Factory for creating buttons for the different attributes of a structure.
  */
@@ -35,11 +36,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @ExtensionMethod(CompletableFutureExtensions.class)
 class AttributeButtonFactory
 {
-    /**
-     * The default timeout in seconds for commands.
-     */
-    private static final int DEFAULT_TIMEOUT_SECONDS = 10;
-
     private final CommandFactory commandFactory;
     private final IExecutor executor;
     private final StructureRetrieverFactory structureRetrieverFactory;
@@ -69,7 +65,7 @@ class AttributeButtonFactory
     {
         commandFactory
             .newLock(player, structureRetrieverFactory.of(structure), newState)
-            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .runWithRawResult(DEFAULT_COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             // Force a draw with dynamic fields update to ensure the correct
             // state is displayed in case the command did not change the status.
             .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)))
@@ -120,7 +116,7 @@ class AttributeButtonFactory
                     .responsible(player)
                     .build()
                     .execute()
-                    .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .orTimeout(DEFAULT_COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .handleExceptional(ex -> handleExceptional(ex, player, "toggle_button"));
                 return true;
             },
@@ -147,7 +143,7 @@ class AttributeButtonFactory
                     .animationType(AnimationType.PREVIEW)
                     .build()
                     .execute()
-                    .orTimeout(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .orTimeout(DEFAULT_COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .handleExceptional(ex -> handleExceptional(ex, player, "preview_button"));
                 return true;
             },
@@ -185,7 +181,7 @@ class AttributeButtonFactory
             {
                 commandFactory
                     .newInfo(player, structureRetrieverFactory.of(structure))
-                    .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .runWithRawResult(DEFAULT_COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .handleExceptional(ex -> handleExceptional(ex, player, "info_button"));
                 return true;
             },
@@ -223,7 +219,7 @@ class AttributeButtonFactory
             {
                 commandFactory
                     .newMovePowerBlock(player, structureRetrieverFactory.of(structure))
-                    .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .runWithRawResult(DEFAULT_COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .handleExceptional(ex -> handleExceptional(ex, player, "relocate_power_block_button"));
                 GuiUtil.closeAllGuis(player);
                 return true;
@@ -232,50 +228,6 @@ class AttributeButtonFactory
                 "gui.info_page.attribute.relocate_power_block",
                 localizer.getMessage(structure.getType().getLocalizationKey()))
         );
-    }
-
-    private void isOpenButtonExecute(
-        boolean isOpen, GuiElement.Click change, Structure structure, WrappedPlayer player)
-    {
-        commandFactory
-            .newSetOpenStatus(player, structureRetrieverFactory.of(structure), isOpen)
-            .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            // Force a draw with dynamic fields update to ensure the correct
-            // state is displayed in case the command did not change the status.
-            .thenRun(() -> executor.runOnMainThread(() -> change.getGui().draw(player.getBukkitPlayer(), true, false)))
-            .orTimeout(1, TimeUnit.SECONDS)
-            .handleExceptional(ex -> handleExceptional(ex, player, "is_open_button"));
-    }
-
-    private @Nullable GuiElement openStatusButton(Structure structure, WrappedPlayer player, char slotChar)
-    {
-        final Boolean isOpen = structure.getPropertyValue(Property.OPEN_STATUS).value();
-        if (isOpen == null)
-            return null;
-
-        final var localizer = player.getPersonalizedLocalizer();
-        final GuiStateElement element = new GuiStateElement(
-            slotChar,
-            () -> isOpen ? "isOpen" : "isClosed",
-            new GuiStateElement.State(
-                change -> isOpenButtonExecute(true, change, structure, player),
-                "isOpen",
-                new ItemStack(Material.WARPED_DOOR),
-                localizer.getMessage(
-                    "gui.info_page.attribute.set_open",
-                    localizer.getMessage(structure.getType().getLocalizationKey()))
-            ),
-            new GuiStateElement.State(
-                change -> isOpenButtonExecute(false, change, structure, player),
-                "isClosed",
-                new ItemStack(Material.MANGROVE_DOOR),
-                localizer.getMessage(
-                    "gui.info_page.attribute.set_closed",
-                    localizer.getMessage(structure.getType().getLocalizationKey()))
-            )
-        );
-        element.setState(isOpen ? "isOpen" : "isClosed");
-        return element;
     }
 
     private void setOpenDirectionLore(
@@ -308,7 +260,7 @@ class AttributeButtonFactory
                 final var newOpenDir = structure.getCycledOpenDirection();
                 commandFactory
                     .newSetOpenDirection(player, StructureRetrieverFactory.ofStructure(structure), newOpenDir)
-                    .runWithRawResult(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .runWithRawResult(DEFAULT_COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .handleExceptional(ex -> handleExceptional(ex, player, "open_direction_button"));
 
                 setOpenDirectionLore(
@@ -409,12 +361,12 @@ class AttributeButtonFactory
             case INFO -> this.infoButton(structure, player, slotChar);
             case LOCK -> this.lockButton(structure, player, slotChar);
             case OPEN_DIRECTION -> this.openDirectionButton(structure, player, slotChar);
-            case OPEN_STATUS -> this.openStatusButton(structure, player, slotChar);
             case PREVIEW -> this.previewButton(structure, player, slotChar);
             case RELOCATE_POWERBLOCK -> this.relocatePowerBlockButton(structure, player, slotChar);
             case REMOVE_OWNER -> this.removeOwnerButton(structure, player, slotChar);
             case SET_PROPERTY -> null;
-            case TOGGLE -> this.toggleButton(structure, player, slotChar);
+            // Replaced by property adapters.
+            case OPEN_STATUS, TOGGLE -> this.toggleButton(structure, player, slotChar);
         };
     }
 }

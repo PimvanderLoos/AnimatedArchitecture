@@ -1,6 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
 
 import de.themoep.inventorygui.GuiElement;
+import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.StaticGuiElement;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -12,10 +13,59 @@ import org.bukkit.inventory.ItemStack;
  */
 public abstract class AbstractBooleanPropertyAdapter extends AbstractPropertyAdapter<Boolean>
 {
+    /**
+     * State key for the true value.
+     * <p>
+     * This is used to identify the GUI state representing the true value of the boolean property.
+     */
+    protected static final String STATE_TRUE_KEY = "TRUE";
+
+    /**
+     * State key for the false value.
+     * <p>
+     * This is used to identify the GUI state representing the false value of the boolean property.
+     */
+    protected static final String STATE_FALSE_KEY = "FALSE";
+
     protected AbstractBooleanPropertyAdapter(Property<Boolean> property)
     {
         super(property);
     }
+
+    /**
+     * Gets the GUI state for the true value of the boolean property.
+     * <p>
+     * See {@link #getState(PropertyGuiRequest)}.
+     *
+     * @param stateKey
+     *     The state key. This will be {@link #STATE_TRUE_KEY}.
+     * @param request
+     *     The property GUI request containing context for creating the GUI element.
+     * @return The GUI state for the true value.
+     */
+    protected abstract GuiStateElement.State getTrueState(String stateKey, PropertyGuiRequest<Boolean> request);
+
+    /**
+     * Gets the GUI state for the false value of the boolean property.
+     * <p>
+     * See {@link #getState(PropertyGuiRequest)}.
+     *
+     * @param stateKey
+     *     The state key. This will be {@link #STATE_FALSE_KEY}.
+     * @param request
+     *     The property GUI request containing context for creating the GUI element.
+     * @return The GUI state for the false value.
+     */
+    protected abstract GuiStateElement.State getFalseState(String stateKey, PropertyGuiRequest<Boolean> request);
+
+    /**
+     * Gets the current state of the boolean property.
+     *
+     * @param request
+     *     The property GUI request containing context for creating the GUI element.
+     * @return The current state of the boolean property.
+     */
+    protected abstract boolean getState(PropertyGuiRequest<Boolean> request);
 
     /**
      * Determines if the property can be edited based on the given permission level.
@@ -47,29 +97,23 @@ public abstract class AbstractBooleanPropertyAdapter extends AbstractPropertyAda
     @Override
     public final GuiElement createGuiElement(PropertyGuiRequest<Boolean> request)
     {
-        return createReadOnlyElement(request);
-//        final var localizer = viewer.getPersonalizedLocalizer();
-//        final GuiStateElement element = new GuiStateElement(
-//            slotChar,
-//            () -> structure.isLocked() ? "isLocked" : "isUnlocked",
-//            new GuiStateElement.State(
-//                change -> lockButtonExecute(true, change, structure, viewer),
-//                "isLocked",
-//                new ItemStack(Material.RED_STAINED_GLASS_PANE),
-//                localizer.getMessage(
-//                    "gui.info_page.attribute.unlock",
-//                    localizer.getMessage(structure.getType().getLocalizationKey()))
-//            ),
-//            new GuiStateElement.State(
-//                change -> lockButtonExecute(false, change, structure, viewer),
-//                "isUnlocked",
-//                new ItemStack(Material.GREEN_STAINED_GLASS_PANE),
-//                localizer.getMessage(
-//                    "gui.info_page.attribute.lock",
-//                    localizer.getMessage(structure.getType().getLocalizationKey()))
-//            )
-//        );
-//        element.setState(structure.isLocked() ? "isLocked" : "isUnlocked");
-//        return element;
+        if (!canEdit(request.permissionLevel()))
+        {
+            return createReadOnlyElement(request);
+        }
+
+        final GuiStateElement element = new GuiStateElement(
+            request.slotChar(),
+            () -> getStateKey(request),
+            getTrueState(STATE_TRUE_KEY, request),
+            getFalseState(STATE_FALSE_KEY, request)
+        );
+        element.setState(getStateKey(request));
+        return element;
+    }
+
+    private String getStateKey(PropertyGuiRequest<Boolean> request)
+    {
+        return getState(request) ? STATE_TRUE_KEY : STATE_FALSE_KEY;
     }
 }

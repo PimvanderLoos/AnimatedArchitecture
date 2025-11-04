@@ -59,4 +59,11 @@ public final class Constants
      * The amount of time (in milliseconds) a user has to complete the structure creation process.
      */
     public static final int STRUCTURE_CREATOR_TIME_LIMIT = 900_000; // 15 minutes
+
+    /**
+     * The default command timeout in seconds.
+     * <p>
+     * This is used to kill commands that take too long to execute.
+     */
+    public static final int DEFAULT_COMMAND_TIMEOUT_SECONDS = 10;
 }

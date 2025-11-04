@@ -33,6 +33,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,6 +49,12 @@ class InfoGui implements IGuiPage
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
 
     private static final int MAX_PROPERTY_SLOTS = 27;
+
+    private static final EnumSet<StructureAttribute> EXCLUDED_ATTRIBUTES =
+        EnumSet.of(
+            StructureAttribute.SET_PROPERTY,
+            StructureAttribute.OPEN_STATUS
+        );
 
     private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
     private final ILocalizer localizer;
@@ -243,6 +250,7 @@ class InfoGui implements IGuiPage
         }
 
         final var request = new PropertyGuiRequest<>(
+            structure,
             slotChar,
             inventoryHolder,
             permissionLevel,
@@ -271,7 +279,7 @@ class InfoGui implements IGuiPage
         return StructureAttribute
             .getValues()
             .stream()
-            .filter(attr -> !attr.equals(StructureAttribute.SET_PROPERTY))
+            .filter(attr -> !EXCLUDED_ATTRIBUTES.contains(attr))
             .filter(attr -> hasAccessToAttribute(player, attr, perm, permissionsManager))
             .toList();
     }
