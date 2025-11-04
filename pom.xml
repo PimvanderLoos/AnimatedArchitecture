@@ -31,7 +31,7 @@
         <version.git-commit-id>9.0.2</version.git-commit-id>
         <version.gson>2.13.2</version.gson>
         <version.intellij-annotations>26.0.2</version.intellij-annotations>
-        <version.jacoco>0.8.13</version.jacoco>
+        <version.jacoco>0.8.14</version.jacoco>
         <version.jcalculator>3.0.0</version.jcalculator>
         <version.jdbc-sqlite>3.50.3.0</version.jdbc-sqlite>
         <version.jimfs>1.3.1</version.jimfs>
