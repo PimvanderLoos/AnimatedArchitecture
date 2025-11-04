@@ -33,14 +33,17 @@ public interface ICommandSender extends IMessageable
      * Players receive commands with a leading slash (e.g., "/command"), while non-players (console, command blocks)
      * receive commands without the leading slash (e.g., "command").
      *
-     * @param command
-     *     The command to format (without leading slash).
+     * @param format
+     *     The format string for the command (without leading slash).
+     * @param args
+     *     Arguments referenced by the format specifiers in the format string.
      * @return The formatted command appropriate for this sender.
      */
-    default String formatCommand(String command)
-    {
-        return isPlayer() ? "/" + command : command;
-    }
+    @com.google.errorprone.annotations.FormatMethod
+    @com.google.errorprone.annotations.CheckReturnValue
+    String formatCommand(
+        @com.google.errorprone.annotations.FormatString String format,
+        @org.jspecify.annotations.Nullable Object @org.jspecify.annotations.Nullable ... args);
 
     /**
      * Checks if this sender has a given permission.

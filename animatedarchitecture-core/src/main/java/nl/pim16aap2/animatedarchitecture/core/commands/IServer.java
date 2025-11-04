@@ -23,6 +23,15 @@ public interface IServer extends ICommandSender
     }
 
     @Override
+    @com.google.errorprone.annotations.FormatMethod
+    default String formatCommand(
+        @com.google.errorprone.annotations.FormatString String format,
+        @org.jspecify.annotations.Nullable Object @org.jspecify.annotations.Nullable ... args)
+    {
+        return String.format(format, args);
+    }
+
+    @Override
     default CompletableFuture<Boolean> hasPermission(String permission)
     {
         return CompletableFuture.completedFuture(null);

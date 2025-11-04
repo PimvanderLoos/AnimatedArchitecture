@@ -231,11 +231,12 @@ public abstract class Creator extends ToolUser
 
         this.name = name;
 
-        final String cmd = config.primaryCommandName();
         player.sendInfo(
             "creator.base.init",
             arg -> arg.clickable(
-                "/" + cmd + " cancel", TextType.CLICKABLE_REFUSE, "/" + cmd + " cancel")
+                player.formatCommand("%s cancel", config.primaryCommandName()),
+                TextType.CLICKABLE_REFUSE,
+                player.formatCommand("%s cancel", config.primaryCommandName()))
         );
 
         factoryProvideName = stepFactory
@@ -994,7 +995,6 @@ public abstract class Creator extends ToolUser
 
     protected Text setOpenStatusTextSupplier(Text text)
     {
-        final String cmd = "/" + config.primaryCommandName();
         return text.append(
             localizer.getMessage("creator.base.set_open_status"),
             TextType.INFO,
@@ -1003,20 +1003,25 @@ public abstract class Creator extends ToolUser
 
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.open"),
-                cmd + " SetOpenStatus " + localizer.getMessage("constants.open_status.open"),
+                getPlayer().formatCommand(
+                    "%s SetOpenStatus %s",
+                    config.primaryCommandName(),
+                    localizer.getMessage("constants.open_status.open")),
                 localizer.getMessage("creator.base.set_open_status.arg2.open.hint")
             ),
 
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.closed"),
-                cmd + " SetOpenStatus " + localizer.getMessage("constants.open_status.closed"),
+                getPlayer().formatCommand(
+                    "%s SetOpenStatus %s",
+                    config.primaryCommandName(),
+                    localizer.getMessage("constants.open_status.closed")),
                 localizer.getMessage("creator.base.set_open_status.arg2.closed.hint"))
         );
     }
 
     protected Text setOpenDirectionTextSupplier(Text text)
     {
-        final String cmd = "/" + config.primaryCommandName();
         text.append(
             localizer.getMessage("creator.base.set_open_direction") + "\n",
             TextType.INFO,
@@ -1029,7 +1034,7 @@ public abstract class Creator extends ToolUser
             .sorted()
             .forEach(dir -> text.appendClickableText(
                 dir + "\n", TextType.CLICKABLE,
-                cmd + " SetOpenDirection " + dir,
+                getPlayer().formatCommand("%s SetOpenDirection %s", config.primaryCommandName(), dir),
                 localizer.getMessage("creator.base.set_open_direction.arg0.hint"))
             );
 
@@ -1038,7 +1043,6 @@ public abstract class Creator extends ToolUser
 
     private Text reviewResultTextSupplier(Text text)
     {
-        final String cmd = "/" + config.primaryCommandName();
         text.append(localizer.getMessage("creator.base.review_result.header") + "\n", TextType.SUCCESS);
         text.append(
             localizer.getMessage("creator.base.property.type") + "\n",
@@ -1055,12 +1059,12 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.review_result.footer.arg0.message"),
                 TextType.CLICKABLE_CONFIRM,
-                cmd + " confirm",
+                getPlayer().formatCommand("%s confirm", config.primaryCommandName()),
                 localizer.getMessage("creator.base.review_result.footer.arg0.hint")),
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.review_result.footer.arg1.message"),
                 TextType.CLICKABLE_REFUSE,
-                cmd + " cancel",
+                getPlayer().formatCommand("%s cancel", config.primaryCommandName()),
                 localizer.getMessage("creator.base.review_result.footer.arg1.hint"))
         );
         return text;
@@ -1068,7 +1072,6 @@ public abstract class Creator extends ToolUser
 
     private Text confirmPriceTextSupplier(Text text)
     {
-        final String cmd = "/" + config.primaryCommandName();
         return text.append(
             localizer.getMessage("creator.base.confirm_structure_price"),
             TextType.INFO,
@@ -1079,13 +1082,13 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.confirm_structure_price.arg2.message"),
                 TextType.CLICKABLE_CONFIRM,
-                cmd + " confirm",
+                getPlayer().formatCommand("%s confirm", config.primaryCommandName()),
                 localizer.getMessage("creator.base.confirm_structure_price.arg2.hint")),
 
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.confirm_structure_price.arg3.message"),
                 TextType.CLICKABLE_REFUSE,
-                cmd + " cancel",
+                getPlayer().formatCommand("%s cancel", config.primaryCommandName()),
                 localizer.getMessage("creator.base.confirm_structure_price.arg3.hint"))
         );
     }
