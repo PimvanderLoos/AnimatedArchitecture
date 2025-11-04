@@ -173,8 +173,8 @@ public class Info extends StructureTargetCommand
             localizer.getMessage(isOpen ? "constants.open_status.closed" : "constants.open_status.open");
 
         final String cmd = getCommandSender().formatCommand(
-            "%s setopenstatus %s %d true",
             config.primaryCommandName(),
+            "setopenstatus %s %d true",
             oppositeLocalizedOpenStatus,
             structure.getUid()
         );
@@ -191,8 +191,8 @@ public class Info extends StructureTargetCommand
     private void decorateOpenDirection(StructureSnapshot structure, Text text)
     {
         final String cmd = getCommandSender().formatCommand(
-            "%s setopendirection %s %d true",
             config.primaryCommandName(),
+            "setopendirection %s %d true",
             localizer.getMessage(structure.getCycledOpenDirection().getLocalizationKey()),
             structure.getUid()
         );
@@ -211,8 +211,8 @@ public class Info extends StructureTargetCommand
             structure.isLocked() ? "constants.locked_status.locked" : "constants.locked_status.unlocked";
 
         final String cmd = getCommandSender().formatCommand(
-            "%s lock %s %d true",
             config.primaryCommandName(),
+            "lock %s %d true",
             !structure.isLocked(),
             structure.getUid()
         );

@@ -19,10 +19,10 @@ class SpigotServerTest
     void formatCommand_shouldNotAddLeadingSlashForServer()
     {
         // setup
-        when(server.formatCommand("animatedarchitecture help")).thenCallRealMethod();
+        when(server.formatCommand("animatedarchitecture", "help")).thenCallRealMethod();
 
         // execute & verify
-        assertThat(server.formatCommand("animatedarchitecture help"))
+        assertThat(server.formatCommand("animatedarchitecture", "help"))
             .isEqualTo("animatedarchitecture help");
     }
 
@@ -30,10 +30,10 @@ class SpigotServerTest
     void formatCommand_shouldFormatWithArguments()
     {
         // setup
-        when(server.formatCommand("%s %s %d", "cmd", "arg", 123)).thenCallRealMethod();
+        when(server.formatCommand("cmd", "%s %d", "arg", 123)).thenCallRealMethod();
 
         // execute & verify
-        assertThat(server.formatCommand("%s %s %d", "cmd", "arg", 123))
+        assertThat(server.formatCommand("cmd", "%s %d", "arg", 123))
             .isEqualTo("cmd arg 123");
     }
 }

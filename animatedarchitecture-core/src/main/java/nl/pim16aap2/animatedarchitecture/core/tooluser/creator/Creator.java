@@ -234,9 +234,9 @@ public abstract class Creator extends ToolUser
         player.sendInfo(
             "creator.base.init",
             arg -> arg.clickable(
-                player.formatCommand("%s cancel", config.primaryCommandName()),
+                player.formatCommand(config.primaryCommandName(), "cancel"),
                 TextType.CLICKABLE_REFUSE,
-                player.formatCommand("%s cancel", config.primaryCommandName()))
+                player.formatCommand(config.primaryCommandName(), "cancel"))
         );
 
         factoryProvideName = stepFactory
@@ -1004,8 +1004,8 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.open"),
                 getPlayer().formatCommand(
-                    "%s SetOpenStatus %s",
                     config.primaryCommandName(),
+                    "SetOpenStatus %s",
                     localizer.getMessage("constants.open_status.open")),
                 localizer.getMessage("creator.base.set_open_status.arg2.open.hint")
             ),
@@ -1013,8 +1013,8 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 localizer.getMessage("constants.open_status.closed"),
                 getPlayer().formatCommand(
-                    "%s SetOpenStatus %s",
                     config.primaryCommandName(),
+                    "SetOpenStatus %s",
                     localizer.getMessage("constants.open_status.closed")),
                 localizer.getMessage("creator.base.set_open_status.arg2.closed.hint"))
         );
@@ -1034,7 +1034,7 @@ public abstract class Creator extends ToolUser
             .sorted()
             .forEach(dir -> text.appendClickableText(
                 dir + "\n", TextType.CLICKABLE,
-                getPlayer().formatCommand("%s SetOpenDirection %s", config.primaryCommandName(), dir),
+                getPlayer().formatCommand(config.primaryCommandName(), "SetOpenDirection %s", dir),
                 localizer.getMessage("creator.base.set_open_direction.arg0.hint"))
             );
 
@@ -1059,12 +1059,12 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.review_result.footer.arg0.message"),
                 TextType.CLICKABLE_CONFIRM,
-                getPlayer().formatCommand("%s confirm", config.primaryCommandName()),
+                getPlayer().formatCommand(config.primaryCommandName(), "confirm"),
                 localizer.getMessage("creator.base.review_result.footer.arg0.hint")),
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.review_result.footer.arg1.message"),
                 TextType.CLICKABLE_REFUSE,
-                getPlayer().formatCommand("%s cancel", config.primaryCommandName()),
+                getPlayer().formatCommand(config.primaryCommandName(), "cancel"),
                 localizer.getMessage("creator.base.review_result.footer.arg1.hint"))
         );
         return text;
@@ -1082,13 +1082,13 @@ public abstract class Creator extends ToolUser
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.confirm_structure_price.arg2.message"),
                 TextType.CLICKABLE_CONFIRM,
-                getPlayer().formatCommand("%s confirm", config.primaryCommandName()),
+                getPlayer().formatCommand(config.primaryCommandName(), "confirm"),
                 localizer.getMessage("creator.base.confirm_structure_price.arg2.hint")),
 
             arg -> arg.clickable(
                 localizer.getMessage("creator.base.confirm_structure_price.arg3.message"),
                 TextType.CLICKABLE_REFUSE,
-                getPlayer().formatCommand("%s cancel", config.primaryCommandName()),
+                getPlayer().formatCommand(config.primaryCommandName(), "cancel"),
                 localizer.getMessage("creator.base.confirm_structure_price.arg3.hint"))
         );
     }

@@ -111,8 +111,8 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
             .orElse(-1L);
 
         final String cmd = player.formatCommand(
-            "%s specify %d",
             config.primaryCommandName(),
+            "specify %d",
             structure.getUid()
         );
         final String info = localizer.getMessage("input_request.specify_structure.structure_option.info");
