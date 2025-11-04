@@ -110,7 +110,11 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
             .map(loc -> Math.round(structure.getCuboid().getCenter().getDistance(loc)))
             .orElse(-1L);
 
-        final String cmd = player.formatCommand(config.primaryCommandName() + " specify " + structure.getUid());
+        final String cmd = player.formatCommand(
+            "%s specify %d",
+            config.primaryCommandName(),
+            structure.getUid()
+        );
         final String info = localizer.getMessage("input_request.specify_structure.structure_option.info");
 
         text.append("\n * ", TextType.INFO).append(

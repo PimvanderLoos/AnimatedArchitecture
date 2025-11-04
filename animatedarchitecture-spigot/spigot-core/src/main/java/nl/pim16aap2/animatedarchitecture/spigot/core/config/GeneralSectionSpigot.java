@@ -116,7 +116,7 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
             getMaterialBlackList(sectionNode, silent),
             getResourcePackEnabled(sectionNode),
             aliases,
-            aliases.isEmpty() ? "animatedarchitecture" : aliases.getFirst()
+            aliases.isEmpty() ? DEFAULT_COMMAND_ALIASES.getFirst() : aliases.getFirst()
         );
     }
 

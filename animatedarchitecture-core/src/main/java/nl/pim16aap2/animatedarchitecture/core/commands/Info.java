@@ -173,8 +173,10 @@ public class Info extends StructureTargetCommand
             localizer.getMessage(isOpen ? "constants.open_status.closed" : "constants.open_status.open");
 
         final String cmd = getCommandSender().formatCommand(
-            config.primaryCommandName() + " setopenstatus " + oppositeLocalizedOpenStatus + " "
-                + structure.getUid() + " true"
+            "%s setopenstatus %s %d true",
+            config.primaryCommandName(),
+            oppositeLocalizedOpenStatus,
+            structure.getUid()
         );
 
         final var openStatusArgument = text.getTextArgumentFactory().clickable(
@@ -189,9 +191,10 @@ public class Info extends StructureTargetCommand
     private void decorateOpenDirection(StructureSnapshot structure, Text text)
     {
         final String cmd = getCommandSender().formatCommand(
-            config.primaryCommandName() + " setopendirection " +
-            localizer.getMessage(structure.getCycledOpenDirection().getLocalizationKey()) + " " +
-            structure.getUid() + " true"
+            "%s setopendirection %s %d true",
+            config.primaryCommandName(),
+            localizer.getMessage(structure.getCycledOpenDirection().getLocalizationKey()),
+            structure.getUid()
         );
 
         final var argument = text.getTextArgumentFactory().clickable(
@@ -208,7 +211,10 @@ public class Info extends StructureTargetCommand
             structure.isLocked() ? "constants.locked_status.locked" : "constants.locked_status.unlocked";
 
         final String cmd = getCommandSender().formatCommand(
-            config.primaryCommandName() + " lock " + !structure.isLocked() + " " + structure.getUid() + " true"
+            "%s lock %s %d true",
+            config.primaryCommandName(),
+            !structure.isLocked(),
+            structure.getUid()
         );
 
         final var argument = text.getTextArgumentFactory().clickable(
