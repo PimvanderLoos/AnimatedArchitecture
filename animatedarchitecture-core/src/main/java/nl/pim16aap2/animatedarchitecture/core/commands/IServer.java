@@ -1,6 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import com.google.errorprone.annotations.FormatMethod;
+import com.google.errorprone.annotations.FormatString;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -23,12 +26,13 @@ public interface IServer extends ICommandSender
     }
 
     @Override
-    @com.google.errorprone.annotations.FormatMethod
+    @FormatMethod
     default String formatCommand(
-        @com.google.errorprone.annotations.FormatString String format,
-        @org.jspecify.annotations.Nullable Object @org.jspecify.annotations.Nullable ... args)
+        String commandName,
+        @FormatString String subCommandFormat,
+        @Nullable Object @Nullable ... args)
     {
-        return String.format(format, args);
+        return commandName + " " + String.format(subCommandFormat, args);
     }
 
     @Override

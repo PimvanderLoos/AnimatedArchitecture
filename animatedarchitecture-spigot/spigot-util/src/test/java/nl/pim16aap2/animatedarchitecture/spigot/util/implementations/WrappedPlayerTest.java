@@ -25,10 +25,10 @@ class WrappedPlayerTest
     void formatCommand_shouldAddLeadingSlashForPlayers()
     {
         // setup
-        when(player.formatCommand("animatedarchitecture help")).thenCallRealMethod();
+        when(player.formatCommand("animatedarchitecture", "help")).thenCallRealMethod();
 
         // execute & verify
-        assertThat(player.formatCommand("animatedarchitecture help"))
+        assertThat(player.formatCommand("animatedarchitecture", "help"))
             .isEqualTo("/animatedarchitecture help");
     }
 
@@ -36,10 +36,10 @@ class WrappedPlayerTest
     void formatCommand_shouldFormatWithArguments()
     {
         // setup
-        when(player.formatCommand("%s %s %d", "cmd", "arg", 123)).thenCallRealMethod();
+        when(player.formatCommand("cmd", "%s %d", "arg", 123)).thenCallRealMethod();
 
         // execute & verify
-        assertThat(player.formatCommand("%s %s %d", "cmd", "arg", 123))
+        assertThat(player.formatCommand("cmd", "%s %d", "arg", 123))
             .isEqualTo("/cmd arg 123");
     }
 

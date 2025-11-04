@@ -1,7 +1,11 @@
 package nl.pim16aap2.animatedarchitecture.core.commands;
 
+import com.google.errorprone.annotations.CheckReturnValue;
+import com.google.errorprone.annotations.FormatMethod;
+import com.google.errorprone.annotations.FormatString;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -33,17 +37,20 @@ public interface ICommandSender extends IMessageable
      * Players receive commands with a leading slash (e.g., "/command"), while non-players (console, command blocks)
      * receive commands without the leading slash (e.g., "command").
      *
-     * @param format
-     *     The format string for the command (without leading slash).
+     * @param commandName
+     *     The name of the command (without leading slash).
+     * @param subCommandFormat
+     *     The format string for the subcommand and its arguments.
      * @param args
-     *     Arguments referenced by the format specifiers in the format string.
+     *     Arguments referenced by the format specifiers in the subcommand format string.
      * @return The formatted command appropriate for this sender.
      */
-    @com.google.errorprone.annotations.FormatMethod
-    @com.google.errorprone.annotations.CheckReturnValue
+    @FormatMethod
+    @CheckReturnValue
     String formatCommand(
-        @com.google.errorprone.annotations.FormatString String format,
-        @org.jspecify.annotations.Nullable Object @org.jspecify.annotations.Nullable ... args);
+        String commandName,
+        @FormatString String subCommandFormat,
+        @Nullable Object @Nullable ... args);
 
     /**
      * Checks if this sender has a given permission.
