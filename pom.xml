@@ -18,7 +18,7 @@
         <delombok.output>${project.root-dir}/delombok</delombok.output>
 
         <version.assertj>4.0.0-M1</version.assertj>
-        <version.bytebuddy>1.17.7</version.bytebuddy>
+        <version.bytebuddy>1.17.8</version.bytebuddy>
         <version.checkstyle>11.1.0</version.checkstyle>
         <version.configurate>feature~yaml-improvements-c31b5df773-1</version.configurate>
         <version.dagger>2.57.2</version.dagger>
