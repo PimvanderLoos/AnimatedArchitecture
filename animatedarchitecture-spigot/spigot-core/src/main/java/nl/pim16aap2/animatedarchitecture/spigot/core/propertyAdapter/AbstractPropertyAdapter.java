@@ -3,10 +3,16 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
 import de.themoep.inventorygui.GuiElement;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyAccessLevel;
+import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -16,29 +22,28 @@ import java.util.List;
  * @param <T>
  *     The type of the property value.
  */
+@CustomLog
+@EqualsAndHashCode
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractPropertyAdapter<T>
 {
-    /**
-     * The prefix for localization keys for GUI properties.
-     */
-    public static final String LOCALIZATION_GUI_PREFIX_PROPERTY = "gui.property.";
-
-    /**
-     * The suffix for localization keys for property titles.
-     */
-    public static final String LOCALIZATION_SUFFIX_TITLE = ".title";
-
-    /**
-     * The suffix for localization keys for property lore (descriptions).
-     */
-    public static final String LOCALIZATION_SUFFIX_LORE = ".lore";
-
     /**
      * The property this adapter is for.
      */
     @Getter
     private final Property<T> property;
+
+    /**
+     * Gets the current value of the property from the structure in the request.
+     *
+     * @param request
+     *     The property GUI request containing context for creating the GUI element.
+     * @return The current value of the property, or null if not set.
+     */
+    protected @Nullable T getPropertyValue(PropertyGuiRequest<T> request)
+    {
+        return request.structure().getPropertyValue(getProperty()).value();
+    }
 
     /**
      * Creates a GUI element to represent the property.
@@ -50,33 +55,32 @@ public abstract class AbstractPropertyAdapter<T>
     public abstract GuiElement createGuiElement(PropertyGuiRequest<T> request);
 
     /**
-     * Creates an ItemStack to display this property in the GUI.
+     * Creates an ItemStack with the given material, title, and lore.
      *
-     * @param request
-     *     The property GUI request containing context for creating the GUI element.
-     * @return The ItemStack to display.
+     * @param material
+     *     The material of the item stack.
+     * @param title
+     *     The title of the item stack.
+     * @param lore
+     *     The lore (description) lines of the item stack.
+     * @return The created ItemStack.
      */
-    protected ItemStack createItemStack(PropertyGuiRequest<T> request)
+    protected ItemStack createItemStack(
+        Material material,
+        String title,
+        List<String> lore
+    )
     {
-        final ItemStack itemStack = new ItemStack(getMaterial(request));
+        final ItemStack itemStack = new ItemStack(material);
         final var meta = itemStack.getItemMeta();
         if (meta != null)
         {
-            meta.setDisplayName(getTitle(request));
-            meta.setLore(getLore(request));
+            meta.setDisplayName(title);
+            meta.setLore(lore);
             itemStack.setItemMeta(meta);
         }
         return itemStack;
     }
-
-    /**
-     * Gets the material to use for displaying this property in the GUI.
-     *
-     * @param request
-     *     The property GUI request containing context for creating the GUI element.
-     * @return The material to use.
-     */
-    protected abstract Material getMaterial(PropertyGuiRequest<T> request);
 
     /**
      * Gets the display name for this property in the GUI.
@@ -88,11 +92,32 @@ public abstract class AbstractPropertyAdapter<T>
     protected abstract String getTitle(PropertyGuiRequest<T> request);
 
     /**
-     * Gets the lore (description) lines for this property in the GUI.
+     * Determines if the property can be edited based on the given permission level.
      *
-     * @param request
-     *     The property GUI request containing context for creating the GUI element.
-     * @return The lore lines.
+     * @param permissionLevel
+     *     The permission level to check.
+     * @return True if the property can be edited, false otherwise.
      */
-    protected abstract List<String> getLore(PropertyGuiRequest<T> request);
+    protected boolean canEdit(PermissionLevel permissionLevel)
+    {
+        return getProperty().hasAccessLevel(permissionLevel, PropertyAccessLevel.EDIT);
+    }
+
+    /**
+     * Handles an exceptional situation that occurred while processing a player's action.
+     *
+     * @param ex
+     *     The exception that occurred.
+     * @param player
+     *     The player involved in the action.
+     *     <p>
+     *     This player will be notified of the error with a generic error message.
+     * @param context
+     *     A description of the context in which the exception occurred.
+     */
+    protected void handleExceptional(Throwable ex, WrappedPlayer player, String context)
+    {
+        player.sendError("commands.base.error.generic");
+        log.atError().withCause(ex).log("Failed to handle action '%s' for player '%s'", context, player);
+    }
 }

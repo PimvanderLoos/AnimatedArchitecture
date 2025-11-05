@@ -23,7 +23,7 @@ public final class PropertyAdapterRegistry implements IDebuggable
     private final Map<String, AbstractPropertyAdapter<?>> adapters = new ConcurrentHashMap<>();
 
     @Inject
-    public PropertyAdapterRegistry(DebuggableRegistry debuggableRegistry)
+    PropertyAdapterRegistry(DebuggableRegistry debuggableRegistry)
     {
         debuggableRegistry.registerDebuggable(this);
     }

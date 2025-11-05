@@ -53,7 +53,8 @@ class InfoGui implements IGuiPage
     private static final EnumSet<StructureAttribute> EXCLUDED_ATTRIBUTES =
         EnumSet.of(
             StructureAttribute.SET_PROPERTY,
-            StructureAttribute.OPEN_STATUS
+            StructureAttribute.OPEN_STATUS,
+            StructureAttribute.BLOCKS_TO_MOVE
         );
 
     private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
@@ -249,12 +250,11 @@ class InfoGui implements IGuiPage
             return null;
         }
 
-        final var request = new PropertyGuiRequest<>(
+        final var request = new PropertyGuiRequest<T>(
             structure,
             slotChar,
             inventoryHolder,
-            permissionLevel,
-            propertyValuePair.value()
+            permissionLevel
         );
 
         return adapter.createGuiElement(request);

@@ -2,15 +2,13 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
 
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiStateElement;
-import de.themoep.inventorygui.StaticGuiElement;
-import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
+import lombok.EqualsAndHashCode;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyAccessLevel;
-import org.bukkit.inventory.ItemStack;
 
 /**
  * Abstract base class for boolean property adapters.
  */
+@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractBooleanPropertyAdapter extends AbstractPropertyAdapter<Boolean>
 {
     /**
@@ -67,40 +65,28 @@ public abstract class AbstractBooleanPropertyAdapter extends AbstractPropertyAda
      */
     protected abstract boolean getState(PropertyGuiRequest<Boolean> request);
 
-    /**
-     * Determines if the property can be edited based on the given permission level.
-     *
-     * @param permissionLevel
-     *     The permission level to check.
-     * @return True if the property can be edited, false otherwise.
-     */
-    protected boolean canEdit(PermissionLevel permissionLevel)
-    {
-        return getProperty().hasAccessLevel(permissionLevel, PropertyAccessLevel.EDIT);
-    }
-
-    /**
-     * Creates a read-only GUI element for the boolean property.
-     * <p>
-     * This method is used when a viewer does not have permission to edit the property.
-     *
-     * @param request
-     *     The property GUI request containing context for creating the GUI element.
-     * @return The read-only GUI element.
-     */
-    protected final GuiElement createReadOnlyElement(PropertyGuiRequest<Boolean> request)
-    {
-        final ItemStack itemStack = createItemStack(request);
-        return new StaticGuiElement(request.slotChar(), itemStack);
-    }
+//    /**
+//     * Creates a read-only GUI element for the boolean property.
+//     * <p>
+//     * This method is used when a viewer does not have permission to edit the property.
+//     *
+//     * @param request
+//     *     The property GUI request containing context for creating the GUI element.
+//     * @return The read-only GUI element.
+//     */
+//    protected final GuiElement createReadOnlyElement(PropertyGuiRequest<Boolean> request)
+//    {
+//        final ItemStack itemStack = createItemStack(request);
+//        return new StaticGuiElement(request.slotChar(), itemStack);
+//    }
 
     @Override
     public final GuiElement createGuiElement(PropertyGuiRequest<Boolean> request)
     {
-        if (!canEdit(request.permissionLevel()))
-        {
-            return createReadOnlyElement(request);
-        }
+//        if (!canEdit(request.permissionLevel()))
+//        {
+//            return createReadOnlyElement(request);
+//        }
 
         final GuiStateElement element = new GuiStateElement(
             request.slotChar(),

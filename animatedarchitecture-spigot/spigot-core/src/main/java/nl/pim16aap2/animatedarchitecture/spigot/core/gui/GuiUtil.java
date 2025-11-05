@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 
 import de.themoep.inventorygui.InventoryGui;
 import lombok.CustomLog;
+import lombok.experimental.UtilityClass;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 
 import java.util.Deque;
@@ -10,12 +11,9 @@ import java.util.Deque;
  * Utility class for GUI-related operations.
  */
 @CustomLog
-final class GuiUtil
+@UtilityClass
+public final class GuiUtil
 {
-    private GuiUtil()
-    {
-    }
-
     /**
      * Creates a new CloseAction that unregisters a deletion listener from the structures-registry.
      *

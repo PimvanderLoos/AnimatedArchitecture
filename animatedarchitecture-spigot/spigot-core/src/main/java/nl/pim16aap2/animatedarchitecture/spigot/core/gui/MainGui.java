@@ -223,14 +223,14 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                 click.getGui().removeElement('g');
                 addElementGroup(click.getGui());
                 ((StaticGuiElement) click.getElement()).setText(
-                    localizer.getMessage(sortingMethod.next().getLocalizationKeySort()),
-                    localizer.getMessage(sortingMethod.getLocalizationKeySorted())
+                    localizer.getMessage(sortingMethod.getLocalizationKeySorted()),
+                    localizer.getMessage(sortingMethod.next().getLocalizationKeySort())
                 );
                 click.getGui().draw(click.getWhoClicked(), true, false);
                 return true;
             },
-            localizer.getMessage(sortingMethod.next().getLocalizationKeySort()),
-            localizer.getMessage(sortingMethod.getLocalizationKeySorted()))
+            localizer.getMessage(sortingMethod.getLocalizationKeySorted()),
+            localizer.getMessage(sortingMethod.next().getLocalizationKeySort()))
         );
     }
 

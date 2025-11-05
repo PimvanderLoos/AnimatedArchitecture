@@ -281,27 +281,6 @@ class AttributeButtonFactory
         return staticElement;
     }
 
-    private GuiElement blocksToMoveButton(Structure structure, WrappedPlayer player, char slotChar)
-    {
-        final var localizer = player.getPersonalizedLocalizer();
-        return new StaticGuiElement(
-            slotChar,
-            new ItemStack(Material.STICKY_PISTON),
-            click ->
-            {
-                commandFactory
-                    .getSetBlocksToMoveDelayed()
-                    .runDelayed(player, structureRetrieverFactory.of(structure))
-                    .handleExceptional(ex -> handleExceptional(ex, player, "blocks_to_move_button"));
-                GuiUtil.closeAllGuis(player);
-                return true;
-            },
-            localizer.getMessage(
-                "gui.info_page.attribute.blocks_to_move",
-                localizer.getMessage(structure.getType().getLocalizationKey()))
-        );
-    }
-
     private GuiElement addOwnerButton(Structure structure, WrappedPlayer player, char slotChar)
     {
         final var localizer = player.getPersonalizedLocalizer();
@@ -356,7 +335,6 @@ class AttributeButtonFactory
         return switch (attribute)
         {
             case ADD_OWNER -> this.addOwnerButton(structure, player, slotChar);
-            case BLOCKS_TO_MOVE -> this.blocksToMoveButton(structure, player, slotChar);
             case DELETE -> this.deleteButton(structure, player, slotChar);
             case INFO -> this.infoButton(structure, player, slotChar);
             case LOCK -> this.lockButton(structure, player, slotChar);
@@ -364,9 +342,11 @@ class AttributeButtonFactory
             case PREVIEW -> this.previewButton(structure, player, slotChar);
             case RELOCATE_POWERBLOCK -> this.relocatePowerBlockButton(structure, player, slotChar);
             case REMOVE_OWNER -> this.removeOwnerButton(structure, player, slotChar);
-            case SET_PROPERTY -> null;
-            // Replaced by property adapters.
-            case OPEN_STATUS, TOGGLE -> this.toggleButton(structure, player, slotChar);
+            case TOGGLE -> this.toggleButton(structure, player, slotChar);
+            // Replaced by PropertyAdapters
+            case BLOCKS_TO_MOVE, OPEN_STATUS, SET_PROPERTY -> throw new UnsupportedOperationException(
+                "Attribute " + attribute + " is not supported by AttributeButtonFactory."
+            );
         };
     }
 }

@@ -28,7 +28,7 @@ import java.util.List;
  */
 @Singleton
 @CustomLog
-class GuiStructureDeletionManager implements StructureDeletionManager.IDeletionListener, IDebuggable
+public class GuiStructureDeletionManager implements StructureDeletionManager.IDeletionListener, IDebuggable
 {
     @GuardedBy("this")
     private final Deque<IGuiPage.IGuiStructureDeletionListener> listeners = new ArrayDeque<>();
