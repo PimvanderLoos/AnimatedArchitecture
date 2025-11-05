@@ -3,7 +3,6 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 
 /**
@@ -17,8 +16,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlay
  *     The player for whom the GUI is being created.
  * @param permissionLevel
  *     The permission level of the player for the structure containing the property.
- * @param propertyValue
- *     The property value to be represented in the GUI.
  * @param <T>
  *     The type of the property value.
  */
@@ -26,8 +23,7 @@ public record PropertyGuiRequest<T>(
     Structure structure,
     char slotChar,
     WrappedPlayer player,
-    PermissionLevel permissionLevel,
-    IPropertyValue<T> propertyValue
+    PermissionLevel permissionLevel
 )
 {
     /**

@@ -5,15 +5,14 @@ import de.themoep.inventorygui.GuiStateElement;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.CustomLog;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyValue;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
-import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -28,6 +27,7 @@ import static nl.pim16aap2.animatedarchitecture.core.util.Constants.DEFAULT_COMM
 @Singleton
 @CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
+@EqualsAndHashCode(callSuper = true)
 public final class PropertyAdapterOpenStatus extends AbstractBooleanPropertyAdapter
 {
     public static final Property<Boolean> PROPERTY = Property.OPEN_STATUS;
@@ -56,29 +56,21 @@ public final class PropertyAdapterOpenStatus extends AbstractBooleanPropertyAdap
         this.executor = executor;
     }
 
-    private boolean isOpen(IPropertyValue<Boolean> propertyValue)
+    private boolean isOpen(PropertyGuiRequest<Boolean> request)
     {
-        return Boolean.TRUE.equals(propertyValue.value());
+        return Boolean.TRUE.equals(getPropertyValue(request));
     }
 
-    @Override
-    protected Material getMaterial(PropertyGuiRequest<Boolean> request)
-    {
-        return isOpen(request.propertyValue()) ? MATERIAL_OPEN : MATERIAL_CLOSED;
-    }
-
-    @Override
     protected String getTitle(PropertyGuiRequest<Boolean> request)
     {
         return request.localizer().getMessage(TITLE_KEY);
     }
 
-    @Override
-    protected List<String> getLore(PropertyGuiRequest<Boolean> request)
+    private List<String> getLore(boolean isOpen, PropertyGuiRequest<Boolean> request)
     {
         final ILocalizer localizer = request.localizer();
 
-        final String statusKey = isOpen(request.propertyValue()) ?
+        final String statusKey = isOpen ?
             "constants.open_status.open" :
             "constants.open_status.closed";
         final String localizedStatus = localizer.getMessage(statusKey);
@@ -92,31 +84,32 @@ public final class PropertyAdapterOpenStatus extends AbstractBooleanPropertyAdap
             .toList();
     }
 
+    private ItemStack createItemStack(boolean isOpen, PropertyGuiRequest<Boolean> request)
+    {
+        final Material material = isOpen ? MATERIAL_OPEN : MATERIAL_CLOSED;
+        final String title = getTitle(request);
+        final List<String> lore = getLore(isOpen, request);
+
+        return createItemStack(material, title, lore);
+    }
+
     @Override
     protected GuiStateElement.State getTrueState(String stateKey, PropertyGuiRequest<Boolean> request)
     {
-        final ILocalizer localizer = request.localizer();
         return new GuiStateElement.State(
             change -> isOpenButtonExecute(true, change, request),
             stateKey,
-            new ItemStack(MATERIAL_OPEN),
-            localizer.getMessage(
-                "gui.info_page.attribute.set_open",
-                localizer.getMessage(request.structure().getType().getLocalizationKey()))
+            createItemStack(true, request)
         );
     }
 
     @Override
     protected GuiStateElement.State getFalseState(String stateKey, PropertyGuiRequest<Boolean> request)
     {
-        final ILocalizer localizer = request.localizer();
         return new GuiStateElement.State(
             change -> isOpenButtonExecute(false, change, request),
             stateKey,
-            new ItemStack(MATERIAL_CLOSED),
-            localizer.getMessage(
-                "gui.info_page.attribute.set_closed",
-                localizer.getMessage(request.structure().getType().getLocalizationKey()))
+            createItemStack(false, request)
         );
     }
 
@@ -136,18 +129,17 @@ public final class PropertyAdapterOpenStatus extends AbstractBooleanPropertyAdap
                     change.getGui()
                         .draw(request.player().getBukkitPlayer(), true, false)))
             .orTimeout(1, TimeUnit.SECONDS)
+            .withExceptionContext(
+                "Player %s setting open status to %b for structure %s",
+                request.player(),
+                newState,
+                request.structure().getNameAndUid())
             .handleExceptional(ex -> handleExceptional(ex, request.player(), "is_open_button"));
-    }
-
-    private void handleExceptional(Throwable ex, WrappedPlayer player, String context)
-    {
-        player.sendError("commands.base.error.generic");
-        log.atError().withCause(ex).log("Failed to handle action '%s' for player '%s'", context, player);
     }
 
     @Override
     protected boolean getState(PropertyGuiRequest<Boolean> request)
     {
-        return request.structure().isLocked();
+        return isOpen(request);
     }
 }
