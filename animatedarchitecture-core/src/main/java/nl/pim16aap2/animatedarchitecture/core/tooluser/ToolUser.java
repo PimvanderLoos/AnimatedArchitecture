@@ -14,6 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IProtectionHookManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
@@ -727,6 +728,7 @@ public abstract class ToolUser
         private final @Nullable StructureAnimationRequestBuilder structureAnimationRequestBuilder;
         private final StructureActivityManager structureActivityManager;
         private final Step.Factory.IFactory stepFactory;
+        private final IConfig config;
 
         @Inject
         public Context(
@@ -740,7 +742,8 @@ public abstract class ToolUser
             @Nullable StructureAnimationRequestBuilder structureAnimationRequestBuilder,
             StructureActivityManager structureActivityManager,
             CommandFactory commandFactory,
-            Step.Factory.IFactory stepFactory)
+            Step.Factory.IFactory stepFactory,
+            IConfig config)
         {
             this.structureBuilder = structureBuilder;
             this.toolUserManager = toolUserManager;
@@ -753,6 +756,7 @@ public abstract class ToolUser
             this.structureActivityManager = structureActivityManager;
             this.commandFactory = commandFactory;
             this.stepFactory = stepFactory;
+            this.config = config;
         }
     }
 }

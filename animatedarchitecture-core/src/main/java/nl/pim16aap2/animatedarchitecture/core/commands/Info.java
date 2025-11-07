@@ -9,6 +9,7 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
@@ -40,15 +41,19 @@ public class Info extends StructureTargetCommand
     @ToString.Exclude
     private final HighlightedBlockSpawner glowingBlockSpawner;
 
+    private final IConfig config;
+
     @AssistedInject
     Info(
         @Assisted ICommandSender commandSender,
         @Assisted StructureRetriever structureRetriever,
         IExecutor executor,
-        HighlightedBlockSpawner glowingBlockSpawner)
+        HighlightedBlockSpawner glowingBlockSpawner,
+        IConfig config)
     {
         super(commandSender, executor, structureRetriever, StructureAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;
+        this.config = config;
     }
 
     @Override
@@ -167,12 +172,16 @@ public class Info extends StructureTargetCommand
         final String oppositeLocalizedOpenStatus =
             localizer.getMessage(isOpen ? "constants.open_status.closed" : "constants.open_status.open");
 
+        final String cmd = getCommandSender().formatCommand(
+            config.primaryCommandName(),
+            "setopenstatus %s %d true",
+            oppositeLocalizedOpenStatus,
+            structure.getUid()
+        );
+
         final var openStatusArgument = text.getTextArgumentFactory().clickable(
             localizedOpenStatus,
-            String.format(
-                "/animatedarchitecture setopenstatus %s %d true",
-                oppositeLocalizedOpenStatus,
-                structure.getUid())
+            cmd
         );
 
         text.append(localizer.getMessage("commands.info.output.open_status"), TextType.INFO, openStatusArgument)
@@ -181,12 +190,16 @@ public class Info extends StructureTargetCommand
 
     private void decorateOpenDirection(StructureSnapshot structure, Text text)
     {
+        final String cmd = getCommandSender().formatCommand(
+            config.primaryCommandName(),
+            "setopendirection %s %d true",
+            localizer.getMessage(structure.getCycledOpenDirection().getLocalizationKey()),
+            structure.getUid()
+        );
+
         final var argument = text.getTextArgumentFactory().clickable(
             localizer.getMessage(structure.getOpenDirection().getLocalizationKey()),
-            String.format(
-                "/animatedarchitecture setopendirection %s %d true",
-                localizer.getMessage(structure.getCycledOpenDirection().getLocalizationKey()),
-                structure.getUid())
+            cmd
         );
 
         text.append(localizer.getMessage("commands.info.output.open_direction"), TextType.INFO, argument).append('\n');
@@ -197,12 +210,16 @@ public class Info extends StructureTargetCommand
         final String localizationKey =
             structure.isLocked() ? "constants.locked_status.locked" : "constants.locked_status.unlocked";
 
+        final String cmd = getCommandSender().formatCommand(
+            config.primaryCommandName(),
+            "lock %s %d true",
+            !structure.isLocked(),
+            structure.getUid()
+        );
+
         final var argument = text.getTextArgumentFactory().clickable(
             localizer.getMessage(localizationKey),
-            String.format(
-                "/animatedarchitecture lock %s %d true",
-                !structure.isLocked(),
-                structure.getUid())
+            cmd
         );
 
         text.append(localizer.getMessage("commands.info.output.locked_status"), TextType.INFO, argument).append('\n');
