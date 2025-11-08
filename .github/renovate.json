@@ -6,8 +6,6 @@
   "packageRules": [
     {
       "packageNames": [
-        "actions/checkout",
-        "actions/setup-java",
         "com.alibaba:fastjson",
         "com.google.code.gson:gson",
         "com.google.dagger:dagger",
@@ -19,7 +17,6 @@
         "com.uber.nullaway:nullaway",
         "io.github.hakky54:logcaptor",
         "it.unimi.dsi:fastutil",
-        "JamesIves/github-pages-deploy-action",
         "net.bytebuddy:byte-buddy",
         "net.kyori:adventure-api",
         "net.kyori:adventure-platform-bukkit",
