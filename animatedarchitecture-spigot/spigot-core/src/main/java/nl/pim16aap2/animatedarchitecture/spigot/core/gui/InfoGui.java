@@ -33,6 +33,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -113,6 +114,7 @@ class InfoGui implements IGuiPage
         this.visibleProperties = structure
             .getPropertiesForOwnerFilteredByAccessLevel(structureOwner, PropertyAccessLevel.READ)
             .stream()
+            .sorted(Comparator.comparing(p -> p.property().getFullKey()))
             .toList();
 
         this.canFitProperties = canFitProperties(this.structure, this.visibleProperties);
