@@ -5,10 +5,12 @@ on:
     branches:
       - master
       - 'release/**'
+      - 'epic/**'
   pull_request:
     branches:
       - master
       - 'release/**'
+      - 'epic/**'
 
   workflow_dispatch:
 
