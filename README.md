@@ -63,7 +63,7 @@ discrepancies, the majority of exported structures should function properly. Any
 using available commands or the menu.
 
 ## Add-ons
-- [AnimatedPhysics](https://modrinth.com/plugin/animatedphysics) (Created by bonn2) It adds collisions to the animated blocks!
+- [AnimatedPhysics](https://modrinth.com/plugin/animatedphysics) (created by bonn2) - Adds collisions to the animated blocks!
 
 ## Translations
 
