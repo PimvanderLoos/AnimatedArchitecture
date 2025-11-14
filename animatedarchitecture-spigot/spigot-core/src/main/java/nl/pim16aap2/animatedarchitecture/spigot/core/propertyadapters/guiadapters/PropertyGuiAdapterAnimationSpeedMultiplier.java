@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
+package nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -16,13 +16,13 @@ import org.bukkit.Material;
 @CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 @EqualsAndHashCode(callSuper = true)
-public final class PropertyAdapterAnimationSpeedMultiplier extends AbstractStaticPropertyAdapter<Double>
+public final class PropertyGuiAdapterAnimationSpeedMultiplier extends AbstractStaticPropertyGuiAdapter<Double>
 {
     public static final Property<Double> PROPERTY = Property.ANIMATION_SPEED_MULTIPLIER;
     public static final Material MATERIAL = Material.CLOCK;
 
     @Inject
-    PropertyAdapterAnimationSpeedMultiplier()
+    PropertyGuiAdapterAnimationSpeedMultiplier()
     {
         super(
             PROPERTY,

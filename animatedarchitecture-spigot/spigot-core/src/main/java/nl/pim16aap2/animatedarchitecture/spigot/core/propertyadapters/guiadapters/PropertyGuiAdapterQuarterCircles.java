@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
+package nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -16,13 +16,13 @@ import org.bukkit.Material;
 @CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 @EqualsAndHashCode(callSuper = true)
-public final class PropertyAdapterQuarterCircles extends AbstractStaticPropertyAdapter<Integer>
+public final class PropertyGuiAdapterQuarterCircles extends AbstractStaticPropertyGuiAdapter<Integer>
 {
     public static final Property<Integer> PROPERTY = Property.QUARTER_CIRCLES;
     public static final Material MATERIAL = Material.MELON_SLICE;
 
     @Inject
-    PropertyAdapterQuarterCircles()
+    PropertyGuiAdapterQuarterCircles()
     {
         super(
             PROPERTY,

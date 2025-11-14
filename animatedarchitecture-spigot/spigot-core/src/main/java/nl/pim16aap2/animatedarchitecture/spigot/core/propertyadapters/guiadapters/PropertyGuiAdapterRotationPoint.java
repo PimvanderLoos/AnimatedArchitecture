@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
+package nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -17,13 +17,13 @@ import org.bukkit.Material;
 @CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 @EqualsAndHashCode(callSuper = true)
-public final class PropertyAdapterRotationPoint extends AbstractStaticPropertyAdapter<Vector3Di>
+public final class PropertyGuiAdapterRotationPoint extends AbstractStaticPropertyGuiAdapter<Vector3Di>
 {
     public static final Property<Vector3Di> PROPERTY = Property.ROTATION_POINT;
     public static final Material MATERIAL = Material.BAMBOO;
 
     @Inject
-    PropertyAdapterRotationPoint()
+    PropertyGuiAdapterRotationPoint()
     {
         super(
             PROPERTY,

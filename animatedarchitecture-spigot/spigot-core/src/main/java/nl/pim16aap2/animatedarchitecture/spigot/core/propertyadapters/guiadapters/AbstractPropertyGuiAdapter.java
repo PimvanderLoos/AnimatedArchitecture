@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
+package nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters;
 
 import de.themoep.inventorygui.GuiElement;
 import lombok.AccessLevel;
@@ -25,7 +25,7 @@ import java.util.List;
 @CustomLog
 @EqualsAndHashCode
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractPropertyAdapter<T>
+public abstract class AbstractPropertyGuiAdapter<T>
 {
     /**
      * The property this adapter is for.

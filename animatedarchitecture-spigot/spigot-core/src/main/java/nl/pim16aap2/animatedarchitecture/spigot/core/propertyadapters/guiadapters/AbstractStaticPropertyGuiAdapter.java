@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
+package nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters;
 
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.StaticGuiElement;
@@ -15,7 +15,7 @@ import java.util.List;
  * @param <T>
  *     The type of the property value.
  */
-public abstract class AbstractStaticPropertyAdapter<T> extends AbstractPropertyAdapter<T>
+public abstract class AbstractStaticPropertyGuiAdapter<T> extends AbstractPropertyGuiAdapter<T>
 {
     /**
      * The material to use for displaying this property in the GUI.
@@ -38,7 +38,7 @@ public abstract class AbstractStaticPropertyAdapter<T> extends AbstractPropertyA
     protected final String loreReadOnlyKey;
 
     /**
-     * Creates a new StaticPropertyAdapter.
+     * Creates a new static property GUI adapter.
      * <p>
      * The title and the lore will be retrieved from the localizer using the keys
      * {@code gui.property.{property_key}.title} and {@code gui.property.{property_key}.lore}, where
@@ -55,7 +55,7 @@ public abstract class AbstractStaticPropertyAdapter<T> extends AbstractPropertyA
      * @param loreReadOnlyKey
      *     The localization key for the lore when read-only.
      */
-    protected AbstractStaticPropertyAdapter(
+    protected AbstractStaticPropertyGuiAdapter(
         Property<T> property,
         Material material,
         String titleKey,

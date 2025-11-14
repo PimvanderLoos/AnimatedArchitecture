@@ -24,9 +24,9 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyAcce
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyValuePair;
 import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
-import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PropertyAdapterRegistry;
-import nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter.AbstractPropertyAdapter;
-import nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter.PropertyGuiRequest;
+import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PropertyGuiAdapterRegistry;
+import nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters.AbstractPropertyGuiAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters.PropertyGuiRequest;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -61,7 +61,7 @@ class InfoGui implements IGuiPage
     private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
     private final ILocalizer localizer;
     private final AttributeButtonFactory attributeButtonFactory;
-    private final PropertyAdapterRegistry adapterRegistry;
+    private final PropertyGuiAdapterRegistry adapterRegistry;
     private final PermissionLevel permissionLevel;
 
     @Getter
@@ -97,7 +97,7 @@ class InfoGui implements IGuiPage
         ILocalizer localizer,
         IPermissionsManager permissionsManager,
         AttributeButtonFactory attributeButtonFactory,
-        PropertyAdapterRegistry adapterRegistry)
+        PropertyGuiAdapterRegistry adapterRegistry)
     {
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.localizer = localizer;
@@ -242,7 +242,7 @@ class InfoGui implements IGuiPage
 
     private @Nullable <T> GuiElement createPropertyElement(char slotChar, PropertyValuePair<T> propertyValuePair)
     {
-        final AbstractPropertyAdapter<T> adapter = adapterRegistry.getAdapter(propertyValuePair.property());
+        final AbstractPropertyGuiAdapter<T> adapter = adapterRegistry.getGuiAdapter(propertyValuePair.property());
         if (adapter == null)
         {
             log.atWarn().log(
