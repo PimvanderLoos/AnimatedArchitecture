@@ -62,6 +62,9 @@ inconsistencies, such as incorrect opening directions under certain circumstance
 discrepancies, the majority of exported structures should function properly. Any errors can be easily rectified in-game
 using available commands or the menu.
 
+## Add-ons
+- [AnimatedPhysics](https://modrinth.com/plugin/animatedphysics) (Created by bonn2) It adds collisions to the animated blocks!
+
 ## Translations
 
 ### Official translations
