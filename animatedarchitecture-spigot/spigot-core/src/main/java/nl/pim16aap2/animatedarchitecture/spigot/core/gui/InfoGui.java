@@ -148,7 +148,7 @@ class InfoGui implements IGuiPage
 
     private String[] createGuiRowDefinitions()
     {
-        final String[] baseRowDefinitions = GuiUtil.fillLinesWithChar('g', allowedAttributes.size(), "f   h    ");
+        final String[] baseRowDefinitions = GuiUtil.fillLinesWithChar('g', allowedAttributes.size(), "f a h d  ");
 
         if (!this.canFitProperties)
             return baseRowDefinitions;
@@ -193,6 +193,26 @@ class InfoGui implements IGuiPage
                 localizer.getMessage(structure.getType().getLocalizationKey()),
                 structure.getNameAndUid()))
         );
+
+        // button to open the add-property page
+        gui.addElement(new StaticGuiElement(
+            'a',
+            new ItemStack(Material.CHEST_MINECART),
+            localizer.getMessage(
+                "gui.info_page.add_property_button",
+                localizer.getMessage(structure.getType().getLocalizationKey())
+            )
+        ));
+
+        // button to open the delete-property page
+        gui.addElement(new StaticGuiElement(
+            'd',
+            new ItemStack(Material.TNT_MINECART),
+            localizer.getMessage(
+                "gui.info_page.delete_property_button",
+                localizer.getMessage(structure.getType().getLocalizationKey())
+            )
+        ));
 
         gui.addElement(new GuiBackElement(
             'f',
