@@ -72,7 +72,7 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PowerBlockRedstoneManagerSpigotModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManagerModule;
-import nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter.PropertyAdapterInitializer;
+import nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters.PropertyGuiAdapterInitializer;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.ExecutorModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.SpigotServerModule;
@@ -111,7 +111,7 @@ import org.semver4j.Semver;
 )
 interface AnimatedArchitectureSpigotComponent
 {
-    @Nullable PropertyAdapterInitializer getPropertyGuiAdapterInitializer();
+    @Nullable PropertyGuiAdapterInitializer getPropertyGuiAdapterInitializer();
 
     @Component.Builder
     interface Builder

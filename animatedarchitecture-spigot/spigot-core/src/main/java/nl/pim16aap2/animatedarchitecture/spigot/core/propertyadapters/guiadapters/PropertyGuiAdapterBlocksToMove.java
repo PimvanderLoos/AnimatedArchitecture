@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
+package nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters;
 
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.StaticGuiElement;
@@ -21,7 +21,7 @@ import org.bukkit.Material;
 @CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 @EqualsAndHashCode(callSuper = true)
-public final class PropertyAdapterBlocksToMove extends AbstractStaticPropertyAdapter<Integer>
+public final class PropertyGuiAdapterBlocksToMove extends AbstractStaticPropertyGuiAdapter<Integer>
 {
     public static final Property<Integer> PROPERTY = Property.BLOCKS_TO_MOVE;
     public static final Material MATERIAL = Material.STICKY_PISTON;
@@ -30,7 +30,7 @@ public final class PropertyAdapterBlocksToMove extends AbstractStaticPropertyAda
     private final StructureRetrieverFactory structureRetrieverFactory;
 
     @Inject
-    PropertyAdapterBlocksToMove(
+    PropertyGuiAdapterBlocksToMove(
         CommandFactory commandFactory,
         StructureRetrieverFactory structureRetrieverFactory
     )

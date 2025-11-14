@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
+package nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters;
 
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiStateElement;
@@ -9,7 +9,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
  * Abstract base class for boolean property adapters.
  */
 @EqualsAndHashCode(callSuper = true)
-public abstract class AbstractBooleanPropertyAdapter extends AbstractPropertyAdapter<Boolean>
+public abstract class AbstractBooleanPropertyGuiAdapter extends AbstractPropertyGuiAdapter<Boolean>
 {
     /**
      * State key for the true value.
@@ -25,7 +25,7 @@ public abstract class AbstractBooleanPropertyAdapter extends AbstractPropertyAda
      */
     protected static final String STATE_FALSE_KEY = "FALSE";
 
-    protected AbstractBooleanPropertyAdapter(Property<Boolean> property)
+    protected AbstractBooleanPropertyGuiAdapter(Property<Boolean> property)
     {
         super(property);
     }

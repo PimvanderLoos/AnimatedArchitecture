@@ -343,7 +343,7 @@ class AttributeButtonFactory
             case RELOCATE_POWERBLOCK -> this.relocatePowerBlockButton(structure, player, slotChar);
             case REMOVE_OWNER -> this.removeOwnerButton(structure, player, slotChar);
             case TOGGLE -> this.toggleButton(structure, player, slotChar);
-            // Replaced by PropertyAdapters
+            // Replaced by PropertyGuiAdapters
             case BLOCKS_TO_MOVE, OPEN_STATUS, SET_PROPERTY -> throw new UnsupportedOperationException(
                 "Attribute " + attribute + " is not supported by AttributeButtonFactory."
             );

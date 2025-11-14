@@ -7,48 +7,48 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
-import nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter.AbstractPropertyAdapter;
+import nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters.AbstractPropertyGuiAdapter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Represents a registry for property adapters.
+ * Represents a registry for property GUI adapters.
  */
 @CustomLog
 @Singleton
-public final class PropertyAdapterRegistry implements IDebuggable
+public final class PropertyGuiAdapterRegistry implements IDebuggable
 {
-    private final Map<String, AbstractPropertyAdapter<?>> adapters = new ConcurrentHashMap<>();
+    private final Map<String, AbstractPropertyGuiAdapter<?>> adapters = new ConcurrentHashMap<>();
 
     @Inject
-    PropertyAdapterRegistry(DebuggableRegistry debuggableRegistry)
+    PropertyGuiAdapterRegistry(DebuggableRegistry debuggableRegistry)
     {
         debuggableRegistry.registerDebuggable(this);
     }
 
     /**
-     * Registers property adapters.
+     * Registers property GUI adapters.
      *
      * @param adapters
-     *     The property adapters to register.
+     *     The property GUI adapters to register.
      */
-    public void registerAdapters(AbstractPropertyAdapter<?>... adapters)
+    public void registerGuiAdapters(AbstractPropertyGuiAdapter<?>... adapters)
     {
-        for (AbstractPropertyAdapter<?> adapter : adapters)
+        for (AbstractPropertyGuiAdapter<?> adapter : adapters)
         {
-            registerAdapter(adapter);
+            registerGuiAdapter(adapter);
         }
     }
 
     /**
-     * Registers a property adapter.
+     * Registers a property GUI adapter.
      *
      * @param adapter
-     *     The property adapter to register.
+     *     The property GUI adapter to register.
      */
-    public void registerAdapter(AbstractPropertyAdapter<?> adapter)
+    public void registerGuiAdapter(AbstractPropertyGuiAdapter<?> adapter)
     {
         final String propertyKey = adapter.getProperty().getFullKey();
 
@@ -71,18 +71,18 @@ public final class PropertyAdapterRegistry implements IDebuggable
     }
 
     /**
-     * Gets the property adapter for the given property.
+     * Gets the property GUI adapter for the given property.
      *
      * @param property
-     *     The property to get the adapter for.
+     *     The property to get the GUI adapter for.
      * @param <T>
      *     The type of the property value.
-     * @return The property adapter, or null if no adapter is registered for the property.
+     * @return The property GUI adapter, or null if no adapter is registered for the property.
      */
-    public <T> @Nullable AbstractPropertyAdapter<T> getAdapter(Property<T> property)
+    public <T> @Nullable AbstractPropertyGuiAdapter<T> getGuiAdapter(Property<T> property)
     {
         //noinspection unchecked
-        return (AbstractPropertyAdapter<T>) adapters.get(property.getFullKey());
+        return (AbstractPropertyGuiAdapter<T>) adapters.get(property.getFullKey());
     }
 
     @Override

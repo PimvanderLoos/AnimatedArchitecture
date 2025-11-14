@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
+package nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -17,13 +17,13 @@ import org.bukkit.Material;
 @CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 @EqualsAndHashCode(callSuper = true)
-public final class PropertyAdapterRedstoneMode extends AbstractStaticPropertyAdapter<RedstoneMode>
+public final class PropertyGuiAdapterRedstoneMode extends AbstractStaticPropertyGuiAdapter<RedstoneMode>
 {
     public static final Property<RedstoneMode> PROPERTY = Property.REDSTONE_MODE;
     public static final Material MATERIAL = Material.REDSTONE_WIRE;
 
     @Inject
-    PropertyAdapterRedstoneMode()
+    PropertyGuiAdapterRedstoneMode()
     {
         super(
             PROPERTY,

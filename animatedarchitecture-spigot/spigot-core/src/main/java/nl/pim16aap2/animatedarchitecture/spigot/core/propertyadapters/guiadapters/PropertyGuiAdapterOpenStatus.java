@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
+package nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters;
 
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiStateElement;
@@ -28,7 +28,7 @@ import static nl.pim16aap2.animatedarchitecture.core.util.Constants.DEFAULT_COMM
 @CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
 @EqualsAndHashCode(callSuper = true)
-public final class PropertyAdapterOpenStatus extends AbstractBooleanPropertyAdapter
+public final class PropertyGuiAdapterOpenStatus extends AbstractBooleanPropertyGuiAdapter
 {
     public static final Property<Boolean> PROPERTY = Property.OPEN_STATUS;
 
@@ -44,7 +44,7 @@ public final class PropertyAdapterOpenStatus extends AbstractBooleanPropertyAdap
     private final IExecutor executor;
 
     @Inject
-    public PropertyAdapterOpenStatus(
+    public PropertyGuiAdapterOpenStatus(
         StructureRetrieverFactory structureRetrieverFactory,
         CommandFactory commandFactory,
         IExecutor executor

@@ -1,4 +1,4 @@
-package nl.pim16aap2.animatedarchitecture.spigot.core.propertyAdapter;
+package nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters;
 
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
