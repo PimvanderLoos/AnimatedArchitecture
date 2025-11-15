@@ -41,12 +41,13 @@ class DeleteGui implements IGuiPage
 
     @AssistedInject
     DeleteGui(
+        @Assisted Structure structure,
+        @Assisted WrappedPlayer inventoryHolder,
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         ILocalizer localizer,
         CommandFactory commandFactory,
-        StructureRetrieverFactory structureRetrieverFactory,
-        @Assisted Structure structure,
-        @Assisted WrappedPlayer inventoryHolder)
+        StructureRetrieverFactory structureRetrieverFactory
+    )
     {
         this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.localizer = localizer;
@@ -56,7 +57,6 @@ class DeleteGui implements IGuiPage
         this.inventoryHolder = inventoryHolder;
 
         this.inventoryGui = createGUI();
-
         showGUI();
     }
 
@@ -79,7 +79,7 @@ class DeleteGui implements IGuiPage
             animatedArchitecturePlugin,
             inventoryHolder.getBukkitPlayer(),
             localizer.getMessage(
-                "gui.delete_page.title",
+                "gui.delete_page.structure.title",
                 localizer.getMessage(structure.getType().getLocalizationKey()),
                 structure.getNameAndUid()),
             guiSetup);
@@ -102,7 +102,7 @@ class DeleteGui implements IGuiPage
                 return true;
             },
             localizer.getMessage(
-                "gui.delete_page.cancel",
+                "gui.delete_page.structure.cancel",
                 localizer.getMessage(structure.getType().getLocalizationKey()))
         ));
         gui.addElement(new StaticGuiElement(
@@ -115,14 +115,14 @@ class DeleteGui implements IGuiPage
                     .run()
                     .handleExceptional(ex ->
                     {
-                        inventoryHolder.sendError("constants.error.generic");
+                        inventoryHolder.sendGenericErrorMessage();
                         log.atError().withCause(ex).log("Failed to delete structure.");
                     });
                 GuiUtil.closeGuiPage(gui, inventoryHolder);
                 return true;
             },
             localizer.getMessage(
-                "gui.delete_page.confirm",
+                "gui.delete_page.structure.confirm",
                 localizer.getMessage(structure.getType().getLocalizationKey()))
         ));
     }

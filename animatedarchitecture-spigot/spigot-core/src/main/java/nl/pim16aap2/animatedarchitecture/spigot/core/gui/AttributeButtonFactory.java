@@ -167,7 +167,7 @@ class AttributeButtonFactory
      */
     private void handleExceptional(Throwable ex, WrappedPlayer player, String context)
     {
-        player.sendError("commands.base.error.generic");
+        player.sendGenericErrorMessage();
         log.atError().withCause(ex).log("Failed to handle action '%s' for player '%s'", context, player);
     }
 

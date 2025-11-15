@@ -20,7 +20,7 @@ import org.bukkit.Material;
 public final class PropertyGuiAdapterRedstoneMode extends AbstractStaticPropertyGuiAdapter<RedstoneMode>
 {
     public static final Property<RedstoneMode> PROPERTY = Property.REDSTONE_MODE;
-    public static final Material MATERIAL = Material.REDSTONE_WIRE;
+    public static final Material MATERIAL = Material.COMPARATOR;
 
     @Inject
     PropertyGuiAdapterRedstoneMode()

@@ -70,6 +70,18 @@ public abstract class AbstractStaticPropertyGuiAdapter<T> extends AbstractProper
         this.titleKey = titleKey;
     }
 
+    @Override
+    public final Material getRemovingMaterial(PropertyGuiRequest<T> request)
+    {
+        return material;
+    }
+
+    @Override
+    public final Material getAddingMaterial(PropertyGuiRequest<T> request)
+    {
+        return material;
+    }
+
     /**
      * Gets the action to perform when this GUI element is clicked.
      *

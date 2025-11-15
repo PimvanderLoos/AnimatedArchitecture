@@ -525,7 +525,7 @@ public abstract class Creator extends ToolUser
         catch (Exception e)
         {
             log.atError().withCause(e).log("Failed to create structure preview!");
-            getPlayer().sendError("constants.error.generic");
+            getPlayer().sendGenericErrorMessage();
         }
         this.processIsUpdatable = true;
     }
@@ -826,14 +826,14 @@ public abstract class Creator extends ToolUser
 
                 if (result.structure().isEmpty())
                 {
-                    getPlayer().sendError("constants.error.generic");
+                    getPlayer().sendGenericErrorMessage();
                     log.atError().log("Failed to insert structure after creation!");
                 }
             })
             .orTimeout(30, TimeUnit.SECONDS)
             .handleExceptional(ex ->
             {
-                getPlayer().sendError("constants.error.generic");
+                getPlayer().sendGenericErrorMessage();
                 log.atError().withCause(ex).log("Failed to insert structure after creation!");
             });
     }

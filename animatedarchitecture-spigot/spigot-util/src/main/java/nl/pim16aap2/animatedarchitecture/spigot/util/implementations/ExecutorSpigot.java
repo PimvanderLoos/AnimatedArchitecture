@@ -4,6 +4,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import lombok.CustomLog;
+import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
@@ -18,6 +19,9 @@ import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -32,7 +36,11 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
     private final JavaPlugin plugin;
     private final long mainThreadId;
 
-    private volatile ExecutorService executor = newVirtualExecutorService();
+    @Getter
+    private volatile ExecutorService virtualExecutor = newVirtualExecutorService();
+
+    @Getter
+    private volatile ScheduledExecutorService scheduler = newSchedulerService();
 
     @Inject
     public ExecutorSpigot(
@@ -47,16 +55,10 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
     }
 
     @Override
-    public ExecutorService getVirtualExecutor()
-    {
-        return executor;
-    }
-
-    @Override
     public <T> CompletableFuture<T> scheduleOnMainThread(Supplier<T> supplier)
     {
         final CompletableFuture<T> result = new CompletableFuture<>();
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> result.complete(supplier.get()));
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> result.complete(loggedSupplier(supplier).get()));
         return result;
     }
 
@@ -69,17 +71,19 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
     @Override
     public <T> CompletableFuture<T> supplyAsync(Supplier<T> supplier)
     {
-        final CompletableFuture<T> result = new CompletableFuture<>();
-        //noinspection deprecation
-        Bukkit.getScheduler().scheduleAsyncDelayedTask(plugin, () -> result.complete(loggedSupplier(supplier).get()));
-        return result;
+        return CompletableFuture.supplyAsync(
+            loggedSupplier(supplier),
+            virtualExecutor
+        );
     }
 
     @Override
-    public int runAsync(Runnable runnable)
+    public CompletableFuture<Void> runAsync(Runnable runnable)
     {
-        //noinspection deprecation
-        return Bukkit.getScheduler().scheduleAsyncDelayedTask(plugin, safeRunnable(runnable), 0);
+        return CompletableFuture.runAsync(
+            safeRunnable(runnable),
+            virtualExecutor
+        );
     }
 
     @Override
@@ -94,23 +98,25 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
     }
 
     @Override
-    public int runAsyncRepeated(TimerTask timerTask, long delay, long period)
+    public ScheduledFuture<?> runAsyncRepeated(TimerTask timerTask, long delay, long period)
     {
-        // This is deprecated only because the name is supposedly confusing
-        // (one might read it as scheduling "a sync" task).
-        //noinspection deprecation
-        return Bukkit.getScheduler()
-            .scheduleAsyncRepeatingTask(plugin, safeTimerTask(timerTask), toTicks(delay), toTicks(period));
+        return scheduler.scheduleAtFixedRate(
+            safeTimerTask(timerTask),
+            delay,
+            period,
+            TimeUnit.MILLISECONDS
+        );
     }
 
     @Override
-    public int runAsyncRepeated(Runnable runnable, long delay, long period)
+    public ScheduledFuture<?> runAsyncRepeated(Runnable runnable, long delay, long period)
     {
-        // This is deprecated only because the name is supposedly confusing
-        // (one might read it as scheduling "a sync" task).
-        //noinspection deprecation
-        return Bukkit.getScheduler()
-            .scheduleAsyncRepeatingTask(plugin, safeRunnable(runnable), toTicks(delay), toTicks(period));
+        return scheduler.scheduleAtFixedRate(
+            safeRunnable(runnable),
+            delay,
+            period,
+            TimeUnit.MILLISECONDS
+        );
     }
 
     @Override
@@ -130,13 +136,19 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
     @Override
     public void runAsyncLater(TimerTask timerTask, long delay)
     {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, safeTimerTask(timerTask), toTicks(delay));
+        CompletableFuture.runAsync(
+            safeTimerTask(timerTask),
+            CompletableFuture.delayedExecutor(delay, TimeUnit.MILLISECONDS, virtualExecutor)
+        );
     }
 
     @Override
     public void runAsyncLater(Runnable runnable, long delay)
     {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, safeRunnable(runnable), toTicks(delay));
+        CompletableFuture.runAsync(
+            safeRunnable(runnable),
+            CompletableFuture.delayedExecutor(delay, TimeUnit.MILLISECONDS, virtualExecutor)
+        );
     }
 
     @Override
@@ -218,15 +230,14 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
     public void initialize()
     {
         // It is already initialized and running before the first call to this method.
-        if (!executor.isShutdown())
-            return;
-        executor = newVirtualExecutorService();
+        if (virtualExecutor.isShutdown())
+            virtualExecutor = newVirtualExecutorService();
+        if (scheduler.isShutdown())
+            scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
-    @Override
-    public void shutDown()
+    private void shutDownService(ExecutorService executor0)
     {
-        final var executor0 = executor;
         executor0.shutdown();
         try
         {
@@ -243,6 +254,13 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
         }
     }
 
+    @Override
+    public void shutDown()
+    {
+        shutDownService(virtualExecutor);
+        shutDownService(scheduler);
+    }
+
     /**
      * Instantiates a new virtual executor service.
      *
@@ -250,12 +268,29 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
      */
     private static ExecutorService newVirtualExecutorService()
     {
-        return Executors.newVirtualThreadPerTaskExecutor();
+        return Executors.newThreadPerTaskExecutor(
+            newThreadFactory("animated-architecture-")
+        );
+    }
+
+    private static ScheduledExecutorService newSchedulerService()
+    {
+        return Executors.newSingleThreadScheduledExecutor(
+            newThreadFactory("animated-architecture-scheduler-")
+        );
+    }
+
+    private static ThreadFactory newThreadFactory(String namePrefix)
+    {
+        return Thread.ofVirtual()
+            .name(namePrefix, 0)
+            .factory();
     }
 
     @Override
     public String getDebugInformation()
     {
-        return "General " + StringUtil.toString(executor);
+        return "Executor:  " + StringUtil.toString(virtualExecutor) + "\n" +
+            "Scheduler: " + StringUtil.toString(scheduler);
     }
 }

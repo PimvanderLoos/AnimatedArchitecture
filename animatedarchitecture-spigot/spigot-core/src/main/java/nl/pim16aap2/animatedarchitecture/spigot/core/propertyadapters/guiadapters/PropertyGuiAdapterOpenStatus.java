@@ -61,12 +61,14 @@ public final class PropertyGuiAdapterOpenStatus extends AbstractBooleanPropertyG
         return Boolean.TRUE.equals(getPropertyValue(request));
     }
 
+    @Override
     protected String getTitle(PropertyGuiRequest<Boolean> request)
     {
         return request.localizer().getMessage(TITLE_KEY);
     }
 
-    private List<String> getLore(boolean isOpen, PropertyGuiRequest<Boolean> request)
+    @Override
+    protected List<String> getLore(boolean isOpen, PropertyGuiRequest<Boolean> request)
     {
         final ILocalizer localizer = request.localizer();
 
@@ -86,7 +88,7 @@ public final class PropertyGuiAdapterOpenStatus extends AbstractBooleanPropertyG
 
     private ItemStack createItemStack(boolean isOpen, PropertyGuiRequest<Boolean> request)
     {
-        final Material material = isOpen ? MATERIAL_OPEN : MATERIAL_CLOSED;
+        final Material material = getMaterial(isOpen);
         final String title = getTitle(request);
         final List<String> lore = getLore(isOpen, request);
 
@@ -124,11 +126,10 @@ public final class PropertyGuiAdapterOpenStatus extends AbstractBooleanPropertyG
             .runWithRawResult(DEFAULT_COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             // Force a draw with dynamic fields update to ensure the correct
             // state is displayed in case the command did not change the status.
-            .thenRun(() ->
-                executor.runOnMainThread(() ->
-                    change.getGui()
-                        .draw(request.player().getBukkitPlayer(), true, false)))
-            .orTimeout(1, TimeUnit.SECONDS)
+            .thenRun(() -> executor.runOnMainThread(() ->
+                change.getGui()
+                    .draw(request.player().getBukkitPlayer(), true, false)))
+            .orTimeout(5, TimeUnit.SECONDS)
             .withExceptionContext(
                 "Player %s setting open status to %b for structure %s",
                 request.player(),
@@ -141,5 +142,11 @@ public final class PropertyGuiAdapterOpenStatus extends AbstractBooleanPropertyG
     protected boolean getState(PropertyGuiRequest<Boolean> request)
     {
         return isOpen(request);
+    }
+
+    @Override
+    protected Material getMaterial(boolean isOpen)
+    {
+        return isOpen ? MATERIAL_OPEN : MATERIAL_CLOSED;
     }
 }

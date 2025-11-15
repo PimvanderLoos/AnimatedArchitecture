@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -157,16 +158,9 @@ public final class Animator implements IAnimator
     private volatile @Nullable List<IAnimationHook> hooks;
 
     /**
-     * The task that moves the animated blocks.
-     * <p>
-     * This will be null until the animation starts (if it does, see {@link #skipAnimation}).
+     * The scheduled mover task.
      */
-    private volatile @Nullable TimerTask moverTask = null;
-
-    /**
-     * The ID of the {@link #moverTask}.
-     */
-    private volatile @Nullable Integer moverTaskID = null;
+    private volatile @Nullable ScheduledFuture<?> scheduledMoverTask = null;
 
     /**
      * The duration of the animation measured in ticks.
@@ -254,9 +248,11 @@ public final class Animator implements IAnimator
     private void abort(boolean blocking)
     {
         aborted = true;
-        final TimerTask moverTask0 = moverTask;
-        if (moverTask0 != null)
-            executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
+        final ScheduledFuture<?> scheduledMoverTask0 = scheduledMoverTask;
+        if (scheduledMoverTask0 != null)
+        {
+            scheduledMoverTask0.cancel(true);
+        }
         finishAnimation(blocking);
         forEachHook("onAnimationAborted", IAnimationHook::onAnimationAborted);
     }
@@ -435,13 +431,13 @@ public final class Animator implements IAnimator
 
         finishAnimation(false);
 
-        final TimerTask moverTask0 = moverTask;
-        if (moverTask0 == null)
+        final ScheduledFuture<?> scheduledMoverTask0 = scheduledMoverTask;
+        if (scheduledMoverTask0 == null)
         {
-            log.atWarn().log("MoverTask unexpectedly null for BlockMover:\n%s", this);
+            log.atWarn().log("Scheduled Mover Task unexpectedly null for BlockMover:\n%s", this);
             return;
         }
-        executor.cancel(moverTask0, Objects.requireNonNull(moverTaskID));
+        scheduledMoverTask0.cancel(false);
 
         if (animation != null)
         {
@@ -530,7 +526,7 @@ public final class Animator implements IAnimator
 
         final int stopCount = getStopCount();
 
-        final TimerTask moverTask0 = new TimerTask()
+        final TimerTask moverTask = new TimerTask()
         {
             private int counter = 0;
 
@@ -559,8 +555,7 @@ public final class Animator implements IAnimator
                 }
             }
         };
-        moverTask = moverTask0;
-        moverTaskID = executor.runAsyncRepeated(moverTask0, START_DELAY, this.serverTickTime);
+        scheduledMoverTask = executor.runAsyncRepeated(moverTask, START_DELAY, this.serverTickTime);
     }
 
     /**
@@ -610,7 +605,7 @@ public final class Animator implements IAnimator
         else
         {
             restoreBlocks
-                .thenRun(updateStructure)
+                .thenRunAsync(updateStructure, executor.getVirtualExecutor())
                 .handleExceptional(ex ->
                     log.atError().withCause(ex).log("Failed to finish animation! IsAborted: %b", isAborted));
         }

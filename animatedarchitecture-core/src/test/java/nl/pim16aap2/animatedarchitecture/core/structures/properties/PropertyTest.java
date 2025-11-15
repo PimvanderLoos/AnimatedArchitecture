@@ -1,6 +1,8 @@
 package nl.pim16aap2.animatedarchitecture.core.structures.properties;
 
+import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.util.reflection.ReflectionBuilder;
@@ -15,6 +17,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
@@ -378,7 +381,8 @@ class PropertyTest
             String.class,
             "defaultValue",
             0, 0,
-            List.of()
+            List.of(),
+            iLoc -> ""
         );
 
         // execute & verify
@@ -388,7 +392,8 @@ class PropertyTest
                 String.class,
                 "anotherDefaultValue",
                 0, 0,
-                List.of()
+                List.of(),
+                iLoc -> ""
             ))
             .withMessage(
                 "Cannot register property '%s' because a property with that key already exists: %s",
@@ -413,7 +418,8 @@ class PropertyTest
             "defaultValue",
             inputUserLevel,
             inputAdminLevel,
-            List.of(PropertyScope.REDSTONE)
+            List.of(PropertyScope.REDSTONE),
+            iLoc -> ""
         );
 
         // Verify
@@ -468,7 +474,8 @@ class PropertyTest
                 String.class,
                 "defaultValue",
                 0, 0,
-                List.of()
+                List.of(),
+                iLoc -> ""
             ))
             .withMessage("NamespacedKey must not be null!");
     }
@@ -487,7 +494,8 @@ class PropertyTest
                 null,
                 "defaultValue",
                 0, 0,
-                List.of()
+                List.of(),
+                iLoc -> ""
             ))
             .withMessage("Property type must not be null!");
     }
@@ -506,7 +514,8 @@ class PropertyTest
                 String.class,
                 null,
                 0, 0,
-                List.of()
+                List.of(),
+                iLoc -> ""
             ))
             .withMessage("Default Property value must not be null!");
     }
@@ -525,8 +534,61 @@ class PropertyTest
                 String.class,
                 "defaultValue",
                 0, 0,
-                null
+                null,
+                iLoc -> ""
             ));
+    }
+
+    @Test
+    void getTitle_shouldReturnCorrectTitleWhenSetFromKey()
+    {
+        // setup
+        final String titleKey = "gui.property.test_title_key.title";
+        final Property<?> property = newPropertyBuilder()
+            .withTitleKey(titleKey)
+            .build();
+
+        final ILocalizer localizer = UnitTestUtil.initLocalizer();
+
+        // execute
+        final String result = property.getTitle(localizer);
+
+        // verify
+        assertThat(result).isEqualTo(titleKey);
+    }
+
+    @Test
+    void getTitle_shouldReturnCorrectTitleWhenSetAsFunction()
+    {
+        // setup
+        final String titleKey = "gui.property.test_title_key.title";
+        final Property<?> property = newPropertyBuilder()
+            .withTitleFunction(iLoc -> titleKey)
+            .build();
+
+        final ILocalizer localizer = mock();
+
+        // execute
+        final String result = property.getTitle(localizer);
+
+        // verify
+        assertThat(result).isEqualTo(titleKey);
+        verifyNoInteractions(localizer);
+    }
+
+    @Test
+    void getTitle_shouldReturnNullWhenNoTitleSet()
+    {
+        // setup
+        final Property<?> property = newPropertyBuilder().build();
+        final ILocalizer localizer = mock();
+
+        // execute
+        final String result = property.getTitle(localizer);
+
+        // verify
+        assertThat(result).isNull();
+        verifyNoInteractions(localizer);
     }
 
     private static Property.PropertyBuilder<String> newPropertyBuilder()

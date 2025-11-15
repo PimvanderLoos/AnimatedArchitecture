@@ -8,12 +8,14 @@ import lombok.ToString;
 import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
+import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.RedstoneMode;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import nl.pim16aap2.util.LazyValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.Nullable;
@@ -21,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * Represents a property of a structure.
@@ -47,8 +50,9 @@ public final class Property<T> implements IKeyed
     public static final Property<Double> ANIMATION_SPEED_MULTIPLIER =
         builder("ANIMATION_SPEED_MULTIPLIER", Double.class)
             .withDefaultValue(1.0D)
-            // I am not sure if the animator currently uses this property.
-            .withoutUserOrAdminAccess()
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .withAdminAccessLevels(PropertyAccessLevel.ADD, PropertyAccessLevel.EDIT, PropertyAccessLevel.REMOVE)
+            .withTitleKey("property.animation_speed_multiplier.name")
             .build();
 
     /**
@@ -61,6 +65,7 @@ public final class Property<T> implements IKeyed
             .withAdminAccessLevels(PropertyAccessLevel.EDIT)
             // Changing the blocks to move may affect things like animation range.
             .withPropertyScopes(PropertyScope.ANIMATION)
+            .withTitleKey("property.blocks_to_move.name")
             .build();
 
     /**
@@ -76,6 +81,7 @@ public final class Property<T> implements IKeyed
                 PropertyScope.ANIMATION,
                 // Changing the open status may affect the current redstone action.
                 PropertyScope.REDSTONE)
+            .withTitleKey("property.open_status.name")
             .build();
 
     /**
@@ -88,6 +94,7 @@ public final class Property<T> implements IKeyed
             .withoutUserOrAdminAccess()
             // Changing the quarter circles may affect things like animation range.
             .withPropertyScopes(PropertyScope.ANIMATION)
+            .withTitleKey("property.quarter_circles.name")
             .build();
 
     /**
@@ -96,10 +103,11 @@ public final class Property<T> implements IKeyed
     public static final Property<RedstoneMode> REDSTONE_MODE =
         builder("REDSTONE_MODE", RedstoneMode.class)
             .withDefaultValue(RedstoneMode.DEFAULT)
-            // There are currently no implementations for the alternative redstone modes.
-            .withoutUserOrAdminAccess()
+            .withUserAccessLevels(PropertyAccessLevel.READ)
+            .withAdminAccessLevels(PropertyAccessLevel.ADD, PropertyAccessLevel.EDIT, PropertyAccessLevel.REMOVE)
             // Changing the redstone mode may affect the current redstone action.
             .withPropertyScopes(PropertyScope.REDSTONE)
+            .withTitleKey("property.redstone_mode.name")
             .build();
 
     /**
@@ -112,6 +120,7 @@ public final class Property<T> implements IKeyed
             .withAdminAccessLevels(PropertyAccessLevel.EDIT)
             // Changing the rotation point may affect things like animation range.
             .withPropertyScopes(PropertyScope.ANIMATION)
+            .withTitleKey("property.rotation_point.name")
             .build();
 
     /**
@@ -149,6 +158,11 @@ public final class Property<T> implements IKeyed
     private final int userAccessLevel;
 
     /**
+     * The function that generates the title for the property given a localizer.
+     */
+    private final @Nullable Function<ILocalizer, String> titleFunction;
+
+    /**
      * The level of access admins have to this property.
      * <p>
      * This is a bit flag whose values refer to the {@link PropertyAccessLevel} enum.
@@ -172,7 +186,9 @@ public final class Property<T> implements IKeyed
         T defaultValue,
         int userAccessLevel,
         int adminAccessLevel,
-        List<PropertyScope> scopes)
+        List<PropertyScope> scopes,
+        @Nullable Function<ILocalizer, String> titleFunction
+    )
     {
         this.namespacedKey = Util.requireNonNull(namespacedKey, "NamespacedKey");
         this.type = Util.requireNonNull(type, "Property type");
@@ -180,6 +196,7 @@ public final class Property<T> implements IKeyed
         this.propertyScopes = List.copyOf(scopes);
 
         this.userAccessLevel = userAccessLevel;
+        this.titleFunction = titleFunction;
         this.adminAccessLevel = userAccessLevel | adminAccessLevel;
 
         if (!type.isInstance(defaultValue))
@@ -202,6 +219,7 @@ public final class Property<T> implements IKeyed
      *     The type of the value of the property.
      * @return The property builder.
      */
+    @CheckReturnValue
     private static <U> PropertyBuilder<U> builder(String name, Class<U> type)
     {
         return builder(Constants.PLUGIN_NAME, name, type);
@@ -227,6 +245,7 @@ public final class Property<T> implements IKeyed
      *     The type of the value of the property.
      * @return The property builder.
      */
+    @CheckReturnValue
     public static <U> PropertyBuilder<U> builder(String owner, String name, Class<U> type)
     {
         return builder(new NamespacedKey(owner, name), type);
@@ -243,6 +262,7 @@ public final class Property<T> implements IKeyed
      *     The type of the value of the property.
      * @return The property builder.
      */
+    @CheckReturnValue
     public static <U> PropertyBuilder<U> builder(NamespacedKey namespacedKey, Class<U> type)
     {
         return new PropertyBuilder<>(namespacedKey, type);
@@ -253,6 +273,7 @@ public final class Property<T> implements IKeyed
      *
      * @return The debuggable registry of all registered properties.
      */
+    @CheckReturnValue
     public static IDebuggable getDebuggableRegistry()
     {
         return REGISTRY;
@@ -265,6 +286,7 @@ public final class Property<T> implements IKeyed
      *     The access level to check.
      * @return True if the user has the given access level.
      */
+    @CheckReturnValue
     public boolean userHasAccessLevel(PropertyAccessLevel propertyAccessLevel)
     {
         return PropertyAccessLevel.hasFlag(userAccessLevel, propertyAccessLevel);
@@ -277,6 +299,7 @@ public final class Property<T> implements IKeyed
      *     The access level to check.
      * @return True if the admin has the given access level.
      */
+    @CheckReturnValue
     public boolean adminHasAccessLevel(PropertyAccessLevel propertyAccessLevel)
     {
         return PropertyAccessLevel.hasFlag(adminAccessLevel, propertyAccessLevel);
@@ -298,6 +321,7 @@ public final class Property<T> implements IKeyed
      * @see #getAccessLevel(PermissionLevel)
      * @see PropertyAccessLevel#hasFlag(int, PropertyAccessLevel)
      */
+    @CheckReturnValue
     public boolean hasAccessLevel(PermissionLevel permissionLevel, PropertyAccessLevel propertyAccessLevel)
     {
         final int currentPropertyAccessLevel = getAccessLevel(permissionLevel);
@@ -386,6 +410,14 @@ public final class Property<T> implements IKeyed
         };
     }
 
+    @CheckReturnValue
+    public @Nullable String getTitle(ILocalizer localizer)
+    {
+        return this.titleFunction == null ?
+            null :
+            this.titleFunction.apply(localizer);
+    }
+
     /**
      * Represents a builder for a property.
      * <p>
@@ -408,6 +440,8 @@ public final class Property<T> implements IKeyed
 
         private @Nullable T defaultValue = null;
 
+        private Function<ILocalizer, String> titleFunction;
+
         private PropertyBuilder(NamespacedKey namespacedKey, Class<T> type)
         {
             this.namespacedKey = namespacedKey;
@@ -427,7 +461,8 @@ public final class Property<T> implements IKeyed
                 Util.requireNonNull(defaultValue, "Default Property value"),
                 userAccessLevel,
                 adminAccessLevel,
-                propertyScopes
+                propertyScopes,
+                titleFunction
             );
         }
 
@@ -544,6 +579,45 @@ public final class Property<T> implements IKeyed
             this.defaultValue = Util.requireNonNull(defaultValue, "Default Property value");
             return this;
         }
+
+        /**
+         * Sets the title function for the property.
+         * <p>
+         * The title function is used to generate the title of the property for communication to the user.
+         *
+         * @param titleFunction
+         *     The function that generates the title for the property given a localizer.
+         * @return This builder.
+         */
+        public PropertyBuilder<T> withTitleFunction(Function<ILocalizer, String> titleFunction)
+        {
+            this.titleFunction = titleFunction;
+            return this;
+        }
+
+        /**
+         * Sets the title function for the property using a localization key.
+         *
+         * @param titleKey
+         *     The localization key for the title.
+         * @return This builder.
+         */
+        public PropertyBuilder<T> withTitleKey(String titleKey)
+        {
+            return withTitleFunction(localizer -> localizer.getMessage(titleKey));
+        }
+    }
+
+    /**
+     * Gets all registered properties.
+     * <p>
+     * The returned collection is unmodifiable.
+     *
+     * @return A list of all registered properties.
+     */
+    public static List<Property<?>> getAllRegisteredProperties()
+    {
+        return REGISTRY.getAllProperties();
     }
 
     /**
@@ -558,6 +632,10 @@ public final class Property<T> implements IKeyed
          */
         private final Map<String, Property<?>> registeredProperties = new ConcurrentHashMap<>(10);
 
+        private final LazyValue<List<Property<?>>> cachedProperties = new LazyValue<>(
+            () -> List.copyOf(registeredProperties.values())
+        );
+
         /**
          * Gets the property with the given serialization name.
          *
@@ -568,6 +646,18 @@ public final class Property<T> implements IKeyed
         public @Nullable Property<?> fromName(String propertyKey)
         {
             return registeredProperties.get(propertyKey);
+        }
+
+        /**
+         * Gets all registered properties.
+         * <p>
+         * The returned collection is unmodifiable.
+         *
+         * @return A collection of all registered properties.
+         */
+        public List<Property<?>> getAllProperties()
+        {
+            return cachedProperties.get();
         }
 
         /**
@@ -594,6 +684,14 @@ public final class Property<T> implements IKeyed
                             value
                         ));
                     }
+                    // This is not entirely thread-safe, as race conditions may occur where one thread is registering a
+                    // property while another thread is reading the cached properties. That situation should be very
+                    // rare, though. Most properties are going to be registered during startup and given the fact that
+                    // external plugins may also register properties, it's unreliable to assume that all properties are
+                    // registered during startup anyway.
+                    // Therefore, we simply reset the cached properties here to ensure that the next time they are
+                    // requested, they are rebuilt.
+                    cachedProperties.reset();
                     return property;
                 });
         }

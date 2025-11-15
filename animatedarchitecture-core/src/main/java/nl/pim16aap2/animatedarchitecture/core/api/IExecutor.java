@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.core.api;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -121,7 +122,7 @@ public interface IExecutor
      *     The action to run.
      * @return The ID of the task.
      */
-    int runAsync(Runnable runnable);
+    CompletableFuture<Void> runAsync(Runnable runnable);
 
     /**
      * Schedules an action to be run on the main thread.
@@ -143,7 +144,7 @@ public interface IExecutor
      *     The time in milliseconds between successive task executions.
      * @return The ID of the task.
      */
-    int runAsyncRepeated(TimerTask timerTask, long delay, long period);
+    ScheduledFuture<?> runAsyncRepeated(TimerTask timerTask, long delay, long period);
 
     /**
      * Schedules a repeated {@link Runnable} to be run asynchronously.
@@ -156,7 +157,7 @@ public interface IExecutor
      *     The time in milliseconds between successive task executions.
      * @return The ID of the task.
      */
-    int runAsyncRepeated(Runnable runnable, long delay, long period);
+    ScheduledFuture<?> runAsyncRepeated(Runnable runnable, long delay, long period);
 
     /**
      * Schedules a repeated {@link TimerTask} to be run on the main thread.

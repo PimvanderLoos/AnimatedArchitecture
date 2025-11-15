@@ -55,6 +55,30 @@ public abstract class AbstractPropertyGuiAdapter<T>
     public abstract GuiElement createGuiElement(PropertyGuiRequest<T> request);
 
     /**
+     * Gets the material to use for removing the property.
+     * <p>
+     * This is the material that is used to represent this property in the overview GUI page that shows all properties
+     * that can be removed.
+     *
+     * @param request
+     *     The property GUI request containing context for creating the GUI element.
+     * @return The material.
+     */
+    public abstract Material getRemovingMaterial(PropertyGuiRequest<T> request);
+
+    /**
+     * Gets the material to use for adding the property.
+     * <p>
+     * This is the material that is used to represent this property in the overview GUI page that shows all properties
+     * that can be added.
+     *
+     * @param request
+     *     The property GUI request containing context for creating the GUI element.
+     * @return The material.
+     */
+    public abstract Material getAddingMaterial(PropertyGuiRequest<T> request);
+
+    /**
      * Creates an ItemStack with the given material, title, and lore.
      *
      * @param material

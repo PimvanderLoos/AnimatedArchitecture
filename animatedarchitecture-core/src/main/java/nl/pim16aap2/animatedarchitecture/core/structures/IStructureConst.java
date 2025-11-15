@@ -425,7 +425,8 @@ public interface IStructureConst extends IPropertyHolderConst
      */
     default PropertyContainerSnapshot getPropertiesForOwnerFilteredByAccessLevel(
         StructureOwner structureOwner,
-        PropertyAccessLevel propertyAccessLevel)
+        PropertyAccessLevel propertyAccessLevel
+    )
     {
         final PermissionLevel structurePermissionLevel = structureOwner.permission();
 
