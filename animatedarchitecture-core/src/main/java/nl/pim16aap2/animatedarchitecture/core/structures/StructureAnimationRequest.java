@@ -118,7 +118,7 @@ public class StructureAnimationRequest
         log.atDebug().log("Executing toggle request: %s", this);
         return structureRetriever
             .getStructure()
-            .thenCompose(this::execute)
+            .thenComposeAsync(this::execute, executor.getVirtualExecutor())
             .withExceptionContext(() -> "Execute structure animation request: " + this);
     }
 

@@ -2,8 +2,13 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapte
 
 import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiStateElement;
+import de.themoep.inventorygui.StaticGuiElement;
 import lombok.EqualsAndHashCode;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 /**
  * Abstract base class for boolean property adapters.
@@ -65,28 +70,69 @@ public abstract class AbstractBooleanPropertyGuiAdapter extends AbstractProperty
      */
     protected abstract boolean getState(PropertyGuiRequest<Boolean> request);
 
-//    /**
-//     * Creates a read-only GUI element for the boolean property.
-//     * <p>
-//     * This method is used when a viewer does not have permission to edit the property.
-//     *
-//     * @param request
-//     *     The property GUI request containing context for creating the GUI element.
-//     * @return The read-only GUI element.
-//     */
-//    protected final GuiElement createReadOnlyElement(PropertyGuiRequest<Boolean> request)
-//    {
-//        final ItemStack itemStack = createItemStack(request);
-//        return new StaticGuiElement(request.slotChar(), itemStack);
-//    }
+    /**
+     * Gets the material to use for the given state.
+     *
+     * @param state
+     *     The state of the boolean property.
+     * @return The material to use for the given state.
+     */
+    protected abstract Material getMaterial(boolean state);
+
+    /**
+     * Gets the material to use for the given state.
+     *
+     * @param request
+     *     The property GUI request containing context for creating the GUI element.
+     * @return The material to use for the given state.
+     */
+    protected Material getMaterial(PropertyGuiRequest<Boolean> request)
+    {
+        return getMaterial(getState(request));
+    }
+
+    @Override
+    public Material getRemovingMaterial(PropertyGuiRequest<Boolean> request)
+    {
+        return getMaterial(request);
+    }
+
+    @Override
+    public Material getAddingMaterial(PropertyGuiRequest<Boolean> request)
+    {
+        return getMaterial(request);
+    }
+
+    protected abstract String getTitle(PropertyGuiRequest<Boolean> request);
+
+    protected abstract List<String> getLore(boolean state, PropertyGuiRequest<Boolean> request);
+
+    /**
+     * Creates a read-only GUI element for the boolean property.
+     * <p>
+     * This method is used when a viewer does not have permission to edit the property.
+     *
+     * @param request
+     *     The property GUI request containing context for creating the GUI element.
+     * @return The read-only GUI element.
+     */
+    protected final GuiElement createReadOnlyElement(PropertyGuiRequest<Boolean> request)
+    {
+        final ItemStack itemStack = createItemStack(
+            getMaterial(getState(request)),
+            getTitle(request),
+            getLore(getState(request), request)
+        );
+        return new StaticGuiElement(request.slotChar(), itemStack);
+    }
 
     @Override
     public final GuiElement createGuiElement(PropertyGuiRequest<Boolean> request)
     {
-//        if (!canEdit(request.permissionLevel()))
-//        {
-//            return createReadOnlyElement(request);
-//        }
+        if (!canEdit(request.permissionLevel()))
+        {
+            return createReadOnlyElement(request);
+        }
 
         final GuiStateElement element = new GuiStateElement(
             request.slotChar(),

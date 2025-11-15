@@ -741,6 +741,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
         // regardless of the thread. We're just more lenient when it's async.
         final int timeOutMs = isMainThread ? 500 : 5_000;
 
+        final long startTime = System.nanoTime();
+        long acquireTime = 0;
+
         try
         {
             // If we're on the main thread, we try to obtain the write lock in a manner
@@ -750,6 +753,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
             if ((isMainThread && this.lock.writeLock().tryLock()) ||
                 this.lock.writeLock().tryLock(timeOutMs, TimeUnit.MILLISECONDS))
             {
+                acquireTime = System.nanoTime();
                 try
                 {
                     final T result = supplier.get();
@@ -782,6 +786,39 @@ public final class Structure implements IStructureConst, IPropertyHolder
             throw new IllegalStateException(
                 "Interrupted while trying to obtain write lock for structure: " + getUid(),
                 ex
+            );
+        }
+        finally
+        {
+            final long endTime = System.nanoTime();
+            logLockHeldStatistics(startTime, acquireTime, endTime, isMainThread);
+        }
+    }
+
+    private void logLockHeldStatistics(long startTime, long acquireTime, long endTime, boolean isMainThread)
+    {
+        if (acquireTime == 0)
+            return;
+
+        final long acquireDurationMs = TimeUnit.NANOSECONDS.toMillis(acquireTime - startTime);
+        if (isMainThread && acquireDurationMs > 100 || acquireDurationMs > 500)
+        {
+            log.atWarn().withStackTrace(StackSize.FULL).log(
+                "Took %d ms to obtain write lock for structure: %d %s",
+                acquireDurationMs,
+                getUid(),
+                isMainThread ? "(main thread)" : "(async)"
+            );
+        }
+
+        final long lockHeldDurationMs = TimeUnit.NANOSECONDS.toMillis(endTime - startTime);
+        if (lockHeldDurationMs > 100)
+        {
+            log.atWarn().withStackTrace(StackSize.FULL).log(
+                "Held write lock for %d ms for structure: %d %s",
+                lockHeldDurationMs,
+                getUid(),
+                isMainThread ? "(main thread)" : "(async)"
             );
         }
     }
@@ -1218,7 +1255,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
     {
         switch (scope)
         {
-            case REDSTONE -> verifyRedstoneState();
+            // We do not need a write lock for redstone verification, so schedule it without lock
+            // to release the write lock as soon as possible.
+            case REDSTONE -> executor.runAsync(this::verifyRedstoneState);
             case ANIMATION -> invalidateAnimationData();
             default -> throw new IllegalArgumentException("Unknown property scope: '" + scope + "'!");
         }

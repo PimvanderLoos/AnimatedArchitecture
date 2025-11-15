@@ -104,11 +104,16 @@ public class UnitTestUtil
     };
 
     public static final PersonalizedLocalizer DUMMY_PERSONALIZED_LOCALIZER =
-        new PersonalizedLocalizer(DUMMY_LOCALIZER, null);
+        new PersonalizedLocalizer(
+            DUMMY_LOCALIZER,
+            null
+        );
 
     private static final TextArgumentFactory DUMMY_TEXT_ARGUMENT_FACTORY =
-        new TextArgumentFactory(ITextComponentFactory.SimpleTextComponentFactory.INSTANCE,
-            DUMMY_PERSONALIZED_LOCALIZER);
+        new TextArgumentFactory(
+            ITextComponentFactory.SimpleTextComponentFactory.INSTANCE,
+            DUMMY_PERSONALIZED_LOCALIZER
+        );
 
     @VisibleForTesting
     static final Set<Method> SEND_MESSAGE_METHODS = Arrays
@@ -174,9 +179,14 @@ public class UnitTestUtil
         return new PersonalizedLocalizer(initLocalizer(), locale);
     }
 
+    /**
+     * Returns a dummy localizer spy that returns the key and arguments as a single string.
+     *
+     * @return The dummy localizer spy.
+     */
     public static ILocalizer initLocalizer()
     {
-        return DUMMY_LOCALIZER;
+        return spy(DUMMY_LOCALIZER);
     }
 
     /**

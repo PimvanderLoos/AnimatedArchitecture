@@ -340,7 +340,7 @@ public abstract class StructureTargetCommand extends BaseCommand
      */
     protected void handleDatabaseActionFail(Structure retrieverResult)
     {
-        getCommandSender().sendError("constants.error.generic");
+        getCommandSender().sendGenericErrorMessage();
     }
 
     /**

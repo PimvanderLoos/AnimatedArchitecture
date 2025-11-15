@@ -319,13 +319,13 @@ public abstract class ToolUser
         }
         catch (IllegalArgumentException e)
         {
-            getPlayer().sendError("constants.error.generic");
+            getPlayer().sendGenericErrorMessage();
             return CompletableFuture.failedFuture(new RuntimeException(
                 "Provided incompatible input '" + obj + "' for ToolUser '" + toMinimalString() + "'!", e));
         }
         catch (Exception e)
         {
-            getPlayer().sendError("constants.error.generic");
+            getPlayer().sendGenericErrorMessage();
             abort();
             return CompletableFuture.failedFuture(new RuntimeException(
                 "Failed to apply input '" + obj + "' to ToolUser '" + toMinimalString() + "'!", e));

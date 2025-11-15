@@ -91,7 +91,7 @@ public class PowerBlockRelocator extends ToolUser
         {
             log.atError().withStackTrace(StackSize.FULL).log(
                 "newLoc is null, which should not be possible at this point!");
-            getPlayer().sendError("constants.error.generic");
+            getPlayer().sendGenericErrorMessage();
         }
         else if (structure.getPowerBlock().equals(newLoc.getPosition()))
             getPlayer().sendError("tool_user.powerblock_relocator.error.location_unchanged");
@@ -104,7 +104,7 @@ public class PowerBlockRelocator extends ToolUser
                     getPlayer().sendSuccess("tool_user.powerblock_relocator.success"))
                 .handleExceptional(ex ->
                 {
-                    getPlayer().sendError("constants.error.generic");
+                    getPlayer().sendGenericErrorMessage();
                     log.atError().withCause(ex).log("Failed to sync structure data after powerblock relocation.");
                 });
         }

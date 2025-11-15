@@ -60,6 +60,17 @@ public interface IMessageable
     }
 
     /**
+     * Sends a generic error message to this messageable.
+     * <p>
+     * This is a shortcut for {@link #sendError(String, Text.ArgumentCreator...)} with the key
+     * {@code constants.error.generic}.
+     */
+    default void sendGenericErrorMessage()
+    {
+        sendError("constants.error.generic");
+    }
+
+    /**
      * Sends an error message to this messageable.
      * <p>
      * This is a shortcut for {@link #sendMessage(TextType, String, Text.ArgumentCreator...)} with the
