@@ -92,6 +92,19 @@ public final class StructureActivityManager extends Restartable
     }
 
     /**
+     * Checks whether there are active animators for the structure with the provided UID.
+     *
+     * @param uid
+     *     The UID of the structure to check.
+     * @return True if there are active animators for the structure with the provided UID.
+     */
+    public boolean isActive(long uid)
+    {
+        final RegisteredAnimatorEntry entry = animators.get(uid);
+        return entry != null && entry.size() > 0;
+    }
+
+    /**
      * Aborts an animator entry if it exists.
      *
      * @param entryRef
