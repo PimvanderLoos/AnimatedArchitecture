@@ -589,6 +589,15 @@ public final class Structure implements IStructureConst, IPropertyHolder
         }
         else if (openStatus.isSet())
         {
+            if (structureActivityManager.isActive(getUid()))
+            {
+                log.atTrace().log(
+                    "Aborted toggle attempt with %s redstone for structure: %s (animation in progress)",
+                    status,
+                    this
+                );
+                return;
+            }
             final boolean isOpen = Boolean.TRUE.equals(openStatus.value());
             if (status == IRedstoneManager.RedstoneStatus.POWERED && !isOpen)
             {
