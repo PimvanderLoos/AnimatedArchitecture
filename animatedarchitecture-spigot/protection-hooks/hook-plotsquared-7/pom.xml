@@ -16,7 +16,7 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <version.plotsquared>7.5.8</version.plotsquared>
+        <version.plotsquared>7.5.10</version.plotsquared>
     </properties>
 
     <repositories>
