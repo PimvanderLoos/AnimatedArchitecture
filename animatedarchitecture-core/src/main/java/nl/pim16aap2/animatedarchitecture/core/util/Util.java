@@ -32,7 +32,7 @@ public final class Util
     {
         for (final var blockFace : BlockFace.values())
         {
-            MovementDirection mappedMoveDir; //NOPMD - False positive: https://github.com/pmd/pmd/issues/5046
+            MovementDirection mappedMoveDir;
             try
             {
                 mappedMoveDir = MovementDirection.valueOf(blockFace.toString());
