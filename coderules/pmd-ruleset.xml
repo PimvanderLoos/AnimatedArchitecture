@@ -16,6 +16,8 @@
     <rule ref="category/java/bestpractices.xml/DefaultLabelNotLastInSwitch"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#doublebraceinitialization -->
     <rule ref="category/java/bestpractices.xml/DoubleBraceInitialization"/>
+    <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#enumcomparison -->
+    <rule ref="category/java/bestpractices.xml/EnumComparison"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#forloopvariablecount -->
     <rule ref="category/java/bestpractices.xml/ForLoopVariableCount"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#junit5testshouldbepackageprivate -->

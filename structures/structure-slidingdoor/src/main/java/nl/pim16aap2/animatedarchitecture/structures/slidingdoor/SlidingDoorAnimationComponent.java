@@ -37,11 +37,11 @@ public class SlidingDoorAnimationComponent implements IAnimationComponent
         this.blocksToMove = blocksToMove;
 
         int blocksToMove0 = Math.abs(blocksToMove);
-        if (movementDirection.equals(MovementDirection.NORTH) || movementDirection.equals(MovementDirection.WEST))
+        if (movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.WEST)
             blocksToMove0 = -blocksToMove0;
 
         northSouth =
-            movementDirection.equals(MovementDirection.NORTH) || movementDirection.equals(MovementDirection.SOUTH);
+            movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.SOUTH;
 
         moveX = northSouth ? 0 : blocksToMove0;
         moveZ = northSouth ? blocksToMove0 : 0;

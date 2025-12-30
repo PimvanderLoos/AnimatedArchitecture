@@ -110,25 +110,25 @@ public class SimpleBlockData implements IAnimatedBlockData
 
         while (realSteps-- > 0)
         {
-            if (dir.equals(MovementDirection.NORTH) || dir.equals(MovementDirection.SOUTH))
+            if (dir == MovementDirection.NORTH || dir == MovementDirection.SOUTH)
             {
-                if (currentAxis.equals(Axis.Z))
+                if (currentAxis == Axis.Z)
                     newAxis = Axis.Y;
-                else if (currentAxis.equals(Axis.Y))
+                else if (currentAxis == Axis.Y)
                     newAxis = Axis.Z;
             }
-            else if (dir.equals(MovementDirection.EAST) || dir.equals(MovementDirection.WEST))
+            else if (dir == MovementDirection.EAST || dir == MovementDirection.WEST)
             {
-                if (currentAxis.equals(Axis.X))
+                if (currentAxis == Axis.X)
                     newAxis = Axis.Y;
-                else if (currentAxis.equals(Axis.Y))
+                else if (currentAxis == Axis.Y)
                     newAxis = Axis.X;
             }
-            else if (dir.equals(MovementDirection.CLOCKWISE) || dir.equals(MovementDirection.COUNTERCLOCKWISE))
+            else if (dir == MovementDirection.CLOCKWISE || dir == MovementDirection.COUNTERCLOCKWISE)
             {
-                if (bd.getAxis().equals(Axis.X))
+                if (bd.getAxis() == Axis.X)
                     newAxis = Axis.Z;
-                else if (bd.getAxis().equals(Axis.Z))
+                else if (bd.getAxis() == Axis.Z)
                     newAxis = Axis.X;
             }
         }

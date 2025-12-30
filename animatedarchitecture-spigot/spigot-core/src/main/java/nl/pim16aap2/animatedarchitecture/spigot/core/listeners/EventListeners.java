@@ -220,8 +220,8 @@ public class EventListeners extends AbstractListener
         if (clickedInventory == null)
             return;
 
-        final boolean movingToOtherInventory = event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY);
-        final boolean clickedPlayerInventory = clickedInventory.getType().equals(InventoryType.PLAYER);
+        final boolean movingToOtherInventory = event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY;
+        final boolean clickedPlayerInventory = clickedInventory.getType() == InventoryType.PLAYER;
         // Allow moving the tool within the player's own inventory.
         if (!movingToOtherInventory && clickedPlayerInventory)
             return;

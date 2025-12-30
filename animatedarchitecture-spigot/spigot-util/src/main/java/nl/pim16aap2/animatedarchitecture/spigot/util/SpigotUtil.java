@@ -33,7 +33,7 @@ public final class SpigotUtil
         for (final BlockFace blockFace : BlockFace.values())
         {
             final org.bukkit.block.BlockFace mappedBlockFace;
-            if (blockFace.equals(BlockFace.NONE))
+            if (blockFace == BlockFace.NONE)
                 mappedBlockFace = org.bukkit.block.BlockFace.SELF;
             else
                 mappedBlockFace = org.bukkit.block.BlockFace.valueOf(blockFace.toString());

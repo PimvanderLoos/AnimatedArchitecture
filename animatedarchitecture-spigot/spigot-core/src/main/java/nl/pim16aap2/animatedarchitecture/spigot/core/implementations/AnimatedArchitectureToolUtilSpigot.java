@@ -101,7 +101,7 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
 
     public boolean isTool(@Nullable ItemStack item)
     {
-        if (item == null || !item.getType().equals(TOOL_MATERIAL))
+        if (item == null || item.getType() != TOOL_MATERIAL)
             return false;
 
         final ItemMeta itemMeta = item.getItemMeta();

@@ -264,8 +264,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
             if (has(player, amount))
                 return economy
                     .withdrawPlayer(player, worldName, amount)
-                    .type
-                    .equals(EconomyResponse.ResponseType.SUCCESS);
+                    .type == EconomyResponse.ResponseType.SUCCESS;
             return false;
         }
         catch (Exception e)
