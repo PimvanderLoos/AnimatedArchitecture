@@ -154,6 +154,8 @@
     <rule ref="category/java/errorprone.xml/CloneMethodMustImplementCloneable"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#clonemethodreturntypemustmatchclassname -->
     <rule ref="category/java/errorprone.xml/CloneMethodReturnTypeMustMatchClassName"/>
+    <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#compareobjectswithequals -->
+    <rule ref="category/java/errorprone.xml/CompareObjectsWithEquals"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#comparisonwithnan -->
     <rule ref="category/java/errorprone.xml/ComparisonWithNaN"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#confusingargumenttovarargsmethod-->

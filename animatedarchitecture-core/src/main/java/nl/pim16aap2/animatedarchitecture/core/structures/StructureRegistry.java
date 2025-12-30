@@ -130,7 +130,9 @@ public final class StructureRegistry implements IDebuggable, StructureDeletionMa
     public boolean isRegistered(Structure structure)
     {
         return structure.getUid() > 0 &&
-            structureCache.get(structure.getUid()).map(found -> found == structure).orElse(false);
+            structureCache.get(structure.getUid())
+                .map(found -> found == structure) //NOPMD - Intentional reference comparison
+                .orElse(false);
     }
 
     /**
