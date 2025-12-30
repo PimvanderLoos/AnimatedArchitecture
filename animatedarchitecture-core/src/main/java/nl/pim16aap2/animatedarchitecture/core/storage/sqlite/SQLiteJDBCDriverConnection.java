@@ -199,7 +199,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
      */
     private @Nullable Connection getConnection(DatabaseState state)
     {
-        if (!databaseState.equals(state))
+        if (databaseState != state)
         {
             log.atError().withStackTrace(StackSize.FULL).log(
                 "Database connection could not be created! " +

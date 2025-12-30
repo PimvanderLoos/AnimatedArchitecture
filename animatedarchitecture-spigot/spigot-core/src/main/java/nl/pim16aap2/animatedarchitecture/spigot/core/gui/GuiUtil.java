@@ -84,7 +84,7 @@ final class GuiUtil
             // We don't use the close thing anywhere anyway.
             gui.getCloseAction().onClose(null);
 
-            if (gui == guiPage)
+            if (gui == guiPage) //NOPMD - Intentional reference comparison
                 break;
         }
     }

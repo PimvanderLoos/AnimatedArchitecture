@@ -177,7 +177,7 @@ public final class ToolUserManager extends Restartable
             return;
         }
 
-        if (pair.toolUser != toolUser)
+        if (pair.toolUser != toolUser) //NOPMD - Intentional reference comparison
         {
             log.atError().withStackTrace(StackSize.FULL).log(
                 "Trying to start a tool user while another instance is already running! Aborting...");
@@ -236,7 +236,7 @@ public final class ToolUserManager extends Restartable
         {
             // Make sure we remove the specific ToolUser instance we want to remove, and not some other
             // ToolUser that might have been registered in the meantime.
-            if (entry.toolUser != toolUser)
+            if (entry.toolUser != toolUser) //NOPMD - Intentional reference comparison
                 return entry;
 
             removed.set(entry);

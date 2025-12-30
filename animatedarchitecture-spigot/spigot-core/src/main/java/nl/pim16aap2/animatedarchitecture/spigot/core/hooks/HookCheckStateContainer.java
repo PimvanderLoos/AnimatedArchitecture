@@ -502,7 +502,7 @@ final class HookCheckStateContainer
                 return HookPreCheckResult.ALLOW;
             }
 
-            HookPreCheckResult result; //NOPMD - False positive: https://github.com/pmd/pmd/issues/5046
+            HookPreCheckResult result;
             try
             {
                 result = hook.preCheck(player, world);

@@ -269,17 +269,23 @@ public enum BlockFace
      */
     public static BlockFace rotate(BlockFace blockFace, int steps, @Nullable UnaryOperator<BlockFace> rotationFunction)
     {
-        if (rotationFunction == null || blockFace.equals(BlockFace.NONE))
+        if (rotationFunction == null || blockFace == BlockFace.NONE)
+        {
             return blockFace;
+        }
 
         // Every 4 steps results in the same outcome.
         int realSteps = steps % 4;
         if (realSteps == 0)
+        {
             return blockFace;
+        }
 
         BlockFace newFace = blockFace;
         while (realSteps-- > 0)
+        {
             newFace = rotationFunction.apply(newFace);
+        }
         return newFace;
     }
 

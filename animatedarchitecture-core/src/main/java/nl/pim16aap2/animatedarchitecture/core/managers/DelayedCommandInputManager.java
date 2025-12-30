@@ -87,7 +87,11 @@ public class DelayedCommandInputManager implements IDebuggable
     {
         requests.computeIfPresent(
             commandSender,
-            (sender, request) -> request == delayedCommandInputRequest ? null : request);
+            (sender, request) ->
+                request == delayedCommandInputRequest ? //NOPMD - Intentional reference comparison
+                    null :
+                    request
+        );
     }
 
     /**

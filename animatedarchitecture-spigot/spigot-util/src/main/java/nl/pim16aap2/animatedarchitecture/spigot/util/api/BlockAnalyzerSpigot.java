@@ -106,7 +106,9 @@ public abstract class BlockAnalyzerSpigot implements IBlockAnalyzer<Material>, I
     @Override
     public boolean isAirOrLiquid(Material material)
     {
-        return material.isAir() || material.equals(Material.WATER) || material.equals(Material.LAVA);
+        return material.isAir() ||
+            material == Material.WATER ||
+            material == Material.LAVA;
     }
 
     @Override

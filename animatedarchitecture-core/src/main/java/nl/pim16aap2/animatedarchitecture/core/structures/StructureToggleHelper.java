@@ -146,25 +146,33 @@ final class StructureToggleHelper
         // not reset the busy status of this structure. However, in every other case it should, because the structure is
         // registered as busy before all the other checks take place.
         if (stamp != null)
+        {
             structureActivityManager.unregisterAnimation(structure.getUid(), stamp);
+        }
 
         if (messageReceiver instanceof IPlayer)
+        {
             messageReceiver.sendError(
                 result.getLocalizationKey(),
                 arg -> arg.localizedHighlight(structure.getType()),
                 arg -> arg.highlight(structure.getName())
             );
+        }
         else
         {
             final Level level = result == StructureToggleResult.BUSY ? Level.DEBUG : Level.INFO;
 
-            if (result.equals(StructureToggleResult.INSTANCE_UNREGISTERED))
+            if (result == StructureToggleResult.INSTANCE_UNREGISTERED)
+            {
                 log.at(level).withStackTrace(StackSize.FULL).log(
                     "Encountered unregistered structure structure: %d",
                     structure.getUid()
                 );
+            }
             else
+            {
                 log.at(level).log("Failed to toggle structure: %d, reason: %s", structure.getUid(), result.name());
+            }
         }
         return CompletableFuture.completedFuture(result);
     }
@@ -348,7 +356,7 @@ final class StructureToggleHelper
                 stamp
             );
 
-        final IPlayer responsiblePlayer = data.getCause().equals(StructureActionCause.PLAYER) ?
+        final IPlayer responsiblePlayer = data.getCause() == StructureActionCause.PLAYER ?
             data.getResponsible() :
             null;
 

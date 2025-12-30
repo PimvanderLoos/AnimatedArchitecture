@@ -71,8 +71,7 @@ final class LogAssertionsUtil
         final boolean isRelative = count < 0;
 
         if (isRelative)
-            // PMD False positive: https://github.com/pmd/pmd/issues/4910
-            builder.append("Most recent log messages with their offset:\n"); //NOPMD
+            builder.append("Most recent log messages with their offset:\n");
         else
             builder.append("Oldest log messages with their index:\n");
 

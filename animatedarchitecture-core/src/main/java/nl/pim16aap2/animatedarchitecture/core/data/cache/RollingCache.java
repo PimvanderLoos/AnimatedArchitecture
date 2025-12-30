@@ -163,7 +163,7 @@ public final class RollingCache<T> extends AbstractCollection<T> implements Iter
             return false;
 
         Collection<? extends T> add = cropCollection(limit, c);
-        if (c == this)
+        if (c == this) //NOPMD - Intentional reference comparison
             add = new ArrayList<>(add);
 
         for (final var val : add)

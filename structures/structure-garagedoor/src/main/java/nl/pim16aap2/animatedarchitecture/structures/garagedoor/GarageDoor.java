@@ -77,8 +77,8 @@ public class GarageDoor implements IStructureComponent
         final MovementDirection openDirection = structure.getOpenDirection();
 
         if (isNorthSouthAnimated(structure))
-            return openDirection.equals(MovementDirection.EAST) ? MovementDirection.WEST : MovementDirection.EAST;
-        return openDirection.equals(MovementDirection.NORTH) ? MovementDirection.SOUTH : MovementDirection.NORTH;
+            return openDirection == MovementDirection.EAST ? MovementDirection.WEST : MovementDirection.EAST;
+        return openDirection == MovementDirection.NORTH ? MovementDirection.SOUTH : MovementDirection.NORTH;
     }
 
     @Override

@@ -31,7 +31,7 @@ public class BigDoor implements IStructureComponent
     @Override
     public MovementDirection getCycledOpenDirection(IStructureConst structure)
     {
-        return structure.getOpenDirection().equals(MovementDirection.CLOCKWISE) ?
+        return structure.getOpenDirection() == MovementDirection.CLOCKWISE ?
             MovementDirection.COUNTERCLOCKWISE :
             MovementDirection.CLOCKWISE;
     }

@@ -670,7 +670,7 @@ public final class StructureActivityManager extends Restartable
             @Override
             public synchronized boolean remove(Animator animator)
             {
-                if (animator != this.animator)
+                if (animator != this.animator) //NOPMD - Intentional reference comparison
                 {
                     final String logStr = "Trying to remove animator %s while the entry actually contains animator %s";
                     if (animator.getAnimationType().requiresWriteAccess())

@@ -202,31 +202,34 @@ public class EventListeners extends AbstractListener
     {
         try
         {
-            final ItemStack currentItem = event.getCurrentItem();
-            if (currentItem == null || !animatedArchitectureToolUtil.isTool(currentItem))
-                return;
-
-            final Inventory clickedInventory = event.getClickedInventory();
-            if (clickedInventory == null)
-                return;
-
-            if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY) ||
-                !clickedInventory.getType().equals(InventoryType.PLAYER))
-            {
-                if (event.getWhoClicked() instanceof Player player)
-                {
-                    if (isToolUser(player))
-                        event.setCancelled(true);
-                    else
-                        event.getInventory().removeItem(currentItem);
-                }
-                event.setCancelled(true);
-            }
+            inventoryClickEvent0(event);
         }
         catch (Exception e)
         {
             log.atError().withCause(e).log("Encountered an error while handling an InventoryClickEvent");
         }
+    }
+
+    private void inventoryClickEvent0(InventoryClickEvent event)
+    {
+        final ItemStack currentItem = event.getCurrentItem();
+        if (currentItem == null || !animatedArchitectureToolUtil.isTool(currentItem))
+            return;
+
+        final Inventory clickedInventory = event.getClickedInventory();
+        if (clickedInventory == null)
+            return;
+
+        final boolean movingToOtherInventory = event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY;
+        final boolean clickedPlayerInventory = clickedInventory.getType() == InventoryType.PLAYER;
+        // Allow moving the tool within the player's own inventory.
+        if (!movingToOtherInventory && clickedPlayerInventory)
+            return;
+
+        event.setCancelled(true);
+
+        if (event.getWhoClicked() instanceof Player player && !isToolUser(player))
+            event.getInventory().removeItem(currentItem);
     }
 
     /**
