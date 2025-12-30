@@ -20,6 +20,8 @@
     <rule ref="category/java/bestpractices.xml/ForLoopVariableCount"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#junit5testshouldbepackageprivate -->
     <rule ref="category/java/bestpractices.xml/JUnit5TestShouldBePackagePrivate"/>
+    <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#labeledstatement -->
+    <rule ref="category/java/bestpractices.xml/LabeledStatement"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#unittestshouldincludeassert -->
     <rule ref="category/java/bestpractices.xml/UnitTestShouldIncludeAssert"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_bestpractices.html#methodreturnsinternalarray -->
@@ -179,6 +181,8 @@
     <rule ref="category/java/errorprone.xml/EqualsNull"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#idempotentoperations -->
     <rule ref="category/java/errorprone.xml/IdempotentOperations"/>
+    <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#identicalconditionalbranches -->
+    <rule ref="category/java/errorprone.xml/IdenticalConditionalBranches"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#instantiationtogetclass -->
     <rule ref="category/java/errorprone.xml/InstantiationToGetClass"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_errorprone.html#invalidlogmessageformat -->
