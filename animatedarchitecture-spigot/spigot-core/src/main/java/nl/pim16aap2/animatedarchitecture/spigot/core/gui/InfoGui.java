@@ -13,9 +13,8 @@ import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -35,10 +34,14 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Represents the info menu for a structure.
@@ -46,8 +49,8 @@ import java.util.Objects;
  * This contains all the options for a single structure.
  */
 @CustomLog
-@ToString(onlyExplicitlyIncluded = true)
-class InfoGui implements IGuiPage
+@ToString(onlyExplicitlyIncluded = true, callSuper = true)
+class InfoGui extends AbstractGuiPage<InfoGui>
 {
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
 
@@ -60,16 +63,11 @@ class InfoGui implements IGuiPage
             StructureAttribute.BLOCKS_TO_MOVE
         );
 
-    private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
-    private final ILocalizer localizer;
     private final AttributeButtonFactory attributeButtonFactory;
     private final PropertyGuiAdapterRegistry adapterRegistry;
     private final AddPropertyGui.IFactory addPropertyGuiFactory;
     private final DeletePropertyGui.IFactory deletePropertyGuiFactory;
     private final PermissionLevel permissionLevel;
-
-    @Getter
-    private final InventoryGui inventoryGui;
 
     @ToString.Include
     @Getter(AccessLevel.PACKAGE)
@@ -82,14 +80,13 @@ class InfoGui implements IGuiPage
     private final List<PropertyValuePair<?>> visibleProperties;
 
     @ToString.Include
-    private final List<Property<?>> addableProperties;
+    private final StructureOwner structureOwner;
 
     @ToString.Include
-    private final List<PropertyValuePair<?>> deletableProperties;
+    private volatile Set<Property<?>> addableProperties = Set.of();
 
-    @Getter
     @ToString.Include
-    private final WrappedPlayer inventoryHolder;
+    private volatile Set<PropertyValuePair<?>> removableProperties = Set.of();
 
     /**
      * Until we implement pagination for the properties, we do not show any properties at all if we cannot fit them all
@@ -104,23 +101,27 @@ class InfoGui implements IGuiPage
         @Assisted Structure structure,
         @Assisted WrappedPlayer inventoryHolder,
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
-        ILocalizer localizer,
+        IExecutor executor,
         IPermissionsManager permissionsManager,
         AttributeButtonFactory attributeButtonFactory,
         PropertyGuiAdapterRegistry adapterRegistry,
         AddPropertyGui.IFactory addPropertyGuiFactory,
-        DeletePropertyGui.IFactory deletePropertyGuiFactory)
+        DeletePropertyGui.IFactory deletePropertyGuiFactory
+    )
     {
-        this.animatedArchitecturePlugin = animatedArchitecturePlugin;
-        this.localizer = localizer;
+        super(
+            animatedArchitecturePlugin,
+            inventoryHolder,
+            executor
+        );
+
         this.attributeButtonFactory = attributeButtonFactory;
         this.adapterRegistry = adapterRegistry;
         this.addPropertyGuiFactory = addPropertyGuiFactory;
         this.deletePropertyGuiFactory = deletePropertyGuiFactory;
         this.structure = structure;
-        this.inventoryHolder = inventoryHolder;
 
-        final StructureOwner structureOwner = structure.getOwner(inventoryHolder).orElseGet(this::getDummyOwner);
+        this.structureOwner = structure.getOwner(inventoryHolder).orElseGet(this::getDummyOwner);
         this.permissionLevel = structureOwner.permission();
 
         this.allowedAttributes = analyzeAttributes(structureOwner, inventoryHolder, permissionsManager);
@@ -131,28 +132,17 @@ class InfoGui implements IGuiPage
             .sorted(Comparator.comparing(p -> p.property().getFullKey()))
             .toList();
 
-        this.addableProperties = findAddableProperties(structure, structureOwner);
-        this.deletableProperties = findDeletableProperties(structure, structureOwner);
+        this.refreshProperties();
 
         this.canFitProperties = canFitProperties(this.structure, this.visibleProperties);
-
-        this.inventoryGui = createGUI();
-
-        showGUI();
     }
 
-    private void showGUI()
-    {
-        inventoryGui.show(inventoryHolder.getBukkitPlayer());
-    }
-
-    private InventoryGui createGUI()
+    @Override
+    protected InventoryGui createGui()
     {
         final String[] guiRowDefinitions = createGuiRowDefinitions();
 
-        final InventoryGui gui = new InventoryGui(
-            animatedArchitecturePlugin,
-            inventoryHolder.getBukkitPlayer(),
+        final InventoryGui gui = newInventoryGui(
             localizer.getMessage("gui.info_page.title", structure.getNameAndUid()),
             guiRowDefinitions
         );
@@ -168,7 +158,7 @@ class InfoGui implements IGuiPage
         String header = String.format(
             "f %s h %s  ",
             addableProperties.isEmpty() ? " " : "a",
-            deletableProperties.isEmpty() ? " " : "d"
+            removableProperties.isEmpty() ? " " : "d"
         );
         final String[] baseRowDefinitions = GuiUtil.fillLinesWithChar('g', allowedAttributes.size(), header);
 
@@ -205,50 +195,6 @@ class InfoGui implements IGuiPage
             addElements(gui, 'i', visibleProperties, this::createPropertyElement);
     }
 
-    private void addAddPropertyButton(InventoryGui gui)
-    {
-        gui.addElement(new StaticGuiElement(
-            'a',
-            new ItemStack(Material.CHEST_MINECART),
-            click ->
-            {
-                addPropertyGuiFactory.newAddPropertyGui(
-                    structure,
-                    inventoryHolder,
-                    permissionLevel,
-                    addableProperties
-                );
-                return true;
-            },
-            localizer.getMessage(
-                "gui.info_page.add_property_button",
-                localizer.getMessage(structure.getType().getLocalizationKey())
-            )
-        ));
-    }
-
-    private void addRemovePropertyButton(InventoryGui gui)
-    {
-        gui.addElement(new StaticGuiElement(
-            'd',
-            new ItemStack(Material.TNT_MINECART),
-            click ->
-            {
-                deletePropertyGuiFactory.newDeletePropertyGui(
-                    structure,
-                    inventoryHolder,
-                    permissionLevel,
-                    deletableProperties
-                );
-                return true;
-            },
-            localizer.getMessage(
-                "gui.info_page.delete_property_button",
-                localizer.getMessage(structure.getType().getLocalizationKey())
-            )
-        ));
-    }
-
     private void addHeader(InventoryGui gui)
     {
         gui.addElement(new StaticGuiElement(
@@ -262,12 +208,54 @@ class InfoGui implements IGuiPage
 
         if (!addableProperties.isEmpty())
         {
-            addAddPropertyButton(gui);
+            gui.addElement(new StaticGuiElement(
+                'a',
+                new ItemStack(Material.CHEST_MINECART),
+                click ->
+                {
+                    GuiUtil.closeGuiPage(gui, inventoryHolder);
+                    addPropertyGuiFactory
+                        .newAddPropertyGui(
+                            structure,
+                            inventoryHolder,
+                            permissionLevel,
+                            Collections.unmodifiableSet(addableProperties),
+                            this::handlePotentialPropertiesChange
+                        )
+                        .createAndShowGui();
+                    return true;
+                },
+                localizer.getMessage(
+                    "gui.info_page.add_property_button",
+                    localizer.getMessage(structure.getType().getLocalizationKey())
+                )
+            ));
         }
 
-        if (!deletableProperties.isEmpty())
+        if (!removableProperties.isEmpty())
         {
-            addRemovePropertyButton(gui);
+            gui.addElement(new StaticGuiElement(
+                'd',
+                new ItemStack(Material.TNT_MINECART),
+                click ->
+                {
+                    GuiUtil.closeGuiPage(gui, inventoryHolder);
+                    deletePropertyGuiFactory
+                        .newDeletePropertyGui(
+                            structure,
+                            inventoryHolder,
+                            permissionLevel,
+                            removableProperties,
+                            this::handlePotentialPropertiesChange
+                        )
+                        .createAndShowGui();
+                    return true;
+                },
+                localizer.getMessage(
+                    "gui.info_page.delete_property_button",
+                    localizer.getMessage(structure.getType().getLocalizationKey())
+                )
+            ));
         }
 
         gui.addElement(new GuiBackElement(
@@ -290,7 +278,7 @@ class InfoGui implements IGuiPage
             GuiElement guiElement = mapper.create(slotChar, element);
             if (guiElement == null)
             {
-                guiElement = createErrorElement(slotChar, localizer, Objects.toString(element));
+                guiElement = createErrorElement(slotChar, Objects.toString(element));
             }
             group.addElement(guiElement);
         }
@@ -305,7 +293,6 @@ class InfoGui implements IGuiPage
 
     private @Nullable <T> GuiElement createPropertyElement(char slotChar, PropertyValuePair<T> propertyValuePair)
     {
-        log.atInfo().log("Adding property element for property: %s", propertyValuePair.property().getFullKey());
         final AbstractPropertyGuiAdapter<T> adapter = adapterRegistry.getGuiAdapter(propertyValuePair.property());
         if (adapter == null)
         {
@@ -336,6 +323,42 @@ class InfoGui implements IGuiPage
         );
     }
 
+    private void handlePotentialPropertiesChange(boolean changed)
+    {
+        if (!changed)
+        {
+            return;
+        }
+        refreshProperties();
+        redrawGui();
+    }
+
+    private void refreshProperties()
+    {
+        this.addableProperties = findAddableProperties(structureOwner);
+        this.removableProperties = findRemovableProperties(structureOwner);
+    }
+
+    private Set<Property<?>> findAddableProperties(StructureOwner structureOwner)
+    {
+        return Property.getAllRegisteredProperties()
+            .stream()
+            .filter(property ->
+                !structure.getPropertyContainerSnapshot().getPropertyValue(property).isSet() &&
+                    property.hasAccessLevel(structureOwner.permission(), PropertyAccessLevel.ADD)
+            )
+            .collect(Collectors.toCollection(ConcurrentHashMap::newKeySet));
+    }
+
+    private Set<PropertyValuePair<?>> findRemovableProperties(StructureOwner structureOwner)
+    {
+        return structure
+            .getPropertiesForOwnerFilteredByAccessLevel(structureOwner, PropertyAccessLevel.REMOVE)
+            .stream()
+            .filter(pair -> pair.value().isSet() && !pair.value().isRequired())
+            .collect(Collectors.toCollection(ConcurrentHashMap::newKeySet));
+    }
+
     static List<StructureAttribute> analyzeAttributes(
         StructureOwner structureOwner,
         WrappedPlayer player,
@@ -360,33 +383,6 @@ class InfoGui implements IGuiPage
             permissionsManager.hasBypassPermissionsForAttribute(player, attribute);
     }
 
-    private List<Property<?>> findAddableProperties(Structure structure, StructureOwner structureOwner)
-    {
-        return Property.getAllRegisteredProperties()
-            .stream()
-            .filter(property ->
-                property.hasAccessLevel(structureOwner.permission(), PropertyAccessLevel.ADD) &&
-                    !structure.hasProperty(property)
-            )
-            .sorted(Comparator.comparing(IKeyed::getFullKey))
-            .toList();
-    }
-
-    private List<PropertyValuePair<?>> findDeletableProperties(Structure structure, StructureOwner structureOwner)
-    {
-        return structure
-            .getPropertiesForOwnerFilteredByAccessLevel(structureOwner, PropertyAccessLevel.REMOVE)
-            .stream()
-            .filter(pair -> !pair.value().isRequired())
-            .sorted(Comparator.comparing(pair -> pair.property().getFullKey()))
-            .toList();
-    }
-
-    @Override
-    public String getPageName()
-    {
-        return "InfoGui";
-    }
 
     @FunctionalInterface
     private interface GuiElementMapper<T>

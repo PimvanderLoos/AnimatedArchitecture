@@ -9,17 +9,19 @@ import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import lombok.CustomLog;
-import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetrieverFactory;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
+import nl.pim16aap2.animatedarchitecture.core.util.Util;
+import nl.pim16aap2.animatedarchitecture.core.util.functional.BooleanConsumer;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
+import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PropertyGuiAdapterRegistry;
 import nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters.AbstractPropertyGuiAdapter;
 import nl.pim16aap2.animatedarchitecture.spigot.core.propertyadapters.guiadapters.PropertyGuiRequest;
@@ -27,75 +29,82 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlay
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.animatedarchitecture.core.util.Constants.DEFAULT_COMMAND_TIMEOUT_SECONDS;
 
+/**
+ * Represents a GUI page for adding a property to a structure.
+ * <p>
+ * This page displays a list of properties that can be added to the specified structure.
+ * <p>
+ * When a property is selected, it is added to the structure using the appropriate command with a default value.
+ */
 @CustomLog
-@ToString(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true, callSuper = true)
 @ExtensionMethod(CompletableFutureExtensions.class)
-class AddPropertyGui implements IGuiPage
+class AddPropertyGui extends AbstractGuiPage<AddPropertyGui>
 {
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
 
-    private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
-    private final ILocalizer localizer;
+    private static final char CH_PROPERTY = 'p';
+    private static final char CH_PREVIOUS_PAGE = 'f';
+
     private final PropertyGuiAdapterRegistry adapterRegistry;
     private final PermissionLevel permissionLevel;
-
-    @Getter
-    private final InventoryGui inventoryGui;
+    private final BooleanConsumer onCloseCallback;
 
     @ToString.Include
     private final Structure structure;
 
     @ToString.Include
-    private final List<Property<?>> addableProperties;
+    private final Set<Property<?>> addableProperties;
 
     private final StructureRetrieverFactory structureRetrieverFactory;
 
     private final CommandFactory commandFactory;
 
-    @Getter
     @ToString.Include
-    private final WrappedPlayer inventoryHolder;
+    private volatile boolean propertyAdded;
 
     @AssistedInject
     AddPropertyGui(
         @Assisted Structure structure,
         @Assisted WrappedPlayer inventoryHolder,
         @Assisted PermissionLevel permissionLevel,
-        @Assisted List<Property<?>> addableProperties,
+        @Assisted Set<Property<?>> addableProperties,
+        @Assisted BooleanConsumer onCloseCallback,
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
-        ILocalizer localizer,
+        IExecutor executor,
+        PlayerFactorySpigot playerFactory,
         PropertyGuiAdapterRegistry adapterRegistry,
         StructureRetrieverFactory structureRetrieverFactory,
         CommandFactory commandFactory
     )
     {
-        this.animatedArchitecturePlugin = animatedArchitecturePlugin;
-        this.localizer = localizer;
-        this.adapterRegistry = adapterRegistry;
+        super(
+            animatedArchitecturePlugin,
+            Util.requireNonNull(playerFactory.wrapPlayer(inventoryHolder), "InventoryHolder"),
+            executor
+        );
+
         this.structure = structure;
-        this.inventoryHolder = inventoryHolder;
         this.permissionLevel = permissionLevel;
         this.addableProperties = addableProperties;
+        this.onCloseCallback = onCloseCallback;
+
+        this.adapterRegistry = adapterRegistry;
         this.structureRetrieverFactory = structureRetrieverFactory;
         this.commandFactory = commandFactory;
-
-        this.inventoryGui = createGUI();
-        showGUI();
     }
 
-    private void showGUI()
+    @Override
+    protected InventoryGui createGui()
     {
-        inventoryGui.show(inventoryHolder.getBukkitPlayer());
-    }
-
-    private InventoryGui createGUI()
-    {
-        final String[] guiSetup = GuiUtil.fillLinesWithChar('p', addableProperties.size(), "f");
+        String headerSetup = String.valueOf(CH_PREVIOUS_PAGE);
+        final String[] guiSetup = GuiUtil.fillLinesWithChar(CH_PROPERTY, addableProperties.size(), headerSetup);
 
         final InventoryGui gui = new InventoryGui(
             animatedArchitecturePlugin,
@@ -117,43 +126,50 @@ class AddPropertyGui implements IGuiPage
 
     private void populateGUI(InventoryGui gui)
     {
-        final GuiElementGroup group = new GuiElementGroup('p');
-        for (final var adapter : addableProperties)
-        {
-            addPropertyGuiElement('p', group, adapter);
-        }
-        group.setFiller(FILLER);
-        gui.addElement(group);
+        addHeader(gui);
+        addGuiElements(gui);
+    }
 
+    private void addHeader(InventoryGui gui)
+    {
         gui.addElement(new GuiBackElement(
-            'f',
+            CH_PREVIOUS_PAGE,
             new ItemStack(Material.ARROW),
             localizer.getMessage("gui.add_property_page.back_button"))
         );
     }
 
-    private <T> void addPropertyGuiElement(char slotChar, GuiElementGroup group, Property<T> property)
+    private void addGuiElements(InventoryGui gui)
     {
-        final AbstractPropertyGuiAdapter<T> adapter = adapterRegistry.getGuiAdapter(property);
-        GuiElement guiElement;
-        if (adapter != null)
-        {
-            guiElement = createPropertyElement(slotChar, adapter);
-        }
-        else
-        {
-            log.atError().log("No GUI adapter found for property: %s", property.getNamespacedKey());
-            guiElement = createErrorElement(
-                slotChar,
-                localizer,
-                "No GUI adapter found for property: " + property
-            );
-        }
-        group.addElement(guiElement);
+        final GuiElementGroup group = new GuiElementGroup(CH_PROPERTY);
+
+        final var elements = GuiUtil.getGuiElementsSortedByTitle(
+            addableProperties,
+            property -> createNamedGuiElement(gui, CH_PROPERTY, property)
+        );
+        elements.forEach(group::addElement);
+
+        group.setFiller(FILLER);
+        gui.addElement(group);
     }
 
-    private <T> GuiElement createPropertyElement(char slotChar, AbstractPropertyGuiAdapter<T> adapter)
+    private <T> NamedGuiElement createNamedGuiElement(InventoryGui gui, char slotChar, Property<T> property)
     {
+        final String title = localizer.getMessage(
+            "gui.add_property_page.add_property_button",
+            property.getTitle(localizer)
+        );
+
+        final AbstractPropertyGuiAdapter<T> adapter = adapterRegistry.getGuiAdapter(property);
+        if (adapter == null)
+        {
+            log.atWarn().log(
+                "No GUI adapter registered for property '%s'!",
+                property.getFullKey()
+            );
+            return new NamedGuiElement(title, createErrorElement(slotChar, Objects.toString(property)));
+        }
+
         final var request = new PropertyGuiRequest<T>(
             structure,
             slotChar,
@@ -162,43 +178,59 @@ class AddPropertyGui implements IGuiPage
         );
 
         final Material material = adapter.getAddingMaterial(request);
-
-        return new StaticGuiElement(
-            slotChar,
-            new ItemStack(material),
-            click ->
-            {
-                commandFactory
-                    .newSetProperty(
-                        inventoryHolder,
-                        structureRetrieverFactory.of(structure),
-                        adapter.getProperty(),
-                        adapter.getProperty().getDefaultValue()
-                    ).runWithRawResult(DEFAULT_COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                    .handleExceptional(ex -> handleExceptional(
-                        ex,
-                        inventoryHolder,
-                        "adding property " + adapter.getProperty())
-                    );
-                return true;
-            },
-            localizer.getMessage(
-                "gui.add_property_page.add_property_button",
-                adapter.getProperty().getTitle(localizer))
+        return new NamedGuiElement(
+            title,
+            new StaticGuiElement(
+                slotChar,
+                new ItemStack(material),
+                getClickActionForProperty(gui, adapter),
+                title
+            )
         );
     }
 
-    @Override
-    public String getPageName()
+    private GuiElement.Action getClickActionForProperty(InventoryGui gui, AbstractPropertyGuiAdapter<?> adapter)
     {
-        return "AddPropertyGui";
+        return click ->
+        {
+            commandFactory
+                .newSetProperty(
+                    inventoryHolder,
+                    structureRetrieverFactory.of(structure),
+                    adapter.getProperty(),
+                    adapter.getProperty().getDefaultValue()
+                ).runWithRawResult(DEFAULT_COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .thenRun(() -> this.propertyAdded = true)
+                .thenRun(() -> GuiUtil.closeGuiPage(gui, inventoryHolder))
+                .handleExceptional(ex ->
+                    {
+                        inventoryHolder.sendGenericErrorMessage();
+                        log.atError().withCause(ex).log(
+                            "Failed to add property '%s' for player '%s' to structure '%s'.",
+                            adapter.getProperty(),
+                            inventoryHolder,
+                            structure.getBasicInfo()
+                        );
+                    }
+                );
+            return true;
+        };
     }
 
+    @Override
+    protected void onGuiClosed()
+    {
+        this.onCloseCallback.accept(this.propertyAdded);
+    }
+
+    /**
+     * The factory interface for creating {@link AddPropertyGui} pages.
+     */
     @AssistedFactory
     interface IFactory
     {
         /**
-         * Creates and opens a new {@link AddPropertyGui} for the given structure and player.
+         * Creates a new {@link AddPropertyGui} for the given structure and player.
          *
          * @param structure
          *     The structure to add properties to.
@@ -207,7 +239,11 @@ class AddPropertyGui implements IGuiPage
          * @param permissionLevel
          *     The permission level of the player for the structure.
          * @param addableProperties
-         *     The list of properties that can be added.
+         *     The properties that can be added.
+         * @param onCloseCallback
+         *     The callback to run when the GUI is closed.
+         *     <p>
+         *     The callback takes a boolean parameter indicating whether a property was added.
          * @return The created {@link AddPropertyGui} instance.
          */
         @SuppressWarnings("NullableProblems")
@@ -215,7 +251,8 @@ class AddPropertyGui implements IGuiPage
             Structure structure,
             WrappedPlayer inventoryHolder,
             PermissionLevel permissionLevel,
-            List<Property<?>> addableProperties
+            Set<Property<?>> addableProperties,
+            BooleanConsumer onCloseCallback
         );
     }
 }

@@ -1,11 +1,17 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.gui;
 
+import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.InventoryGui;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Deque;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for GUI-related operations.
@@ -14,26 +20,6 @@ import java.util.Deque;
 @UtilityClass
 public final class GuiUtil
 {
-    /**
-     * Creates a new CloseAction that unregisters a deletion listener from the structures-registry.
-     *
-     * @param manager
-     *     The StructureDeletion manager for the GUI to unregister from.
-     * @param listener
-     *     The listener to unregister.
-     * @return The CloseAction.
-     */
-    public static InventoryGui.CloseAction getDeletionListenerUnregisterCloseAction(
-        GuiStructureDeletionManager manager,
-        IGuiPage.IGuiStructureDeletionListener listener)
-    {
-        return close ->
-        {
-            manager.unregisterDeletionListener(listener);
-            return true;
-        };
-    }
-
     /**
      * Closes all {@link InventoryGui}s that are currently open for a player.
      *
@@ -49,10 +35,15 @@ public final class GuiUtil
             final InventoryGui gui = history.removeLast();
             gui.close(false);
 
-            // We don't use the close thing anywhere anyway.
             final var closeAction = gui.getCloseAction();
             if (closeAction != null)
-                closeAction.onClose(null);
+            {
+                closeAction.onClose(new InventoryGui.Close(
+                    player.getBukkitPlayer(),
+                    gui,
+                    null
+                ));
+            }
 
             finalGui = gui;
         }
@@ -155,5 +146,49 @@ public final class GuiUtil
             return new String(padding);
         }
         return headerLine;
+    }
+
+    /**
+     * Creates a list of GUI elements for the deletable properties, alphabetically sorted by their localized button
+     * titles.
+     *
+     * @param inputElements
+     *     The collection of elements to create GUI elements for.
+     * @param mapper
+     *     The mapper to create the GUI elements from the provided input elements.
+     * @param <T>
+     *     The type of the input elements.
+     * @return The sorted list of GUI elements.
+     */
+    public static <T> List<GuiElement> getGuiElementsSortedByTitle(
+        Collection<T> inputElements,
+        Function<T, NamedGuiElement> mapper
+    )
+    {
+        return inputElements.stream()
+            .map(mapper)
+            .sorted(Comparator.comparing(NamedGuiElement::name))
+            .map(NamedGuiElement::element)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * The mapper interface for creating named GUI elements.
+     *
+     * @param <T>
+     *     The type of the input element.
+     */
+    public interface NamedGuiElementMapper<T>
+    {
+        /**
+         * Creates a named GUI element for the given input element.
+         *
+         * @param slotChar
+         *     The slot character where the element will be placed.
+         * @param entry
+         *     The input element to create the GUI element for.
+         * @return The created named GUI element.
+         */
+        NamedGuiElement create(char slotChar, T entry);
     }
 }

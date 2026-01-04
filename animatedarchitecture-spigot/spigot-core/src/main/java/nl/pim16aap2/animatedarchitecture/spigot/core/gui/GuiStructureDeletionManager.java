@@ -31,14 +31,15 @@ import java.util.List;
 public class GuiStructureDeletionManager implements StructureDeletionManager.IDeletionListener, IDebuggable
 {
     @GuardedBy("this")
-    private final Deque<IGuiPage.IGuiStructureDeletionListener> listeners = new ArrayDeque<>();
+    private final Deque<AbstractGuiPage.IGuiStructureDeletionListener> listeners = new ArrayDeque<>();
     private final IExecutor executor;
 
     @Inject
     GuiStructureDeletionManager(
         StructureDeletionManager structureDeletionManager,
         IExecutor executor,
-        DebuggableRegistry debuggableRegistry)
+        DebuggableRegistry debuggableRegistry
+    )
     {
         this.executor = executor;
 
@@ -46,12 +47,12 @@ public class GuiStructureDeletionManager implements StructureDeletionManager.IDe
         debuggableRegistry.registerDebuggable(this);
     }
 
-    synchronized void registerDeletionListener(IGuiPage.IGuiStructureDeletionListener listener)
+    synchronized void registerDeletionListener(AbstractGuiPage.IGuiStructureDeletionListener listener)
     {
         listeners.addFirst(listener);
     }
 
-    synchronized void unregisterDeletionListener(IGuiPage.IGuiStructureDeletionListener listener)
+    synchronized void unregisterDeletionListener(AbstractGuiPage.IGuiStructureDeletionListener listener)
     {
         listeners.remove(listener);
     }
@@ -75,7 +76,7 @@ public class GuiStructureDeletionManager implements StructureDeletionManager.IDe
 
     private String formatListenersForDebug()
     {
-        final List<IGuiPage.IGuiStructureDeletionListener> copy;
+        final List<AbstractGuiPage.IGuiStructureDeletionListener> copy;
         synchronized (this)
         {
             if (listeners.isEmpty())
@@ -89,8 +90,12 @@ public class GuiStructureDeletionManager implements StructureDeletionManager.IDe
         return sb.toString();
     }
 
-    private String formatListenerForDebug(IGuiPage.IGuiStructureDeletionListener listener)
+    private String formatListenerForDebug(AbstractGuiPage.IGuiStructureDeletionListener listener)
     {
-        return String.format("Gui Page: '%s' for player %s", listener.getPageName(), listener.getInventoryHolder());
+        return String.format(
+            "Gui Page: '%s' for player %s",
+            listener.getClass().getName(),
+            listener.getInventoryHolderAsString()
+        );
     }
 }

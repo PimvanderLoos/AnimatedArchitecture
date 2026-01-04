@@ -136,7 +136,8 @@ public final class PropertyContainer implements IPropertyHolder, IPropertyContai
      */
     private <T> IPropertyValue<?> setPropertyValue0(
         Property<T> property,
-        @Nullable T value)
+        @Nullable T value
+    )
     {
         if (value == null)
             return removeProperty0(property);
