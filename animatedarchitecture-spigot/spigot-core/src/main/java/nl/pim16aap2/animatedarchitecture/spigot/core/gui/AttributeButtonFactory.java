@@ -40,7 +40,7 @@ class AttributeButtonFactory
     private final IExecutor executor;
     private final StructureRetrieverFactory structureRetrieverFactory;
     private final StructureAnimationRequestBuilder structureAnimationRequestBuilder;
-    private final DeleteGui.IFactory deleteGuiFactory;
+    private final ConfirmDeleteStructureGui.IFactory deleteStructureGuiFactory;
 
     @Inject
     AttributeButtonFactory(
@@ -48,13 +48,13 @@ class AttributeButtonFactory
         IExecutor executor,
         StructureRetrieverFactory structureRetrieverFactory,
         StructureAnimationRequestBuilder structureAnimationRequestBuilder,
-        DeleteGui.IFactory deleteGuiFactory)
+        ConfirmDeleteStructureGui.IFactory deleteStructureGuiFactory)
     {
         this.commandFactory = commandFactory;
         this.executor = executor;
         this.structureRetrieverFactory = structureRetrieverFactory;
         this.structureAnimationRequestBuilder = structureAnimationRequestBuilder;
-        this.deleteGuiFactory = deleteGuiFactory;
+        this.deleteStructureGuiFactory = deleteStructureGuiFactory;
     }
 
     private void lockButtonExecute(
@@ -200,7 +200,7 @@ class AttributeButtonFactory
             new ItemStack(Material.BARRIER),
             click ->
             {
-                deleteGuiFactory.newDeleteGui(structure, player);
+                deleteStructureGuiFactory.newDeleteStructureGui(structure, player);
                 return true;
             },
             localizer.getMessage(

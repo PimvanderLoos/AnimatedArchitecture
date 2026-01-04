@@ -23,7 +23,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Util;
 import nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin;
 import nl.pim16aap2.animatedarchitecture.spigot.core.config.IConfigSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.core.implementations.PlayerFactorySpigot;
-import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
@@ -39,27 +38,19 @@ import java.util.stream.Collectors;
  * <p>
  * This menu shows a paginated list of all structures that are currently owned by the player.
  */
-@ToString(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true, callSuper = true)
 @NotThreadSafe
 @CustomLog
 @ExtensionMethod(CompletableFutureExtensions.class)
-class MainGui implements IGuiPage.IGuiStructureDeletionListener
+class MainGui extends AbstractGuiPage<MainGui> implements AbstractGuiPage.IGuiStructureDeletionListener
 {
     private static final ItemStack FILLER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
 
-    private final AnimatedArchitecturePlugin animatedArchitecturePlugin;
     private final InfoGui.IFactory infoGuiFactory;
     private final CreateStructureGui.IFactory createStructureGuiFactory;
     private final GuiStructureDeletionManager deletionManager;
-    private final IExecutor executor;
     private final IConfigSpigot config;
     private final PersonalizedLocalizer localizer;
-
-    @Getter
-    @ToString.Include
-    private final WrappedPlayer inventoryHolder;
-
-    private InventoryGui inventoryGui;
 
     private @Nullable Structure selectedStructure;
 
@@ -70,31 +61,37 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
 
     @AssistedInject
     MainGui(
+        @Assisted IPlayer inventoryHolder,
+        @Assisted List<NamedStructure> structures,
         AnimatedArchitecturePlugin animatedArchitecturePlugin,
         InfoGui.IFactory infoGuiFactory,
         CreateStructureGui.IFactory createStructureGuiFactory,
         GuiStructureDeletionManager deletionManager,
         IExecutor executor,
         IConfigSpigot config,
-        PlayerFactorySpigot playerFactory,
-        @Assisted IPlayer inventoryHolder,
-        @Assisted List<NamedStructure> structures)
+        PlayerFactorySpigot playerFactory
+    )
     {
+        super(
+            animatedArchitecturePlugin,
+            Util.requireNonNull(playerFactory.wrapPlayer(inventoryHolder), "InventoryHolder"),
+            executor
+        );
+
         this.createStructureGuiFactory = createStructureGuiFactory;
         this.deletionManager = deletionManager;
-        this.executor = executor;
-        this.animatedArchitecturePlugin = animatedArchitecturePlugin;
         this.infoGuiFactory = infoGuiFactory;
         this.config = config;
-        this.inventoryHolder = Util.requireNonNull(playerFactory.wrapPlayer(inventoryHolder), "InventoryHolder");
         this.structures = getStructuresMap(structures);
         this.localizer = inventoryHolder.getPersonalizedLocalizer();
 
-        this.inventoryGui = createGUI();
-
-        showGUI();
-
         deletionManager.registerDeletionListener(this);
+    }
+
+    @Override
+    public String getInventoryHolderAsString()
+    {
+        return inventoryHolder.asString();
     }
 
     private static Long2ObjectMap<NamedStructure> getStructuresMap(List<NamedStructure> structures)
@@ -106,22 +103,15 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         return ret;
     }
 
-    private void showGUI()
-    {
-        inventoryGui.show(inventoryHolder.getBukkitPlayer());
-    }
-
-    private InventoryGui createGUI()
+    @Override
+    protected InventoryGui createGui()
     {
         final String[] guiSetup = GuiUtil.fillLinesWithChar('g', structures.size(), "fps h  nl");
 
-        final InventoryGui gui = new InventoryGui(
-            animatedArchitecturePlugin,
-            inventoryHolder.getBukkitPlayer(),
+        final InventoryGui gui = super.newInventoryGui(
             localizer.getMessage("gui.main_page.title"),
             guiSetup
         );
-        gui.setCloseAction(GuiUtil.getDeletionListenerUnregisterCloseAction(deletionManager, this));
         gui.setFiller(FILLER);
 
         populateGUI(gui);
@@ -135,6 +125,35 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         addHeader(gui);
     }
 
+    private InventoryGui getInfoGuiPage(InfoGui infoGui)
+    {
+        return infoGui.getGuiPage();
+    }
+
+    private boolean onStructureClick(NamedStructure structure)
+    {
+        selectedStructure = structure.structure();
+        final InfoGui infoGui = infoGuiFactory
+            .newInfoGUI(structure.structure(), inventoryHolder)
+            .createAndShowGui();
+
+        getInfoGuiPage(infoGui).setCloseAction(close ->
+        {
+            infoGui
+                .getStructure()
+                .syncData()
+                .orTimeout(10, TimeUnit.SECONDS)
+                .handleExceptional(e ->
+                {
+                    inventoryHolder.sendGenericErrorMessage();
+                    log.atError().withCause(e).log("Failed to sync structure data.");
+                });
+            this.selectedStructure = null;
+            return true;
+        });
+        return true;
+    }
+
     private void addElementGroup(InventoryGui gui)
     {
         final GuiElementGroup group = new GuiElementGroup('g');
@@ -143,26 +162,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
             final StaticGuiElement guiElement = new StaticGuiElement(
                 'e',
                 new ItemStack(config.guiMaterial(structure.structure().getType())),
-                click ->
-                {
-                    selectedStructure = structure.structure();
-                    final InfoGui infoGui = infoGuiFactory.newInfoGUI(structure.structure(), inventoryHolder);
-                    infoGui.getInventoryGui().setCloseAction(close ->
-                    {
-                        infoGui
-                            .getStructure()
-                            .syncData()
-                            .orTimeout(10, TimeUnit.SECONDS)
-                            .handleExceptional(e ->
-                            {
-                                inventoryHolder.sendError("constants.error.generic");
-                                log.atError().withCause(e).log("Failed to sync structure data.");
-                            });
-                        this.selectedStructure = null;
-                        return true;
-                    });
-                    return true;
-                },
+                click -> onStructureClick(structure),
                 structure.getNameAndUid()
             );
             group.addElement(guiElement);
@@ -234,18 +234,15 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         );
     }
 
-    /**
-     * Redraws the main GUI.
-     * <p>
-     * Note that any GUIs that are already open should be closed first.
-     */
-    private void redraw()
+    public void cleanup()
     {
-        executor.assertMainThread();
-        inventoryGui.setCloseAction(null);
-        GuiUtil.closeAllGuis(inventoryHolder);
-        inventoryGui = createGUI();
-        showGUI();
+        this.deletionManager.unregisterDeletionListener(this);
+    }
+
+    @Override
+    protected void onGuiClosed()
+    {
+        cleanup();
     }
 
     /**
@@ -282,7 +279,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         if (structures.remove(structure.getUid()) != null)
         {
             if (selectedStructure == null || selectedStructure.getUid() == structure.getUid())
-                this.redraw();
+                this.redrawGui();
 
             if (notify)
                 inventoryHolder.sendError(
@@ -290,12 +287,6 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                     arg -> arg.highlight(structure.getName())
                 );
         }
-    }
-
-    @Override
-    public String getPageName()
-    {
-        return "MainGui";
     }
 
     /**
@@ -419,6 +410,6 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
          *     The structures to show in the GUI.
          */
         @SuppressWarnings("NullableProblems")
-        MainGui newGUI(IPlayer inventoryHolder, List<NamedStructure> structures);
+        MainGui newMainGui(IPlayer inventoryHolder, List<NamedStructure> structures);
     }
 }

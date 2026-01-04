@@ -71,13 +71,13 @@ public abstract class AbstractStaticPropertyGuiAdapter<T> extends AbstractProper
     }
 
     @Override
-    public final Material getRemovingMaterial(PropertyGuiRequest<T> request)
+    public Material getRemovingMaterial(PropertyGuiRequest<T> request)
     {
         return material;
     }
 
     @Override
-    public final Material getAddingMaterial(PropertyGuiRequest<T> request)
+    public Material getAddingMaterial(PropertyGuiRequest<T> request)
     {
         return material;
     }

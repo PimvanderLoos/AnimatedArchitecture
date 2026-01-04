@@ -25,13 +25,13 @@ public final class PersonalizedLocalizer implements ILocalizer
      */
     @Override
     @Deprecated
-    public String getMessage(String key, @Nullable Locale clientLocale, Object... args)
+    public String getMessage(String key, @Nullable Locale clientLocale, @Nullable Object... args)
     {
         return localizer.getMessage(key, clientLocale, args);
     }
 
     @Override
-    public String getMessage(String key, Object... args)
+    public String getMessage(String key, @Nullable Object... args)
     {
         //noinspection deprecation
         return getMessage(key, locale, args);

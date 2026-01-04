@@ -126,6 +126,11 @@ public final class WrappedPlayer implements IPlayer
         return spigotPlayer.getName();
     }
 
+    public String asString()
+    {
+        return "Player{name='" + getName() + "', uuid=" + getUUID() + "}";
+    }
+
     @Override
     public void sendMessage(Text text)
     {

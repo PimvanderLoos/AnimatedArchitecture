@@ -11,7 +11,9 @@ import nl.pim16aap2.animatedarchitecture.core.structures.retriever.StructureRetr
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,18 +23,18 @@ import java.util.concurrent.TimeUnit;
 @ExtensionMethod(CompletableFutureExtensions.class)
 public class GuiFactory implements IGuiFactory
 {
-    private final MainGui.IFactory factory;
+    private final MainGui.IFactory mainGuiFactory;
     private final StructureRetrieverFactory structureRetrieverFactory;
     private final IExecutor executor;
 
     @Inject
     GuiFactory(
-        MainGui.IFactory factory,
+        MainGui.IFactory mainGuiFactory,
         StructureRetrieverFactory structureRetrieverFactory,
         IExecutor executor
     )
     {
-        this.factory = factory;
+        this.mainGuiFactory = mainGuiFactory;
         this.structureRetrieverFactory = structureRetrieverFactory;
         this.executor = executor;
     }
@@ -45,7 +47,7 @@ public class GuiFactory implements IGuiFactory
             .search(finalSource, "", StructureRetrieverFactory.StructureFinderMode.NEW_INSTANCE, PermissionLevel.USER)
             .getStructures()
             .thenApply(structures -> structures.parallelStream().map(MainGui.NamedStructure::new).toList())
-            .thenCompose(structures -> executor.runOnMainThread(() -> factory.newGUI(inventoryHolder, structures)))
+            .thenCompose(structures -> createAndOpenNewGui(inventoryHolder, structures))
             .orTimeout(5, TimeUnit.SECONDS)
             .handleExceptional(ex ->
             {
@@ -54,7 +56,16 @@ public class GuiFactory implements IGuiFactory
                     inventoryHolder,
                     finalSource
                 );
-                inventoryHolder.sendError("constants.error.generic");
+                inventoryHolder.sendGenericErrorMessage();
             });
+    }
+
+    private CompletableFuture<?> createAndOpenNewGui(IPlayer inventoryHolder, List<MainGui.NamedStructure> structures)
+    {
+        return executor.runOnMainThread(() ->
+            mainGuiFactory
+                .newMainGui(inventoryHolder, structures)
+                .createAndShowGui()
+        );
     }
 }

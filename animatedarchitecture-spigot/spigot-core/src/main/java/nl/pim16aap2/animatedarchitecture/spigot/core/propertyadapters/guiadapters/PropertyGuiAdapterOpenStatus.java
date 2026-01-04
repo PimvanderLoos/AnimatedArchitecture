@@ -86,6 +86,7 @@ public final class PropertyGuiAdapterOpenStatus extends AbstractBooleanPropertyG
             .toList();
     }
 
+
     private ItemStack createItemStack(boolean isOpen, PropertyGuiRequest<Boolean> request)
     {
         final Material material = getMaterial(isOpen);
