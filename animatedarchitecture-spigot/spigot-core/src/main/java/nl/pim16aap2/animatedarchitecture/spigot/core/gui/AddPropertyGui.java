@@ -170,7 +170,7 @@ class AddPropertyGui extends AbstractGuiPage<AddPropertyGui>
             return new NamedGuiElement(title, createErrorElement(slotChar, Objects.toString(property)));
         }
 
-        final var request = new PropertyGuiRequest<T>(
+        final var request = new PropertyGuiRequest(
             structure,
             slotChar,
             inventoryHolder,

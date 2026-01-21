@@ -56,19 +56,19 @@ public final class PropertyGuiAdapterOpenStatus extends AbstractBooleanPropertyG
         this.executor = executor;
     }
 
-    private boolean isOpen(PropertyGuiRequest<Boolean> request)
+    private boolean isOpen(PropertyGuiRequest request)
     {
         return Boolean.TRUE.equals(getPropertyValue(request));
     }
 
     @Override
-    protected String getTitle(PropertyGuiRequest<Boolean> request)
+    protected String getTitle(PropertyGuiRequest request)
     {
         return request.localizer().getMessage(TITLE_KEY);
     }
 
     @Override
-    protected List<String> getLore(boolean isOpen, PropertyGuiRequest<Boolean> request)
+    protected List<String> getLore(boolean isOpen, PropertyGuiRequest request)
     {
         final ILocalizer localizer = request.localizer();
 
@@ -87,7 +87,7 @@ public final class PropertyGuiAdapterOpenStatus extends AbstractBooleanPropertyG
     }
 
 
-    private ItemStack createItemStack(boolean isOpen, PropertyGuiRequest<Boolean> request)
+    private ItemStack createItemStack(boolean isOpen, PropertyGuiRequest request)
     {
         final Material material = getMaterial(isOpen);
         final String title = getTitle(request);
@@ -97,7 +97,7 @@ public final class PropertyGuiAdapterOpenStatus extends AbstractBooleanPropertyG
     }
 
     @Override
-    protected GuiStateElement.State getTrueState(String stateKey, PropertyGuiRequest<Boolean> request)
+    protected GuiStateElement.State getTrueState(String stateKey, PropertyGuiRequest request)
     {
         return new GuiStateElement.State(
             change -> isOpenButtonExecute(true, change, request),
@@ -107,7 +107,7 @@ public final class PropertyGuiAdapterOpenStatus extends AbstractBooleanPropertyG
     }
 
     @Override
-    protected GuiStateElement.State getFalseState(String stateKey, PropertyGuiRequest<Boolean> request)
+    protected GuiStateElement.State getFalseState(String stateKey, PropertyGuiRequest request)
     {
         return new GuiStateElement.State(
             change -> isOpenButtonExecute(false, change, request),
@@ -119,7 +119,7 @@ public final class PropertyGuiAdapterOpenStatus extends AbstractBooleanPropertyG
     private void isOpenButtonExecute(
         boolean newState,
         GuiElement.Click change,
-        PropertyGuiRequest<Boolean> request
+        PropertyGuiRequest request
     )
     {
         commandFactory
@@ -140,7 +140,7 @@ public final class PropertyGuiAdapterOpenStatus extends AbstractBooleanPropertyG
     }
 
     @Override
-    protected boolean getState(PropertyGuiRequest<Boolean> request)
+    protected boolean getState(PropertyGuiRequest request)
     {
         return isOpen(request);
     }

@@ -40,7 +40,7 @@ public abstract class AbstractPropertyGuiAdapter<T>
      *     The property GUI request containing context for creating the GUI element.
      * @return The current value of the property, or null if not set.
      */
-    protected @Nullable T getPropertyValue(PropertyGuiRequest<T> request)
+    protected @Nullable T getPropertyValue(PropertyGuiRequest request)
     {
         return request.structure().getPropertyValue(getProperty()).value();
     }
@@ -52,7 +52,7 @@ public abstract class AbstractPropertyGuiAdapter<T>
      *     The property GUI request containing context for creating the GUI element.
      * @return The GUI element.
      */
-    public abstract GuiElement createGuiElement(PropertyGuiRequest<T> request);
+    public abstract GuiElement createGuiElement(PropertyGuiRequest request);
 
     /**
      * Gets the material to use for removing the property.
@@ -64,7 +64,7 @@ public abstract class AbstractPropertyGuiAdapter<T>
      *     The property GUI request containing context for creating the GUI element.
      * @return The material.
      */
-    public abstract Material getRemovingMaterial(PropertyGuiRequest<T> request);
+    public abstract Material getRemovingMaterial(PropertyGuiRequest request);
 
     /**
      * Gets the material to use for adding the property.
@@ -76,7 +76,7 @@ public abstract class AbstractPropertyGuiAdapter<T>
      *     The property GUI request containing context for creating the GUI element.
      * @return The material.
      */
-    public abstract Material getAddingMaterial(PropertyGuiRequest<T> request);
+    public abstract Material getAddingMaterial(PropertyGuiRequest request);
 
     /**
      * Creates an ItemStack with the given material, title, and lore.
@@ -113,7 +113,7 @@ public abstract class AbstractPropertyGuiAdapter<T>
      *     The property GUI request containing context for creating the GUI element.
      * @return The display name.
      */
-    protected abstract String getTitle(PropertyGuiRequest<T> request);
+    protected abstract String getTitle(PropertyGuiRequest request);
 
     /**
      * Determines if the property can be edited based on the given permission level.

@@ -71,13 +71,13 @@ public abstract class AbstractStaticPropertyGuiAdapter<T> extends AbstractProper
     }
 
     @Override
-    public Material getRemovingMaterial(PropertyGuiRequest<T> request)
+    public Material getRemovingMaterial(PropertyGuiRequest request)
     {
         return material;
     }
 
     @Override
-    public Material getAddingMaterial(PropertyGuiRequest<T> request)
+    public Material getAddingMaterial(PropertyGuiRequest request)
     {
         return material;
     }
@@ -94,7 +94,7 @@ public abstract class AbstractStaticPropertyGuiAdapter<T> extends AbstractProper
      * @return The action to perform, or null if no action should be performed.
      */
     protected GuiElement.@Nullable Action getAction(
-        PropertyGuiRequest<T> request,
+        PropertyGuiRequest request,
         StaticGuiElement element
     )
     {
@@ -102,7 +102,7 @@ public abstract class AbstractStaticPropertyGuiAdapter<T> extends AbstractProper
     }
 
     @Override
-    public final GuiElement createGuiElement(PropertyGuiRequest<T> request)
+    public final GuiElement createGuiElement(PropertyGuiRequest request)
     {
         final String title = getTitle(request);
         final List<String> lore = getLore(request);
@@ -117,13 +117,13 @@ public abstract class AbstractStaticPropertyGuiAdapter<T> extends AbstractProper
     }
 
     @Override
-    protected String getTitle(PropertyGuiRequest<T> request)
+    protected String getTitle(PropertyGuiRequest request)
     {
         return request.localizer()
             .getMessage(titleKey, String.valueOf(getPropertyValue(request)));
     }
 
-    protected List<String> getLore(PropertyGuiRequest<T> request)
+    protected List<String> getLore(PropertyGuiRequest request)
     {
         final String loreKey = canEdit(request.permissionLevel())
             ? loreEditableKey

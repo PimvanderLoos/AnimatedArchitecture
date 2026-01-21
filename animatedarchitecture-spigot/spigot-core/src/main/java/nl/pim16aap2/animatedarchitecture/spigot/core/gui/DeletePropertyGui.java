@@ -156,7 +156,7 @@ class DeletePropertyGui extends AbstractGuiPage<DeletePropertyGui>
             return new NamedGuiElement(title, createErrorElement(slotChar, Objects.toString(propertyValuePair)));
         }
 
-        final var request = new PropertyGuiRequest<T>(
+        final var request = new PropertyGuiRequest(
             structure,
             slotChar,
             inventoryHolder,

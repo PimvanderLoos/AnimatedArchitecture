@@ -171,24 +171,4 @@ public final class GuiUtil
             .map(NamedGuiElement::element)
             .collect(Collectors.toList());
     }
-
-    /**
-     * The mapper interface for creating named GUI elements.
-     *
-     * @param <T>
-     *     The type of the input element.
-     */
-    public interface NamedGuiElementMapper<T>
-    {
-        /**
-         * Creates a named GUI element for the given input element.
-         *
-         * @param slotChar
-         *     The slot character where the element will be placed.
-         * @param entry
-         *     The input element to create the GUI element for.
-         * @return The created named GUI element.
-         */
-        NamedGuiElement create(char slotChar, T entry);
-    }
 }
