@@ -277,9 +277,13 @@ public class UnitTestUtil
     /**
      * Creates a new {@link StructureBuilder} and accompanying Structure factory mocker.
      *
+     * @param parameters
+     *     The parameters to use for the assisted factory mocker.
+     *     <p>
+     *     See {@link AssistedFactoryMocker#injectParameter(Class, Object)}.
      * @return The result of the creation.
      */
-    public static StructureBuilderResult newStructureBuilder()
+    public static StructureBuilderResult newStructureBuilder(AssistedFactoryMockerParameter<?>... parameters)
         throws ClassNotFoundException,
                IllegalAccessException,
                InstantiationException,
@@ -290,6 +294,11 @@ public class UnitTestUtil
 
         final AssistedFactoryMocker<?, ?> assistedFactoryMocker =
             new AssistedFactoryMocker<>(Structure.class, classStructureFactory);
+
+        for (final AssistedFactoryMockerParameter<?> parameter : parameters)
+        {
+            parameter.injectIn(assistedFactoryMocker);
+        }
 
         final Constructor<?> ctorStructureBuilder =
             StructureBuilder.class.getDeclaredConstructor(classStructureFactory);
@@ -302,9 +311,18 @@ public class UnitTestUtil
         return new StructureBuilderResult(builder, assistedFactoryMocker);
     }
 
+    public record AssistedFactoryMockerParameter<T>(
+        Class<T> clz,
+        T obj
+    )
+    {
+        void injectIn(AssistedFactoryMocker<?, ?> assistedFactoryMocker)
+        {
+            assistedFactoryMocker.injectParameter(clz, obj);
+        }
+    }
+
     /**
-     * Shortcut for {@link #newStructureBuilder()}.
-     *
      * @param structure
      *     The structure to set the property container in.
      * @param properties
