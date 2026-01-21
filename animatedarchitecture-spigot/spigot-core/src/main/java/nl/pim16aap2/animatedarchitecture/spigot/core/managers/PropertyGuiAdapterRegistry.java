@@ -36,7 +36,7 @@ public final class PropertyGuiAdapterRegistry implements IDebuggable
      */
     public void registerGuiAdapters(AbstractPropertyGuiAdapter<?>... adapters)
     {
-        for (AbstractPropertyGuiAdapter<?> adapter : adapters)
+        for (final AbstractPropertyGuiAdapter<?> adapter : adapters)
         {
             registerGuiAdapter(adapter);
         }

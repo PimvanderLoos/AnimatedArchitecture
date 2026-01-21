@@ -155,7 +155,7 @@ class InfoGui extends AbstractGuiPage<InfoGui>
 
     private String[] createGuiRowDefinitions()
     {
-        String header = String.format(
+        final String header = String.format(
             "f %s h %s  ",
             addableProperties.isEmpty() ? " " : "a",
             removableProperties.isEmpty() ? " " : "d"

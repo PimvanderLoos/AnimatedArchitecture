@@ -407,7 +407,11 @@ final class StructureToggleHelper
             return CompletableFuture.completedFuture(StructureToggleResult.ERROR);
         }
 
-        executor.runAsync(() -> callToggleStartEvent(targetStructure, data));
+        executor.runAsync(() -> callToggleStartEvent(targetStructure, data))
+            .handleExceptional(ex -> log.atWarn().withCause(ex).log(
+                "Failed to call toggle start event for structure %d",
+                targetStructure.getUid()
+            ));
 
         return CompletableFuture.completedFuture(StructureToggleResult.SUCCESS);
     }

@@ -253,12 +253,31 @@ public class SetProperty extends StructureTargetCommand
          *     See {@link Property#getType()} for the expected type. This may be null.
          * @return The created {@link SetProperty} instance.
          */
-        @SuppressWarnings("NullableProblems")
         SetProperty newSetProperty(
             ICommandSender commandSender,
             StructureRetriever structureRetriever,
             Property<?> property,
             @Nullable Object newValue
         );
+
+        /**
+         * Creates a new {@link SetProperty} instance with no new value (i.e., to remove the property).
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} that executed the command.
+         * @param structureRetriever
+         *     The {@link StructureRetriever} that retrieved the structure.
+         * @param property
+         *     The property whose value to set.
+         * @return The created {@link SetProperty} instance.
+         */
+        default SetProperty newSetProperty(
+            ICommandSender commandSender,
+            StructureRetriever structureRetriever,
+            Property<?> property
+        )
+        {
+            return newSetProperty(commandSender, structureRetriever, property, null);
+        }
     }
 }

@@ -103,6 +103,7 @@ public abstract class AbstractBooleanPropertyGuiAdapter extends AbstractProperty
         return getMaterial(request);
     }
 
+    @Override
     protected abstract String getTitle(PropertyGuiRequest<Boolean> request);
 
     protected abstract List<String> getLore(boolean state, PropertyGuiRequest<Boolean> request);

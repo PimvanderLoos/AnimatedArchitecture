@@ -83,8 +83,7 @@ class ConfirmDeletePropertyGui extends AbstractConfirmDeleteGui<Property<?>, Con
         commandFactory.newSetProperty(
             inventoryHolder,
             structureRetrieverFactory.of(structure),
-            getProperty(),
-            null
+            getProperty()
         );
         onDeleteExecuted.run();
     }

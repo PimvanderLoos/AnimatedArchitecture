@@ -4,9 +4,11 @@ import com.google.common.flogger.StackSize;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventCaller;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -15,6 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 @Singleton
 @CustomLog
+@ExtensionMethod(CompletableFutureExtensions.class)
 public class AnimatedArchitectureEventCallerSpigot implements IAnimatedArchitectureEventCaller
 {
     private final IExecutor executor;
@@ -51,14 +54,20 @@ public class AnimatedArchitectureEventCallerSpigot implements IAnimatedArchitect
         // Async events can only be called asynchronously and Sync events can only be called from the main thread.
         final boolean isMainThread = executor.isMainThread();
         if (isMainThread && animatedArchitectureEvent.isAsynchronous())
-            executor.runAsync(
-                () -> Bukkit.getPluginManager().callEvent(animatedArchitectureSpigotEvent)
-            );
+        {
+            executor.runAsync(() -> Bukkit.getPluginManager().callEvent(animatedArchitectureSpigotEvent))
+                .handleExceptional(ex -> log.atError().withCause(ex).log(
+                    "Failed to call async event %s",
+                    animatedArchitectureEvent
+                ));
+        }
         else if (!isMainThread && !animatedArchitectureEvent.isAsynchronous())
-            executor.runSync(
-                () -> Bukkit.getPluginManager().callEvent(animatedArchitectureSpigotEvent)
-            );
+        {
+            executor.runSync(() -> Bukkit.getPluginManager().callEvent(animatedArchitectureSpigotEvent));
+        }
         else
+        {
             Bukkit.getPluginManager().callEvent(animatedArchitectureSpigotEvent);
+        }
     }
 }

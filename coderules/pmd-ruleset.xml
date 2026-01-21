@@ -84,8 +84,6 @@
     <rule ref="category/java/codestyle.xml/LocalVariableCouldBeFinal"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#nopackage -->
     <rule ref="category/java/codestyle.xml/NoPackage"/>
-    <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#typeparameternamingconventions -->
-    <rule ref="category/java/codestyle.xml/TypeParameterNamingConventions"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#unnecessarycast -->
     <rule ref="category/java/codestyle.xml/UnnecessaryCast"/>
     <!-- https://pmd.github.io/pmd/pmd_rules_java_codestyle.html#unnecessaryconstructor -->
