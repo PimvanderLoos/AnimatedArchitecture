@@ -69,6 +69,7 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
     }
 
     @Override
+    @SuppressWarnings("FutureReturnValueIgnored") // Technically we do handle the exceptions. Fully fixed in #1217
     public <T> CompletableFuture<T> supplyAsync(Supplier<T> supplier)
     {
         return CompletableFuture.supplyAsync(
@@ -78,6 +79,7 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
     }
 
     @Override
+    @SuppressWarnings("FutureReturnValueIgnored") // Technically we do handle the exceptions. Fully fixed in #1217
     public CompletableFuture<Void> runAsync(Runnable runnable)
     {
         return CompletableFuture.runAsync(
@@ -134,6 +136,7 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
     }
 
     @Override
+    @SuppressWarnings("FutureReturnValueIgnored") // Technically we do handle the exceptions. Fully fixed in #1217
     public void runAsyncLater(TimerTask timerTask, long delay)
     {
         CompletableFuture.runAsync(
@@ -143,6 +146,7 @@ public final class ExecutorSpigot implements IExecutor, IRestartable, IDebuggabl
     }
 
     @Override
+    @SuppressWarnings("FutureReturnValueIgnored") // Technically we do handle the exceptions. Fully fixed in #1217
     public void runAsyncLater(Runnable runnable, long delay)
     {
         CompletableFuture.runAsync(

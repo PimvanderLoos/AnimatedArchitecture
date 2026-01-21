@@ -15,7 +15,6 @@ import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.localization.PersonalizedLocalizer;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
@@ -50,7 +49,6 @@ class MainGui extends AbstractGuiPage<MainGui> implements AbstractGuiPage.IGuiSt
     private final CreateStructureGui.IFactory createStructureGuiFactory;
     private final GuiStructureDeletionManager deletionManager;
     private final IConfigSpigot config;
-    private final PersonalizedLocalizer localizer;
 
     private @Nullable Structure selectedStructure;
 
@@ -83,7 +81,6 @@ class MainGui extends AbstractGuiPage<MainGui> implements AbstractGuiPage.IGuiSt
         this.infoGuiFactory = infoGuiFactory;
         this.config = config;
         this.structures = getStructuresMap(structures);
-        this.localizer = inventoryHolder.getPersonalizedLocalizer();
 
         deletionManager.registerDeletionListener(this);
     }

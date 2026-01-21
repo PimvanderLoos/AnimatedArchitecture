@@ -75,6 +75,12 @@ public final class Structure implements IStructureConst, IPropertyHolder
 {
     private static final double DEFAULT_ANIMATION_SPEED = 1.5D;
 
+    private static final int MAX_MS_LOCK_ACQUIRE_MAIN_WARN = 100;
+
+    private static final int MAX_MS_LOCK_ACQUIRE_ASYNC_WARN = 500;
+
+    private static final int MAX_MS_LOCK_HELD_WARN = 100;
+
     private static final Object DUMMY = new Object();
 
     @EqualsAndHashCode.Exclude
@@ -810,7 +816,8 @@ public final class Structure implements IStructureConst, IPropertyHolder
             return;
 
         final long acquireDurationMs = TimeUnit.NANOSECONDS.toMillis(acquireTime - startTime);
-        if (isMainThread && acquireDurationMs > 100 || acquireDurationMs > 500)
+        if ((isMainThread && acquireDurationMs > MAX_MS_LOCK_ACQUIRE_MAIN_WARN) ||
+            acquireDurationMs > MAX_MS_LOCK_ACQUIRE_ASYNC_WARN)
         {
             log.atWarn().withStackTrace(StackSize.FULL).log(
                 "Took %d ms to obtain write lock for structure: %d %s",
@@ -821,7 +828,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         }
 
         final long lockHeldDurationMs = TimeUnit.NANOSECONDS.toMillis(endTime - startTime);
-        if (lockHeldDurationMs > 100)
+        if (lockHeldDurationMs > MAX_MS_LOCK_HELD_WARN)
         {
             log.atWarn().withStackTrace(StackSize.FULL).log(
                 "Held write lock for %d ms for structure: %d %s",
@@ -1266,7 +1273,12 @@ public final class Structure implements IStructureConst, IPropertyHolder
         {
             // We do not need a write lock for redstone verification, so schedule it without lock
             // to release the write lock as soon as possible.
-            case REDSTONE -> executor.runAsync(this::verifyRedstoneState);
+            case REDSTONE -> executor
+                .runAsync(this::verifyRedstoneState)
+                .handleExceptional(ex -> log.atWarn().withCause(ex).log(
+                    "Failed to verify redstone state for structure: %s after property change",
+                    getBasicInfo()
+                ));
             case ANIMATION -> invalidateAnimationData();
             default -> throw new IllegalArgumentException("Unknown property scope: '" + scope + "'!");
         }

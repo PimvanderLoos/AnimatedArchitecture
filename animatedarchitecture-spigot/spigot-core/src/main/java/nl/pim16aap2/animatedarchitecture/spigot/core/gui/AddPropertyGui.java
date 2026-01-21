@@ -103,7 +103,7 @@ class AddPropertyGui extends AbstractGuiPage<AddPropertyGui>
     @Override
     protected InventoryGui createGui()
     {
-        String headerSetup = String.valueOf(CH_PREVIOUS_PAGE);
+        final String headerSetup = String.valueOf(CH_PREVIOUS_PAGE);
         final String[] guiSetup = GuiUtil.fillLinesWithChar(CH_PROPERTY, addableProperties.size(), headerSetup);
 
         final InventoryGui gui = new InventoryGui(

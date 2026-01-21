@@ -116,6 +116,7 @@ public abstract class AbstractStaticPropertyGuiAdapter<T> extends AbstractProper
         return element;
     }
 
+    @Override
     protected String getTitle(PropertyGuiRequest<T> request)
     {
         return request.localizer()

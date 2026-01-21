@@ -89,7 +89,7 @@ class DeletePropertyGui extends AbstractGuiPage<DeletePropertyGui>
     @Override
     protected InventoryGui createGui()
     {
-        String headerSetup = String.valueOf(CH_PREVIOUS_PAGE);
+        final String headerSetup = String.valueOf(CH_PREVIOUS_PAGE);
         final String[] guiSetup = GuiUtil.fillLinesWithChar(CH_PROPERTY, deletableProperties.size(), headerSetup);
 
         final InventoryGui gui = super.newInventoryGui(

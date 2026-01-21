@@ -441,7 +441,7 @@ public final class Property<T> implements IKeyed
 
         private @Nullable T defaultValue = null;
 
-        private Function<ILocalizer, String> titleFunction;
+        private @Nullable Function<ILocalizer, String> titleFunction;
 
         private PropertyBuilder(NamespacedKey namespacedKey, Class<T> type)
         {
