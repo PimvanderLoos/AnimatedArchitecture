@@ -16,10 +16,8 @@ import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.WrappedPlay
  *     The player for whom the GUI is being created.
  * @param permissionLevel
  *     The permission level of the player for the structure containing the property.
- * @param <T>
- *     The type of the property value.
  */
-public record PropertyGuiRequest<T>(
+public record PropertyGuiRequest(
     Structure structure,
     char slotChar,
     WrappedPlayer player,

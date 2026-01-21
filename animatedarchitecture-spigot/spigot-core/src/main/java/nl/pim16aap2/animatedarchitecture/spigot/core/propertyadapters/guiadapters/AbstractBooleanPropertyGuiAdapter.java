@@ -46,7 +46,7 @@ public abstract class AbstractBooleanPropertyGuiAdapter extends AbstractProperty
      *     The property GUI request containing context for creating the GUI element.
      * @return The GUI state for the true value.
      */
-    protected abstract GuiStateElement.State getTrueState(String stateKey, PropertyGuiRequest<Boolean> request);
+    protected abstract GuiStateElement.State getTrueState(String stateKey, PropertyGuiRequest request);
 
     /**
      * Gets the GUI state for the false value of the boolean property.
@@ -59,7 +59,7 @@ public abstract class AbstractBooleanPropertyGuiAdapter extends AbstractProperty
      *     The property GUI request containing context for creating the GUI element.
      * @return The GUI state for the false value.
      */
-    protected abstract GuiStateElement.State getFalseState(String stateKey, PropertyGuiRequest<Boolean> request);
+    protected abstract GuiStateElement.State getFalseState(String stateKey, PropertyGuiRequest request);
 
     /**
      * Gets the current state of the boolean property.
@@ -68,7 +68,7 @@ public abstract class AbstractBooleanPropertyGuiAdapter extends AbstractProperty
      *     The property GUI request containing context for creating the GUI element.
      * @return The current state of the boolean property.
      */
-    protected abstract boolean getState(PropertyGuiRequest<Boolean> request);
+    protected abstract boolean getState(PropertyGuiRequest request);
 
     /**
      * Gets the material to use for the given state.
@@ -86,27 +86,27 @@ public abstract class AbstractBooleanPropertyGuiAdapter extends AbstractProperty
      *     The property GUI request containing context for creating the GUI element.
      * @return The material to use for the given state.
      */
-    protected Material getMaterial(PropertyGuiRequest<Boolean> request)
+    protected Material getMaterial(PropertyGuiRequest request)
     {
         return getMaterial(getState(request));
     }
 
     @Override
-    public Material getRemovingMaterial(PropertyGuiRequest<Boolean> request)
+    public Material getRemovingMaterial(PropertyGuiRequest request)
     {
         return getMaterial(request);
     }
 
     @Override
-    public Material getAddingMaterial(PropertyGuiRequest<Boolean> request)
+    public Material getAddingMaterial(PropertyGuiRequest request)
     {
         return getMaterial(request);
     }
 
     @Override
-    protected abstract String getTitle(PropertyGuiRequest<Boolean> request);
+    protected abstract String getTitle(PropertyGuiRequest request);
 
-    protected abstract List<String> getLore(boolean state, PropertyGuiRequest<Boolean> request);
+    protected abstract List<String> getLore(boolean state, PropertyGuiRequest request);
 
     /**
      * Creates a read-only GUI element for the boolean property.
@@ -117,7 +117,7 @@ public abstract class AbstractBooleanPropertyGuiAdapter extends AbstractProperty
      *     The property GUI request containing context for creating the GUI element.
      * @return The read-only GUI element.
      */
-    protected final GuiElement createReadOnlyElement(PropertyGuiRequest<Boolean> request)
+    protected final GuiElement createReadOnlyElement(PropertyGuiRequest request)
     {
         final ItemStack itemStack = createItemStack(
             getMaterial(getState(request)),
@@ -128,7 +128,7 @@ public abstract class AbstractBooleanPropertyGuiAdapter extends AbstractProperty
     }
 
     @Override
-    public final GuiElement createGuiElement(PropertyGuiRequest<Boolean> request)
+    public final GuiElement createGuiElement(PropertyGuiRequest request)
     {
         if (!canEdit(request.permissionLevel()))
         {
@@ -145,7 +145,7 @@ public abstract class AbstractBooleanPropertyGuiAdapter extends AbstractProperty
         return element;
     }
 
-    private String getStateKey(PropertyGuiRequest<Boolean> request)
+    private String getStateKey(PropertyGuiRequest request)
     {
         return getState(request) ? STATE_TRUE_KEY : STATE_FALSE_KEY;
     }

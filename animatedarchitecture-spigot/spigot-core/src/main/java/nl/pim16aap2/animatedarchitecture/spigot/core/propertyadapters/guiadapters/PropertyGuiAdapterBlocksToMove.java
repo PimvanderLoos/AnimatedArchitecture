@@ -48,7 +48,7 @@ public final class PropertyGuiAdapterBlocksToMove extends AbstractStaticProperty
     }
 
     @Override
-    protected GuiElement.Action getAction(PropertyGuiRequest<Integer> request, StaticGuiElement element)
+    protected GuiElement.Action getAction(PropertyGuiRequest request, StaticGuiElement element)
     {
         return click ->
         {

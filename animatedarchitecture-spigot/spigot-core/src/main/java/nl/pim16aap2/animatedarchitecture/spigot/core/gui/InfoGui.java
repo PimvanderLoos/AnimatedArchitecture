@@ -303,7 +303,7 @@ class InfoGui extends AbstractGuiPage<InfoGui>
             return null;
         }
 
-        final var request = new PropertyGuiRequest<T>(
+        final var request = new PropertyGuiRequest(
             structure,
             slotChar,
             inventoryHolder,
