@@ -119,6 +119,7 @@ public class UnitTestUtil
     static final Set<Method> SEND_MESSAGE_METHODS = Arrays
         .stream(IMessageable.class.getDeclaredMethods())
         .filter(method -> method.getName().startsWith("send"))
+        .filter(method -> method.getParameterCount() > 0)
         .collect(Collectors.toUnmodifiableSet());
 
     private UnitTestUtil()

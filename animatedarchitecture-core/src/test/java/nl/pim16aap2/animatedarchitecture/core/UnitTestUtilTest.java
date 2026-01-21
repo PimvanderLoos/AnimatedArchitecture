@@ -94,8 +94,8 @@ class UnitTestUtilTest
     @Test
     void asserThatAllSendMessagesAreTested()
     {
-        assertThat(UnitTestUtil.SEND_MESSAGE_METHODS.size())
-            .isEqualTo(SendMessageMethod.values().length);
+        assertThat(UnitTestUtil.SEND_MESSAGE_METHODS)
+            .hasSize(SendMessageMethod.values().length);
     }
 
     private enum SendMessageMethod
