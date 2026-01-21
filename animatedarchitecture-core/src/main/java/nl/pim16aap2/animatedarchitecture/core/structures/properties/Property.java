@@ -160,6 +160,7 @@ public final class Property<T> implements IKeyed
     /**
      * The function that generates the title for the property given a localizer.
      */
+    @ToString.Exclude
     private final @Nullable Function<ILocalizer, String> titleFunction;
 
     /**

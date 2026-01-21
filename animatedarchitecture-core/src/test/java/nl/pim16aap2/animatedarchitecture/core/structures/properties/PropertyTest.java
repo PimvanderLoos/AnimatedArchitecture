@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -445,7 +446,9 @@ class PropertyTest
                 Object.class,
                 int.class,
                 int.class,
-                List.class)
+                List.class,
+                Function.class
+            )
             .setAccessible()
             .get();
 
@@ -456,7 +459,8 @@ class PropertyTest
                 String.class,
                 12,
                 0, 0,
-                List.of()
+                List.of(),
+                Function.identity()
             ))
             .havingCause()
             .isExactlyInstanceOf(IllegalArgumentException.class)
