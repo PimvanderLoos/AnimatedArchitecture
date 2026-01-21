@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongList;
 import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
@@ -53,9 +54,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBuilder;
 import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
+import static org.mockito.Mockito.*;
 
 @WithLogCapture
 @ExtendWith(MockitoExtension.class)
@@ -135,6 +138,9 @@ public class SQLiteJDBCDriverConnectionTest
     @Mock
     private LocalizationManager localizationManager;
 
+    @Mock
+    private IExecutor executor;
+
     private FlywayManager flywayManager;
 
     @BeforeEach
@@ -153,7 +159,11 @@ public class SQLiteJDBCDriverConnectionTest
 
         structureTypeManager = new StructureTypeManager(debuggableRegistry, localizationManager);
 
-        structureBuilder = newStructureBuilder().structureBuilder();
+        structureBuilder = newStructureBuilder(
+            new UnitTestUtil.AssistedFactoryMockerParameter<>(IExecutor.class, executor))
+            .structureBuilder();
+
+        when(executor.runAsync(any(Runnable.class))).thenReturn(CompletableFuture.completedFuture(null));
 
         initStructures();
 
@@ -846,10 +856,10 @@ public class SQLiteJDBCDriverConnectionTest
     private static IPlayer createPlayer(PlayerData data)
     {
         final IPlayer player = Mockito.mock(IPlayer.class);
-        Mockito.when(player.getName()).thenReturn(data.getName());
-        Mockito.when(player.getUUID()).thenReturn(data.getUUID());
-        Mockito.when(player.getPlayerData()).thenReturn(data);
-        Mockito.when(player.getLocation()).thenReturn(Optional.empty());
+        when(player.getName()).thenReturn(data.getName());
+        when(player.getUUID()).thenReturn(data.getUUID());
+        when(player.getPlayerData()).thenReturn(data);
+        when(player.getLocation()).thenReturn(Optional.empty());
         return player;
     }
 }
