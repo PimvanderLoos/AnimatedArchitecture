@@ -62,7 +62,7 @@ jobs:
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           directory: report-aggregate/target/site/jacoco-aggregate
           token: ${{ secrets.CODECOV_TOKEN }}
