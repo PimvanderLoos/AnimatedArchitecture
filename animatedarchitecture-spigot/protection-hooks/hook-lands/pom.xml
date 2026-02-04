@@ -16,7 +16,7 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <version.lands-api>7.19.15</version.lands-api>
+        <version.lands-api>7.23.1</version.lands-api>
     </properties>
 
     <dependencies>
