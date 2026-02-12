@@ -13,5 +13,5 @@ public interface IStructureSubSectionFlag extends IStructureSubSection
     /**
      * The key used to identify the flag structure type in the configuration.
      */
-    String STRUCTURE_TYPE_KEY = "animatedarchitecture:flag";
+    String STRUCTURE_TYPE_KEY = "flag";
 }

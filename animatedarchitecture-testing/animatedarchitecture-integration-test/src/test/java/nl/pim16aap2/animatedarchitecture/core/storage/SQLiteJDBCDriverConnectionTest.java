@@ -27,9 +27,9 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyCont
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import nl.pim16aap2.animatedarchitecture.structures.bigdoor.StructureTypeBigDoor;
-import nl.pim16aap2.animatedarchitecture.structures.drawbridge.StructureTypeDrawbridge;
-import nl.pim16aap2.animatedarchitecture.structures.portcullis.StructureTypePortcullis;
+import nl.pim16aap2.animatedarchitecture.core.structures.bigdoor.StructureTypeBigDoor;
+import nl.pim16aap2.animatedarchitecture.core.structures.drawbridge.StructureTypeDrawbridge;
+import nl.pim16aap2.animatedarchitecture.core.structures.portcullis.StructureTypePortcullis;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorld;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorldFactory;
 import nl.pim16aap2.testing.annotations.WithLogCapture;

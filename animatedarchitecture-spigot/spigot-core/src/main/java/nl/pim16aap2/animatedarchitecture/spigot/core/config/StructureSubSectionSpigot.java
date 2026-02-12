@@ -47,15 +47,15 @@ public class StructureSubSectionSpigot extends StructureSubSection
     {
         return switch (structureType.getFullKey())
         {
-            case "animatedarchitecture:bigdoor" -> Material.OAK_DOOR;
-            case "animatedarchitecture:clock" -> Material.CLOCK;
-            case "animatedarchitecture:drawbridge" -> Material.OAK_TRAPDOOR;
-            case "animatedarchitecture:flag" -> Material.WHITE_BANNER;
-            case "animatedarchitecture:garagedoor" -> Material.MINECART;
-            case "animatedarchitecture:portcullis" -> Material.IRON_BARS;
-            case "animatedarchitecture:revolvingdoor" -> Material.MUSIC_DISC_PIGSTEP;
-            case "animatedarchitecture:slidingdoor" -> Material.PISTON;
-            case "animatedarchitecture:windmill" -> Material.SUNFLOWER;
+            case "bigdoor" -> Material.OAK_DOOR;
+            case "clock" -> Material.CLOCK;
+            case "drawbridge" -> Material.OAK_TRAPDOOR;
+            case "flag" -> Material.WHITE_BANNER;
+            case "garagedoor" -> Material.MINECART;
+            case "portcullis" -> Material.IRON_BARS;
+            case "revolvingdoor" -> Material.MUSIC_DISC_PIGSTEP;
+            case "slidingdoor" -> Material.PISTON;
+            case "windmill" -> Material.SUNFLOWER;
             default -> DEFAULT_GUI_MATERIAL;
         };
     }

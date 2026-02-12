@@ -14,12 +14,16 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.config.AbstractConfig;
+import nl.pim16aap2.animatedarchitecture.core.config.StructuresSection;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.hooks.ProtectionHookManagerSpigot;
 import org.bukkit.Material;
+import org.spongepowered.configurate.NodePath;
+import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Represents the configuration of the plugin for the Spigot platform.
@@ -32,6 +36,18 @@ import java.util.Collection;
 final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebuggable
 {
     static final int CONFIG_VERSION = 0;
+
+    private static final Map<String, String> LEGACY_STRUCTURE_TYPE_KEYS = Map.ofEntries(
+        Map.entry("animatedarchitecture:bigdoor", "bigdoor"),
+        Map.entry("animatedarchitecture:clock", "clock"),
+        Map.entry("animatedarchitecture:drawbridge", "drawbridge"),
+        Map.entry("animatedarchitecture:flag", "flag"),
+        Map.entry("animatedarchitecture:garagedoor", "garagedoor"),
+        Map.entry("animatedarchitecture:portcullis", "portcullis"),
+        Map.entry("animatedarchitecture:revolvingdoor", "revolvingdoor"),
+        Map.entry("animatedarchitecture:slidingdoor", "slidingdoor"),
+        Map.entry("animatedarchitecture:windmill", "windmill")
+    );
 
     private volatile boolean skipPrintInfo = true;
 
@@ -150,6 +166,33 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
     public String getDebugInformation()
     {
         return "Config: " + this;
+    }
+
+    @Override
+    protected void addTransformations(ConfigurationTransformation.VersionedBuilder builder)
+    {
+        builder.makeVersion(1, transformationBuilder ->
+            transformationBuilder.addAction(NodePath.path(StructuresSection.SECTION_TITLE), (path, value) ->
+            {
+                if (!value.isMap())
+                    return null;
+
+                for (final var entry : LEGACY_STRUCTURE_TYPE_KEYS.entrySet())
+                {
+                    final var oldNode = value.node(entry.getKey());
+                    if (oldNode.virtual())
+                        continue;
+
+                    final var newNode = value.node(entry.getValue());
+                    if (newNode.virtual())
+                        newNode.from(oldNode);
+
+                    value.removeChild(entry.getKey());
+                }
+
+                return null;
+            })
+        );
     }
 
     @Override

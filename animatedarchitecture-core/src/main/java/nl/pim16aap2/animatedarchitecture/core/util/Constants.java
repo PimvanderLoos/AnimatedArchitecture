@@ -51,11 +51,6 @@ public final class Constants
     public static final String PLUGIN_NAME = "AnimatedArchitecture";
 
     /**
-     * The directory where all the extensions are loaded from.
-     */
-    public static final String ANIMATE_ARCHITECTURE_EXTENSIONS_FOLDER_NAME = "extensions";
-
-    /**
      * The amount of time (in milliseconds) a user has to complete the structure creation process.
      */
     public static final int STRUCTURE_CREATOR_TIME_LIMIT = 900_000; // 15 minutes

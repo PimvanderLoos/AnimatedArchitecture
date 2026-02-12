@@ -67,7 +67,6 @@
     <modules>
         <module>animatedarchitecture-core</module>
         <module>animatedarchitecture-spigot</module>
-        <module>structures</module>
         <module>utilities</module>
         <module>report-aggregate</module>
         <module>animatedarchitecture-testing</module>
