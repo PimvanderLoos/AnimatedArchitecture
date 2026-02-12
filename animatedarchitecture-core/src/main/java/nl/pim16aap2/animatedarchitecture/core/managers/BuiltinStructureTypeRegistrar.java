@@ -4,15 +4,15 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
-import nl.pim16aap2.animatedarchitecture.core.structures.bigdoor.StructureTypeBigDoor;
-import nl.pim16aap2.animatedarchitecture.core.structures.clock.StructureTypeClock;
-import nl.pim16aap2.animatedarchitecture.core.structures.drawbridge.StructureTypeDrawbridge;
-import nl.pim16aap2.animatedarchitecture.core.structures.flag.StructureTypeFlag;
-import nl.pim16aap2.animatedarchitecture.core.structures.garagedoor.StructureTypeGarageDoor;
-import nl.pim16aap2.animatedarchitecture.core.structures.portcullis.StructureTypePortcullis;
-import nl.pim16aap2.animatedarchitecture.core.structures.revolvingdoor.StructureTypeRevolvingDoor;
-import nl.pim16aap2.animatedarchitecture.core.structures.slidingdoor.StructureTypeSlidingDoor;
-import nl.pim16aap2.animatedarchitecture.core.structures.windmill.StructureTypeWindmill;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.bigdoor.StructureTypeBigDoor;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.clock.StructureTypeClock;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.drawbridge.StructureTypeDrawbridge;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.flag.StructureTypeFlag;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.garagedoor.StructureTypeGarageDoor;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.portcullis.StructureTypePortcullis;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.revolvingdoor.StructureTypeRevolvingDoor;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.slidingdoor.StructureTypeSlidingDoor;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.windmill.StructureTypeWindmill;
 
 import java.util.List;
 

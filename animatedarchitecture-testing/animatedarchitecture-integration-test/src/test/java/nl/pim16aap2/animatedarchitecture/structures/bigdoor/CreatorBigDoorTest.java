@@ -2,8 +2,8 @@ package nl.pim16aap2.animatedarchitecture.structures.bigdoor;
 
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import nl.pim16aap2.animatedarchitecture.core.structures.bigdoor.CreatorBigDoor;
-import nl.pim16aap2.animatedarchitecture.core.structures.bigdoor.StructureTypeBigDoor;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.bigdoor.CreatorBigDoor;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.bigdoor.StructureTypeBigDoor;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
