@@ -3,6 +3,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 import nl.pim16aap2.animatedarchitecture.core.config.IStructureSubSectionFlag;
 import nl.pim16aap2.animatedarchitecture.core.config.StructureTypeConfigurationOption;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.flag.StructureTypeFlag;
 
 import java.util.List;
 
@@ -50,9 +51,9 @@ public class StructureSubSectionFlagSpigot extends StructureSubSectionSpigot imp
     {
         super(flagType);
 
-        if (!STRUCTURE_TYPE_KEY.equals(flagType.getFullKey()))
+        if (!StructureTypeFlag.get().getKey().equals(flagType.getKey()))
         {
-            throw new IllegalArgumentException("The structure type must be a flag type: " + flagType.getFullKey());
+            throw new IllegalArgumentException("The structure type must be a flag type: " + flagType.getKey());
         }
     }
 

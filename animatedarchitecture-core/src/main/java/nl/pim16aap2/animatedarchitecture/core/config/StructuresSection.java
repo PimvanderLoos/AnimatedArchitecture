@@ -20,6 +20,10 @@ public abstract class StructuresSection<T extends IConfigSectionResult> extends 
     private static final String SECTION_COMMENT = """
         Change the properties of each structure type.
         
+        Enabled:
+          Set to false to disable the structure type.
+          This will prevent players from creating and operating structures of this type.
+        
         Multiplier:
           Changes the animation time of each structure type.
           The higher the value, the more time an animation will take.

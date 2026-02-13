@@ -1,9 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.structures;
 
 import lombok.Getter;
-import nl.pim16aap2.animatedarchitecture.core.api.IKeyed;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
 import nl.pim16aap2.animatedarchitecture.core.audio.AudioSet;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
@@ -15,23 +13,24 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * This class represents a type of Structure.
  */
-public abstract class StructureType implements IKeyed
+public abstract class StructureType
 {
+    private static final Pattern TYPE_KEY_PATTERN = Pattern.compile("^[a-z0-9_-]+$");
+
     /**
-     * The key that represents the name of this {@link StructureType} in its namespace.
-     * <p>
-     * The namespace is the name of the plugin that owns this {@link StructureType} and the key is the simple name of
-     * the {@link StructureType}.
+     * The key that uniquely identifies this {@link StructureType}.
      *
-     * @return The key that represents the name of this {@link StructureType} in its namespace.
+     * @return The key that uniquely identifies this {@link StructureType}.
      */
     @Getter
-    protected final NamespacedKey namespacedKey;
+    protected final String key;
 
     /**
      * Gets the version of this {@link StructureType}. Note that changing the version creates a whole new
@@ -85,16 +84,10 @@ public abstract class StructureType implements IKeyed
     private final List<Property<?>> properties;
 
     /**
-     * Constructs a new {@link StructureType}. Don't forget to also register it using
-     * {@link StructureTypeManager#register(StructureType)}.
+     * Constructs a new {@link StructureType}. Don't forget to also register it in {@link StructureTypeManager}.
      *
-     * @param namespacedKey
-     *     The key that represents the name of this {@link StructureType} in its namespace.
-     *     <p>
-     *     The namespace is the name of the plugin that owns this {@link StructureType} and the key is the simple name
-     *     of the {@link StructureType}.
-     *     <p>
-     *     E.g.: "animatedarchitecture:windmill" or "animatedarchitecture:bigdoor".
+     * @param key
+     *     The key that uniquely identifies this {@link StructureType}. E.g.: "windmill" or "bigdoor".
      * @param version
      *     The version of this {@link StructureType}.
      *     <p>
@@ -110,13 +103,13 @@ public abstract class StructureType implements IKeyed
      *     "structure.type.revolving_door".
      */
     protected StructureType(
-        NamespacedKey namespacedKey,
+        String key,
         int version,
         List<MovementDirection> validMovementDirections,
         List<Property<?>> supportedProperties,
         String localizationKey)
     {
-        this.namespacedKey = namespacedKey;
+        this.key = verifyTypeKey(key);
 
         this.version = version;
         this.validMovementDirections =
@@ -126,55 +119,7 @@ public abstract class StructureType implements IKeyed
         this.validOpenDirectionsList = List.copyOf(this.validMovementDirections);
         this.properties = List.copyOf(supportedProperties);
         this.localizationKey = localizationKey;
-        this.fullNameWithVersion = this.getFullKey() + ":" + version;
-    }
-
-    /**
-     * Constructs a new {@link StructureType}. Don't forget to also register it using
-     * {@link StructureTypeManager#register(StructureType)}.
-     *
-     * @param pluginName
-     *     The name of the plugin that owns this {@link StructureType}.
-     *     <p>
-     *     The name can only contain (lowercase) letters, numbers, and underscores. Upper case letters will be converted
-     *     to lowercase.
-     * @param simpleName
-     *     The simple name of this {@link StructureType}.
-     *     <p>
-     *     The name can only contain (lowercase) letters, numbers, and underscores. Upper case letters will be converted
-     *     to lowercase.
-     *     <p>
-     *     The simple name is the name of the {@link StructureType} without the plugin name. For example, "windmill",
-     *     "bigdoor", "flag", etc.
-     * @param version
-     *     The version of this {@link StructureType}.
-     *     <p>
-     *     This is used for serialization purposes. If you change the structure in a way that makes it incompatible with
-     *     the previous version, you should increase this number. This will allow you to handle the transition between
-     *     the old and new version.
-     * @param validMovementDirections
-     *     The valid movement directions for this structure.
-     * @param supportedProperties
-     *     The properties that are supported by this type.
-     * @param localizationKey
-     *     The key that is used to localize the name of this {@link StructureType}. For example,
-     *     "structure.type.revolving_door".
-     */
-    protected StructureType(
-        String pluginName,
-        String simpleName,
-        int version,
-        List<MovementDirection> validMovementDirections,
-        List<Property<?>> supportedProperties,
-        String localizationKey)
-    {
-        this(
-            new NamespacedKey(pluginName, simpleName),
-            version,
-            validMovementDirections,
-            supportedProperties,
-            localizationKey
-        );
+        this.fullNameWithVersion = this.key + ":" + version;
     }
 
     /**
@@ -183,35 +128,6 @@ public abstract class StructureType implements IKeyed
      * @return A new {@link IStructureComponent} for this type.
      */
     public abstract IStructureComponent newComponent();
-
-    /**
-     * Gets the simple name of the {@link StructureType}.
-     * <p>
-     * The simple name is the name of the {@link StructureType} without the plugin name. For example, "windmill",
-     * "bigdoor", "flag", etc.
-     *
-     * @return The simple name of the {@link StructureType}.
-     */
-    public final String getSimpleName()
-    {
-        return getNamespacedKey().getKey();
-    }
-
-    /**
-     * Gets the full name of the {@link StructureType}.
-     * <p>
-     * This is the fully qualified name of the {@link StructureType} and includes the plugin name. For example,
-     * "animatedarchitecture:windmill", "animatedarchitecture:bigdoor", "animatedarchitecture:flag", etc.
-     * <p>
-     * This is a shortcut for {@code getNamespacedKey().getFullKey()}.
-     *
-     * @return The full name of the {@link StructureType}.
-     */
-    @Override
-    public final String getFullKey()
-    {
-        return getNamespacedKey().getFullKey();
-    }
 
     /**
      * Checks if a given {@link MovementDirection} is valid for this type.
@@ -289,6 +205,17 @@ public abstract class StructureType implements IKeyed
      */
     public String getCreationPermission()
     {
-        return Constants.PERMISSION_PREFIX_USER + "create." + getSimpleName();
+        return Constants.PERMISSION_PREFIX_USER + "create." + getKey();
+    }
+
+    private static String verifyTypeKey(String fullKey)
+    {
+        final String key = fullKey.toLowerCase(Locale.ROOT);
+        if (key.contains(":"))
+            throw new IllegalArgumentException("Structure type key must not contain a namespace: " + fullKey);
+        if (!TYPE_KEY_PATTERN.matcher(key).matches())
+            throw new IllegalArgumentException(
+                "Structure type key must match pattern " + TYPE_KEY_PATTERN + ": " + fullKey);
+        return key;
     }
 }

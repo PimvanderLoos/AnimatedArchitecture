@@ -3,19 +3,19 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.config;
 import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.bigdoor.StructureTypeBigDoor;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.clock.StructureTypeClock;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.drawbridge.StructureTypeDrawbridge;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.flag.StructureTypeFlag;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.garagedoor.StructureTypeGarageDoor;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.portcullis.StructureTypePortcullis;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.revolvingdoor.StructureTypeRevolvingDoor;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.slidingdoor.StructureTypeSlidingDoor;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.windmill.StructureTypeWindmill;
 import nl.pim16aap2.animatedarchitecture.core.util.CollectionsUtil;
 import nl.pim16aap2.animatedarchitecture.spigot.core.hooks.ProtectionHookManagerSpigot;
 import nl.pim16aap2.animatedarchitecture.spigot.hooks.bundle.AbstractProtectionHookSpecification;
 import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IProtectionHookSpigotSpecification;
-import nl.pim16aap2.animatedarchitecture.structures.bigdoor.StructureTypeBigDoor;
-import nl.pim16aap2.animatedarchitecture.structures.clock.StructureTypeClock;
-import nl.pim16aap2.animatedarchitecture.structures.drawbridge.StructureTypeDrawbridge;
-import nl.pim16aap2.animatedarchitecture.structures.flag.StructureTypeFlag;
-import nl.pim16aap2.animatedarchitecture.structures.garagedoor.StructureTypeGarageDoor;
-import nl.pim16aap2.animatedarchitecture.structures.portcullis.StructureTypePortcullis;
-import nl.pim16aap2.animatedarchitecture.structures.revolvingdoor.StructureTypeRevolvingDoor;
-import nl.pim16aap2.animatedarchitecture.structures.slidingdoor.StructureTypeSlidingDoor;
-import nl.pim16aap2.animatedarchitecture.structures.windmill.StructureTypeWindmill;
 import nl.pim16aap2.testing.MockInjector;
 import nl.pim16aap2.testing.annotations.FileSystemTest;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
@@ -25,7 +25,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,22 +56,7 @@ class ConfigSpigotTest
             .thenReturn(availableProtectionHooks.stream()
                 .collect(Collectors.toMap(IProtectionHookSpigotSpecification::getName, Function.identity())));
 
-        final List<StructureType> structureTypes = List.of(
-            StructureTypeBigDoor.get(),
-            StructureTypeClock.get(),
-            StructureTypeDrawbridge.get(),
-            StructureTypeFlag.get(),
-            StructureTypeGarageDoor.get(),
-            StructureTypePortcullis.get(),
-            StructureTypeRevolvingDoor.get(),
-            StructureTypeSlidingDoor.get(),
-            StructureTypeWindmill.get()
-        );
-        final StructureTypeManager structureTypeManager = mock();
-        when(structureTypeManager
-            .getRegisteredStructureTypes())
-            .thenReturn(new HashSet<>(structureTypes));
-
+        final StructureTypeManager structureTypeManager = new StructureTypeManager(mock());
         final ConfigSpigot config = newConfig(rootDirectory, protectionHookManager, structureTypeManager);
 
         // execute
@@ -114,11 +98,12 @@ class ConfigSpigotTest
                     "    enabled: true"
                 );
 
-        for (final var entry : structureTypes)
+        for (final var entry : structureTypeManager.getRegisteredStructureTypes())
         {
             assertThat(lines)
                 .containsSequence(
-                    "  %s:".formatted(entry.getFullKey()),
+                    "  %s:".formatted(entry.getKey()),
+                    "    enabled: true",
                     "    animation_speed_multiplier: 1.0",
                     "    price_formula: \"0\"",
                     "    gui_material: %s".formatted(StructureSubSectionSpigot.getDefaultGuiMaterial(entry))
@@ -209,10 +194,7 @@ class ConfigSpigotTest
         structureEntries.put(StructureTypeSlidingDoor.get(), new StructureEntry(10.0, "slidingdoor", Material.FURNACE));
         structureEntries.put(StructureTypeWindmill.get(), new StructureEntry(9.0, "windmill", Material.EMERALD));
 
-        final StructureTypeManager structureTypeManager = mock();
-        when(structureTypeManager
-            .getRegisteredStructureTypes())
-            .thenReturn(new HashSet<>(structureEntries.keySet()));
+        final StructureTypeManager structureTypeManager = new StructureTypeManager(mock());
 
         // locale
         final Locale locale = Locale.of("nl", "NL");

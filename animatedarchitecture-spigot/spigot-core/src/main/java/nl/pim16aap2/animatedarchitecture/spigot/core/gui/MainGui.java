@@ -340,7 +340,7 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
         BY_TYPE(
             "gui.main_page.button.sorted_by_type",
             "gui.main_page.button.sort_by_type",
-            Comparator.comparing(entry -> entry.getValue().structure().getType().getSimpleName())
+            Comparator.comparing(entry -> entry.getValue().structure().getType().getKey())
         ),
 
         BY_UID(

@@ -10,8 +10,4 @@ package nl.pim16aap2.animatedarchitecture.core.config;
  */
 public interface IStructureSubSectionFlag extends IStructureSubSection
 {
-    /**
-     * The key used to identify the flag structure type in the configuration.
-     */
-    String STRUCTURE_TYPE_KEY = "animatedarchitecture:flag";
 }

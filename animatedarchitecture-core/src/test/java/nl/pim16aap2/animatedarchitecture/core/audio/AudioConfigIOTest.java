@@ -5,7 +5,6 @@ import nl.pim16aap2.testing.annotations.FileSystemTest;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Files;
@@ -13,6 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AudioConfigIOTest
@@ -98,8 +99,8 @@ class AudioConfigIOTest
 
     private StructureType newDoorType(String simpleName)
     {
-        final StructureType doorType = Mockito.mock(StructureType.class);
-        Mockito.when(doorType.getSimpleName()).thenReturn(simpleName);
+        final StructureType doorType = mock();
+        when(doorType.getKey()).thenReturn(simpleName);
         return doorType;
     }
 }

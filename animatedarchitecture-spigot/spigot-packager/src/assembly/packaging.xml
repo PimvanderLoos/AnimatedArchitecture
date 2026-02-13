@@ -15,12 +15,5 @@
                 <include>nl.pim16aap2.animatedarchitecture:spigot-core</include>
             </includes>
         </dependencySet>
-        <dependencySet>
-            <outputDirectory>extensions</outputDirectory>
-            <useProjectArtifact>false</useProjectArtifact>
-            <includes>
-                <include>nl.pim16aap2.animatedarchitecture:structure-*</include>
-            </includes>
-        </dependencySet>
     </dependencySets>
 </assembly>

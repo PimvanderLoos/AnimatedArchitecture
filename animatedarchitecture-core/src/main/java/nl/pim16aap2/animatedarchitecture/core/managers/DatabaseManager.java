@@ -314,7 +314,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * Obtains all structures of a given type.
      *
      * @param typeName
-     *     The name of the type. See {@link StructureType#getFullKey()}.
+     *     The name of the type. See {@link StructureType#getKey()}.
      * @return All structures of the given type.
      */
     public CompletableFuture<List<Structure>> getStructuresOfType(String typeName)
@@ -328,7 +328,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * Obtains all structures of a specific version of a given type.
      *
      * @param typeName
-     *     The name of the type. See {@link StructureType#getFullKey()}.
+     *     The name of the type. See {@link StructureType#getKey()}.
      * @param version
      *     The version of the type.
      * @return All structures of the given type and version.

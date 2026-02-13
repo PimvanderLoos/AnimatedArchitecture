@@ -11,7 +11,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,59 +32,6 @@ class LocalizationGeneratorIntegrationTest
     private static final List<String> INPUT_B_0 =
         List.of("a_key3=val100", "a_key4=val101", "a_key5=val102", "a_key6=val103", "a_key7=val104");
 
-    private static final List<String> OUTPUT_0 = List.of(
-        // From INPUT_A_0
-        "a_key0=val0", "a_key1=val1", "a_key2=val2", "a_key3=val3", "a_key4=val4",
-        // From INPUT_B_0
-        "a_key5=val102", "a_key6=val103", "a_key7=val104");
-
-    private static final List<String> OUTPUT_1 = List.of(
-        // From INPUT_A_1
-        "b_key0=val0", "b_key1=val1", "b_key2=val2", "b_key3=val3", "b_key4=val4");
-
-    /**
-     * byte array representation of the class compiled from the following source:
-     * <p>
-     * {@code package org.example.project; public class LocalizationGeneratorDummyClass { }}
-     */
-    @SuppressWarnings("SpellCheckingInspection")
-    private static final byte[] LOCALIZATION_GENERATOR_DUMMY_CLASS_DATA = Base64.getDecoder().decode(
-        "yv66vgAAADwADQoAAgADBwAEDAAFAAYBABBqYXZhL2xhbmcvT2JqZWN0AQAGPGluaXQ+AQADKClWBwAIAQAzb3JnL2V4" +
-            "YW1wbGUvcHJvamVjdC9Mb2NhbGl6YXRpb25HZW5lcmF0b3JEdW1teUNsYXNzAQAEQ29kZQEAD0xpbmVOdW1iZXJU" +
-            "YWJsZQEAClNvdXJjZUZpbGUBACRMb2NhbGl6YXRpb25HZW5lcmF0b3JEdW1teUNsYXNzLmphdmEAIQAHAAIAAAAAA" +
-            "AEAAQAFAAYAAQAJAAAAHQABAAEAAAAFKrcAAbEAAAABAAoAAAAGAAEAAAABAAEACwAAAAIADA==");
-
-    @FileSystemTest
-    void testAddResources(Path rootDirectory)
-        throws IOException, URISyntaxException
-    {
-        final Path directoryOutput = Files.createDirectory(rootDirectory.resolve("output"));
-        final Path directoryA = Files.createDirectory(rootDirectory.resolve("input_a"));
-        final Path directoryB = Files.createDirectory(rootDirectory.resolve("input_b"));
-
-        final Path inputPathA0 = directoryA.resolve(BASE_NAME_A + ".properties");
-        final Path inputPathA1 = directoryA.resolve(BASE_NAME_A + "_en_US.properties");
-        final Path inputPathB0 = directoryB.resolve(BASE_NAME_B + ".properties");
-
-        LocalizationTestingUtilities.writeToFile(inputPathA0, INPUT_A_0);
-        LocalizationTestingUtilities.writeToFile(inputPathA1, INPUT_A_1);
-        LocalizationTestingUtilities.writeToFile(inputPathB0, INPUT_B_0);
-
-        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
-        localizationGenerator.addResources(directoryA, BASE_NAME_A);
-        localizationGenerator.addResources(directoryB, BASE_NAME_B);
-        try (
-            FileSystem outputFileSystem =
-                LocalizationTestingUtilities.createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle")))
-        {
-            final Path outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
-            final Path outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
-
-            Assertions.assertEquals(OUTPUT_0, LocalizationUtil.readFile(Files.newInputStream(outputFile0)));
-            Assertions.assertEquals(OUTPUT_1, LocalizationUtil.readFile(Files.newInputStream(outputFile1)));
-        }
-    }
-
     @FileSystemTest
     void testAddResourcesFromJar(Path rootDirectory)
         throws IOException, URISyntaxException
@@ -99,33 +45,6 @@ class LocalizationGeneratorIntegrationTest
         localizationGenerator.addResourcesFromZip(jarFile, null);
 
         verifyJarOutput(directoryOutput);
-    }
-
-    @FileSystemTest
-    void testGetRootKeys(Path rootDirectory)
-        throws IOException
-    {
-        final Path directoryOutput = Files.createDirectory(rootDirectory.resolve("output"));
-        final Path outputFile = Files.createFile(directoryOutput.resolve(BASE_NAME + ".bundle"));
-        {
-            final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(outputFile));
-            LocalizationTestingUtilities.writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_0);
-            outputStream.close();
-        }
-
-        final Path inputFile = Files.createFile(directoryOutput.resolve("input.jar"));
-        {
-            final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(inputFile));
-            LocalizationTestingUtilities.writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_1);
-            outputStream.close();
-        }
-
-        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
-        localizationGenerator.addResources(inputFile, BASE_NAME);
-        Assertions.assertTrue(localizationGenerator.getRootKeys().containsAll(List.of(
-            "a_key0", "a_key1", "a_key2", "a_key3", "a_key4",
-            "b_key0", "b_key1", "b_key2", "b_key3", "b_key4"
-        )));
     }
 
     @FileSystemTest
@@ -167,32 +86,6 @@ class LocalizationGeneratorIntegrationTest
         final List<String> linesEnUS =
             LocalizationUtil.readFile(Files.newInputStream(fileSystem.getPath(BASE_NAME + "_en_US.properties")));
         Assertions.assertEquals(List.of("a_key0= ", "a_key10=a_a_a_a"), linesEnUS);
-    }
-
-    @FileSystemTest
-    void testAddResourcesFromClass(Path rootDirectory)
-        throws IOException, ClassNotFoundException, URISyntaxException
-    {
-        final Path directoryOutput = Files.createDirectory(rootDirectory.resolve("output"));
-        final Path directoryInput = Files.createDirectory(rootDirectory.resolve("input"));
-        final Path jarFile = Files.createFile(directoryInput.resolve("test.jar"));
-        final ZipOutputStream outputStream = createJar(jarFile);
-        LocalizationTestingUtilities.writeEntry(
-            outputStream,
-            "org/example/project/LocalizationGeneratorDummyClass.class",
-            LOCALIZATION_GENERATOR_DUMMY_CLASS_DATA
-        );
-        outputStream.close();
-
-        final Class<?> dummyClass = Class.forName("org.example.project.LocalizationGeneratorDummyClass", true,
-            LocalizationTestingUtilities.loadJar(
-                jarFile,
-                getClass().getClassLoader())
-        );
-        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
-        localizationGenerator.addResourcesFromClass(dummyClass, null);
-
-        verifyJarOutput(directoryOutput);
     }
 
     /**

@@ -23,7 +23,6 @@ import nl.pim16aap2.animatedarchitecture.core.audio.IAudioPlayer;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.IServer;
 import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventCaller;
-import nl.pim16aap2.animatedarchitecture.core.extensions.StructureTypeLoader;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationManager;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationModule;
@@ -109,7 +108,6 @@ import org.semver4j.Semver;
 )
 interface AnimatedArchitectureSpigotComponent
 {
-    @SuppressWarnings("NullableProblems")
     @Component.Builder
     interface Builder
     {
@@ -227,8 +225,6 @@ interface AnimatedArchitectureSpigotComponent
     LocalizationManager getLocalizationManager();
 
     IAnimatedBlockFactory getAnimatedBlockFactory();
-
-    StructureTypeLoader getStructureTypeLoader();
 
     ISpigotSubPlatform getSubPlatform();
 

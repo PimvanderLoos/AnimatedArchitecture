@@ -24,7 +24,6 @@ import nl.pim16aap2.animatedarchitecture.core.audio.IAudioPlayer;
 import nl.pim16aap2.animatedarchitecture.core.commands.CommandFactory;
 import nl.pim16aap2.animatedarchitecture.core.commands.IServer;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
-import nl.pim16aap2.animatedarchitecture.core.extensions.StructureTypeLoader;
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
@@ -180,9 +179,6 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final IRedstoneManager powerBlockRedstoneManager;
 
     @Getter
-    private final StructureTypeLoader structureTypeLoader;
-
-    @Getter
     private final LocalizationManager localizationManager;
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
@@ -273,7 +269,6 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         animatedArchitectureToolUtil = safeGetter(
             AnimatedArchitectureSpigotComponent::getAnimatedArchitectureToolUtilSpigot);
         localizer = safeGetter(AnimatedArchitectureSpigotComponent::getILocalizer);
-        structureTypeLoader = safeGetter(AnimatedArchitectureSpigotComponent::getStructureTypeLoader);
         restartableHolder = safeGetter(AnimatedArchitectureSpigotComponent::getRestartableHolder);
         projectVersion = safeGetter(AnimatedArchitectureSpigotComponent::getProjectVersion);
         commandListener = safeGetter(AnimatedArchitectureSpigotComponent::getCommandListener);

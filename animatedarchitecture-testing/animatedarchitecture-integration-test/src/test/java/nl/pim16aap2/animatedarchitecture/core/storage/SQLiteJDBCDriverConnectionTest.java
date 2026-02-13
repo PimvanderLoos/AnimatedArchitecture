@@ -11,7 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IWorldFactory;
-import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationManager;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
@@ -22,14 +22,15 @@ import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureBuilder;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureOwner;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureRegistry;
+import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.bigdoor.StructureTypeBigDoor;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.drawbridge.StructureTypeDrawbridge;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.portcullis.StructureTypePortcullis;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
-import nl.pim16aap2.animatedarchitecture.structures.bigdoor.StructureTypeBigDoor;
-import nl.pim16aap2.animatedarchitecture.structures.drawbridge.StructureTypeDrawbridge;
-import nl.pim16aap2.animatedarchitecture.structures.portcullis.StructureTypePortcullis;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorld;
 import nl.pim16aap2.animatedarchitecture.testimplementations.TestWorldFactory;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
@@ -56,6 +57,7 @@ import java.util.UUID;
 
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBuilder;
 import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
+import static org.mockito.Mockito.*;
 
 @WithLogCapture
 @ExtendWith(MockitoExtension.class)
@@ -133,7 +135,7 @@ public class SQLiteJDBCDriverConnectionTest
     private DebuggableRegistry debuggableRegistry;
 
     @Mock
-    private LocalizationManager localizationManager;
+    private IConfig config;
 
     private FlywayManager flywayManager;
 
@@ -147,11 +149,13 @@ public class SQLiteJDBCDriverConnectionTest
             debuggableRegistry
         );
 
+        when(config.isStructureTypeEnabled(any(StructureType.class))).thenReturn(true);
+
         worldFactory = new TestWorldFactory();
         structureRegistry =
             StructureRegistry.unCached(debuggableRegistry, Mockito.mock(StructureDeletionManager.class));
 
-        structureTypeManager = new StructureTypeManager(debuggableRegistry, localizationManager);
+        structureTypeManager = new StructureTypeManager(debuggableRegistry);
 
         structureBuilder = newStructureBuilder().structureBuilder();
 
@@ -206,28 +210,6 @@ public class SQLiteJDBCDriverConnectionTest
         }
     }
 
-    private void deleteStructureTypes()
-    {
-        // Just make sure it still exists, to make debugging easier.
-        Assertions.assertTrue(storage.getStructure(3L).isPresent());
-        Assertions.assertTrue(storage.deleteStructureType(StructureTypePortcullis.get()));
-        Assertions.assertTrue(storage.getStructure(1L).isPresent());
-        Assertions.assertTrue(storage.getStructure(2L).isPresent());
-        Assertions.assertFalse(storage.getStructure(3L).isPresent());
-    }
-
-    private void testStructureTypes()
-    {
-        deleteStructureTypes();
-    }
-
-    private void registerStructureTypes()
-    {
-        structureTypeManager.register(StructureTypeBigDoor.get());
-        structureTypeManager.register(StructureTypePortcullis.get());
-        structureTypeManager.register(StructureTypeDrawbridge.get());
-    }
-
     private void resetLogCaptor(LogCaptor logCaptor)
     {
         logCaptor.clearLogs();
@@ -243,9 +225,6 @@ public class SQLiteJDBCDriverConnectionTest
         throws Exception
     {
         // Start with a reset, so we can ensure all methods use the same settings.
-        resetLogCaptor(logCaptor);
-
-        registerStructureTypes();
         resetLogCaptor(logCaptor);
 
         insertStructures();
@@ -264,9 +243,6 @@ public class SQLiteJDBCDriverConnectionTest
         resetLogCaptor(logCaptor);
 
         modifyStructures();
-        resetLogCaptor(logCaptor);
-
-        testStructureTypes();
         resetLogCaptor(logCaptor);
 
         failures(logCaptor);
@@ -442,11 +418,11 @@ public class SQLiteJDBCDriverConnectionTest
     public void auxiliaryMethods()
     {
         // Check simple methods.
-        Assertions.assertEquals(1, storage.getStructuresOfType(StructureTypeBigDoor.get().getFullKey()).size());
+        Assertions.assertEquals(1, storage.getStructuresOfType(StructureTypeBigDoor.get().getKey()).size());
         Assertions.assertEquals(
             1,
             storage.getStructuresOfType(
-                StructureTypePortcullis.get().getFullKey(),
+                StructureTypePortcullis.get().getKey(),
                 StructureTypePortcullis.get().getVersion()).size()
         );
         Assertions.assertEquals(1, storage.getStructureCountForPlayer(PLAYER_DATA_1.getUUID(), STRUCTURE_1_NAME));
@@ -766,6 +742,7 @@ public class SQLiteJDBCDriverConnectionTest
     private void initStorage()
     {
         storage = new SQLiteJDBCDriverConnection(
+            config,
             DATA_SOURCE_INFO,
             flywayManager,
             structureBuilder,
@@ -846,10 +823,10 @@ public class SQLiteJDBCDriverConnectionTest
     private static IPlayer createPlayer(PlayerData data)
     {
         final IPlayer player = Mockito.mock(IPlayer.class);
-        Mockito.when(player.getName()).thenReturn(data.getName());
-        Mockito.when(player.getUUID()).thenReturn(data.getUUID());
-        Mockito.when(player.getPlayerData()).thenReturn(data);
-        Mockito.when(player.getLocation()).thenReturn(Optional.empty());
+        when(player.getName()).thenReturn(data.getName());
+        when(player.getUUID()).thenReturn(data.getUUID());
+        when(player.getPlayerData()).thenReturn(data);
+        when(player.getLocation()).thenReturn(Optional.empty());
         return player;
     }
 }

@@ -18,6 +18,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IWorldFactory;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.storage.DelayedPreparedStatement;
@@ -101,8 +102,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
     private final IWorldFactory worldFactory;
 
+    private final IConfig config;
+
     @Inject
     public SQLiteJDBCDriverConnection(
+        IConfig config,
         DataSourceInfoSQLite dataSourceInfo,
         FlywayManager flywayManager,
         StructureBuilder structureBuilder,
@@ -111,6 +115,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         IWorldFactory worldFactory,
         DebuggableRegistry debuggableRegistry)
     {
+        this.config = config;
         this.dataSourceInfo = dataSourceInfo;
         this.structureBuilder = structureBuilder;
         this.structureRegistry = structureRegistry;
@@ -234,9 +239,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         throws Exception
     {
         final String structureTypeResult = structureRS.getString("type");
-        final Optional<StructureType> structureTypeOpt = structureTypeManager.getFromFullName(structureTypeResult);
+        final Optional<StructureType> structureTypeOpt = structureTypeManager.getFromKey(structureTypeResult);
 
-        if (!structureTypeOpt.map(structureTypeManager::isRegistered).orElse(false))
+        if (!structureTypeOpt.map(config::isStructureTypeEnabled).orElse(false))
         {
             log.atError().withStackTrace(StackSize.FULL).log(
                 "Type with ID: '%s' has not been registered (yet)!", structureTypeResult);
@@ -312,7 +317,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 String.format(
                     "Failed to deserialize properties for structure with UID: '%d' of type: '%s'",
                     structureUID,
-                    structureType.getFullKey()),
+                    structureType.getKey()),
                 exception
             );
         }
@@ -345,7 +350,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                     - Properties:     %s
                     """,
                 structureUID,
-                structureType.getFullKey(),
+                structureType.getKey(),
                 properties
             ), e);
         }
@@ -357,23 +362,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         // If the UID was registered since last we checked, we discard the new structure and return the registered one.
         return registered;
-    }
-
-    @Override
-    @Locked.Write("lock")
-    public boolean deleteStructureType(StructureType structureType)
-    {
-        final boolean removed = executeTransaction(
-            conn -> executeUpdate(
-                SQLStatement.DELETE_STRUCTURE_TYPE
-                    .constructDelayedPreparedStatement()
-                    .setNextString(structureType.getFullKey())) > 0,
-            false
-        );
-
-        if (removed)
-            structureTypeManager.setEnabledState(structureType, false);
-        return removed;
     }
 
     @Locked.Write("lock")
@@ -407,7 +395,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                 .setNextLong(LocationUtil.getChunkId(structure.getPowerBlock()))
                 .setNextInt(MovementDirection.getValue(structure.getOpenDirection()))
                 .setNextLong(getFlag(structure))
-                .setNextString(structureType.getFullKey())
+                .setNextString(structureType.getKey())
                 .setNextInt(structureType.getVersion())
                 .setNextString(propertiesData),
             resultSet ->
@@ -603,9 +591,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         while (resultSet.next())
         {
             final String structureTypeResult = resultSet.getString("type");
-            final Optional<StructureType> structureType = structureTypeManager.getFromFullName(structureTypeResult);
+            final Optional<StructureType> structureType = structureTypeManager.getFromKey(structureTypeResult);
 
-            if (!structureType.map(structureTypeManager::isRegistered).orElse(false))
+            if (!structureType.map(config::isStructureTypeEnabled).orElse(false))
             {
                 log.atError().withStackTrace(StackSize.FULL).log(
                     "Type with ID: '%s' has not been registered (yet)!", structureTypeResult);

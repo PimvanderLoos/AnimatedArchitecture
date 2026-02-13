@@ -109,7 +109,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         log.atDebug().log(
             "Player '%s' does not have enough money to buy structure of type '%s' of size %d! Price: %f",
             player.asString(),
-            type.getSimpleName(),
+            type.getKey(),
             blockCount,
             price
         );

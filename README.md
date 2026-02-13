@@ -63,7 +63,9 @@ discrepancies, the majority of exported structures should function properly. Any
 using available commands or the menu.
 
 ## Add-ons
-- [AnimatedPhysics](https://modrinth.com/plugin/animatedphysics) (created by bonn2) - Adds collisions to the animated blocks!
+
+- [AnimatedPhysics](https://modrinth.com/plugin/animatedphysics) (created by bonn2) - Adds collisions to the animated
+  blocks!
 
 ## Translations
 
@@ -120,8 +122,7 @@ To also run all the tests, static analysis tools etc., you can run the following
 ```mvn -P=errorprone test package checkstyle:checkstyle pmd:check```
 
 The `AnimatedArchitecture-Spigot.jar` file can then be found
-in `animatedarchitecture-spigot/spigot-core/target/AnimatedArchitecture-Spigot.jar`.</br>
-The jars for each structure type can be found in `structures/StructuresOutput/<StructureType>.jar`.
+in `animatedarchitecture-spigot/spigot-core/target/AnimatedArchitecture-Spigot.jar`.
 
 ## Developers
 

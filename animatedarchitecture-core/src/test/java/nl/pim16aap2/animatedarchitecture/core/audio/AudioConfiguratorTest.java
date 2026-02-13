@@ -5,24 +5,22 @@ import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class AudioConfiguratorTest
 {
     static final AudioDescription DESC_0 = new AudioDescription("audio_description_0", 0.1f, 0.1f, 1);
@@ -50,6 +48,9 @@ class AudioConfiguratorTest
     static final StructureType TYPE_4 = newStructureType(KEY_4);
     static final StructureType TYPE_5 = newStructureType(KEY_5);
 
+    @InjectMocks
+    private AudioConfigurator configurator;
+
     @Mock
     private AudioConfigIO audioConfigIO;
     @Mock
@@ -59,22 +60,34 @@ class AudioConfiguratorTest
     @Mock
     private StructureTypeManager structureTypeManager;
 
-    @BeforeEach
-    void init()
+    @AfterEach
+    void tearDown()
     {
-        Mockito.when(structureTypeManager.getRegisteredStructureTypes())
-            .thenReturn(Set.of(TYPE_0, TYPE_1, TYPE_2, TYPE_3, TYPE_4, TYPE_5));
+        verify(debuggableRegistry).registerDebuggable(configurator);
+        verify(restartableHolder).registerRestartable(configurator);
+
+        verifyNoMoreInteractions(
+            audioConfigIO,
+            restartableHolder,
+            debuggableRegistry,
+            structureTypeManager
+        );
     }
 
     @Test
-    void generateConfigData()
+    void generateConfigData_shouldGenerateCorrectOutput()
     {
-        Mockito.when(TYPE_0.getAudioSet()).thenReturn(SET_1);
-        Mockito.when(TYPE_1.getAudioSet()).thenReturn(null);
-        Mockito.when(TYPE_2.getAudioSet()).thenReturn(SET_2);
-        Mockito.when(TYPE_3.getAudioSet()).thenReturn(SET_3); // Adds key that won't be in parsed set
-        Mockito.when(TYPE_4.getAudioSet()).thenReturn(null); // Null for both
-        Mockito.when(TYPE_5.getAudioSet()).thenReturn(SET_EMPTY); // Empty one
+        // setup
+        when(structureTypeManager
+            .getRegisteredStructureTypes())
+            .thenReturn(List.of(TYPE_0, TYPE_1, TYPE_2, TYPE_3, TYPE_4, TYPE_5));
+
+        when(TYPE_0.getAudioSet()).thenReturn(SET_1);
+        when(TYPE_1.getAudioSet()).thenReturn(null);
+        when(TYPE_2.getAudioSet()).thenReturn(SET_2);
+        when(TYPE_3.getAudioSet()).thenReturn(SET_3); // Adds key that won't be in parsed set
+        when(TYPE_4.getAudioSet()).thenReturn(null); // Null for both
+        when(TYPE_5.getAudioSet()).thenReturn(SET_EMPTY); // Empty one
 
         final Map<String, @Nullable AudioSet> parsed = new LinkedHashMap<>();
         parsed.put(KEY_0, SET_EMPTY); // Overrides default
@@ -82,51 +95,49 @@ class AudioConfiguratorTest
         parsed.put(KEY_2, null); // Replaces with null
         parsed.put(KEY_4, null); // Null for both
 
-        final AudioConfigurator configurator = new AudioConfigurator(audioConfigIO, restartableHolder,
-            debuggableRegistry, structureTypeManager);
-        Mockito.when(audioConfigIO.readConfig()).thenReturn(parsed);
-        Mockito.when(structureTypeManager.getEnabledStructureTypes())
+        when(audioConfigIO.readConfig()).thenReturn(parsed);
+        when(structureTypeManager
+            .getRegisteredStructureTypes())
             .thenReturn(List.of(TYPE_0, TYPE_1, TYPE_2, TYPE_3, TYPE_4, TYPE_5));
 
+        // execute
         final AudioConfigurator.ConfigData configData = configurator.generateConfigData();
         final Map<StructureType, @Nullable AudioSet> output = configData.sets();
 
-        Assertions.assertEquals(SET_EMPTY, output.get(TYPE_0));
-        Assertions.assertEquals(SET_0, output.get(TYPE_1));
-        Assertions.assertNull(output.get(TYPE_2));
-        Assertions.assertTrue(output.containsKey(TYPE_2));
-        Assertions.assertEquals(SET_3, output.get(TYPE_3));
-        Assertions.assertNull(output.get(TYPE_4));
-        Assertions.assertTrue(output.containsKey(TYPE_4));
-        Assertions.assertEquals(SET_EMPTY, output.get(TYPE_5));
-        Assertions.assertNull(configData.defaultSet());
+        // verify
+        assertThat(SET_EMPTY).isEqualTo(output.get(TYPE_0));
+        assertThat(SET_0).isEqualTo(output.get(TYPE_1));
+        assertThat(output.get(TYPE_2)).isNull();
+        assertThat(output).containsKey(TYPE_2);
+        assertThat(SET_3).isEqualTo(output.get(TYPE_3));
+        assertThat(output.get(TYPE_4)).isNull();
+        assertThat(output).containsKey(TYPE_4);
+        assertThat(SET_EMPTY).isEqualTo(output.get(TYPE_5));
+        assertThat(configData.defaultSet()).isNull();
     }
 
     @Test
     void getFinalMap()
     {
-        final AudioConfigurator configurator = new AudioConfigurator(audioConfigIO, restartableHolder,
-            debuggableRegistry, structureTypeManager);
-
         final Map<StructureType, @Nullable AudioSet> merged = new LinkedHashMap<>();
         merged.put(TYPE_0, SET_0);
         merged.put(TYPE_1, null);
         merged.put(TYPE_2, SET_EMPTY);
 
         Map<StructureType, AudioSet> result = configurator.getFinalMap(new AudioConfigurator.ConfigData(null, merged));
-        Assertions.assertEquals(List.of(SET_0, SET_EMPTY, SET_EMPTY), new ArrayList<>(result.values()));
+        assertThat(result.values()).containsExactly(SET_0, SET_EMPTY, SET_EMPTY);
 
         result = configurator.getFinalMap(new AudioConfigurator.ConfigData(SET_EMPTY, merged));
-        Assertions.assertEquals(List.of(SET_0, SET_EMPTY, SET_EMPTY), new ArrayList<>(result.values()));
+        assertThat(result.values()).containsExactly(SET_0, SET_EMPTY, SET_EMPTY);
 
         result = configurator.getFinalMap(new AudioConfigurator.ConfigData(SET_1, merged));
-        Assertions.assertEquals(List.of(SET_0, SET_1, SET_EMPTY), new ArrayList<>(result.values()));
+        assertThat(result.values()).containsExactlyInAnyOrder(SET_0, SET_1, SET_EMPTY);
     }
 
     private static StructureType newStructureType(String simpleName)
     {
         final StructureType structureType = Mockito.mock(StructureType.class);
-        Mockito.when(structureType.getSimpleName()).thenReturn(simpleName);
+        when(structureType.getKey()).thenReturn(simpleName);
         return structureType;
     }
 }

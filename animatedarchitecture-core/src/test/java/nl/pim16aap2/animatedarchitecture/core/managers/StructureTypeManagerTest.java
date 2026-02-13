@@ -1,88 +1,209 @@
 package nl.pim16aap2.animatedarchitecture.core.managers;
 
-import nl.pim16aap2.animatedarchitecture.core.api.NamespacedKey;
+import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Locale;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class StructureTypeManagerTest
 {
-    private final StructureType type0 = newMockedStructureType("TestType0");
-    private final StructureType type1 = newMockedStructureType("TestType1");
-    private final StructureType type2 = newMockedStructureType("TestType2");
-    private final StructureType type3 = newMockedStructureType("TestType3");
+    private static final List<StructureType> DISCOVERED_STRUCTURE_TYPES = discoverStructureTypes();
 
-    @Test
-    void testRegistry()
+    @InjectMocks
+    private StructureTypeManager manager;
+
+    @Mock
+    private DebuggableRegistry debuggableRegistry;
+
+    @BeforeEach
+    void setUp()
     {
-        final var manager = new StructureTypeManager(Mockito.mock(), Mockito.mock());
-        manager.register(type0, true);
-        manager.register(type1);
-        manager.register(type2, false);
+        verify(debuggableRegistry).registerDebuggable(manager);
+    }
 
-        Assertions.assertTrue(manager.isRegistered(type0));
-        Assertions.assertTrue(manager.isRegistered(type1));
-        Assertions.assertTrue(manager.isRegistered(type2));
-        Assertions.assertFalse(manager.isRegistered(type3));
+    @AfterEach
+    void tearDown()
+    {
+        verifyNoMoreInteractions(debuggableRegistry);
+    }
 
-        Assertions.assertTrue(manager.isStructureTypeEnabled(type0));
-        Assertions.assertTrue(manager.isStructureTypeEnabled(type1));
-        Assertions.assertFalse(manager.isStructureTypeEnabled(type2));
-        Assertions.assertFalse(manager.isStructureTypeEnabled(type3));
+    @ParameterizedTest
+    @FieldSource("DISCOVERED_STRUCTURE_TYPES")
+    void getFromKey_shouldReturnCorrectType(StructureType type)
+    {
+        // execute & verify
+        assertThat(manager.getFromKey(type.getKey())).hasValue(type);
     }
 
     @Test
-    void testUpdateEnabledStatus()
+    void getFromKey_shouldReturnEmptyOptionalForNullKey()
     {
-        final var manager = new StructureTypeManager(Mockito.mock(), Mockito.mock());
-
-        manager.register(type0);
-        Assertions.assertTrue(manager.isStructureTypeEnabled(type0));
-        Assertions.assertEquals(1, manager.getEnabledStructureTypes().size());
-        Assertions.assertEquals(0, manager.getDisabledStructureTypes().size());
-
-        manager.setEnabledState(type0, false);
-        Assertions.assertFalse(manager.isStructureTypeEnabled(type0));
-        Assertions.assertEquals(0, manager.getEnabledStructureTypes().size());
-        Assertions.assertEquals(1, manager.getDisabledStructureTypes().size());
-
-        manager.setEnabledState(type0, true);
-        Assertions.assertTrue(manager.isStructureTypeEnabled(type0));
-        Assertions.assertEquals(1, manager.getEnabledStructureTypes().size());
-        Assertions.assertEquals(0, manager.getDisabledStructureTypes().size());
-
-        Assertions.assertEquals(1, manager.getRegisteredStructureTypes().size());
+        // execute & verify
+        assertThat(manager.getFromKey(null)).isEmpty();
     }
 
-    private static StructureType newMockedStructureType(String simpleName)
+    @Test
+    void getFromKey_shouldReturnEmptyOptionalForUnknownKey()
     {
-        final int version = 1;
-        final String simpleName0 = simpleName.toLowerCase(Locale.ENGLISH);
-        final String pluginName = "animatedarchitecture";
-        final NamespacedKey key = new NamespacedKey(pluginName, simpleName0);
-        final String fullNameWithVersion = key.getFullKey() + ":" + version;
+        // execute & verify
+        assertThat(manager.getFromKey("unknownKey")).isEmpty();
+    }
+
+    @Test
+    void getEnabledStructureTypes_shouldReturnAllTypesByDefault()
+    {
+        // execute & verify
+        assertThat(manager.getEnabledStructureTypes()).containsExactlyInAnyOrderElementsOf(DISCOVERED_STRUCTURE_TYPES);
+    }
+
+    @Test
+    void updateEnabledStatusForStructureTypes_shouldUpdateEnabledTypesBasedOnPredicate()
+    {
+        // setup
+        StructureType typeToEnable = DISCOVERED_STRUCTURE_TYPES.getFirst();
+
+        // execute
+        manager.updateEnabledStatusForStructureTypes(type -> type.equals(typeToEnable));
+
+        // verify
+        assertThat(manager.getEnabledStructureTypes()).containsExactly(typeToEnable);
+    }
+
+    @Test
+    void structureTypeManager_shouldHaveAllDiscoveredTypesRegistered()
+    {
+        // execute & verify
+        assertThat(manager)
+            .extracting("registeredStructureTypes", InstanceOfAssertFactories.LIST)
+            .containsExactlyInAnyOrderElementsOf(DISCOVERED_STRUCTURE_TYPES);
+    }
+
+    @Test
+    void verifyDiscoveredStructureTypeCount()
+    {
+        // execute & verify
+        assertThat(DISCOVERED_STRUCTURE_TYPES).size().isGreaterThanOrEqualTo(9);
+    }
+
+    private static List<StructureType> discoverStructureTypes()
+    {
+        try
+        {
+            return discoverStructureTypes0();
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Failed to discover structure types", e);
+        }
+    }
+
+    private static List<StructureType> discoverStructureTypes0()
+        throws Exception
+    {
+        final String packageName = "nl.pim16aap2.animatedarchitecture.core.structures.types";
+        final String path = packageName.replace('.', '/');
+
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        final Enumeration<URL> resources = classLoader.getResources(path);
+
+        if (!resources.hasMoreElements())
+            throw new IllegalStateException("Package not found: " + packageName);
+
+        return Collections.list(resources).stream()
+            .filter(resource -> !resource.getPath().contains("test-classes"))
+            .flatMap(resource ->
+            {
+                try
+                {
+                    File directory = new File(resource.toURI());
+                    return findClassFiles(directory)
+                        .map(file -> resolveStructureType(file, directory, packageName));
+                }
+                catch (URISyntaxException e)
+                {
+                    throw new RuntimeException("Invalid URI: " + resource, e);
+                }
+            })
+            .filter(Objects::nonNull)
+            .toList();
+    }
+
+    private static @Nullable StructureType resolveStructureType(File file, File baseDir, String packageName)
+    {
+        String relativePath = baseDir.toURI().relativize(file.toURI()).getPath();
+        String className = packageName + "." +
+            relativePath.replace('/', '.').replace(".class", "");
+        try
+        {
+            Class<?> clazz = Class.forName(className);
+            if (StructureType.class.isAssignableFrom(clazz) && !clazz.equals(StructureType.class))
+            {
+                Method getMethod = clazz.getDeclaredMethod("get");
+                return (StructureType) getMethod.invoke(null);
+            }
+            return null;
+        }
+        catch (NoSuchMethodException e)
+        {
+            return null;
+        }
+        catch (ReflectiveOperationException e)
+        {
+            throw new RuntimeException("Failed to get instance: " + className, e);
+        }
+    }
 
 
-        final var structureType = Mockito.mock(StructureType.class);
+    private static Stream<File> findClassFiles(File directory)
+    {
+        return streamFilesInDirectory(directory)
+            .flatMap(file ->
+            {
+                if (file.isDirectory())
+                {
+                    return findClassFiles(file);
+                }
+                else if (file.getName().endsWith(".class"))
+                {
+                    return Stream.of(file);
+                }
+                return Stream.empty();
+            });
+    }
 
-        Mockito.when(structureType.getSimpleName()).thenReturn(simpleName0);
-        Mockito.when(structureType.getVersion()).thenReturn(version);
-        Mockito.when(structureType.getLocalizationKey()).thenReturn("localization.key." + simpleName0);
-        Mockito.when(structureType.getNamespacedKey()).thenReturn(key);
-        Mockito.when(structureType.getFullKey()).thenReturn(key.getFullKey());
-        Mockito.when(structureType.getFullNameWithVersion()).thenReturn(key.getFullKey() + ":" + version);
-        Mockito.when(structureType.getValidMovementDirections()).thenReturn(Collections.emptySet());
+    @SuppressWarnings("DataFlowIssue")
+    private static Stream<File> streamFilesInDirectory(File directory)
+    {
+        final File[] files = directory.listFiles();
+        if (files == null)
+        {
+            return Stream.empty();
+        }
 
-        Mockito.when(structureType.toString()).thenReturn(
-            "MockedStructureType[@" + Integer.toHexString(structureType.hashCode()) + "] " + fullNameWithVersion);
-
-        return structureType;
+        return Arrays.stream(files);
     }
 }

@@ -214,7 +214,7 @@ public interface IStorage
      * Obtains all structures of a given type.
      *
      * @param typeName
-     *     The name of the type. See {@link StructureType#getFullKey()}.
+     *     The name of the type. See {@link StructureType#getKey()}.
      * @return All structures of the given type.
      */
     List<Structure> getStructuresOfType(String typeName);
@@ -223,7 +223,7 @@ public interface IStorage
      * Obtains all structures of a specific version of a given type.
      *
      * @param typeName
-     *     The name of the type. See {@link StructureType#getFullKey()}.
+     *     The name of the type. See {@link StructureType#getKey()}.
      * @param version
      *     The version of the type.
      * @return All structures of the given type.
@@ -295,18 +295,6 @@ public interface IStorage
         PermissionLevel maxPermission,
         Collection<Property<?>> properties
     );
-
-    /**
-     * Deletes a {@link StructureType} and all {@link Structure}s of this type from the database.
-     * <p>
-     * Note that the {@link StructureType} has to be registered before it can be deleted! It doesn't need to be enabled,
-     * though.
-     *
-     * @param structureType
-     *     The {@link StructureType} to delete.
-     * @return True if deletion was successful.
-     */
-    boolean deleteStructureType(StructureType structureType);
 
     /**
      * Removes an owner of a structure. Note that the original creator can never be removed.
