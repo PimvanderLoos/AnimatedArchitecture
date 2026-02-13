@@ -149,7 +149,7 @@ public class SQLiteJDBCDriverConnectionTest
             debuggableRegistry
         );
 
-        when(config.isEnabled(any(StructureType.class))).thenReturn(true);
+        when(config.isStructureTypeEnabled(any(StructureType.class))).thenReturn(true);
 
         worldFactory = new TestWorldFactory();
         structureRegistry =

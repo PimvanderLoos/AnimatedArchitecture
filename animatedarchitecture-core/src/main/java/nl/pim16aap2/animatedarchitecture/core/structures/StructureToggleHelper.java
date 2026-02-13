@@ -684,7 +684,7 @@ final class StructureToggleHelper
         if (structure.isLocked())
             return StructureToggleResult.LOCKED;
 
-        if (!config.isEnabled(type))
+        if (!config.isStructureTypeEnabled(type))
             return StructureToggleResult.TYPE_DISABLED;
 
         if (!chunksLoaded(structure, newCuboid))

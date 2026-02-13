@@ -128,7 +128,7 @@ public interface IConfig extends IRestartable
      *     The structure type.
      * @return True if the structure type is enabled.
      */
-    boolean isEnabled(StructureType type);
+    boolean isStructureTypeEnabled(StructureType type);
 
     /**
      * Gets the animation time multiplier for a specific type of structure.

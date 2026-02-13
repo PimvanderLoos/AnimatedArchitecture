@@ -122,7 +122,7 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
         this.structuresSectionResult = result;
 
         this.lazyStructureTypeManager.get()
-            .updateEnabledStatusForStructureTypes(result::isEnabled);
+            .updateEnabledStatusForStructureTypes(result::isStructureTypeEnabled);
     }
 
     @Override

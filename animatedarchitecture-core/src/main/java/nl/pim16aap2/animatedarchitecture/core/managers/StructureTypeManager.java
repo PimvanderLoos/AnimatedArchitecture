@@ -116,7 +116,7 @@ public final class StructureTypeManager implements IDebuggable
     /**
      * Gets all enabled {@link StructureType}s.
      * <p>
-     * Use {@link IConfig#isEnabled(StructureType)} to check whether a specific type is enabled.
+     * Use {@link IConfig#isStructureTypeEnabled(StructureType)} to check whether a specific type is enabled.
      *
      * @return An unmodifiable list of all enabled {@link StructureType}s.
      */

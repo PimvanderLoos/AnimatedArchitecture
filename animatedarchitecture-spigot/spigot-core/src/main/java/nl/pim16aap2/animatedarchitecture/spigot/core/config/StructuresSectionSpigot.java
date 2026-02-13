@@ -219,7 +219,7 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
         }
 
         @SuppressWarnings("unused") // It's used by Lombok's @Delegate annotation
-        public boolean isEnabled(StructureType type)
+        public boolean isStructureTypeEnabled(StructureType type)
         {
             return of(type).enabled();
         }

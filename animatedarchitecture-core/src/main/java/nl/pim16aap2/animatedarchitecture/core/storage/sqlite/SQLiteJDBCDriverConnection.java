@@ -241,7 +241,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final String structureTypeResult = structureRS.getString("type");
         final Optional<StructureType> structureTypeOpt = structureTypeManager.getFromKey(structureTypeResult);
 
-        if (!structureTypeOpt.map(config::isEnabled).orElse(false))
+        if (!structureTypeOpt.map(config::isStructureTypeEnabled).orElse(false))
         {
             log.atError().withStackTrace(StackSize.FULL).log(
                 "Type with ID: '%s' has not been registered (yet)!", structureTypeResult);
@@ -593,7 +593,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             final String structureTypeResult = resultSet.getString("type");
             final Optional<StructureType> structureType = structureTypeManager.getFromKey(structureTypeResult);
 
-            if (!structureType.map(config::isEnabled).orElse(false))
+            if (!structureType.map(config::isStructureTypeEnabled).orElse(false))
             {
                 log.atError().withStackTrace(StackSize.FULL).log(
                     "Type with ID: '%s' has not been registered (yet)!", structureTypeResult);
