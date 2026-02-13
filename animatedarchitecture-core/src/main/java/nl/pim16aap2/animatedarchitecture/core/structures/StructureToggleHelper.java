@@ -30,7 +30,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.IStructureToggleEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
-import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import nl.pim16aap2.animatedarchitecture.core.util.Cuboid;
@@ -57,7 +56,6 @@ import java.util.concurrent.atomic.AtomicReference;
 final class StructureToggleHelper
 {
     private final StructureActivityManager structureActivityManager;
-    private final StructureTypeManager structureTypeManager;
     private final IConfig config;
     private final IExecutor executor;
     private final IBlockAnalyzer<?> blockAnalyzer;
@@ -75,7 +73,6 @@ final class StructureToggleHelper
     @Inject
     StructureToggleHelper(
         StructureActivityManager structureActivityManager,
-        StructureTypeManager structureTypeManager,
         IConfig config,
         IExecutor executor,
         IBlockAnalyzer<?> blockAnalyzer,
@@ -91,7 +88,6 @@ final class StructureToggleHelper
         AnimationRequestData.IFactory movementRequestDataFactory)
     {
         this.structureActivityManager = structureActivityManager;
-        this.structureTypeManager = structureTypeManager;
         this.config = config;
         this.executor = executor;
         this.blockAnalyzer = blockAnalyzer;
@@ -688,7 +684,7 @@ final class StructureToggleHelper
         if (structure.isLocked())
             return StructureToggleResult.LOCKED;
 
-        if (!structureTypeManager.isStructureTypeEnabled(type))
+        if (!config.isEnabled(type))
             return StructureToggleResult.TYPE_DISABLED;
 
         if (!chunksLoaded(structure, newCuboid))

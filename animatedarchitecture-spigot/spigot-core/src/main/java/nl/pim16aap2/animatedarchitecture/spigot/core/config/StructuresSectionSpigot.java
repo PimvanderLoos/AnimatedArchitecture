@@ -7,11 +7,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfigSectionResult;
 import nl.pim16aap2.animatedarchitecture.core.config.IStructureSubSection;
-import nl.pim16aap2.animatedarchitecture.core.config.IStructureSubSectionFlag;
 import nl.pim16aap2.animatedarchitecture.core.config.StructureTypeConfigurationOption;
 import nl.pim16aap2.animatedarchitecture.core.config.StructuresSection;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.types.flag.StructureTypeFlag;
 import org.bukkit.Material;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -19,6 +19,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -53,7 +54,7 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
     @Override
     protected IStructureSubSection createSubSection(StructureType structureType)
     {
-        if (IStructureSubSectionFlag.STRUCTURE_TYPE_KEY.equals(structureType.getFullKey()))
+        if (StructureTypeFlag.get().getKey().equals(structureType.getKey()))
             return new StructureSubSectionFlagSpigot(structureType);
 
         return new StructureSubSectionSpigot(structureType);
@@ -78,7 +79,7 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
     {
         return sectionNode
             .node(
-                IStructureSubSectionFlag.STRUCTURE_TYPE_KEY,
+                StructureTypeFlag.get().getKey(),
                 StructureSubSectionFlagSpigot.OPTION_MOVEMENT_FORMULA.name())
             .getString(StructureSubSectionFlagSpigot.OPTION_MOVEMENT_FORMULA.defaultValue());
     }
@@ -95,7 +96,7 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
                         try
                         {
                             return getStructureResult(
-                                sectionNode.node(structureType.getFullKey()),
+                                sectionNode.node(structureType.getKey()),
                                 structureType,
                                 silent
                             );
@@ -104,7 +105,7 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
                         {
                             throw new RuntimeException(
                                 "Failed to parse structure configuration for '%s': %s".formatted(
-                                    structureType.getFullKey(),
+                                    structureType.getKey(),
                                     exception.getMessage()),
                                 exception
                             );
@@ -127,12 +128,15 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
             {
                 log.atWarn().log(
                     "Structure '%s' is not configured in the configuration file.",
-                    structureType.getFullKey()
+                    structureType.getKey()
                 );
             }
 
             return StructureResult.DEFAULT;
         }
+
+        final boolean enabled =
+            getConfigurationOption(structureNode, StructureTypeConfigurationOption.ENABLED);
 
         final double speedMultiplier =
             getConfigurationOption(structureNode, StructureTypeConfigurationOption.ANIMATION_SPEED_MULTIPLIER);
@@ -143,6 +147,7 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
         final Material guiMaterial = parseMaterial(structureNode, structureType, silent);
 
         return new StructureResult(
+            enabled,
             speedMultiplier,
             price,
             guiMaterial
@@ -194,9 +199,10 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
             StructureSubSectionFlagSpigot.OPTION_MOVEMENT_FORMULA.defaultValue()
         );
 
+        @SuppressWarnings("IdentityHashMapUsage")
         public Result
         {
-            structureResults = Map.copyOf(structureResults);
+            structureResults = Collections.unmodifiableMap(new IdentityHashMap<>(structureResults));
         }
 
         /**
@@ -210,6 +216,12 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
         public StructureResult of(StructureType structureType)
         {
             return structureResults.getOrDefault(structureType, StructureResult.DEFAULT);
+        }
+
+        @SuppressWarnings("unused") // It's used by Lombok's @Delegate annotation
+        public boolean isEnabled(StructureType type)
+        {
+            return of(type).enabled();
         }
 
         @SuppressWarnings("unused") // It's used by Lombok's @Delegate annotation
@@ -234,6 +246,8 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
     /**
      * Represents the result of a specific structure configuration.
      *
+     * @param enabled
+     *     Whether the structure is enabled or not.
      * @param animationSpeedMultiplier
      *     The speed multiplier for the structure.
      * @param priceFormula
@@ -242,6 +256,7 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
      *     The material used in the GUI for this structure.
      */
     public record StructureResult(
+        boolean enabled,
         double animationSpeedMultiplier,
         String priceFormula,
         Material guiMaterial
@@ -251,6 +266,7 @@ public class StructuresSectionSpigot extends StructuresSection<StructuresSection
          * The default structure result, used when no specific configuration is provided.
          */
         public static final StructureResult DEFAULT = new StructureResult(
+            StructureTypeConfigurationOption.ENABLED.defaultValue(),
             StructureTypeConfigurationOption.ANIMATION_SPEED_MULTIPLIER.defaultValue(),
             StructureTypeConfigurationOption.PRICE_FORMULA.defaultValue(),
             StructureSubSectionSpigot.DEFAULT_GUI_MATERIAL

@@ -34,6 +34,12 @@ public record StructureTypeConfigurationOption<T>(
         new StructureTypeConfigurationOption<>("price_formula", "0", String.class);
 
     /**
+     * The configuration option for whether a structure type is enabled or not.
+     */
+    public static final StructureTypeConfigurationOption<Boolean> ENABLED =
+        new StructureTypeConfigurationOption<>("enabled", true, Boolean.class);
+
+    /**
      * Creates a new {@link StructureTypeConfigurationOption} without a comment.
      *
      * @param name

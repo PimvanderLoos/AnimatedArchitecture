@@ -1,10 +1,10 @@
-package nl.pim16aap2.animatedarchitecture.structures.portcullis;
+package nl.pim16aap2.animatedarchitecture.structures.types.portcullis;
 
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureType;
+import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.types.portcullis.CreatorPortcullis;
 import nl.pim16aap2.animatedarchitecture.core.structures.types.portcullis.StructureTypePortcullis;
-import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.creator.CreatorTestsUtil;
 import org.junit.jupiter.api.Assertions;

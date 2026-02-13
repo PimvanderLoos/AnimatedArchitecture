@@ -113,7 +113,7 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
             localizer.getMessage("input_request.specify_structure.structure_option"),
             text.getTextComponentFactory().newClickableTextComponent(TextType.CLICKABLE, cmd, info),
             arg -> arg.clickable(structure.getUid(), TextType.CLICKABLE_CONFIRM, cmd, info),
-            arg -> arg.clickable(structure.getType().getSimpleName(), cmd, info),
+            arg -> arg.clickable(structure.getType().getKey(), cmd, info),
             arg -> arg.clickable(structure.getName(), TextType.CLICKABLE_CONFIRM, cmd, info),
             arg -> arg.clickable(distance, TextType.HIGHLIGHT, cmd, info)
         );

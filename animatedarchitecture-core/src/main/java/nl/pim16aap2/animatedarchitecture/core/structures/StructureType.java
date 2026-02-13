@@ -30,7 +30,7 @@ public abstract class StructureType
      * @return The key that uniquely identifies this {@link StructureType}.
      */
     @Getter
-    protected final String fullKey;
+    protected final String key;
 
     /**
      * Gets the version of this {@link StructureType}. Note that changing the version creates a whole new
@@ -84,10 +84,9 @@ public abstract class StructureType
     private final List<Property<?>> properties;
 
     /**
-     * Constructs a new {@link StructureType}. Don't forget to also register it using
-     * {@link StructureTypeManager#register(StructureType)}.
+     * Constructs a new {@link StructureType}. Don't forget to also register it in {@link StructureTypeManager}.
      *
-     * @param fullKey
+     * @param key
      *     The key that uniquely identifies this {@link StructureType}. E.g.: "windmill" or "bigdoor".
      * @param version
      *     The version of this {@link StructureType}.
@@ -104,13 +103,13 @@ public abstract class StructureType
      *     "structure.type.revolving_door".
      */
     protected StructureType(
-        String fullKey,
+        String key,
         int version,
         List<MovementDirection> validMovementDirections,
         List<Property<?>> supportedProperties,
         String localizationKey)
     {
-        this.fullKey = verifyTypeKey(fullKey);
+        this.key = verifyTypeKey(key);
 
         this.version = version;
         this.validMovementDirections =
@@ -120,7 +119,7 @@ public abstract class StructureType
         this.validOpenDirectionsList = List.copyOf(this.validMovementDirections);
         this.properties = List.copyOf(supportedProperties);
         this.localizationKey = localizationKey;
-        this.fullNameWithVersion = this.fullKey + ":" + version;
+        this.fullNameWithVersion = this.key + ":" + version;
     }
 
     /**
@@ -130,26 +129,6 @@ public abstract class StructureType
      */
     public abstract IStructureComponent newComponent();
 
-    /**
-     * Gets the simple name of the {@link StructureType}.
-     * <p>
-     * The simple name is the name of the {@link StructureType} without the plugin name. For example, "windmill",
-     * "bigdoor", "flag", etc.
-     *
-     * @return The simple name of the {@link StructureType}.
-     */
-    public final String getSimpleName()
-    {
-        return getFullKey();
-    }
-
-    /**
-     * Gets the full name of the {@link StructureType}.
-     * <p>
-     * This is the fully qualified name of the {@link StructureType}.
-     *
-     * @return The full name of the {@link StructureType}.
-     */
     /**
      * Checks if a given {@link MovementDirection} is valid for this type.
      *
@@ -226,7 +205,7 @@ public abstract class StructureType
      */
     public String getCreationPermission()
     {
-        return Constants.PERMISSION_PREFIX_USER + "create." + getSimpleName();
+        return Constants.PERMISSION_PREFIX_USER + "create." + getKey();
     }
 
     private static String verifyTypeKey(String fullKey)

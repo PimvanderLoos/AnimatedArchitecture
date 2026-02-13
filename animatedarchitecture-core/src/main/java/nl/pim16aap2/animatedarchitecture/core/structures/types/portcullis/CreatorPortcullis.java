@@ -97,7 +97,7 @@ public class CreatorPortcullis extends Creator
             .handleExceptional(ex -> handleExceptional(ex, "portcullis_prepare_blocks_to_move"));
     }
 
-    protected synchronized boolean provideBlocksToMove(int blocksToMove)
+    public synchronized boolean provideBlocksToMove(int blocksToMove)
     {
         if (blocksToMove < 1)
         {

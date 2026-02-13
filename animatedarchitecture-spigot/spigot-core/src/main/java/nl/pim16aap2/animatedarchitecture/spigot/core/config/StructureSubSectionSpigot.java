@@ -45,7 +45,7 @@ public class StructureSubSectionSpigot extends StructureSubSection
 
     static Material getDefaultGuiMaterial(StructureType structureType)
     {
-        return switch (structureType.getFullKey())
+        return switch (structureType.getKey())
         {
             case "bigdoor" -> Material.OAK_DOOR;
             case "clock" -> Material.CLOCK;

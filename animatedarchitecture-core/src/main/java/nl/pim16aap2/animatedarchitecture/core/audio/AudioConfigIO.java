@@ -76,7 +76,7 @@ class AudioConfigIO
     {
         final JsonObject base = new JsonObject();
         appendToJsonObject(GSON, base, AudioConfigurator.KEY_DEFAULT, defaultAudioSet);
-        map.forEach((key, val) -> appendToJsonObject(GSON, base, key.getSimpleName(), val));
+        map.forEach((key, val) -> appendToJsonObject(GSON, base, key.getKey(), val));
 
         try
         {

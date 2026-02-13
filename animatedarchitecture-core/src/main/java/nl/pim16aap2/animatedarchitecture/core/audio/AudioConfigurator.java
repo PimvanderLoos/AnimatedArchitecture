@@ -109,10 +109,10 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
      */
     private Map<StructureType, @Nullable AudioSet> getDefaults()
     {
-        final Collection<StructureType> enabledStructureTypesTypes = structureTypeManager.getEnabledStructureTypes();
+        final Collection<StructureType> registeredStructureTypes = structureTypeManager.getRegisteredStructureTypes();
         final Map<StructureType, @Nullable AudioSet> defaultMap =
-            new LinkedHashMap<>(enabledStructureTypesTypes.size());
-        structureTypeManager.getEnabledStructureTypes().forEach(type -> defaultMap.put(type, type.getAudioSet()));
+            LinkedHashMap.newLinkedHashMap(registeredStructureTypes.size());
+        registeredStructureTypes.forEach(type -> defaultMap.put(type, type.getAudioSet()));
         return defaultMap;
     }
 
@@ -121,8 +121,8 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         Map<StructureType, @Nullable AudioSet> defaults)
     {
         final Map<String, StructureType> types = structureTypeManager
-            .getEnabledStructureTypes().stream()
-            .collect(Collectors.toMap(StructureType::getSimpleName, type -> type));
+            .getRegisteredStructureTypes().stream()
+            .collect(Collectors.toMap(StructureType::getKey, type -> type));
 
         final LinkedHashMap<StructureType, @Nullable AudioSet> merged = new LinkedHashMap<>(defaults);
         for (final Map.Entry<String, @Nullable AudioSet> entry : parsed.entrySet())

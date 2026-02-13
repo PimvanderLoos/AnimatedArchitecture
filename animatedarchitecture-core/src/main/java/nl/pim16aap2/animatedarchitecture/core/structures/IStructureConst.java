@@ -150,7 +150,7 @@ public interface IStructureConst extends IPropertyHolderConst
             "%d (%s) - %s: %s",
             getUid(),
             getPrimeOwner(),
-            getType().getFullKey(),
+            getType().getKey(),
             getName()
         );
     }

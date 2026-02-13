@@ -34,6 +34,6 @@ public interface IStructureSubSection
      */
     default String getSectionTitle()
     {
-        return getStructureType().getFullKey();
+        return getStructureType().getKey();
     }
 }

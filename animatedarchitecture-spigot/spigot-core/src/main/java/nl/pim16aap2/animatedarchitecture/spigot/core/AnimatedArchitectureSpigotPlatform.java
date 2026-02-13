@@ -28,7 +28,6 @@ import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;
-import nl.pim16aap2.animatedarchitecture.core.managers.BuiltinStructureTypeRegistrar;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.LimitsManager;
@@ -180,9 +179,6 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
     private final IRedstoneManager powerBlockRedstoneManager;
 
     @Getter
-    private final BuiltinStructureTypeRegistrar builtinStructureTypeRegistrar;
-
-    @Getter
     private final LocalizationManager localizationManager;
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
@@ -273,8 +269,6 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         animatedArchitectureToolUtil = safeGetter(
             AnimatedArchitectureSpigotComponent::getAnimatedArchitectureToolUtilSpigot);
         localizer = safeGetter(AnimatedArchitectureSpigotComponent::getILocalizer);
-        builtinStructureTypeRegistrar =
-            safeGetter(AnimatedArchitectureSpigotComponent::getBuiltinStructureTypeRegistrar);
         restartableHolder = safeGetter(AnimatedArchitectureSpigotComponent::getRestartableHolder);
         projectVersion = safeGetter(AnimatedArchitectureSpigotComponent::getProjectVersion);
         commandListener = safeGetter(AnimatedArchitectureSpigotComponent::getCommandListener);

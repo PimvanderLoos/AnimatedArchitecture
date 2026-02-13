@@ -26,7 +26,6 @@ import nl.pim16aap2.animatedarchitecture.core.events.IAnimatedArchitectureEventC
 import nl.pim16aap2.animatedarchitecture.core.localization.ILocalizer;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationManager;
 import nl.pim16aap2.animatedarchitecture.core.localization.LocalizationModule;
-import nl.pim16aap2.animatedarchitecture.core.managers.BuiltinStructureTypeRegistrar;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
@@ -109,7 +108,6 @@ import org.semver4j.Semver;
 )
 interface AnimatedArchitectureSpigotComponent
 {
-    @SuppressWarnings("NullableProblems")
     @Component.Builder
     interface Builder
     {
@@ -227,8 +225,6 @@ interface AnimatedArchitectureSpigotComponent
     LocalizationManager getLocalizationManager();
 
     IAnimatedBlockFactory getAnimatedBlockFactory();
-
-    BuiltinStructureTypeRegistrar getBuiltinStructureTypeRegistrar();
 
     ISpigotSubPlatform getSubPlatform();
 

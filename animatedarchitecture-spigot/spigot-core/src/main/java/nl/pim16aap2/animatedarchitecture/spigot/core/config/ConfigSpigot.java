@@ -14,6 +14,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.config.AbstractConfig;
+import nl.pim16aap2.animatedarchitecture.core.config.StructureTypeConfigurationOption;
 import nl.pim16aap2.animatedarchitecture.core.config.StructuresSection;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.spigot.core.hooks.ProtectionHookManagerSpigot;
@@ -87,6 +88,8 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
     private volatile LoggingSectionSpigot.Result loggingSectionResult =
         LoggingSectionSpigot.Result.DEFAULT;
 
+    private final Lazy<StructureTypeManager> lazyStructureTypeManager;
+
     @Inject
     public ConfigSpigot(
         RestartableHolder restartableHolder,
@@ -96,6 +99,7 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
         DebuggableRegistry debuggableRegistry)
     {
         super(baseDir);
+        this.lazyStructureTypeManager = lazyStructureTypeManager;
 
         super.addSections(
             new GeneralSectionSpigot(this::setGeneralSectionResult),
@@ -111,6 +115,14 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
 
         restartableHolder.registerRestartable(this);
         debuggableRegistry.registerDebuggable(this);
+    }
+
+    private void setStructuresSectionResult(StructuresSectionSpigot.Result result)
+    {
+        this.structuresSectionResult = result;
+
+        this.lazyStructureTypeManager.get()
+            .updateEnabledStatusForStructureTypes(result::isEnabled);
     }
 
     @Override
@@ -171,7 +183,7 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
     @Override
     protected void addTransformations(ConfigurationTransformation.VersionedBuilder builder)
     {
-        builder.makeVersion(1, transformationBuilder ->
+        builder.makeVersion(2, transformationBuilder ->
             transformationBuilder.addAction(NodePath.path(StructuresSection.SECTION_TITLE), (path, value) ->
             {
                 if (!value.isMap())
@@ -185,7 +197,12 @@ final class ConfigSpigot extends AbstractConfig implements IConfigSpigot, IDebug
 
                     final var newNode = value.node(entry.getValue());
                     if (newNode.virtual())
-                        newNode.from(oldNode);
+                    {
+                        newNode.node(StructureTypeConfigurationOption.ENABLED.name()).set(true);
+
+                        for (final var childEntry : oldNode.childrenMap().entrySet())
+                            newNode.node(childEntry.getKey()).from(childEntry.getValue());
+                    }
 
                     value.removeChild(entry.getKey());
                 }

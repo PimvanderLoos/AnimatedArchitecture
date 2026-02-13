@@ -122,6 +122,15 @@ public interface IConfig extends IRestartable
     String priceFormula(StructureType type);
 
     /**
+     * Checks if a specific type of structure is enabled.
+     *
+     * @param type
+     *     The structure type.
+     * @return True if the structure type is enabled.
+     */
+    boolean isEnabled(StructureType type);
+
+    /**
      * Gets the animation time multiplier for a specific type of structure.
      *
      * @param type
