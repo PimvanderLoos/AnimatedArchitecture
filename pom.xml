@@ -53,7 +53,7 @@
         <version.maven-pmd>3.27.0</version.maven-pmd>
         <version.maven-project-reports>3.9.0</version.maven-project-reports>
         <version.maven-resources>3.3.1</version.maven-resources>
-        <version.maven-shade>3.6.1</version.maven-shade>
+        <version.maven-shade>3.6.2</version.maven-shade>
         <version.maven-site>3.21.0</version.maven-site>
         <version.maven-source>3.3.1</version.maven-source>
         <version.mockito>5.20.0</version.mockito>
