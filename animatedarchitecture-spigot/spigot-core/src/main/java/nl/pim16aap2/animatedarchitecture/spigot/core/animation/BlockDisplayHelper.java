@@ -29,6 +29,17 @@ public final class BlockDisplayHelper
     private static final Vector3f HALF_VECTOR_POSITIVE = new Vector3f(0.5F, 0.5F, 0.5F);
     private static final Vector3f HALF_VECTOR_NEGATIVE = new Vector3f(-0.5F, -0.5F, -0.5F);
 
+    /**
+     * The number of ticks over which the client smoothly interpolates a BlockDisplay entity from its previous
+     * transformation to a newly applied one.
+     * <p>
+     * A value greater than 1 ensures that the client is still mid-interpolation when the next transformation update
+     * arrives, eliminating visible snapping caused by async timer jitter or minor server tick drift. The trade-off is
+     * that the visually rendered position lags behind the authoritative server-side position by roughly this many
+     * ticks.
+     */
+    private static final int INTERPOLATION_DURATION_TICKS = 3;
+
     private final AnimatedBlockHelper animatedBlockHelper;
 
     @Inject
@@ -65,7 +76,7 @@ public final class BlockDisplayHelper
         final BlockDisplay newEntity = bukkitWorld.spawn(loc, BlockDisplay.class);
         newEntity.setBlock(blockData);
         animatedBlockHelper.setRecoveryData(newEntity, recoveryData);
-        newEntity.setInterpolationDuration(1);
+        newEntity.setInterpolationDuration(INTERPOLATION_DURATION_TICKS);
         return newEntity;
     }
 
@@ -92,6 +103,7 @@ public final class BlockDisplayHelper
     private void updateTransformation(BlockDisplay entity, RotatedPosition startPosition, RotatedPosition target)
     {
         final Vector3Dd delta = target.position().subtract(startPosition.position());
+        entity.setInterpolationDelay(0);
         entity.setTransformation(getTransformation(startPosition, target.rotation(), delta));
     }
 
