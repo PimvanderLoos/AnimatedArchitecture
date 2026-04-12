@@ -32,7 +32,8 @@ public interface IServer extends ICommandSender
         @FormatString String subCommandFormat,
         @Nullable Object @Nullable ... args)
     {
-        return commandName + " " + String.format(subCommandFormat, args);
+        final String sub = String.format(subCommandFormat, args);
+        return sub.isEmpty() ? commandName : commandName + " " + sub;
     }
 
     @Override
