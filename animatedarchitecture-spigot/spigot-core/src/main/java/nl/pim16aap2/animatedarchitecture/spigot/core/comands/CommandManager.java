@@ -122,7 +122,7 @@ public final class CommandManager
                     "commands.spigot.confirmation.message",
                     arg -> arg.clickable(
                         arg.localized("commands.spigot.confirmation.message.arg0.message"),
-                        "/AnimatedArchitecture confirm",
+                        context.getCommandContext().getSender().formatCommand(config.primaryCommandName(), "confirm"),
                         arg.localized("commands.spigot.confirmation.message.arg0.hint"))),
             sender -> sender.sendError("commands.spigot.confirmation.error.no_pending")
         );
