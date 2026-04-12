@@ -41,7 +41,6 @@ import nl.pim16aap2.util.LazyValue;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -118,20 +117,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
 
     @GuardedBy("lock")
     private final Map<UUID, StructureOwner> owners;
-
-    /**
-     * Returns a snapshot (defensive copy) of the current owners map.
-     * <p>
-     * Unlike the previous {@code Collections.unmodifiableMap} view, this copy is safe to hold and
-     * iterate after the read lock is released.
-     *
-     * @return An immutable copy of the owners map.
-     */
-    @Locked.Read("lock")
-    Map<UUID, StructureOwner> getOwnersSnapshot()
-    {
-        return Map.copyOf(owners);
-    }
 
     private final StructureType type;
 
@@ -232,10 +217,18 @@ public final class Structure implements IStructureConst, IPropertyHolder
         lazyPropertyContainerSnapshot = new LazyValue<>(this::newPropertyContainerSnapshot);
 
         this.redstoneHandler = new StructureRedstoneHandler(
-            this, uid, world, primeOwner, config,
+            this,
+            uid,
+            world,
+            primeOwner,
+            config,
             this::captureRedstoneSnapshot,
-            redstoneManager, chunkLoader, structureActivityManager,
-            structureToggleRequestBuilder, playerFactory, executor
+            redstoneManager,
+            chunkLoader,
+            structureActivityManager,
+            structureToggleRequestBuilder,
+            playerFactory,
+            executor
         );
     }
 
@@ -488,8 +481,8 @@ public final class Structure implements IStructureConst, IPropertyHolder
     /**
      * Captures a lightweight snapshot of the structure state needed for redstone decisions.
      * <p>
-     * Called by the {@link StructureRedstoneHandler}'s snapshot supplier. The read lock ensures
-     * the captured fields and the handler's version counter are consistent.
+     * Called by the {@link StructureRedstoneHandler}'s snapshot supplier. The read lock ensures the captured fields and
+     * the handler's version counter are consistent.
      *
      * @return A snapshot of the redstone-relevant state.
      */
@@ -502,6 +495,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
             getPropertyValue(Property.OPEN_STATUS),
             rotationPoint.isSet() ? rotationPoint.value() : null,
             component.canMovePerpetually(this),
+            this.isLocked,
             redstoneHandler.currentVersion()
         );
     }
@@ -562,7 +556,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
         return lazyStructureSnapshot.get();
     }
 
-
     /**
      * Synchronizes this structure with the database.
      *
@@ -579,23 +572,31 @@ public final class Structure implements IStructureConst, IPropertyHolder
         final StructureSnapshot snapshot = getSnapshot();
         try
         {
-            final var ret = databaseManager.syncStructureData(snapshot);
+            final CompletableFuture<DatabaseManager.ActionResult> ret = databaseManager.syncStructureData(snapshot);
 
             if (handleException)
             {
                 return ret.exceptionally(ex ->
                 {
                     log.atError().withCause(ex).log(
-                        "Failed to sync data for structure: %s", snapshot.getBasicInfo());
+                        "Failed to sync data for structure: %s",
+                        snapshot.getBasicInfo()
+                    );
                     return DatabaseManager.ActionResult.FAIL;
                 });
             }
 
-            return ret.withExceptionContext("Syncing data for structure: %s", snapshot.getBasicInfo());
+            return ret.withExceptionContext(
+                "Syncing data for structure: %s",
+                snapshot.getBasicInfo()
+            );
         }
         catch (Exception e)
         {
-            log.atError().withCause(e).log("Failed to sync data for structure: %s", snapshot.getBasicInfo());
+            log.atError().withCause(e).log(
+                "Failed to sync data for structure: %s",
+                snapshot.getBasicInfo()
+            );
         }
         return CompletableFuture.completedFuture(DatabaseManager.ActionResult.FAIL);
     }
@@ -629,9 +630,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
     /**
      * Checks if the current thread holds a write lock.
      * <p>
-     * This method is intended for diagnostic assertions only (e.g., verifying that a caller
-     * already holds the write lock before performing a mutation). It should not be used for
-     * control-flow decisions outside of assertion contexts.
+     * This method is intended for diagnostic assertions only (e.g., verifying that a caller already holds the write
+     * lock before performing a mutation). It should not be used for control-flow decisions outside of assertion
+     * contexts.
      *
      * @return {@code true} if the current thread holds a write lock.
      */
@@ -825,9 +826,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Locked.Read("lock")
     public Collection<StructureOwner> getOwners()
     {
-        final List<StructureOwner> ret = new ArrayList<>(owners.size());
-        ret.addAll(owners.values());
-        return ret;
+        return List.copyOf(owners.values());
     }
 
     @Override
@@ -935,10 +934,15 @@ public final class Structure implements IStructureConst, IPropertyHolder
     {
         withWriteLock(false, () ->
         {
+            if (this.isLocked == locked)
+                return;
+
             isLocked = locked;
             invalidateSnapshot();
         });
+
         if (!locked)
+            // Now that we're unlocked, we should verify the redstone state.
             redstoneHandler.onStateChanged();
     }
 
@@ -1026,6 +1030,17 @@ public final class Structure implements IStructureConst, IPropertyHolder
     public void setCoordinates(Vector3Di posA, Vector3Di posB)
     {
         setCoordinates(new Cuboid(posA, posB));
+    }
+
+    /**
+     * Returns a snapshot (defensive copy) of the current owners map.
+     *
+     * @return An immutable copy of the owners map.
+     */
+    @Locked.Read("lock")
+    Map<UUID, StructureOwner> getOwnersSnapshot()
+    {
+        return Map.copyOf(owners);
     }
 
     @Override

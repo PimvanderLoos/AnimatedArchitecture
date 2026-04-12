@@ -27,16 +27,15 @@ import java.util.function.Supplier;
  * Handles all redstone-related logic for a {@link Structure}.
  * <p>
  * This class owns the redstone verification pipeline: it captures a lightweight snapshot of the structure's
- * redstone-relevant state, performs chunk checks and power queries outside any structure lock, validates that
- * the snapshot is still current, and dispatches toggle actions if appropriate.
+ * redstone-relevant state, performs chunk checks and power queries outside any structure lock, validates that the
+ * snapshot is still current, and dispatches toggle actions if appropriate.
  * <p>
- * The handler maintains a version counter that is incremented whenever redstone-relevant state changes.
- * If a snapshot becomes stale (version mismatch), its result is discarded and a single coalesced
- * re-verification is scheduled instead.
+ * The handler maintains a version counter that is incremented whenever redstone-relevant state changes. If a snapshot
+ * becomes stale (version mismatch), its result is discarded and a single coalesced re-verification is scheduled
+ * instead.
  * <p>
- * This class does not acquire the structure's read/write lock directly. It receives consistent snapshots
- * via a {@link Supplier} that the {@link Structure} provides, which internally acquires a short-lived
- * read lock.
+ * This class does not acquire the structure's read/write lock directly. It receives consistent snapshots via a
+ * {@link Supplier} that the {@link Structure} provides, which internally acquires a short-lived read lock.
  *
  * @see Structure
  */
@@ -99,8 +98,8 @@ final class StructureRedstoneHandler
     /**
      * Returns the current version of the redstone-relevant state.
      * <p>
-     * This is intended to be called by the snapshot supplier while it holds the structure's read lock,
-     * so the version is captured atomically with the rest of the snapshot.
+     * This is intended to be called by the snapshot supplier while it holds the structure's read lock, so the version
+     * is captured atomically with the rest of the snapshot.
      *
      * @return The current version.
      */
@@ -112,9 +111,8 @@ final class StructureRedstoneHandler
     /**
      * Signals that redstone-relevant state has changed.
      * <p>
-     * Increments the version counter and schedules a coalesced verification. Safe to call from
-     * any thread, including while holding the structure's write lock (the actual verification runs
-     * asynchronously).
+     * Increments the version counter and schedules a coalesced verification. Safe to call from any thread, including
+     * while holding the structure's write lock (the actual verification runs asynchronously).
      */
     void onStateChanged()
     {
@@ -125,9 +123,8 @@ final class StructureRedstoneHandler
     /**
      * Handles the chunk of the power block (or rotation point) being loaded.
      * <p>
-     * Captures a snapshot of the structure's redstone-relevant state, checks that the power block
-     * and rotation point chunks are loaded, and if so, queries the redstone power state and applies
-     * the appropriate action.
+     * Captures a snapshot of the structure's redstone-relevant state, checks that the power block and rotation point
+     * chunks are loaded, and if so, queries the redstone power state and applies the appropriate action.
      */
     void onChunkLoad()
     {
@@ -152,9 +149,9 @@ final class StructureRedstoneHandler
     /**
      * Verifies the redstone state of this structure.
      * <p>
-     * Captures a snapshot, checks that the power block chunk is loaded, queries the block's power
-     * state, and applies the appropriate toggle action. If the snapshot is stale by the time the
-     * action is applied, the result is discarded and a fresh verification is scheduled.
+     * Captures a snapshot, checks that the power block chunk is loaded, queries the block's power state, and applies
+     * the appropriate toggle action. If the snapshot is stale by the time the action is applied, the result is
+     * discarded and a fresh verification is scheduled.
      */
     void verifyRedstoneState()
     {
@@ -200,8 +197,8 @@ final class StructureRedstoneHandler
     /**
      * Determines and executes the appropriate redstone action based on the snapshot and power status.
      * <p>
-     * If the snapshot is stale (its version does not match the current version), the action is
-     * discarded and a fresh verification is scheduled instead.
+     * If the snapshot is stale (its version does not match the current version), the action is discarded and a fresh
+     * verification is scheduled instead.
      *
      * @param snapshot
      *     The captured redstone-relevant state.
@@ -294,8 +291,8 @@ final class StructureRedstoneHandler
     }
 
     /**
-     * Schedules a single coalesced verification. If a verification is already scheduled,
-     * this call is a no-op, preventing verification storms from rapid state changes.
+     * Schedules a single coalesced verification. If a verification is already scheduled, this call is a no-op,
+     * preventing verification storms from rapid state changes.
      */
     private void scheduleVerification()
     {
@@ -315,8 +312,8 @@ final class StructureRedstoneHandler
     /**
      * Lightweight snapshot of the structure state needed for redstone decisions.
      * <p>
-     * This intentionally captures only redstone-decision-relevant fields, not the full
-     * {@link StructureSnapshot}, to keep the read-lock hold time minimal.
+     * This intentionally captures only redstone-decision-relevant fields, not the full {@link StructureSnapshot}, to
+     * keep the read-lock hold time minimal.
      *
      * @param powerBlock
      *     The position of the power block.

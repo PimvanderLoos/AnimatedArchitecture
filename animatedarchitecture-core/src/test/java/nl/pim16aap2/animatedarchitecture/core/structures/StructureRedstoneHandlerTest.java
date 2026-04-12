@@ -25,18 +25,10 @@ import org.mockito.quality.Strictness;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
@@ -340,11 +332,11 @@ class StructureRedstoneHandlerTest
     }
 
     /**
-     * Creates a {@link StructureRedstoneHandler.RedstoneSnapshot} using real {@link IPropertyValue} instances
-     * sourced from a {@link PropertyContainer}.
+     * Creates a {@link StructureRedstoneHandler.RedstoneSnapshot} using real {@link IPropertyValue} instances sourced
+     * from a {@link PropertyContainer}.
      * <p>
-     * When {@code canMovePerpetually} is true, the open-status property is left unset (no {@link Property#OPEN_STATUS}).
-     * When false, the property is set to {@code isOpen}.
+     * When {@code canMovePerpetually} is true, the open-status property is left unset (no
+     * {@link Property#OPEN_STATUS}). When false, the property is set to {@code isOpen}.
      */
     private StructureRedstoneHandler.RedstoneSnapshot createSnapshot(
         boolean canMovePerpetually,
