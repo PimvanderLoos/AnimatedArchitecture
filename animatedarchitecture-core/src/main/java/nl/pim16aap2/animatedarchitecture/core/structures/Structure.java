@@ -43,7 +43,6 @@ import org.jspecify.annotations.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +74,10 @@ public final class Structure implements IStructureConst, IPropertyHolder
 
     private static final Object DUMMY = new Object();
 
+    // Fair mode ensures writers are not starved by a stream of readers.
+    // Note: WriteLock.tryLock() (without timeout) does NOT honor fairness — it barges past the
+    // queue. This is intentional in withWriteLock0: the main thread uses the barging tryLock()
+    // for priority access, falling back to the timed tryLock(timeout) which does honor fairness.
     @EqualsAndHashCode.Exclude
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
@@ -116,10 +119,19 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @GuardedBy("lock")
     private final Map<UUID, StructureOwner> owners;
 
-    @EqualsAndHashCode.Exclude
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read("lock"), value = AccessLevel.PACKAGE)
-    private final Map<UUID, StructureOwner> ownersView;
+    /**
+     * Returns a snapshot (defensive copy) of the current owners map.
+     * <p>
+     * Unlike the previous {@code Collections.unmodifiableMap} view, this copy is safe to hold and
+     * iterate after the read lock is released.
+     *
+     * @return An immutable copy of the owners map.
+     */
+    @Locked.Read("lock")
+    Map<UUID, StructureOwner> getOwnersSnapshot()
+    {
+        return Map.copyOf(owners);
+    }
 
     private final StructureType type;
 
@@ -206,7 +218,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
             this.owners.put(primeOwner.playerData().getUUID(), primeOwner);
         else
             this.owners.putAll(owners);
-        this.ownersView = Collections.unmodifiableMap(this.owners);
 
         this.config = config;
         this.databaseManager = databaseManager;
@@ -617,6 +628,10 @@ public final class Structure implements IStructureConst, IPropertyHolder
 
     /**
      * Checks if the current thread holds a write lock.
+     * <p>
+     * This method is intended for diagnostic assertions only (e.g., verifying that a caller
+     * already holds the write lock before performing a mutation). It should not be used for
+     * control-flow decisions outside of assertion contexts.
      *
      * @return {@code true} if the current thread holds a write lock.
      */
