@@ -49,16 +49,6 @@ public interface IConfigSpigot extends IConfig, IBlockAnalyzerConfig
     List<String> commandAliases();
 
     /**
-     * Gets the primary command name.
-     *
-     * @return The first configured command alias.
-     */
-    default String primaryCommandName()
-    {
-        return commandAliases().getFirst();
-    }
-
-    /**
      * Gets the timeout for the head cache.
      *
      * @return The timeout in seconds for the head cache in seconds.

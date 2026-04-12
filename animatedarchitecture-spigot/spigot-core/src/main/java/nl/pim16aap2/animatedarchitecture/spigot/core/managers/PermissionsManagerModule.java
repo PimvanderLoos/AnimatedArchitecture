@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.managers;
 
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import jakarta.inject.Singleton;
@@ -15,7 +16,8 @@ import java.util.function.Supplier;
  * Provides the canonical permission manager for the Spigot platform.
  */
 @Module
-public final class PermissionsManagerModule
+@SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
+public abstract class PermissionsManagerModule
 {
     private static final String LUCKPERMS_PLUGIN_NAME = "LuckPerms";
     private static final String VAULT_PLUGIN_NAME = "Vault";
@@ -64,19 +66,11 @@ public final class PermissionsManagerModule
         );
     }
 
-    /**
-     * Exposes the selected Spigot permission manager through the platform-independent permission interface.
-     *
-     * @param permissionsManager
-     *     The selected Spigot permission manager.
-     * @return The platform-independent permission manager binding.
-     */
-    @Provides
+    @Binds
     @Singleton
-    static IPermissionsManager providePermissionsManager(IPermissionsManagerSpigot permissionsManager)
-    {
-        return permissionsManager;
-    }
+    abstract IPermissionsManager providePermissionsManager(
+        IPermissionsManagerSpigot permissionsManager
+    );
 
     private static boolean isPluginEnabled(String pluginName)
     {

@@ -90,8 +90,10 @@ public final class VaultPermissionsManager extends AbstractPermissionsManagerSpi
     @Override
     public CompletableFuture<Boolean> hasPermissionOffline(World world, OfflinePlayer player, String permission)
     {
-        return CompletableFuture
-            .supplyAsync(() -> permissions.playerHas(world.getName(), player, permission), executor.getVirtualExecutor());
+        return CompletableFuture.supplyAsync(
+            () -> permissions.playerHas(world.getName(), player, permission),
+            executor.getVirtualExecutor()
+        );
     }
 
     @Override
