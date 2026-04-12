@@ -22,8 +22,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.IRedstoneManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
-import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
-import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
@@ -38,7 +36,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.util.LazyValue;
 import org.jspecify.annotations.Nullable;
@@ -90,9 +87,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @GuardedBy("lock")
     private final PropertyContainer propertyContainer;
 
-    @EqualsAndHashCode.Exclude
-    private final StructureAnimationRequestBuilder structureToggleRequestBuilder;
-
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read("lock"))
     private Vector3Di powerBlock;
@@ -137,16 +131,10 @@ public final class Structure implements IStructureConst, IPropertyHolder
     private final IExecutor executor;
 
     @EqualsAndHashCode.Exclude
-    private final IRedstoneManager redstoneManager;
-
-    @EqualsAndHashCode.Exclude
     private final PowerBlockManager powerBlockManager;
 
     @EqualsAndHashCode.Exclude
-    private final StructureActivityManager structureActivityManager;
-
-    @EqualsAndHashCode.Exclude
-    private final IChunkLoader chunkLoader;
+    private final StructureRedstoneHandler redstoneHandler;
 
     @EqualsAndHashCode.Exclude
     @GuardedBy("lock")
@@ -173,8 +161,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @EqualsAndHashCode.Exclude
     private final DatabaseManager databaseManager;
 
-    @EqualsAndHashCode.Exclude
-    private final IPlayerFactory playerFactory;
 
     @AssistedInject
     Structure(
@@ -213,10 +199,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
         this.primeOwner = primeOwner;
         this.propertyContainer = propertyContainer;
         this.executor = executor;
-        this.redstoneManager = redstoneManager;
         this.powerBlockManager = powerBlockManager;
-        this.structureActivityManager = structureActivityManager;
-        this.chunkLoader = chunkLoader;
 
         this.owners = new HashMap<>();
         if (owners == null)
@@ -228,8 +211,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
         this.config = config;
         this.databaseManager = databaseManager;
         this.structureOpeningHelper = structureOpeningHelper;
-        this.structureToggleRequestBuilder = structureToggleRequestBuilder;
-        this.playerFactory = playerFactory;
 
         this.type = type;
 
@@ -238,6 +219,13 @@ public final class Structure implements IStructureConst, IPropertyHolder
 
         lazyStructureSnapshot = new LazyValue<>(this::createNewSnapshot);
         lazyPropertyContainerSnapshot = new LazyValue<>(this::newPropertyContainerSnapshot);
+
+        this.redstoneHandler = new StructureRedstoneHandler(
+            this, uid, world, primeOwner, config,
+            this::captureRedstoneSnapshot,
+            redstoneManager, chunkLoader, structureActivityManager,
+            structureToggleRequestBuilder, playerFactory, executor
+        );
     }
 
     @Override
@@ -487,39 +475,32 @@ public final class Structure implements IStructureConst, IPropertyHolder
     }
 
     /**
-     * @return True if this structure base should ignore all redstone interaction.
+     * Captures a lightweight snapshot of the structure state needed for redstone decisions.
+     * <p>
+     * Called by the {@link StructureRedstoneHandler}'s snapshot supplier. The read lock ensures
+     * the captured fields and the handler's version counter are consistent.
+     *
+     * @return A snapshot of the redstone-relevant state.
      */
-    private boolean shouldIgnoreRedstone()
+    @Locked.Read("lock")
+    StructureRedstoneHandler.RedstoneSnapshot captureRedstoneSnapshot()
     {
-        return uid < 1 || !config.allowRedstone();
-    }
-
-    private boolean isChunkLoaded(IVector3D position)
-    {
-        return chunkLoader.checkChunk(world, position, IChunkLoader.ChunkLoadMode.VERIFY_LOADED) ==
-            IChunkLoader.ChunkLoadResult.PASS;
+        final IPropertyValue<Vector3Di> rotationPoint = getPropertyValue(Property.ROTATION_POINT);
+        return new StructureRedstoneHandler.RedstoneSnapshot(
+            powerBlock,
+            getPropertyValue(Property.OPEN_STATUS),
+            rotationPoint.isSet() ? rotationPoint.value() : null,
+            component.canMovePerpetually(this),
+            redstoneHandler.currentVersion()
+        );
     }
 
     /**
-     * Handles the chunk of the rotation point being loaded.
+     * Handles the chunk of the power block (or rotation point) being loaded.
      */
-    @Locked.Read("lock")
     public void onChunkLoad()
     {
-        if (shouldIgnoreRedstone())
-            return;
-
-        if (!isChunkLoaded(powerBlock))
-            return;
-
-        // TODO: We should probably make the checks a bit more comprehensive.
-        //       Instead of checking if a few chunks with specific points are loaded, we should check if all chunks
-        //       that the structure will interact with are loaded.
-        final IPropertyValue<Vector3Di> rotationPoint = getPropertyValue(Property.ROTATION_POINT);
-        if (rotationPoint.isSet() && !isChunkLoaded(Objects.requireNonNull(rotationPoint.value())))
-            return;
-
-        verifyRedstoneState();
+        redstoneHandler.onChunkLoad();
     }
 
     /**
@@ -533,17 +514,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * Or, if this is a structure that can move perpetually (e.g. a flag), it will stop the animation if the power block
      * is no longer powered.
      */
-    @Locked.Read("lock")
     public void verifyRedstoneState()
     {
-        if (shouldIgnoreRedstone())
-            return;
-
-        if (!isChunkLoaded(powerBlock))
-            return;
-
-        final var result = redstoneManager.isBlockPowered(world, powerBlock);
-        onRedstoneChange(result);
+        redstoneHandler.verifyRedstoneState();
     }
 
     /**
@@ -560,90 +533,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * @param isPowered
      *     The power state of the power block in the world.
      */
-    @Locked.Read("lock")
     public void onRedstoneChange(boolean isPowered)
     {
-        if (shouldIgnoreRedstone())
-            return;
-
-        onRedstoneChange(
-            isPowered ?
-                IRedstoneManager.RedstoneStatus.POWERED :
-                IRedstoneManager.RedstoneStatus.UNPOWERED
-        );
-    }
-
-    @GuardedBy("lock")
-    private void onRedstoneChange(IRedstoneManager.RedstoneStatus status)
-    {
-        if (status == IRedstoneManager.RedstoneStatus.DISABLED)
-            return;
-
-        if (status == IRedstoneManager.RedstoneStatus.UNPOWERED && component.canMovePerpetually(this))
-        {
-            structureActivityManager.stopAnimatorsWithWriteAccess(getUid());
-            return;
-        }
-
-        final IPropertyValue<Boolean> openStatus = getPropertyValue(Property.OPEN_STATUS);
-
-        final StructureActionType actionType;
-        if (component.canMovePerpetually(this))
-        {
-            if (status == IRedstoneManager.RedstoneStatus.UNPOWERED)
-            {
-                structureActivityManager.stopAnimatorsWithWriteAccess(getUid());
-                return;
-            }
-            actionType = StructureActionType.TOGGLE;
-        }
-        else if (openStatus.isSet())
-        {
-            final boolean isOpen = Boolean.TRUE.equals(openStatus.value());
-            if (status == IRedstoneManager.RedstoneStatus.POWERED && !isOpen)
-            {
-                actionType = StructureActionType.OPEN;
-            }
-            else if (status == IRedstoneManager.RedstoneStatus.UNPOWERED && isOpen)
-            {
-                actionType = StructureActionType.CLOSE;
-            }
-            else
-            {
-                log.atTrace().log(
-                    "Aborted toggle attempt with %s redstone for openable structure: %s",
-                    status,
-                    this
-                );
-                return;
-            }
-        }
-        else
-        {
-            log.atTrace().log(
-                "Aborted toggle attempt with %s redstone for structure: %s",
-                status,
-                this
-            );
-            return;
-        }
-
-        structureToggleRequestBuilder
-            .builder()
-            .structure(this)
-            .structureActionCause(StructureActionCause.REDSTONE)
-            .structureActionType(actionType)
-            .messageReceiverServer()
-            .responsible(playerFactory.create(getPrimeOwner().playerData()))
-            .build()
-            .execute()
-            .orTimeout(30, TimeUnit.SECONDS)
-            .handleExceptional(ex ->
-                log.atError().withCause(ex).log(
-                    "Toggle structure %s with redstone status %s",
-                    getBasicInfo(),
-                    status
-                ));
+        redstoneHandler.onRedstoneChange(isPowered);
     }
 
     @Locked.Read("lock")
@@ -972,11 +864,13 @@ public final class Structure implements IStructureConst, IPropertyHolder
     {
         withWriteLock(false, () ->
         {
-            invalidateSnapshot();
+            final Vector3Di oldPos = powerBlock;
             powerBlock = newPos;
-            powerBlockManager.invalidateChunkAt(world.worldName(), powerBlock);
-            verifyRedstoneState();
+            invalidateSnapshot();
+            powerBlockManager.invalidateChunkAt(world.worldName(), oldPos);
+            powerBlockManager.invalidateChunkAt(world.worldName(), newPos);
         });
+        redstoneHandler.onStateChanged();
     }
 
     /**
@@ -1028,12 +922,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
         {
             isLocked = locked;
             invalidateSnapshot();
-
-            if (!locked)
-                // Now that we're unlocked, we should verify the redstone state.
-                // We schedule this to happen later to avoid running it under a write lock.
-                executor.runAsyncLater(this::verifyRedstoneState, 1);
         });
+        if (!locked)
+            redstoneHandler.onStateChanged();
     }
 
     /**
@@ -1226,7 +1117,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     {
         switch (scope)
         {
-            case REDSTONE -> verifyRedstoneState();
+            case REDSTONE -> redstoneHandler.onStateChanged();
             case ANIMATION -> invalidateAnimationData();
             default -> throw new IllegalArgumentException("Unknown property scope: '" + scope + "'!");
         }
