@@ -52,4 +52,20 @@ class GeneralSectionSpigotTest
         assertThat(GeneralSectionSpigot.Result.DEFAULT.primaryCommandName())
             .isEqualTo("animatedarchitecture");
     }
+
+    @Test
+    void result_primaryCommandName_shouldFallBackToDefaultWhenAliasesEmpty()
+    {
+        // execute
+        final GeneralSectionSpigot.Result result = new GeneralSectionSpigot.Result(
+            Set.of(),
+            true,
+            List.of(),
+            ""
+        );
+
+        // verify
+        assertThat(result.primaryCommandName())
+            .isEqualTo(GeneralSectionSpigot.DEFAULT_COMMAND_ALIASES.getFirst());
+    }
 }

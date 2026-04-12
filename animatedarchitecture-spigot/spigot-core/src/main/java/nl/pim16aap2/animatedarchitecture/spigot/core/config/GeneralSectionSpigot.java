@@ -170,6 +170,10 @@ public class GeneralSectionSpigot extends GeneralSection<GeneralSectionSpigot.Re
         {
             materialBlacklist = Set.copyOf(materialBlacklist);
             commandAliases = List.copyOf(commandAliases);
+            // Always derived from commandAliases — caller-supplied value is overwritten.
+            primaryCommandName = commandAliases.isEmpty()
+                ? DEFAULT_COMMAND_ALIASES.getFirst()
+                : commandAliases.getFirst();
         }
     }
 }
