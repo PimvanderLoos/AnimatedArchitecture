@@ -63,7 +63,7 @@ public final class StructureSnapshot implements IStructureConst
             structure.getOpenDirection(),
             structure.isLocked(),
             structure.getPrimeOwner(),
-            Map.copyOf(structure.getOwnersView()),
+            structure.getOwnersSnapshot(),
             structure.getType(),
             structure.getCycledOpenDirection(),
             structure.getMinimumAnimationTime(),

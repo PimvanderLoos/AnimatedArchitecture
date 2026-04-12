@@ -22,8 +22,6 @@ import nl.pim16aap2.animatedarchitecture.core.api.IRedstoneManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IPlayerFactory;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
-import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
-import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.PowerBlockManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyHolder;
@@ -38,15 +36,12 @@ import nl.pim16aap2.animatedarchitecture.core.util.FutureUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.LocationUtil;
 import nl.pim16aap2.animatedarchitecture.core.util.MovementDirection;
 import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
-import nl.pim16aap2.animatedarchitecture.core.util.vector.IVector3D;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.util.LazyValue;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +73,10 @@ public final class Structure implements IStructureConst, IPropertyHolder
 
     private static final Object DUMMY = new Object();
 
+    // Fair mode ensures writers are not starved by a stream of readers.
+    // Note: WriteLock.tryLock() (without timeout) does NOT honor fairness — it barges past the
+    // queue. This is intentional in withWriteLock0: the main thread uses the barging tryLock()
+    // for priority access, falling back to the timed tryLock(timeout) which does honor fairness.
     @EqualsAndHashCode.Exclude
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
@@ -89,9 +88,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
 
     @GuardedBy("lock")
     private final PropertyContainer propertyContainer;
-
-    @EqualsAndHashCode.Exclude
-    private final StructureAnimationRequestBuilder structureToggleRequestBuilder;
 
     @GuardedBy("lock")
     @Getter(onMethod_ = @Locked.Read("lock"))
@@ -122,11 +118,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @GuardedBy("lock")
     private final Map<UUID, StructureOwner> owners;
 
-    @EqualsAndHashCode.Exclude
-    @GuardedBy("lock")
-    @Getter(onMethod_ = @Locked.Read("lock"), value = AccessLevel.PACKAGE)
-    private final Map<UUID, StructureOwner> ownersView;
-
     private final StructureType type;
 
     @GuardedBy("lock")
@@ -137,27 +128,25 @@ public final class Structure implements IStructureConst, IPropertyHolder
     private final IExecutor executor;
 
     @EqualsAndHashCode.Exclude
-    private final IRedstoneManager redstoneManager;
-
-    @EqualsAndHashCode.Exclude
     private final PowerBlockManager powerBlockManager;
 
     @EqualsAndHashCode.Exclude
-    private final StructureActivityManager structureActivityManager;
+    private final StructureRedstoneHandler redstoneHandler;
 
     @EqualsAndHashCode.Exclude
-    private final IChunkLoader chunkLoader;
-
-    @EqualsAndHashCode.Exclude
+    @GuardedBy("lock")
     private final LazyValue<Rectangle> lazyAnimationRange;
 
     @EqualsAndHashCode.Exclude
+    @GuardedBy("lock")
     private final LazyValue<Double> lazyAnimationCycleDistance;
 
     @EqualsAndHashCode.Exclude
+    @GuardedBy("lock")
     private final LazyValue<StructureSnapshot> lazyStructureSnapshot;
 
     @EqualsAndHashCode.Exclude
+    @GuardedBy("lock")
     private final LazyValue<PropertyContainerSnapshot> lazyPropertyContainerSnapshot;
 
     @EqualsAndHashCode.Exclude
@@ -169,8 +158,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @EqualsAndHashCode.Exclude
     private final DatabaseManager databaseManager;
 
-    @EqualsAndHashCode.Exclude
-    private final IPlayerFactory playerFactory;
 
     @AssistedInject
     Structure(
@@ -209,23 +196,17 @@ public final class Structure implements IStructureConst, IPropertyHolder
         this.primeOwner = primeOwner;
         this.propertyContainer = propertyContainer;
         this.executor = executor;
-        this.redstoneManager = redstoneManager;
         this.powerBlockManager = powerBlockManager;
-        this.structureActivityManager = structureActivityManager;
-        this.chunkLoader = chunkLoader;
 
         this.owners = new HashMap<>();
         if (owners == null)
             this.owners.put(primeOwner.playerData().getUUID(), primeOwner);
         else
             this.owners.putAll(owners);
-        this.ownersView = Collections.unmodifiableMap(this.owners);
 
         this.config = config;
         this.databaseManager = databaseManager;
         this.structureOpeningHelper = structureOpeningHelper;
-        this.structureToggleRequestBuilder = structureToggleRequestBuilder;
-        this.playerFactory = playerFactory;
 
         this.type = type;
 
@@ -234,6 +215,21 @@ public final class Structure implements IStructureConst, IPropertyHolder
 
         lazyStructureSnapshot = new LazyValue<>(this::createNewSnapshot);
         lazyPropertyContainerSnapshot = new LazyValue<>(this::newPropertyContainerSnapshot);
+
+        this.redstoneHandler = new StructureRedstoneHandler(
+            this,
+            uid,
+            world,
+            primeOwner,
+            config,
+            this::captureRedstoneSnapshot,
+            redstoneManager,
+            chunkLoader,
+            structureActivityManager,
+            structureToggleRequestBuilder,
+            playerFactory,
+            executor
+        );
     }
 
     @Override
@@ -354,6 +350,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      *
      * @return The longest distance traveled by an animated block measured in blocks.
      */
+    @Locked.Read("lock")
     public double getAnimationCycleDistance()
     {
         return lazyAnimationCycleDistance.get();
@@ -368,6 +365,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * @return The animation range.
      */
     @Override
+    @Locked.Read("lock")
     public Rectangle getAnimationRange()
     {
         return lazyAnimationRange.get();
@@ -379,6 +377,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * Certain actions may result in the animation range and animation cycle distance being changed. This method has to
      * be called when that may happen.
      */
+    @GuardedBy("lock")
     private void invalidateAnimationData()
     {
         lazyAnimationRange.reset();
@@ -395,6 +394,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * <p>
      * If the animation may be affected in any way, use {@link #invalidateAnimationData()} instead.
      */
+    @GuardedBy("lock")
     private void invalidateSnapshot()
     {
         lazyStructureSnapshot.reset();
@@ -403,6 +403,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     /**
      * The default speed of the animation in blocks/second, as measured by the fastest-moving block in the structure.
      */
+    @GuardedBy("lock")
     private double getDefaultAnimationSpeed()
     {
         return DEFAULT_ANIMATION_SPEED;
@@ -478,39 +479,33 @@ public final class Structure implements IStructureConst, IPropertyHolder
     }
 
     /**
-     * @return True if this structure base should ignore all redstone interaction.
+     * Captures a lightweight snapshot of the structure state needed for redstone decisions.
+     * <p>
+     * Called by the {@link StructureRedstoneHandler}'s snapshot supplier. The read lock ensures the captured fields and
+     * the handler's version counter are consistent.
+     *
+     * @return A snapshot of the redstone-relevant state.
      */
-    private boolean shouldIgnoreRedstone()
+    @Locked.Read("lock")
+    StructureRedstoneHandler.RedstoneSnapshot captureRedstoneSnapshot()
     {
-        return uid < 1 || !config.allowRedstone();
-    }
-
-    private boolean isChunkLoaded(IVector3D position)
-    {
-        return chunkLoader.checkChunk(world, position, IChunkLoader.ChunkLoadMode.VERIFY_LOADED) ==
-            IChunkLoader.ChunkLoadResult.PASS;
+        final IPropertyValue<Vector3Di> rotationPoint = getPropertyValue(Property.ROTATION_POINT);
+        return new StructureRedstoneHandler.RedstoneSnapshot(
+            powerBlock,
+            getPropertyValue(Property.OPEN_STATUS),
+            rotationPoint.isSet() ? rotationPoint.value() : null,
+            component.canMovePerpetually(this),
+            this.isLocked,
+            redstoneHandler.currentVersion()
+        );
     }
 
     /**
-     * Handles the chunk of the rotation point being loaded.
+     * Handles the chunk of the power block (or rotation point) being loaded.
      */
-    @Locked.Read("lock")
     public void onChunkLoad()
     {
-        if (shouldIgnoreRedstone())
-            return;
-
-        if (!isChunkLoaded(powerBlock))
-            return;
-
-        // TODO: We should probably make the checks a bit more comprehensive.
-        //       Instead of checking if a few chunks with specific points are loaded, we should check if all chunks
-        //       that the structure will interact with are loaded.
-        final IPropertyValue<Vector3Di> rotationPoint = getPropertyValue(Property.ROTATION_POINT);
-        if (rotationPoint.isSet() && !isChunkLoaded(Objects.requireNonNull(rotationPoint.value())))
-            return;
-
-        verifyRedstoneState();
+        redstoneHandler.onChunkLoad();
     }
 
     /**
@@ -524,17 +519,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * Or, if this is a structure that can move perpetually (e.g. a flag), it will stop the animation if the power block
      * is no longer powered.
      */
-    @Locked.Read("lock")
     public void verifyRedstoneState()
     {
-        if (shouldIgnoreRedstone())
-            return;
-
-        if (!isChunkLoaded(powerBlock))
-            return;
-
-        final var result = redstoneManager.isBlockPowered(world, powerBlock);
-        onRedstoneChange(result);
+        redstoneHandler.verifyRedstoneState();
     }
 
     /**
@@ -551,90 +538,9 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * @param isPowered
      *     The power state of the power block in the world.
      */
-    @Locked.Read("lock")
     public void onRedstoneChange(boolean isPowered)
     {
-        if (shouldIgnoreRedstone())
-            return;
-
-        onRedstoneChange(
-            isPowered ?
-                IRedstoneManager.RedstoneStatus.POWERED :
-                IRedstoneManager.RedstoneStatus.UNPOWERED
-        );
-    }
-
-    @GuardedBy("lock")
-    private void onRedstoneChange(IRedstoneManager.RedstoneStatus status)
-    {
-        if (status == IRedstoneManager.RedstoneStatus.DISABLED)
-            return;
-
-        if (status == IRedstoneManager.RedstoneStatus.UNPOWERED && component.canMovePerpetually(this))
-        {
-            structureActivityManager.stopAnimatorsWithWriteAccess(getUid());
-            return;
-        }
-
-        final IPropertyValue<Boolean> openStatus = getPropertyValue(Property.OPEN_STATUS);
-
-        final StructureActionType actionType;
-        if (component.canMovePerpetually(this))
-        {
-            if (status == IRedstoneManager.RedstoneStatus.UNPOWERED)
-            {
-                structureActivityManager.stopAnimatorsWithWriteAccess(getUid());
-                return;
-            }
-            actionType = StructureActionType.TOGGLE;
-        }
-        else if (openStatus.isSet())
-        {
-            final boolean isOpen = Boolean.TRUE.equals(openStatus.value());
-            if (status == IRedstoneManager.RedstoneStatus.POWERED && !isOpen)
-            {
-                actionType = StructureActionType.OPEN;
-            }
-            else if (status == IRedstoneManager.RedstoneStatus.UNPOWERED && isOpen)
-            {
-                actionType = StructureActionType.CLOSE;
-            }
-            else
-            {
-                log.atTrace().log(
-                    "Aborted toggle attempt with %s redstone for openable structure: %s",
-                    status,
-                    this
-                );
-                return;
-            }
-        }
-        else
-        {
-            log.atTrace().log(
-                "Aborted toggle attempt with %s redstone for structure: %s",
-                status,
-                this
-            );
-            return;
-        }
-
-        structureToggleRequestBuilder
-            .builder()
-            .structure(this)
-            .structureActionCause(StructureActionCause.REDSTONE)
-            .structureActionType(actionType)
-            .messageReceiverServer()
-            .responsible(playerFactory.create(getPrimeOwner().playerData()))
-            .build()
-            .execute()
-            .orTimeout(30, TimeUnit.SECONDS)
-            .handleExceptional(ex ->
-                log.atError().withCause(ex).log(
-                    "Toggle structure %s with redstone status %s",
-                    getBasicInfo(),
-                    status
-                ));
+        redstoneHandler.onRedstoneChange(isPowered);
     }
 
     @Locked.Read("lock")
@@ -650,33 +556,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
         return lazyStructureSnapshot.get();
     }
 
-
-    @Locked.Read("lock")
-    private CompletableFuture<DatabaseManager.ActionResult> syncData0(boolean handleException)
-    {
-        try
-        {
-            final var ret = databaseManager
-                .syncStructureData(getSnapshot());
-
-            if (handleException)
-            {
-                return ret.exceptionally(ex ->
-                {
-                    log.atError().withCause(ex).log("Failed to sync data for structure: %s", getBasicInfo());
-                    return DatabaseManager.ActionResult.FAIL;
-                });
-            }
-
-            return ret.withExceptionContext("Syncing data for structure: %s", getBasicInfo());
-        }
-        catch (Exception e)
-        {
-            log.atError().withCause(e).log("Failed to sync data for structure: %s", getBasicInfo());
-        }
-        return CompletableFuture.completedFuture(DatabaseManager.ActionResult.FAIL);
-    }
-
     /**
      * Synchronizes this structure with the database.
      *
@@ -690,7 +569,36 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public CompletableFuture<DatabaseManager.ActionResult> syncData(boolean handleException)
     {
-        return syncData0(handleException);
+        final StructureSnapshot snapshot = getSnapshot();
+        try
+        {
+            final CompletableFuture<DatabaseManager.ActionResult> ret = databaseManager.syncStructureData(snapshot);
+
+            if (handleException)
+            {
+                return ret.exceptionally(ex ->
+                {
+                    log.atError().withCause(ex).log(
+                        "Failed to sync data for structure: %s",
+                        snapshot.getBasicInfo()
+                    );
+                    return DatabaseManager.ActionResult.FAIL;
+                });
+            }
+
+            return ret.withExceptionContext(
+                "Syncing data for structure: %s",
+                snapshot.getBasicInfo()
+            );
+        }
+        catch (Exception e)
+        {
+            log.atError().withCause(e).log(
+                "Failed to sync data for structure: %s",
+                snapshot.getBasicInfo()
+            );
+        }
+        return CompletableFuture.completedFuture(DatabaseManager.ActionResult.FAIL);
     }
 
     /**
@@ -700,7 +608,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public CompletableFuture<DatabaseManager.ActionResult> syncData()
     {
-        return syncData0(true);
+        return syncData(true);
     }
 
     /**
@@ -721,6 +629,10 @@ public final class Structure implements IStructureConst, IPropertyHolder
 
     /**
      * Checks if the current thread holds a write lock.
+     * <p>
+     * This method is intended for diagnostic assertions only (e.g., verifying that a caller already holds the write
+     * lock before performing a mutation). It should not be used for control-flow decisions outside of assertion
+     * contexts.
      *
      * @return {@code true} if the current thread holds a write lock.
      */
@@ -914,9 +826,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     @Locked.Read("lock")
     public Collection<StructureOwner> getOwners()
     {
-        final List<StructureOwner> ret = new ArrayList<>(owners.size());
-        ret.addAll(owners.values());
-        return ret;
+        return List.copyOf(owners.values());
     }
 
     @Override
@@ -966,13 +876,17 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public void setPowerBlock(Vector3Di newPos)
     {
-        withWriteLock(false, () ->
+        final Vector3Di oldPos = withWriteLock(false, () ->
         {
-            invalidateSnapshot();
+            final Vector3Di prev = powerBlock;
             powerBlock = newPos;
-            powerBlockManager.invalidateChunkAt(world.worldName(), powerBlock);
-            verifyRedstoneState();
+            invalidateSnapshot();
+            redstoneHandler.incrementVersion();
+            return prev;
         });
+        powerBlockManager.invalidateChunkAt(world.worldName(), oldPos);
+        powerBlockManager.invalidateChunkAt(world.worldName(), newPos);
+        redstoneHandler.scheduleVerification();
     }
 
     /**
@@ -1020,16 +934,25 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public void setLocked(boolean locked)
     {
-        withWriteLock(false, () ->
+        final boolean shouldVerifyRedstone = withWriteLock(false, () ->
         {
+            if (this.isLocked == locked)
+                return false;
+
             isLocked = locked;
             invalidateSnapshot();
 
             if (!locked)
+            {
                 // Now that we're unlocked, we should verify the redstone state.
-                // We schedule this to happen later to avoid running it under a write lock.
-                executor.runAsyncLater(this::verifyRedstoneState, 1);
+                redstoneHandler.incrementVersion();
+                return true;
+            }
+            return false;
         });
+
+        if (shouldVerifyRedstone)
+            redstoneHandler.scheduleVerification();
     }
 
     /**
@@ -1118,7 +1041,19 @@ public final class Structure implements IStructureConst, IPropertyHolder
         setCoordinates(new Cuboid(posA, posB));
     }
 
+    /**
+     * Returns a snapshot (defensive copy) of the current owners map.
+     *
+     * @return An immutable copy of the owners map.
+     */
+    @Locked.Read("lock")
+    Map<UUID, StructureOwner> getOwnersSnapshot()
+    {
+        return Map.copyOf(owners);
+    }
+
     @Override
+    @Locked.Read("lock")
     public PropertyContainerSnapshot getPropertyContainerSnapshot()
     {
         return lazyPropertyContainerSnapshot.get();
@@ -1221,7 +1156,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     {
         switch (scope)
         {
-            case REDSTONE -> verifyRedstoneState();
+            case REDSTONE -> redstoneHandler.onStateChanged();
             case ANIMATION -> invalidateAnimationData();
             default -> throw new IllegalArgumentException("Unknown property scope: '" + scope + "'!");
         }
