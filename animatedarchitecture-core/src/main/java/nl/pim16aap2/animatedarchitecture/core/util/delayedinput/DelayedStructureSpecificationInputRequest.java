@@ -44,18 +44,22 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
 
     private final List<Structure> options;
 
+    private final IConfig config;
+
     private DelayedStructureSpecificationInputRequest(
         Duration timeout,
         List<Structure> options,
         IPlayer player,
         IExecutor executor,
-        StructureSpecificationManager structureSpecificationManager)
+        StructureSpecificationManager structureSpecificationManager,
+        IConfig config)
     {
         super(timeout, executor);
         this.options = options;
         this.player = player;
         this.localizer = player.getPersonalizedLocalizer();
         this.structureSpecificationManager = structureSpecificationManager;
+        this.config = config;
         init();
     }
 
@@ -106,7 +110,11 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
             .map(loc -> Math.round(structure.getCuboid().getCenter().getDistance(loc)))
             .orElse(-1L);
 
-        final String cmd = "/animatedarchitecture specify " + structure.getUid();
+        final String cmd = player.formatCommand(
+            config.primaryCommandName(),
+            "specify %d",
+            structure.getUid()
+        );
         final String info = localizer.getMessage("input_request.specify_structure.structure_option.info");
 
         text.append("\n * ", TextType.INFO).append(
@@ -165,7 +173,8 @@ public final class DelayedStructureSpecificationInputRequest extends DelayedInpu
                 options,
                 player,
                 executor,
-                structureSpecificationManager
+                structureSpecificationManager,
+                config
             )
                 .get()
                 .withExceptionContext(
