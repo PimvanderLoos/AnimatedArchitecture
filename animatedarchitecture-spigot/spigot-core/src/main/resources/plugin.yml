@@ -3,7 +3,8 @@ main: nl.pim16aap2.animatedarchitecture.spigot.core.AnimatedArchitecturePlugin
 version: ${project.version}
 author: pim16aap2
 api-version: 1.20
-depend:
+softdepend:
+  - LuckPerms
   - Vault
 libraries:
   - it.unimi.dsi:fastutil:${version.fastutil}
