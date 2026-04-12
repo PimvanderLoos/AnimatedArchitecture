@@ -79,7 +79,8 @@ final class StructureRedstoneHandler
         StructureActivityManager structureActivityManager,
         StructureAnimationRequestBuilder toggleRequestBuilder,
         IPlayerFactory playerFactory,
-        IExecutor executor)
+        IExecutor executor
+    )
     {
         this.structure = structure;
         this.uid = uid;
@@ -132,6 +133,8 @@ final class StructureRedstoneHandler
             return;
 
         final RedstoneSnapshot snapshot = snapshotSupplier.get();
+        if (snapshot.isLocked())
+            return;
 
         if (!isChunkLoaded(snapshot.powerBlock()))
             return;
@@ -159,6 +162,8 @@ final class StructureRedstoneHandler
             return;
 
         final RedstoneSnapshot snapshot = snapshotSupplier.get();
+        if (snapshot.isLocked())
+            return;
 
         if (!isChunkLoaded(snapshot.powerBlock()))
             return;
@@ -187,6 +192,9 @@ final class StructureRedstoneHandler
             return;
 
         final RedstoneSnapshot snapshot = snapshotSupplier.get();
+        if (snapshot.isLocked())
+            return;
+
         final var status = isPowered
             ? IRedstoneManager.RedstoneStatus.POWERED
             : IRedstoneManager.RedstoneStatus.UNPOWERED;
@@ -323,6 +331,8 @@ final class StructureRedstoneHandler
      *     The rotation point, if set. Used for chunk-load pre-flight checks.
      * @param canMovePerpetually
      *     Whether this structure can move perpetually (e.g. flags, windmills).
+     * @param isLocked
+     *     Whether the structure is currently locked. If locked, redstone changes should not trigger any action.
      * @param version
      *     The redstone state version at the time of capture, used for staleness detection.
      */
@@ -331,6 +341,7 @@ final class StructureRedstoneHandler
         IPropertyValue<Boolean> openStatus,
         @Nullable Vector3Di rotationPoint,
         boolean canMovePerpetually,
+        boolean isLocked,
         long version)
     {
     }

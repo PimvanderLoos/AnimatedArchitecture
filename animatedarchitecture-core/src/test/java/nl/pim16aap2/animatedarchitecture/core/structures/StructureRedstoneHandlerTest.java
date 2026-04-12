@@ -13,16 +13,14 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.IPropertyVal
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.structures.properties.PropertyContainer;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -32,7 +30,6 @@ import static org.mockito.Mockito.*;
 
 @Timeout(1)
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class StructureRedstoneHandlerTest
 {
     private static final long UID = 42L;
@@ -40,28 +37,20 @@ class StructureRedstoneHandlerTest
 
     @Mock
     private Structure structure;
-
     @Mock
     private IWorld world;
-
     @Mock
     private IConfig config;
-
     @Mock
     private IRedstoneManager redstoneManager;
-
     @Mock
     private IChunkLoader chunkLoader;
-
     @Mock
     private StructureActivityManager structureActivityManager;
-
     @Mock
     private StructureAnimationRequestBuilder toggleRequestBuilder;
-
     @Mock
     private IPlayerFactory playerFactory;
-
     @Mock
     private IExecutor executor;
 
@@ -69,24 +58,25 @@ class StructureRedstoneHandlerTest
     private AtomicReference<StructureRedstoneHandler.RedstoneSnapshot> snapshotRef;
     private StructureRedstoneHandler handler;
 
+    @AfterEach
+    void afterEach()
+    {
+        verifyNoMoreInteractions(
+            config,
+            redstoneManager,
+            chunkLoader,
+            structureActivityManager,
+            toggleRequestBuilder,
+            playerFactory,
+            executor
+        );
+    }
+
     @BeforeEach
     void beforeEach()
     {
-        // setup
         final var playerData = mock(PlayerData.class);
-        when(playerData.getUUID()).thenReturn(UUID.randomUUID());
         primeOwner = new StructureOwner(UID, PermissionLevel.CREATOR, playerData);
-
-        when(config.allowRedstone()).thenReturn(true);
-        when(chunkLoader.checkChunk(any(), any(), any()))
-            .thenReturn(IChunkLoader.ChunkLoadResult.PASS);
-
-        // Default: executor.runAsyncLater runs the task immediately
-        doAnswer(invocation ->
-        {
-            ((Runnable) invocation.getArgument(0)).run();
-            return null;
-        }).when(executor).runAsyncLater(any(Runnable.class), anyLong());
 
         snapshotRef = new AtomicReference<>(createSnapshot(false, false, 0));
 
@@ -102,6 +92,7 @@ class StructureRedstoneHandlerTest
     void onRedstoneChange_shouldOpenWhenPoweredAndClosed()
     {
         // setup
+        mockRedstoneEnabled();
         snapshotRef.set(createSnapshot(false, false, 0)); // closed, not perpetual
 
         mockToggleBuilderChain();
@@ -117,6 +108,7 @@ class StructureRedstoneHandlerTest
     void onRedstoneChange_shouldCloseWhenUnpoweredAndOpen()
     {
         // setup
+        mockRedstoneEnabled();
         snapshotRef.set(createSnapshot(false, true, 0)); // open, not perpetual
 
         mockToggleBuilderChain();
@@ -132,6 +124,7 @@ class StructureRedstoneHandlerTest
     void onRedstoneChange_shouldStopPerpetualWhenUnpowered()
     {
         // setup
+        mockRedstoneEnabled();
         snapshotRef.set(createSnapshot(true, false, 0));
 
         // execute
@@ -146,6 +139,7 @@ class StructureRedstoneHandlerTest
     void onRedstoneChange_shouldTogglePerpetualWhenPowered()
     {
         // setup
+        mockRedstoneEnabled();
         snapshotRef.set(createSnapshot(true, false, 0));
         mockToggleBuilderChain();
 
@@ -192,6 +186,7 @@ class StructureRedstoneHandlerTest
     void verifyRedstoneState_shouldNotActWhenChunkNotLoaded()
     {
         // setup
+        mockRedstoneEnabled();
         when(chunkLoader.checkChunk(any(), any(), any()))
             .thenReturn(IChunkLoader.ChunkLoadResult.FAIL);
 
@@ -207,6 +202,8 @@ class StructureRedstoneHandlerTest
     void verifyRedstoneState_shouldQueryRedstoneAndApply()
     {
         // setup
+        mockRedstoneEnabled();
+        mockPowerBlockChunkLoaded();
         snapshotRef.set(createSnapshot(true, false, 0));
         when(redstoneManager.isBlockPowered(world, POWER_BLOCK))
             .thenReturn(IRedstoneManager.RedstoneStatus.POWERED);
@@ -224,6 +221,8 @@ class StructureRedstoneHandlerTest
     void verifyRedstoneState_shouldDoNothingWhenRedstoneDisabled()
     {
         // setup
+        mockRedstoneEnabled();
+        mockPowerBlockChunkLoaded();
         when(redstoneManager.isBlockPowered(world, POWER_BLOCK))
             .thenReturn(IRedstoneManager.RedstoneStatus.DISABLED);
 
@@ -254,6 +253,7 @@ class StructureRedstoneHandlerTest
     void applyRedstoneAction_shouldDiscardStaleSnapshotAndScheduleVerification()
     {
         // setup
+        mockRedstoneEnabled();
         // Stop the executor from running tasks immediately so we can control version/snapshot state
         doNothing().when(executor).runAsyncLater(any(Runnable.class), anyLong());
 
@@ -269,12 +269,65 @@ class StructureRedstoneHandlerTest
     }
 
     @Test
+    void onChunkLoad_shouldNotActWhenStructureIsLocked()
+    {
+        // setup
+        mockRedstoneEnabled();
+        snapshotRef.set(createSnapshot(false, false, 0, true));
+
+        // execute
+        handler.onChunkLoad();
+
+        // verify
+        verify(chunkLoader, never()).checkChunk(any(), any(), any());
+        verify(redstoneManager, never()).isBlockPowered(any(), any());
+    }
+
+    @Test
+    void verifyRedstoneState_shouldNotActWhenStructureIsLocked()
+    {
+        // setup
+        mockRedstoneEnabled();
+        snapshotRef.set(createSnapshot(false, false, 0, true));
+
+        // execute
+        handler.verifyRedstoneState();
+
+        // verify
+        verify(chunkLoader, never()).checkChunk(any(), any(), any());
+        verify(redstoneManager, never()).isBlockPowered(any(), any());
+        verify(toggleRequestBuilder, never()).builder();
+    }
+
+    @Test
+    void onRedstoneChange_shouldNotActWhenStructureIsLocked()
+    {
+        // setup
+        mockRedstoneEnabled();
+        snapshotRef.set(createSnapshot(false, false, 0, true));
+
+        // execute
+        handler.onRedstoneChange(true);
+
+        // verify
+        verify(toggleRequestBuilder, never()).builder();
+        verify(structureActivityManager, never()).stopAnimatorsWithWriteAccess(anyLong());
+    }
+
+    @Test
     void onChunkLoad_shouldNotActWhenRotationPointChunkNotLoaded()
     {
         // setup
+        mockRedstoneEnabled();
         final var rotationPoint = new Vector3Di(50, 60, 70);
         snapshotRef.set(new StructureRedstoneHandler.RedstoneSnapshot(
-            POWER_BLOCK, unsetOpenStatus(), rotationPoint, false, 0));
+            POWER_BLOCK,
+            unsetOpenStatus(),
+            rotationPoint,
+            false,
+            false,
+            0
+        ));
 
         when(chunkLoader.checkChunk(eq(world), eq(POWER_BLOCK), any()))
             .thenReturn(IChunkLoader.ChunkLoadResult.PASS);
@@ -292,6 +345,8 @@ class StructureRedstoneHandlerTest
     void onChunkLoad_shouldProceedWhenAllChunksLoaded()
     {
         // setup
+        mockRedstoneEnabled();
+        mockAllChunksLoaded();
         snapshotRef.set(createSnapshot(true, false, 0));
         when(redstoneManager.isBlockPowered(world, POWER_BLOCK))
             .thenReturn(IRedstoneManager.RedstoneStatus.POWERED);
@@ -309,6 +364,7 @@ class StructureRedstoneHandlerTest
     void onRedstoneChange_shouldAbortWhenPoweredAndAlreadyOpen()
     {
         // setup
+        mockRedstoneEnabled();
         snapshotRef.set(createSnapshot(false, true, 0)); // already open
 
         // execute
@@ -322,6 +378,7 @@ class StructureRedstoneHandlerTest
     void onRedstoneChange_shouldAbortWhenUnpoweredAndAlreadyClosed()
     {
         // setup
+        mockRedstoneEnabled();
         snapshotRef.set(createSnapshot(false, false, 0)); // already closed
 
         // execute
@@ -343,6 +400,15 @@ class StructureRedstoneHandlerTest
         boolean isOpen,
         long version)
     {
+        return createSnapshot(canMovePerpetually, isOpen, version, false);
+    }
+
+    private StructureRedstoneHandler.RedstoneSnapshot createSnapshot(
+        boolean canMovePerpetually,
+        boolean isOpen,
+        long version,
+        boolean isLocked)
+    {
         final IPropertyValue<Boolean> openStatus;
         if (canMovePerpetually)
         {
@@ -355,7 +421,13 @@ class StructureRedstoneHandlerTest
                 .getPropertyValue(Property.OPEN_STATUS);
         }
         return new StructureRedstoneHandler.RedstoneSnapshot(
-            POWER_BLOCK, openStatus, null, canMovePerpetually, version);
+            POWER_BLOCK,
+            openStatus,
+            null,
+            canMovePerpetually,
+            isLocked,
+            version
+        );
     }
 
     private IPropertyValue<Boolean> unsetOpenStatus()
@@ -366,15 +438,14 @@ class StructureRedstoneHandlerTest
             .getPropertyValue(Property.OPEN_STATUS);
     }
 
-    @SuppressWarnings("unchecked")
     private void mockToggleBuilderChain()
     {
-        final var builderStep1 = mock(StructureAnimationRequestBuilder.IBuilderStructure.class);
-        final var builderStep2 = mock(StructureAnimationRequestBuilder.IBuilderStructureActionCause.class);
-        final var builderStep3 = mock(StructureAnimationRequestBuilder.IBuilderStructureActionType.class);
-        final var builderStep4 = mock(StructureAnimationRequestBuilder.IBuilder.class);
-        final var request = mock(StructureAnimationRequest.class);
-        final var player = mock(IPlayer.class);
+        final StructureAnimationRequestBuilder.IBuilderStructure builderStep1 = mock();
+        final StructureAnimationRequestBuilder.IBuilderStructureActionCause builderStep2 = mock();
+        final StructureAnimationRequestBuilder.IBuilderStructureActionType builderStep3 = mock();
+        final StructureAnimationRequestBuilder.IBuilder builderStep4 = mock();
+        final StructureAnimationRequest request = mock();
+        final IPlayer player = mock();
 
         when(toggleRequestBuilder.builder()).thenReturn(builderStep1);
         when(builderStep1.structure(any(Structure.class))).thenReturn(builderStep2);
@@ -386,5 +457,22 @@ class StructureRedstoneHandlerTest
         when(request.execute()).thenReturn(CompletableFuture.completedFuture(null));
 
         when(playerFactory.create(any(PlayerData.class))).thenReturn(player);
+    }
+
+    private void mockRedstoneEnabled()
+    {
+        when(config.allowRedstone()).thenReturn(true);
+    }
+
+    private void mockPowerBlockChunkLoaded()
+    {
+        when(chunkLoader.checkChunk(eq(world), eq(POWER_BLOCK), any()))
+            .thenReturn(IChunkLoader.ChunkLoadResult.PASS);
+    }
+
+    private void mockAllChunksLoaded()
+    {
+        when(chunkLoader.checkChunk(any(), any(), any()))
+            .thenReturn(IChunkLoader.ChunkLoadResult.PASS);
     }
 }
