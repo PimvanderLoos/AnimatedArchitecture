@@ -36,8 +36,11 @@ public final class VaultPermissionsManager extends AbstractPermissionsManagerSpi
     {
         final RegisteredServiceProvider<Permission> permissionProvider =
             Bukkit.getServer().getServicesManager().getRegistration(Permission.class);
+
         if (permissionProvider == null)
+        {
             throw new IllegalStateException("Vault is enabled, but no Vault permission provider is registered.");
+        }
 
         return new VaultPermissionsManager(
             executor,
@@ -59,7 +62,8 @@ public final class VaultPermissionsManager extends AbstractPermissionsManagerSpi
     public VaultPermissionsManager(
         IExecutor executor,
         DebuggableRegistry debuggableRegistry,
-        Permission permissions)
+        Permission permissions
+    )
     {
         this.executor = executor;
         this.permissions = permissions;
@@ -69,26 +73,30 @@ public final class VaultPermissionsManager extends AbstractPermissionsManagerSpi
     }
 
     @Override
-    protected boolean isMainThread()
-    {
-        return executor.isMainThread();
-    }
-
-    @Override
     public boolean hasPermission(Player player, String permission)
     {
-        validateSynchronousPlayer(player, permission);
+        validateSynchronousPlayer(executor, player, permission);
         if (player.isOp())
+        {
             return true;
+        }
 
         final boolean result = permissions.playerHas(player.getWorld().getName(), player, permission);
-        log.atDebug().log("Vault permission check for player '%s', permission '%s': %b",
-            player.getName(), permission, result);
+        log.atDebug().log(
+            "Vault permission check for player '%s', permission '%s': %b",
+            player.getName(),
+            permission,
+            result
+        );
         return result;
     }
 
     @Override
-    public CompletableFuture<Boolean> hasPermissionOffline(World world, OfflinePlayer player, String permission)
+    public CompletableFuture<Boolean> hasPermissionOffline(
+        World world,
+        OfflinePlayer player,
+        String permission
+    )
     {
         return CompletableFuture.supplyAsync(
             () -> permissions.playerHas(world.getName(), player, permission),

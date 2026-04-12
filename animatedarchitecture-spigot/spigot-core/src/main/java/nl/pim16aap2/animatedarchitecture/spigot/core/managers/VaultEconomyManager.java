@@ -34,10 +34,11 @@ import java.util.OptionalDouble;
 @CustomLog
 public final class VaultEconomyManager implements IRestartable, IEconomyManager, IDebuggable
 {
-    private final Map<StructureType, Double> flatPrices = new HashMap<>();
     private final IConfig config;
     private final StructureTypeManager structureTypeManager;
     private final @Nullable Economy economy;
+
+    private final Map<StructureType, Double> flatPrices = new HashMap<>();
 
     /**
      * Creates a Vault economy manager.
@@ -55,7 +56,8 @@ public final class VaultEconomyManager implements IRestartable, IEconomyManager,
         IConfig config,
         StructureTypeManager structureTypeManager,
         DebuggableRegistry debuggableRegistry,
-        RestartableHolder restartableHolder)
+        RestartableHolder restartableHolder
+    )
     {
         this.config = config;
         this.structureTypeManager = structureTypeManager;
@@ -66,10 +68,17 @@ public final class VaultEconomyManager implements IRestartable, IEconomyManager,
     }
 
     @Override
-    public boolean buyStructure(IPlayer player, IWorld world, StructureType type, int blockCount)
+    public boolean buyStructure(
+        IPlayer player,
+        IWorld world,
+        StructureType type,
+        int blockCount
+    )
     {
         if (!isEconomyEnabled())
+        {
             return true;
+        }
 
         final Player spigotPlayer = PlayerFactorySpigot.unwrapPlayer(player);
         if (spigotPlayer == null)
@@ -80,7 +89,9 @@ public final class VaultEconomyManager implements IRestartable, IEconomyManager,
 
         final OptionalDouble priceOpt = getPrice(type, blockCount);
         if (priceOpt.isEmpty())
+        {
             return true;
+        }
 
         final double price = priceOpt.getAsDouble();
         if (withdrawPlayer(spigotPlayer, world.worldName(), price))
@@ -116,7 +127,10 @@ public final class VaultEconomyManager implements IRestartable, IEconomyManager,
     }
 
     @Override
-    public OptionalDouble getPrice(StructureType type, int blockCount)
+    public OptionalDouble getPrice(
+        StructureType type,
+        int blockCount
+    )
     {
         if (!isEconomyEnabled())
             return OptionalDouble.empty();
@@ -129,7 +143,9 @@ public final class VaultEconomyManager implements IRestartable, IEconomyManager,
     public void initialize()
     {
         for (final StructureType type : structureTypeManager.getEnabledStructureTypes())
+        {
             getFlatPrice(type);
+        }
     }
 
     @Override
@@ -158,11 +174,18 @@ public final class VaultEconomyManager implements IRestartable, IEconomyManager,
      *     The number of blocks in the structure.
      * @return The evaluated price.
      */
-    private double evaluateFormula(String formula, int blockCount)
+    private double evaluateFormula(
+        String formula,
+        int blockCount
+    )
     {
         try
         {
-            return JCalculator.getResult(formula, new String[]{"blockCount"}, new double[]{blockCount});
+            return JCalculator.getResult(
+                formula,
+                new String[]{"blockCount"},
+                new double[]{blockCount}
+            );
         }
         catch (Exception e)
         {
@@ -184,7 +207,10 @@ public final class VaultEconomyManager implements IRestartable, IEconomyManager,
      *     The required balance.
      * @return True if the player has enough money.
      */
-    private boolean has(OfflinePlayer player, double amount)
+    private boolean has(
+        OfflinePlayer player,
+        double amount
+    )
     {
         final boolean defaultValue = true;
         if (economy == null)
@@ -219,7 +245,11 @@ public final class VaultEconomyManager implements IRestartable, IEconomyManager,
      *     The amount to withdraw.
      * @return True if the withdrawal succeeded.
      */
-    private boolean withdrawPlayer(OfflinePlayer player, String worldName, double amount)
+    private boolean withdrawPlayer(
+        OfflinePlayer player,
+        String worldName,
+        double amount
+    )
     {
         final boolean defaultValue = true;
         if (economy == null)
@@ -263,7 +293,11 @@ public final class VaultEconomyManager implements IRestartable, IEconomyManager,
      *     The amount to withdraw.
      * @return True if the withdrawal succeeded.
      */
-    private boolean withdrawPlayer(Player player, String worldName, double amount)
+    private boolean withdrawPlayer(
+        Player player,
+        String worldName,
+        double amount
+    )
     {
         return withdrawPlayer(Bukkit.getOfflinePlayer(player.getUniqueId()), worldName, amount);
     }

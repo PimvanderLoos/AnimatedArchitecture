@@ -6,6 +6,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,10 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class VaultPermissionsManagerTest
@@ -36,13 +35,20 @@ class VaultPermissionsManagerTest
 
     private VaultPermissionsManager manager;
 
+    @AfterEach
+    void afterEach()
+    {
+        verifyNoMoreInteractions(
+            executor,
+            permissions
+        );
+    }
+
     @BeforeEach
     void init()
     {
-        // setup
         when(permissions.getName()).thenReturn("VaultPerms");
 
-        // execute
         manager = new VaultPermissionsManager(executor, new DebuggableRegistry(), permissions);
     }
 
@@ -60,7 +66,9 @@ class VaultPermissionsManagerTest
 
         // verify
         assertThat(result).isTrue();
+
         verify(permissions).playerHas("world", player, "animatedarchitecture.test");
+        verify(executor).isMainThread();
     }
 
     @Test
@@ -75,6 +83,8 @@ class VaultPermissionsManagerTest
         assertThatThrownBy(() -> manager.hasPermission(player, "animatedarchitecture.test"))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("Cannot check permissions for offline players on the main thread");
+
+        verify(executor).isMainThread();
     }
 
     @Test
@@ -82,6 +92,7 @@ class VaultPermissionsManagerTest
     {
         // setup
         final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
         when(executor.getVirtualExecutor()).thenReturn(executorService);
         when(world.getName()).thenReturn("world");
         when(permissions.playerHas("world", offlinePlayer, "animatedarchitecture.test")).thenReturn(false);
@@ -94,6 +105,7 @@ class VaultPermissionsManagerTest
 
         // verify
         assertThat(result).isFalse();
+
         verify(permissions).playerHas("world", offlinePlayer, "animatedarchitecture.test");
     }
 }

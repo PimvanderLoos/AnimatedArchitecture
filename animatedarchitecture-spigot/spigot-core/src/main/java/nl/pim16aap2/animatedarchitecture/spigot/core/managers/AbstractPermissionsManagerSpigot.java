@@ -2,6 +2,7 @@ package nl.pim16aap2.animatedarchitecture.spigot.core.managers;
 
 import com.google.common.flogger.StackSize;
 import lombok.CustomLog;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.commands.ICommandSender;
 import nl.pim16aap2.animatedarchitecture.core.structures.StructureAttribute;
@@ -26,14 +27,16 @@ abstract class AbstractPermissionsManagerSpigot implements IPermissionsManagerSp
     /**
      * Checks that synchronous backend permission checks are only performed for online real players.
      *
+     * @param executor
+     *     The executor instance to use for thread verification.
      * @param player
      *     The player to validate.
      * @param permission
      *     The permission node being checked.
      */
-    protected final void validateSynchronousPlayer(Player player, String permission)
+    protected final void validateSynchronousPlayer(IExecutor executor, Player player, String permission)
     {
-        if (isMainThread() &&
+        if (executor.isMainThread() &&
             (player instanceof IFakePlayer || !player.isOnline()))
         {
             throw new RuntimeException(String.format(
@@ -47,13 +50,6 @@ abstract class AbstractPermissionsManagerSpigot implements IPermissionsManagerSp
         }
     }
 
-    /**
-     * Checks if the caller is currently running on the server main thread.
-     *
-     * @return True if the current thread is the main thread.
-     */
-    protected abstract boolean isMainThread();
-
     @Override
     public OptionalInt getMaxPermissionSuffix(Player player, String permissionBase)
     {
@@ -61,6 +57,7 @@ abstract class AbstractPermissionsManagerSpigot implements IPermissionsManagerSp
         final Set<PermissionAttachmentInfo> playerPermissions = player.getEffectivePermissions();
         int ret = -1;
         for (final PermissionAttachmentInfo permission : playerPermissions)
+        {
             if (permission.getPermission().startsWith(permissionBase))
             {
                 final OptionalInt suffix = MathUtil.parseInt(permission
@@ -69,6 +66,7 @@ abstract class AbstractPermissionsManagerSpigot implements IPermissionsManagerSp
                 if (suffix.isPresent())
                     ret = Math.max(ret, suffix.getAsInt());
             }
+        }
         return ret > 0 ? OptionalInt.of(ret) : OptionalInt.empty();
     }
 
@@ -77,7 +75,9 @@ abstract class AbstractPermissionsManagerSpigot implements IPermissionsManagerSp
     {
         final Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
+        {
             return OptionalInt.empty();
+        }
         return getMaxPermissionSuffix(bukkitPlayer, permissionBase);
     }
 
@@ -86,7 +86,9 @@ abstract class AbstractPermissionsManagerSpigot implements IPermissionsManagerSp
     {
         final Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
+        {
             return false;
+        }
 
         return hasPermission(bukkitPlayer, permissionNode);
     }
@@ -102,7 +104,9 @@ abstract class AbstractPermissionsManagerSpigot implements IPermissionsManagerSp
     {
         final Player bukkitPlayer = getBukkitPlayer(player);
         if (bukkitPlayer == null)
+        {
             return false;
+        }
 
         return hasBypassPermissionsForAttribute(bukkitPlayer, structureAttribute);
     }

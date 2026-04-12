@@ -39,13 +39,20 @@ public abstract class PermissionsManagerModule
     @Singleton
     static IPermissionsManagerSpigot providePermissionsManagerSpigot(
         IExecutor executor,
-        DebuggableRegistry debuggableRegistry)
+        DebuggableRegistry debuggableRegistry
+    )
     {
         return selectPermissionsManager(
             isPluginEnabled(LUCKPERMS_PLUGIN_NAME),
-            () -> LuckPermsPermissionsManager.create(executor, debuggableRegistry),
+            () -> LuckPermsPermissionsManager.create(
+                executor,
+                debuggableRegistry
+            ),
             isPluginEnabled(VAULT_PLUGIN_NAME),
-            () -> VaultPermissionsManager.create(executor, debuggableRegistry)
+            () -> VaultPermissionsManager.create(
+                executor,
+                debuggableRegistry
+            )
         );
     }
 
@@ -53,13 +60,18 @@ public abstract class PermissionsManagerModule
         boolean luckPermsEnabled,
         Supplier<IPermissionsManagerSpigot> luckPermsSupplier,
         boolean vaultEnabled,
-        Supplier<IPermissionsManagerSpigot> vaultSupplier)
+        Supplier<IPermissionsManagerSpigot> vaultSupplier
+    )
     {
         if (luckPermsEnabled)
+        {
             return luckPermsSupplier.get();
+        }
 
         if (vaultEnabled)
+        {
             return vaultSupplier.get();
+        }
 
         throw new IllegalStateException(
             "Failed to initialize permissions! Install LuckPerms or Vault with a permission provider."
@@ -68,6 +80,7 @@ public abstract class PermissionsManagerModule
 
     @Binds
     @Singleton
+    @SuppressWarnings("unused")
     abstract IPermissionsManager providePermissionsManager(
         IPermissionsManagerSpigot permissionsManager
     );

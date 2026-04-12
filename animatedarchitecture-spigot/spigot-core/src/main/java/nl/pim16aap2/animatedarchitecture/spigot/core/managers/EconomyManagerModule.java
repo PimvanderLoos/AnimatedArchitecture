@@ -45,10 +45,11 @@ public final class EconomyManagerModule
         IConfig config,
         StructureTypeManager structureTypeManager,
         DebuggableRegistry debuggableRegistry,
-        RestartableHolder restartableHolder)
+        RestartableHolder restartableHolder
+    )
     {
         return selectEconomyManager(
-            isPluginEnabled(VAULT_PLUGIN_NAME),
+            isPluginEnabled(),
             () -> new VaultEconomyManager(config, structureTypeManager, debuggableRegistry, restartableHolder),
             () ->
             {
@@ -63,18 +64,16 @@ public final class EconomyManagerModule
     static IEconomyManager selectEconomyManager(
         boolean vaultEnabled,
         Supplier<IEconomyManager> vaultEconomyManagerSupplier,
-        Supplier<IEconomyManager> disabledEconomyManagerSupplier)
+        Supplier<IEconomyManager> disabledEconomyManagerSupplier
+    )
     {
-        if (!vaultEnabled)
-        {
-            return disabledEconomyManagerSupplier.get();
-        }
-
-        return vaultEconomyManagerSupplier.get();
+        return vaultEnabled ?
+            vaultEconomyManagerSupplier.get() :
+            disabledEconomyManagerSupplier.get();
     }
 
-    private static boolean isPluginEnabled(String pluginName)
+    private static boolean isPluginEnabled()
     {
-        return Bukkit.getPluginManager().isPluginEnabled(pluginName);
+        return Bukkit.getPluginManager().isPluginEnabled(EconomyManagerModule.VAULT_PLUGIN_NAME);
     }
 }

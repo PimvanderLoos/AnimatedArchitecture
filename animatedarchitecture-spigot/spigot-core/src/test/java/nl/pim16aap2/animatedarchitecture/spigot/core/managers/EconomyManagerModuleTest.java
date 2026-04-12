@@ -12,8 +12,8 @@ class EconomyManagerModuleTest
     void selectEconomyManager_shouldUseVaultEconomyWhenVaultIsPresent()
     {
         // setup
-        final IEconomyManager vaultManager = mock(IEconomyManager.class);
-        final IEconomyManager disabledManager = mock(IEconomyManager.class);
+        final IEconomyManager vaultManager = mock();
+        final IEconomyManager disabledManager = mock();
 
         // execute
         final IEconomyManager result = EconomyManagerModule.selectEconomyManager(
@@ -30,8 +30,8 @@ class EconomyManagerModuleTest
     void selectEconomyManager_shouldDisableEconomyWhenVaultIsAbsent()
     {
         // setup
-        final IEconomyManager vaultManager = mock(IEconomyManager.class);
-        final IEconomyManager disabledManager = mock(IEconomyManager.class);
+        final IEconomyManager vaultManager = mock();
+        final IEconomyManager disabledManager = mock();
 
         // execute
         final IEconomyManager result = EconomyManagerModule.selectEconomyManager(

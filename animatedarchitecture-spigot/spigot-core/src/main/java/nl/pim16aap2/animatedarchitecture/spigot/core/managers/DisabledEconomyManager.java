@@ -13,12 +13,12 @@ import java.util.OptionalDouble;
  * Provides the canonical disabled economy behavior when Vault economy integration is unavailable.
  */
 @Singleton
-public final class DisabledEconomyManager implements IEconomyManager, IDebuggable
+final class DisabledEconomyManager implements IEconomyManager, IDebuggable
 {
     /**
      * Creates a disabled economy manager.
      */
-    public DisabledEconomyManager()
+    DisabledEconomyManager()
     {
     }
 

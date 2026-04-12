@@ -5,9 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class PermissionsManagerModuleTest
 {
@@ -15,8 +14,8 @@ class PermissionsManagerModuleTest
     void selectPermissionsManager_shouldPreferLuckPermsWhenBothBackendsArePresent()
     {
         // setup
-        final IPermissionsManagerSpigot luckPermsManager = mock(IPermissionsManagerSpigot.class);
-        final IPermissionsManagerSpigot vaultManager = mock(IPermissionsManagerSpigot.class);
+        final IPermissionsManagerSpigot luckPermsManager = mock();
+        final IPermissionsManagerSpigot vaultManager = mock();
         final AtomicBoolean vaultSupplierCalled = new AtomicBoolean(false);
 
         // execute
@@ -40,8 +39,8 @@ class PermissionsManagerModuleTest
     void selectPermissionsManager_shouldFallBackToVaultWhenLuckPermsIsAbsent()
     {
         // setup
-        final IPermissionsManagerSpigot luckPermsManager = mock(IPermissionsManagerSpigot.class);
-        final IPermissionsManagerSpigot vaultManager = mock(IPermissionsManagerSpigot.class);
+        final IPermissionsManagerSpigot luckPermsManager = mock();
+        final IPermissionsManagerSpigot vaultManager = mock();
 
         // execute
         final IPermissionsManagerSpigot result = PermissionsManagerModule.selectPermissionsManager(
@@ -58,15 +57,14 @@ class PermissionsManagerModuleTest
     @Test
     void selectPermissionsManager_shouldFailFastWhenNoPermissionBackendIsPresent()
     {
-        // setup
-
         // execute + verify
-        assertThatThrownBy(() -> PermissionsManagerModule.selectPermissionsManager(
-            false,
-            () -> mock(IPermissionsManagerSpigot.class),
-            false,
-            () -> mock(IPermissionsManagerSpigot.class)
-        ))
+        assertThatThrownBy(
+            () -> PermissionsManagerModule.selectPermissionsManager(
+                false,
+                () -> mock(IPermissionsManagerSpigot.class),
+                false,
+                () -> mock(IPermissionsManagerSpigot.class)
+            ))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Install LuckPerms or Vault");
     }

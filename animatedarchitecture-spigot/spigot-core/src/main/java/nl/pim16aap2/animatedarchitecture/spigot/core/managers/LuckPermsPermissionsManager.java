@@ -40,12 +40,18 @@ public final class LuckPermsPermissionsManager extends AbstractPermissionsManage
      *     The registry for debug output.
      * @return The LuckPerms permission manager.
      */
-    public static LuckPermsPermissionsManager create(IExecutor executor, DebuggableRegistry debuggableRegistry)
+    public static LuckPermsPermissionsManager create(
+        IExecutor executor,
+        DebuggableRegistry debuggableRegistry
+    )
     {
         final RegisteredServiceProvider<LuckPerms> provider =
             Bukkit.getServicesManager().getRegistration(LuckPerms.class);
+
         if (provider == null)
+        {
             throw new IllegalStateException("LuckPerms is enabled, but no LuckPerms API service is registered.");
+        }
 
         return new LuckPermsPermissionsManager(executor, debuggableRegistry, provider.getProvider());
     }
@@ -63,7 +69,8 @@ public final class LuckPermsPermissionsManager extends AbstractPermissionsManage
     public LuckPermsPermissionsManager(
         IExecutor executor,
         DebuggableRegistry debuggableRegistry,
-        LuckPerms luckPerms)
+        LuckPerms luckPerms
+    )
     {
         this.executor = executor;
         this.luckPerms = luckPerms;
@@ -74,29 +81,38 @@ public final class LuckPermsPermissionsManager extends AbstractPermissionsManage
     }
 
     @Override
-    protected boolean isMainThread()
+    public boolean hasPermission(
+        Player player,
+        String permission
+    )
     {
-        return executor.isMainThread();
-    }
-
-    @Override
-    public boolean hasPermission(Player player, String permission)
-    {
-        validateSynchronousPlayer(player, permission);
+        validateSynchronousPlayer(executor, player, permission);
         if (player.isOp())
+        {
             return true;
+        }
 
         final boolean result = playerAdapter
             .getPermissionData(player)
             .checkPermission(permission)
             .asBoolean();
-        log.atDebug().log("LuckPerms permission check for player '%s', permission '%s': %b",
-            player.getName(), permission, result);
+
+        log.atDebug().log(
+            "LuckPerms permission check for player '%s', permission '%s': %b",
+            player.getName(),
+            permission,
+            result
+        );
+
         return result;
     }
 
     @Override
-    public CompletableFuture<Boolean> hasPermissionOffline(World world, OfflinePlayer player, String permission)
+    public CompletableFuture<Boolean> hasPermissionOffline(
+        World world,
+        OfflinePlayer player,
+        String permission
+    )
     {
         return luckPerms
             .getUserManager()
@@ -105,11 +121,13 @@ public final class LuckPermsPermissionsManager extends AbstractPermissionsManage
             .whenComplete((result, throwable) ->
             {
                 if (throwable != null)
+                {
                     log.atWarn().withCause(throwable).log(
                         "Failed to complete LuckPerms offline permission check for player '%s', permission '%s'.",
                         player.getUniqueId(),
                         permission
                     );
+                }
             });
     }
 
@@ -126,7 +144,12 @@ public final class LuckPermsPermissionsManager extends AbstractPermissionsManage
      *     The permission to check.
      * @return True if the user has the permission.
      */
-    private boolean checkOfflinePermission(World world, OfflinePlayer player, User user, String permission)
+    private boolean checkOfflinePermission(
+        World world,
+        OfflinePlayer player,
+        User user,
+        String permission
+    )
     {
         try
         {
@@ -134,14 +157,21 @@ public final class LuckPermsPermissionsManager extends AbstractPermissionsManage
             final CachedPermissionData permissionData = user.getCachedData().getPermissionData(queryOptions);
             final boolean result = permissionData.checkPermission(permission).asBoolean();
 
-            log.atDebug().log("LuckPerms offline permission check for player '%s', world '%s', permission '%s': %b",
-                player.getUniqueId(), world.getName(), permission, result);
+            log.atDebug().log(
+                "LuckPerms offline permission check for player '%s', world '%s', permission '%s': %b",
+                player.getUniqueId(),
+                world.getName(),
+                permission,
+                result
+            );
             return result;
         }
         finally
         {
             if (!player.isOnline())
+            {
                 luckPerms.getUserManager().cleanupUser(user);
+            }
         }
     }
 
@@ -155,12 +185,12 @@ public final class LuckPermsPermissionsManager extends AbstractPermissionsManage
     QueryOptions createOfflineQueryOptions(World world)
     {
         final ContextManager contextManager = luckPerms.getContextManager();
-        final ImmutableContextSet context = contextManager
-            .getContextSetFactory()
-            .immutableBuilder()
+
+        final ImmutableContextSet context = ImmutableContextSet.builder()
             .addAll(contextManager.getStaticQueryOptions().context())
             .add(DefaultContextKeys.WORLD_KEY, world.getName())
             .build();
+
         return contextManager
             .queryOptionsBuilder(QueryMode.CONTEXTUAL)
             .context(context)
@@ -171,6 +201,7 @@ public final class LuckPermsPermissionsManager extends AbstractPermissionsManage
     public String getDebugInformation()
     {
         return "Permission backend: LuckPerms\n"
-            + "LuckPerms server name: " + luckPerms.getServerName();
+            + "LuckPerms server name: " + luckPerms.getServerName() + "\n"
+            + "LuckPerms plugin info: " + luckPerms.getPluginMetadata();
     }
 }

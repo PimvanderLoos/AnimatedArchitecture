@@ -4,7 +4,6 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.cacheddata.CachedDataManager;
 import net.luckperms.api.cacheddata.CachedPermissionData;
 import net.luckperms.api.context.ContextManager;
-import net.luckperms.api.context.ContextSetFactory;
 import net.luckperms.api.context.ImmutableContextSet;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.model.user.UserManager;
@@ -17,21 +16,20 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LuckPermsPermissionsManagerTest
@@ -57,8 +55,6 @@ class LuckPermsPermissionsManagerTest
     @Mock
     private ContextManager contextManager;
     @Mock
-    private ContextSetFactory contextSetFactory;
-    @Mock
     private ImmutableContextSet.Builder contextSetBuilder;
     @Mock
     private QueryOptions.Builder queryOptionsBuilder;
@@ -73,14 +69,28 @@ class LuckPermsPermissionsManagerTest
 
     private LuckPermsPermissionsManager manager;
 
+    private MockedStatic<ImmutableContextSet> mockedImmutableContextSet;
+
+    @AfterEach
+    void afterEach()
+    {
+        verifyNoMoreInteractions(
+            executor,
+            luckPerms
+        );
+        mockedImmutableContextSet.close();
+    }
+
     @BeforeEach
     void init()
     {
-        // setup
+        mockedImmutableContextSet = mockStatic(ImmutableContextSet.class);
+
         when(luckPerms.getPlayerAdapter(Player.class)).thenReturn(playerAdapter);
 
-        // execute
         manager = new LuckPermsPermissionsManager(executor, new DebuggableRegistry(), luckPerms);
+
+        clearInvocations(luckPerms);
     }
 
     @Test
@@ -97,6 +107,8 @@ class LuckPermsPermissionsManagerTest
 
         // verify
         assertThat(result).isTrue();
+
+        verify(executor).isMainThread();
         verify(playerAdapter).getPermissionData(player);
         verify(cachedPermissionData).checkPermission("animatedarchitecture.test");
     }
@@ -112,6 +124,8 @@ class LuckPermsPermissionsManagerTest
 
         // verify
         assertThat(result).isTrue();
+
+        verify(executor).isMainThread();
     }
 
     @Test
@@ -123,6 +137,8 @@ class LuckPermsPermissionsManagerTest
         when(cachedDataManager.getPermissionData(queryOptions)).thenReturn(cachedPermissionData);
         when(cachedPermissionData.checkPermission("animatedarchitecture.test")).thenReturn(Tristate.FALSE);
 
+        mockedImmutableContextSet.when(ImmutableContextSet::builder).thenReturn(contextSetBuilder);
+
         // execute
         final boolean result = manager
             .hasPermissionOffline(world, offlinePlayer, "animatedarchitecture.test")
@@ -130,6 +146,7 @@ class LuckPermsPermissionsManagerTest
 
         // verify
         assertThat(result).isFalse();
+
         verify(userManager).loadUser(uuid, "Player");
         verify(cachedPermissionData).checkPermission("animatedarchitecture.test");
         verify(userManager).cleanupUser(user);
@@ -141,11 +158,14 @@ class LuckPermsPermissionsManagerTest
         // setup
         setupQueryOptions("world_nether");
 
+        mockedImmutableContextSet.when(ImmutableContextSet::builder).thenReturn(contextSetBuilder);
+
         // execute
         final QueryOptions result = manager.createOfflineQueryOptions(world);
 
         // verify
         assertThat(result).isSameAs(queryOptions);
+
         verify(contextSetBuilder).addAll(staticContextSet);
         verify(contextSetBuilder).add("world", "world_nether");
     }
@@ -155,7 +175,7 @@ class LuckPermsPermissionsManagerTest
     {
         // setup
         final UUID uuid = UUID.randomUUID();
-        final OfflinePlayer offlinePlayer = mock(OfflinePlayer.class);
+        final OfflinePlayer offlinePlayer = mock();
         final RuntimeException failure = new RuntimeException("load failed");
         when(offlinePlayer.getUniqueId()).thenReturn(uuid);
         when(offlinePlayer.getName()).thenReturn("Player");
@@ -163,8 +183,12 @@ class LuckPermsPermissionsManagerTest
         when(userManager.loadUser(uuid, "Player")).thenReturn(CompletableFuture.failedFuture(failure));
 
         // execute
-        final CompletableFuture<Boolean> result =
-            manager.hasPermissionOffline(world, offlinePlayer, "animatedarchitecture.test");
+        final CompletableFuture<Boolean> result = manager
+            .hasPermissionOffline(
+                world,
+                offlinePlayer,
+                "animatedarchitecture.test"
+            );
 
         // verify
         assertThatThrownBy(result::join)
@@ -181,27 +205,38 @@ class LuckPermsPermissionsManagerTest
         final RuntimeException failure = new RuntimeException("permission data failed");
         when(cachedDataManager.getPermissionData(queryOptions)).thenThrow(failure);
 
+        mockedImmutableContextSet.when(ImmutableContextSet::builder).thenReturn(contextSetBuilder);
+
         // execute
-        final CompletableFuture<Boolean> result =
-            manager.hasPermissionOffline(world, offlinePlayer, "animatedarchitecture.test");
+        final CompletableFuture<Boolean> result = manager
+            .hasPermissionOffline(
+                world,
+                offlinePlayer,
+                "animatedarchitecture.test"
+            );
 
         // verify
         assertThatThrownBy(result::join)
             .isInstanceOf(CompletionException.class)
             .hasCause(failure);
+
         verify(userManager).cleanupUser(user);
     }
 
     private OfflinePlayer setupLoadedOfflineLuckPermsUser(UUID uuid)
     {
-        final OfflinePlayer offlinePlayer = mock(OfflinePlayer.class);
+        final OfflinePlayer offlinePlayer = mock();
+
         when(offlinePlayer.getUniqueId()).thenReturn(uuid);
         when(offlinePlayer.getName()).thenReturn("Player");
         when(offlinePlayer.isOnline()).thenReturn(false);
+
         setupQueryOptions("world");
+
         when(luckPerms.getUserManager()).thenReturn(userManager);
         when(userManager.loadUser(uuid, "Player")).thenReturn(CompletableFuture.completedFuture(user));
         when(user.getCachedData()).thenReturn(cachedDataManager);
+
         return offlinePlayer;
     }
 
@@ -209,8 +244,6 @@ class LuckPermsPermissionsManagerTest
     {
         when(world.getName()).thenReturn(worldName);
         when(luckPerms.getContextManager()).thenReturn(contextManager);
-        when(contextManager.getContextSetFactory()).thenReturn(contextSetFactory);
-        when(contextSetFactory.immutableBuilder()).thenReturn(contextSetBuilder);
         when(contextManager.getStaticQueryOptions()).thenReturn(staticQueryOptions);
         when(staticQueryOptions.context()).thenReturn(staticContextSet);
         when(contextSetBuilder.addAll(staticContextSet)).thenReturn(contextSetBuilder);
