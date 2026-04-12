@@ -36,4 +36,13 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>lightkeeper-e2e</id>
+            <modules>
+                <module>animatedarchitecture-lightkeeper-e2e</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

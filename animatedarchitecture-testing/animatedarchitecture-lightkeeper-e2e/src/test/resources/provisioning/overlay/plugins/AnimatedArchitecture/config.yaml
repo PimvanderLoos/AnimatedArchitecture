@@ -1,0 +1,22 @@
+version: 0
+general:
+  resource_pack_enabled: false
+  material_blacklist: []
+  command_aliases:
+    - aa
+    - animatedarchitecture
+    - AnimatedArchitecture
+redstone:
+  allow_redstone: false
+animations:
+  load_chunks_for_toggle: true
+  skip_animations_by_default: true
+limits:
+  max_structure_count: -1
+  max_structure_size: 1000
+  max_blocks_to_move: 100
+  max_powerblock_distance: -1
+  max_block_speed: 100.0
+protection_hooks:
+  WorldGuard:
+    enabled: true
