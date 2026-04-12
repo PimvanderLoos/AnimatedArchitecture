@@ -660,32 +660,6 @@ public final class Structure implements IStructureConst, IPropertyHolder
     }
 
 
-    @Locked.Read("lock")
-    private CompletableFuture<DatabaseManager.ActionResult> syncData0(boolean handleException)
-    {
-        try
-        {
-            final var ret = databaseManager
-                .syncStructureData(getSnapshot());
-
-            if (handleException)
-            {
-                return ret.exceptionally(ex ->
-                {
-                    log.atError().withCause(ex).log("Failed to sync data for structure: %s", getBasicInfo());
-                    return DatabaseManager.ActionResult.FAIL;
-                });
-            }
-
-            return ret.withExceptionContext("Syncing data for structure: %s", getBasicInfo());
-        }
-        catch (Exception e)
-        {
-            log.atError().withCause(e).log("Failed to sync data for structure: %s", getBasicInfo());
-        }
-        return CompletableFuture.completedFuture(DatabaseManager.ActionResult.FAIL);
-    }
-
     /**
      * Synchronizes this structure with the database.
      *
@@ -699,7 +673,28 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public CompletableFuture<DatabaseManager.ActionResult> syncData(boolean handleException)
     {
-        return syncData0(handleException);
+        final StructureSnapshot snapshot = getSnapshot();
+        try
+        {
+            final var ret = databaseManager.syncStructureData(snapshot);
+
+            if (handleException)
+            {
+                return ret.exceptionally(ex ->
+                {
+                    log.atError().withCause(ex).log(
+                        "Failed to sync data for structure: %s", snapshot.getBasicInfo());
+                    return DatabaseManager.ActionResult.FAIL;
+                });
+            }
+
+            return ret.withExceptionContext("Syncing data for structure: %s", snapshot.getBasicInfo());
+        }
+        catch (Exception e)
+        {
+            log.atError().withCause(e).log("Failed to sync data for structure: %s", snapshot.getBasicInfo());
+        }
+        return CompletableFuture.completedFuture(DatabaseManager.ActionResult.FAIL);
     }
 
     /**
@@ -709,7 +704,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public CompletableFuture<DatabaseManager.ActionResult> syncData()
     {
-        return syncData0(true);
+        return syncData(true);
     }
 
     /**
