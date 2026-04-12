@@ -186,7 +186,7 @@ public class CreatorTestsUtil
             Mockito.mock(StructureActivityManager.class),
             commandFactory,
             assistedStepFactory,
-            Mockito.mock(IConfig.class)
+            config
         );
 
         initCommands();
