@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>animatedarchitecture-lightkeeper-e2e</artifactId>
+    <packaging>jar</packaging>
+    <description>LightKeeper end-to-end tests for AnimatedArchitecture</description>
+
+    <parent>
+        <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+        <artifactId>animatedarchitecture-testing</artifactId>
+        <version>0.8.0-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <project.root-dir>${project.basedir}/../..</project.root-dir>
+
+        <version.lightkeeper>1.2.0-SNAPSHOT</version.lightkeeper>
+        <version.spigot-api>1.21.11-R0.2-SNAPSHOT</version.spigot-api>
+
+        <animatedarchitecture.e2e.serverVersion>latest-supported</animatedarchitecture.e2e.serverVersion>
+        <animatedarchitecture.e2e.animatedArchitectureJar>${project.root-dir}/animatedarchitecture-spigot/spigot-packager/target/AnimatedArchitecture-Spigot.jar</animatedarchitecture.e2e.animatedArchitectureJar>
+        <animatedarchitecture.e2e.vaultJar></animatedarchitecture.e2e.vaultJar>
+        <animatedarchitecture.e2e.permissionsJar></animatedarchitecture.e2e.permissionsJar>
+        <animatedarchitecture.e2e.worldguardJar></animatedarchitecture.e2e.worldguardJar>
+        <animatedarchitecture.e2e.worldeditJar></animatedarchitecture.e2e.worldeditJar>
+
+        <lightkeeper.paper.runtime-manifest.path>${project.build.directory}/lightkeeper/paper-runtime-manifest.json</lightkeeper.paper.runtime-manifest.path>
+        <lightkeeper.spigot.runtime-manifest.path>${project.build.directory}/lightkeeper/spigot-runtime-manifest.json</lightkeeper.spigot.runtime-manifest.path>
+        <lightkeeper.paper.server-work-directory>${project.build.directory}/lightkeeper-server/paper</lightkeeper.paper.server-work-directory>
+        <lightkeeper.spigot.server-work-directory>${project.build.directory}/lightkeeper-server/spigot</lightkeeper.spigot.server-work-directory>
+        <lightkeeper.paper.socket-directory>${project.build.directory}/lightkeeper/sockets/paper</lightkeeper.paper.socket-directory>
+        <lightkeeper.spigot.socket-directory>${project.build.directory}/lightkeeper/sockets/spigot</lightkeeper.spigot.socket-directory>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>spigotmc-snapshots</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.animatedarchitecture</groupId>
+            <artifactId>spigot-packager</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.lightkeeper</groupId>
+            <artifactId>lightkeeper-framework-junit</artifactId>
+            <version>${version.lightkeeper}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>${version.spigot-api}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${version.maven-antrun}</version>
+                <executions>
+                    <execution>
+                        <id>validate-lightkeeper-e2e-inputs</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <condition property="animatedarchitecture.e2e.animatedArchitectureJar.missing">
+                                    <or>
+                                        <equals arg1="${animatedarchitecture.e2e.animatedArchitectureJar}" arg2=""/>
+                                        <not>
+                                            <available file="${animatedarchitecture.e2e.animatedArchitectureJar}" type="file"/>
+                                        </not>
+                                    </or>
+                                </condition>
+                                <condition property="animatedarchitecture.e2e.vaultJar.missing">
+                                    <or>
+                                        <equals arg1="${animatedarchitecture.e2e.vaultJar}" arg2=""/>
+                                        <not>
+                                            <available file="${animatedarchitecture.e2e.vaultJar}" type="file"/>
+                                        </not>
+                                    </or>
+                                </condition>
+                                <condition property="animatedarchitecture.e2e.permissionsJar.missing">
+                                    <or>
+                                        <equals arg1="${animatedarchitecture.e2e.permissionsJar}" arg2=""/>
+                                        <not>
+                                            <available file="${animatedarchitecture.e2e.permissionsJar}" type="file"/>
+                                        </not>
+                                    </or>
+                                </condition>
+                                <condition property="animatedarchitecture.e2e.worldguardJar.missing">
+                                    <or>
+                                        <equals arg1="${animatedarchitecture.e2e.worldguardJar}" arg2=""/>
+                                        <not>
+                                            <available file="${animatedarchitecture.e2e.worldguardJar}" type="file"/>
+                                        </not>
+                                    </or>
+                                </condition>
+                                <condition property="animatedarchitecture.e2e.worldeditJar.missing">
+                                    <or>
+                                        <equals arg1="${animatedarchitecture.e2e.worldeditJar}" arg2=""/>
+                                        <not>
+                                            <available file="${animatedarchitecture.e2e.worldeditJar}" type="file"/>
+                                        </not>
+                                    </or>
+                                </condition>
+
+                                <fail if="animatedarchitecture.e2e.animatedArchitectureJar.missing"
+                                      message="AnimatedArchitecture plugin jar was not found at '${animatedarchitecture.e2e.animatedArchitectureJar}'. Run the reactor package phase first."/>
+                                <fail if="animatedarchitecture.e2e.vaultJar.missing"
+                                      message="Set -Danimatedarchitecture.e2e.vaultJar=/path/to/Vault.jar for the LightKeeper e2e profile."/>
+                                <fail if="animatedarchitecture.e2e.permissionsJar.missing"
+                                      message="Set -Danimatedarchitecture.e2e.permissionsJar=/path/to/LuckPerms-Bukkit.jar for the LightKeeper e2e profile."/>
+                                <fail if="animatedarchitecture.e2e.worldguardJar.missing"
+                                      message="Set -Danimatedarchitecture.e2e.worldguardJar=/path/to/worldguard-bukkit.jar for the LightKeeper e2e profile."/>
+                                <fail if="animatedarchitecture.e2e.worldeditJar.missing"
+                                      message="Set -Danimatedarchitecture.e2e.worldeditJar=/path/to/worldedit-bukkit.jar or a compatible FAWE jar for the LightKeeper e2e profile."/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>nl.pim16aap2.lightkeeper</groupId>
+                <artifactId>lightkeeper-maven-plugin</artifactId>
+                <version>${version.lightkeeper}</version>
+                <configuration>
+                    <userAgent>AnimatedArchitecture/${project.version} ([email protected])</userAgent>
+                    <configOverlayPath>${project.basedir}/src/test/resources/provisioning/overlay</configOverlayPath>
+                    <plugins>
+                        <plugin>
+                            <sourceType>path</sourceType>
+                            <path>${animatedarchitecture.e2e.vaultJar}</path>
+                            <renameTo>Vault.jar</renameTo>
+                        </plugin>
+                        <plugin>
+                            <sourceType>path</sourceType>
+                            <path>${animatedarchitecture.e2e.permissionsJar}</path>
+                            <renameTo>LuckPerms.jar</renameTo>
+                        </plugin>
+                        <plugin>
+                            <sourceType>path</sourceType>
+                            <path>${animatedarchitecture.e2e.worldeditJar}</path>
+                            <renameTo>WorldEditOrFawe.jar</renameTo>
+                        </plugin>
+                        <plugin>
+                            <sourceType>path</sourceType>
+                            <path>${animatedarchitecture.e2e.worldguardJar}</path>
+                            <renameTo>WorldGuard.jar</renameTo>
+                        </plugin>
+                        <plugin>
+                            <sourceType>path</sourceType>
+                            <path>${animatedarchitecture.e2e.animatedArchitectureJar}</path>
+                            <renameTo>AnimatedArchitecture-Spigot.jar</renameTo>
+                        </plugin>
+                    </plugins>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-server-paper</id>
+                        <goals>
+                            <goal>prepare-server</goal>
+                        </goals>
+                        <configuration>
+                            <serverType>paper</serverType>
+                            <serverVersion>${animatedarchitecture.e2e.serverVersion}</serverVersion>
+                            <runtimeManifestPath>${lightkeeper.paper.runtime-manifest.path}</runtimeManifestPath>
+                            <serverWorkDirectoryRoot>${lightkeeper.paper.server-work-directory}</serverWorkDirectoryRoot>
+                            <agentSocketDirectory>${lightkeeper.paper.socket-directory}</agentSocketDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>prepare-server-spigot</id>
+                        <goals>
+                            <goal>prepare-server</goal>
+                        </goals>
+                        <configuration>
+                            <serverType>spigot</serverType>
+                            <serverVersion>${animatedarchitecture.e2e.serverVersion}</serverVersion>
+                            <runtimeManifestPath>${lightkeeper.spigot.runtime-manifest.path}</runtimeManifestPath>
+                            <serverWorkDirectoryRoot>${lightkeeper.spigot.server-work-directory}</serverWorkDirectoryRoot>
+                            <agentSocketDirectory>${lightkeeper.spigot.socket-directory}</agentSocketDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>cleanup-server-paper</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>cleanup-server</goal>
+                        </goals>
+                        <configuration>
+                            <failsafeSummaryPath>${project.build.directory}/failsafe-reports/paper/failsafe-summary.xml</failsafeSummaryPath>
+                            <serverWorkDirectoryRoot>${lightkeeper.paper.server-work-directory}</serverWorkDirectoryRoot>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>cleanup-server-spigot</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>cleanup-server</goal>
+                        </goals>
+                        <configuration>
+                            <failsafeSummaryPath>${project.build.directory}/failsafe-reports/spigot/failsafe-summary.xml</failsafeSummaryPath>
+                            <serverWorkDirectoryRoot>${lightkeeper.spigot.server-work-directory}</serverWorkDirectoryRoot>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${version.failsafe}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                    <trimStackTrace>false</trimStackTrace>
+                    <useFile>false</useFile>
+                    <systemPropertyVariables>
+                        <flogger.backend_factory>com.google.common.flogger.backend.slf4j.Slf4jBackendFactory#getInstance</flogger.backend_factory>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-paper</id>
+                        <configuration>
+                            <reportsDirectory>${project.build.directory}/failsafe-reports/paper</reportsDirectory>
+                            <summaryFile>${project.build.directory}/failsafe-reports/paper/failsafe-summary.xml</summaryFile>
+                            <systemPropertyVariables>
+                                <lightkeeper.runtimeManifestPath>${lightkeeper.paper.runtime-manifest.path}</lightkeeper.runtimeManifestPath>
+                                <animatedarchitecture.e2e.serverType>paper</animatedarchitecture.e2e.serverType>
+                                <flogger.backend_factory>com.google.common.flogger.backend.slf4j.Slf4jBackendFactory#getInstance</flogger.backend_factory>
+                            </systemPropertyVariables>
+                        </configuration>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>integration-spigot</id>
+                        <configuration>
+                            <reportsDirectory>${project.build.directory}/failsafe-reports/spigot</reportsDirectory>
+                            <summaryFile>${project.build.directory}/failsafe-reports/spigot/failsafe-summary.xml</summaryFile>
+                            <systemPropertyVariables>
+                                <lightkeeper.runtimeManifestPath>${lightkeeper.spigot.runtime-manifest.path}</lightkeeper.runtimeManifestPath>
+                                <animatedarchitecture.e2e.serverType>spigot</animatedarchitecture.e2e.serverType>
+                                <flogger.backend_factory>com.google.common.flogger.backend.slf4j.Slf4jBackendFactory#getInstance</flogger.backend_factory>
+                            </systemPropertyVariables>
+                        </configuration>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
