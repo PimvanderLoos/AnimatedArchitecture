@@ -67,6 +67,12 @@ final class StructureRedstoneHandler
      */
     private final AtomicBoolean verificationScheduled = new AtomicBoolean(false);
 
+    /**
+     * Set when a state change arrives while a verification is already in flight. After the current verification
+     * completes, one more run will be scheduled to pick up the missed change.
+     */
+    private final AtomicBoolean rerunRequested = new AtomicBoolean(false);
+
     StructureRedstoneHandler(
         Structure structure,
         long uid,
@@ -117,8 +123,20 @@ final class StructureRedstoneHandler
      */
     void onStateChanged()
     {
-        version.incrementAndGet();
+        incrementVersion();
         scheduleVerification();
+    }
+
+    /**
+     * Increments the version counter to mark a redstone-relevant state change.
+     * <p>
+     * This should be called under the structure's write lock so that the version is consistent with the state captured
+     * by {@link #currentVersion()} under the read lock. The corresponding {@link #scheduleVerification()} can be called
+     * after the lock is released.
+     */
+    void incrementVersion()
+    {
+        version.incrementAndGet();
     }
 
     /**
@@ -299,21 +317,34 @@ final class StructureRedstoneHandler
     }
 
     /**
-     * Schedules a single coalesced verification. If a verification is already scheduled, this call is a no-op,
-     * preventing verification storms from rapid state changes.
+     * Schedules a single coalesced verification. If a verification is already scheduled or in flight, this call records
+     * a rerun request so that one follow-up verification runs after the current one completes. This prevents
+     * verification storms from rapid state changes while ensuring no state change is silently dropped.
      */
-    private void scheduleVerification()
+    void scheduleVerification()
     {
         if (verificationScheduled.compareAndSet(false, true))
         {
             executor.runAsyncLater(
                 () ->
                 {
-                    verificationScheduled.set(false);
-                    verifyRedstoneState();
+                    try
+                    {
+                        verifyRedstoneState();
+                    }
+                    finally
+                    {
+                        verificationScheduled.set(false);
+                        if (rerunRequested.compareAndSet(true, false))
+                            scheduleVerification();
+                    }
                 },
                 1
             );
+        }
+        else
+        {
+            rerunRequested.set(true);
         }
     }
 

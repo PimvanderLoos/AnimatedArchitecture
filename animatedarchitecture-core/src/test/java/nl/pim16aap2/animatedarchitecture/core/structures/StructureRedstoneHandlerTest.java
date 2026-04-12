@@ -269,6 +269,73 @@ class StructureRedstoneHandlerTest
     }
 
     @Test
+    void scheduleVerification_shouldNotOverlapVerifications()
+    {
+        // setup
+        mockRedstoneEnabled();
+        snapshotRef.set(createSnapshot(false, false, 0, true)); // locked -> verifyRedstoneState exits early
+        final var capturedTask = new AtomicReference<Runnable>();
+        doAnswer(invocation ->
+        {
+            capturedTask.set(invocation.getArgument(0));
+            return null;
+        }).when(executor).runAsyncLater(any(Runnable.class), anyLong());
+
+        // execute - first schedule captures the task; second is coalesced
+        handler.scheduleVerification();
+        handler.scheduleVerification();
+
+        // verify - only one task was scheduled, the second call set rerunRequested instead
+        verify(executor, times(1)).runAsyncLater(any(Runnable.class), eq(1L));
+
+        // execute - run the captured task; it should schedule a follow-up for the rerun
+        capturedTask.get().run();
+
+        // verify - the follow-up was scheduled (2 total)
+        verify(executor, times(2)).runAsyncLater(any(Runnable.class), eq(1L));
+    }
+
+    @Test
+    void scheduleVerification_shouldNotScheduleFollowUpWhenNoRerunRequested()
+    {
+        // setup
+        mockRedstoneEnabled();
+        snapshotRef.set(createSnapshot(false, false, 0, true)); // locked -> verifyRedstoneState exits early
+        final var capturedTask = new AtomicReference<Runnable>();
+        doAnswer(invocation ->
+        {
+            capturedTask.set(invocation.getArgument(0));
+            return null;
+        }).when(executor).runAsyncLater(any(Runnable.class), anyLong());
+
+        // execute - single schedule, no second call
+        handler.scheduleVerification();
+
+        // verify
+        verify(executor, times(1)).runAsyncLater(any(Runnable.class), eq(1L));
+
+        // execute - run the captured task; no rerun was requested
+        capturedTask.get().run();
+
+        // verify - no follow-up scheduled
+        verify(executor, times(1)).runAsyncLater(any(Runnable.class), eq(1L));
+    }
+
+    @Test
+    void incrementVersion_shouldIncrementWithoutScheduling()
+    {
+        // setup
+        final long initialVersion = handler.currentVersion();
+
+        // execute
+        handler.incrementVersion();
+
+        // verify
+        assertThat(handler.currentVersion()).isEqualTo(initialVersion + 1);
+        verify(executor, never()).runAsyncLater(any(Runnable.class), anyLong());
+    }
+
+    @Test
     void onChunkLoad_shouldNotActWhenStructureIsLocked()
     {
         // setup

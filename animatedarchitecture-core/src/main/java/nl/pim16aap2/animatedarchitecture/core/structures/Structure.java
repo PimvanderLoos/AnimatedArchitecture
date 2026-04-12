@@ -876,15 +876,17 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public void setPowerBlock(Vector3Di newPos)
     {
-        withWriteLock(false, () ->
+        final Vector3Di oldPos = withWriteLock(false, () ->
         {
-            final Vector3Di oldPos = powerBlock;
+            final Vector3Di prev = powerBlock;
             powerBlock = newPos;
             invalidateSnapshot();
-            powerBlockManager.invalidateChunkAt(world.worldName(), oldPos);
-            powerBlockManager.invalidateChunkAt(world.worldName(), newPos);
+            redstoneHandler.incrementVersion();
+            return prev;
         });
-        redstoneHandler.onStateChanged();
+        powerBlockManager.invalidateChunkAt(world.worldName(), oldPos);
+        powerBlockManager.invalidateChunkAt(world.worldName(), newPos);
+        redstoneHandler.scheduleVerification();
     }
 
     /**
@@ -932,18 +934,25 @@ public final class Structure implements IStructureConst, IPropertyHolder
      */
     public void setLocked(boolean locked)
     {
-        withWriteLock(false, () ->
+        final boolean shouldVerifyRedstone = withWriteLock(false, () ->
         {
             if (this.isLocked == locked)
-                return;
+                return false;
 
             isLocked = locked;
             invalidateSnapshot();
+
+            if (!locked)
+            {
+                // Now that we're unlocked, we should verify the redstone state.
+                redstoneHandler.incrementVersion();
+                return true;
+            }
+            return false;
         });
 
-        if (!locked)
-            // Now that we're unlocked, we should verify the redstone state.
-            redstoneHandler.onStateChanged();
+        if (shouldVerifyRedstone)
+            redstoneHandler.scheduleVerification();
     }
 
     /**
