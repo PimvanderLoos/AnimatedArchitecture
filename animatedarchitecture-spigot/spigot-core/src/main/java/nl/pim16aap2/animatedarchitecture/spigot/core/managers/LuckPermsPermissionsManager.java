@@ -128,15 +128,21 @@ public final class LuckPermsPermissionsManager extends AbstractPermissionsManage
      */
     private boolean checkOfflinePermission(World world, OfflinePlayer player, User user, String permission)
     {
-        final QueryOptions queryOptions = createOfflineQueryOptions(world);
-        final CachedPermissionData permissionData = user.getCachedData().getPermissionData(queryOptions);
-        final boolean result = permissionData.checkPermission(permission).asBoolean();
-        if (!player.isOnline())
-            luckPerms.getUserManager().cleanupUser(user);
+        try
+        {
+            final QueryOptions queryOptions = createOfflineQueryOptions(world);
+            final CachedPermissionData permissionData = user.getCachedData().getPermissionData(queryOptions);
+            final boolean result = permissionData.checkPermission(permission).asBoolean();
 
-        log.atDebug().log("LuckPerms offline permission check for player '%s', world '%s', permission '%s': %b",
-            player.getUniqueId(), world.getName(), permission, result);
-        return result;
+            log.atDebug().log("LuckPerms offline permission check for player '%s', world '%s', permission '%s': %b",
+                player.getUniqueId(), world.getName(), permission, result);
+            return result;
+        }
+        finally
+        {
+            if (!player.isOnline())
+                luckPerms.getUserManager().cleanupUser(user);
+        }
     }
 
     /**

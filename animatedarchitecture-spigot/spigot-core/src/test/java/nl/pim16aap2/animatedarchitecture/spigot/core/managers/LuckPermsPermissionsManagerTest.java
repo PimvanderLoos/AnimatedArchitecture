@@ -120,7 +120,9 @@ class LuckPermsPermissionsManagerTest
     {
         // setup
         final UUID uuid = UUID.randomUUID();
-        final OfflinePlayer offlinePlayer = setupOfflineLuckPermsCheck(uuid, Tristate.FALSE);
+        final OfflinePlayer offlinePlayer = setupLoadedOfflineLuckPermsUser(uuid);
+        when(cachedDataManager.getPermissionData(queryOptions)).thenReturn(cachedPermissionData);
+        when(cachedPermissionData.checkPermission("animatedarchitecture.test")).thenReturn(Tristate.FALSE);
 
         // execute
         final boolean result = manager
@@ -171,7 +173,27 @@ class LuckPermsPermissionsManagerTest
             .hasCause(failure);
     }
 
-    private OfflinePlayer setupOfflineLuckPermsCheck(UUID uuid, Tristate permissionResult)
+    @Test
+    void hasPermissionOffline_shouldCleanupLoadedUserWhenPermissionEvaluationFails()
+    {
+        // setup
+        final UUID uuid = UUID.randomUUID();
+        final OfflinePlayer offlinePlayer = setupLoadedOfflineLuckPermsUser(uuid);
+        final RuntimeException failure = new RuntimeException("permission data failed");
+        when(cachedDataManager.getPermissionData(queryOptions)).thenThrow(failure);
+
+        // execute
+        final CompletableFuture<Boolean> result =
+            manager.hasPermissionOffline(world, offlinePlayer, "animatedarchitecture.test");
+
+        // verify
+        assertThatThrownBy(result::join)
+            .isInstanceOf(CompletionException.class)
+            .hasCause(failure);
+        verify(userManager).cleanupUser(user);
+    }
+
+    private OfflinePlayer setupLoadedOfflineLuckPermsUser(UUID uuid)
     {
         final OfflinePlayer offlinePlayer = mock(OfflinePlayer.class);
         when(offlinePlayer.getUniqueId()).thenReturn(uuid);
@@ -181,8 +203,6 @@ class LuckPermsPermissionsManagerTest
         when(luckPerms.getUserManager()).thenReturn(userManager);
         when(userManager.loadUser(uuid, "Player")).thenReturn(CompletableFuture.completedFuture(user));
         when(user.getCachedData()).thenReturn(cachedDataManager);
-        when(cachedDataManager.getPermissionData(queryOptions)).thenReturn(cachedPermissionData);
-        when(cachedPermissionData.checkPermission("animatedarchitecture.test")).thenReturn(permissionResult);
         return offlinePlayer;
     }
 
