@@ -149,15 +149,19 @@ public final class Structure implements IStructureConst, IPropertyHolder
     private final IChunkLoader chunkLoader;
 
     @EqualsAndHashCode.Exclude
+    @GuardedBy("lock")
     private final LazyValue<Rectangle> lazyAnimationRange;
 
     @EqualsAndHashCode.Exclude
+    @GuardedBy("lock")
     private final LazyValue<Double> lazyAnimationCycleDistance;
 
     @EqualsAndHashCode.Exclude
+    @GuardedBy("lock")
     private final LazyValue<StructureSnapshot> lazyStructureSnapshot;
 
     @EqualsAndHashCode.Exclude
+    @GuardedBy("lock")
     private final LazyValue<PropertyContainerSnapshot> lazyPropertyContainerSnapshot;
 
     @EqualsAndHashCode.Exclude
@@ -354,6 +358,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      *
      * @return The longest distance traveled by an animated block measured in blocks.
      */
+    @Locked.Read("lock")
     public double getAnimationCycleDistance()
     {
         return lazyAnimationCycleDistance.get();
@@ -368,6 +373,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * @return The animation range.
      */
     @Override
+    @Locked.Read("lock")
     public Rectangle getAnimationRange()
     {
         return lazyAnimationRange.get();
@@ -379,6 +385,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * Certain actions may result in the animation range and animation cycle distance being changed. This method has to
      * be called when that may happen.
      */
+    @GuardedBy("lock")
     private void invalidateAnimationData()
     {
         lazyAnimationRange.reset();
@@ -395,6 +402,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
      * <p>
      * If the animation may be affected in any way, use {@link #invalidateAnimationData()} instead.
      */
+    @GuardedBy("lock")
     private void invalidateSnapshot()
     {
         lazyStructureSnapshot.reset();
@@ -403,6 +411,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     /**
      * The default speed of the animation in blocks/second, as measured by the fastest-moving block in the structure.
      */
+    @GuardedBy("lock")
     private double getDefaultAnimationSpeed()
     {
         return DEFAULT_ANIMATION_SPEED;
@@ -1119,6 +1128,7 @@ public final class Structure implements IStructureConst, IPropertyHolder
     }
 
     @Override
+    @Locked.Read("lock")
     public PropertyContainerSnapshot getPropertyContainerSnapshot()
     {
         return lazyPropertyContainerSnapshot.get();
