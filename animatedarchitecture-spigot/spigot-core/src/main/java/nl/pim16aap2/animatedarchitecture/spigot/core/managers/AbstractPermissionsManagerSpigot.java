@@ -16,7 +16,6 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.jspecify.annotations.Nullable;
 
 import java.util.OptionalInt;
-import java.util.Set;
 
 /**
  * Provides shared Spigot permission behavior that is independent of the selected permission backend.
@@ -34,7 +33,11 @@ abstract class AbstractPermissionsManagerSpigot implements IPermissionsManagerSp
      * @param permission
      *     The permission node being checked.
      */
-    protected final void validateSynchronousPlayer(IExecutor executor, Player player, String permission)
+    protected final void validateSynchronousPlayer(
+        IExecutor executor,
+        Player player,
+        String permission
+    )
     {
         if (executor.isMainThread() &&
             (player instanceof IFakePlayer || !player.isOnline()))
@@ -45,8 +48,8 @@ abstract class AbstractPermissionsManagerSpigot implements IPermissionsManagerSp
                 permission,
                 player.getName(),
                 player.isOnline(),
-                player instanceof IFakePlayer)
-            );
+                player instanceof IFakePlayer
+            ));
         }
     }
 
@@ -54,20 +57,16 @@ abstract class AbstractPermissionsManagerSpigot implements IPermissionsManagerSp
     public OptionalInt getMaxPermissionSuffix(Player player, String permissionBase)
     {
         final int permissionBaseLength = permissionBase.length();
-        final Set<PermissionAttachmentInfo> playerPermissions = player.getEffectivePermissions();
-        int ret = -1;
-        for (final PermissionAttachmentInfo permission : playerPermissions)
-        {
-            if (permission.getPermission().startsWith(permissionBase))
-            {
-                final OptionalInt suffix = MathUtil.parseInt(permission
-                    .getPermission()
-                    .substring(permissionBaseLength));
-                if (suffix.isPresent())
-                    ret = Math.max(ret, suffix.getAsInt());
-            }
-        }
-        return ret > 0 ? OptionalInt.of(ret) : OptionalInt.empty();
+
+        return player.getEffectivePermissions().stream()
+            .map(PermissionAttachmentInfo::getPermission)
+            .filter(perm -> perm.startsWith(permissionBase))
+            .map(perm -> perm.substring(permissionBaseLength))
+            .map(MathUtil::parseInt)
+            .filter(OptionalInt::isPresent)
+            .mapToInt(OptionalInt::getAsInt)
+            .filter(suffix -> suffix > 0)
+            .max();
     }
 
     @Override
@@ -96,7 +95,8 @@ abstract class AbstractPermissionsManagerSpigot implements IPermissionsManagerSp
     @Override
     public boolean hasBypassPermissionsForAttribute(Player player, StructureAttribute structureAttribute)
     {
-        return player.isOp() || hasPermission(player, structureAttribute.getAdminPermissionNode());
+        return player.isOp() ||
+            hasPermission(player, structureAttribute.getAdminPermissionNode());
     }
 
     @Override

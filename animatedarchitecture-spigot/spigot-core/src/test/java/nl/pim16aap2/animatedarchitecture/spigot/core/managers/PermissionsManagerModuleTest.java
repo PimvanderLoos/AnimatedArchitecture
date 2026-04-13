@@ -66,6 +66,6 @@ class PermissionsManagerModuleTest
                 () -> mock(IPermissionsManagerSpigot.class)
             ))
             .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Install LuckPerms or Vault");
+            .hasMessageContaining("Install either LuckPerms or Vault");
     }
 }

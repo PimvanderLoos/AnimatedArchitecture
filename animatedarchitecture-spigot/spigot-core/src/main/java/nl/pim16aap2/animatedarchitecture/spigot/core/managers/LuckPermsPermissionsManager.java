@@ -13,12 +13,14 @@ import net.luckperms.api.query.QueryOptions;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
+import nl.pim16aap2.animatedarchitecture.spigot.util.hooks.IFakePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -53,7 +55,11 @@ public final class LuckPermsPermissionsManager extends AbstractPermissionsManage
             throw new IllegalStateException("LuckPerms is enabled, but no LuckPerms API service is registered.");
         }
 
-        return new LuckPermsPermissionsManager(executor, debuggableRegistry, provider.getProvider());
+        return new LuckPermsPermissionsManager(
+            executor,
+            debuggableRegistry,
+            Objects.requireNonNull(provider.getProvider(), "LuckPerms permission provider is null.")
+        );
     }
 
     /**
@@ -168,7 +174,7 @@ public final class LuckPermsPermissionsManager extends AbstractPermissionsManage
         }
         finally
         {
-            if (!player.isOnline())
+            if (player instanceof IFakePlayer || !player.isOnline())
             {
                 luckPerms.getUserManager().cleanupUser(user);
             }

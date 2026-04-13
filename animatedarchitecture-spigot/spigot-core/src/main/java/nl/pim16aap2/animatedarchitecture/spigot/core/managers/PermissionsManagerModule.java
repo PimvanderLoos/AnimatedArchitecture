@@ -74,7 +74,7 @@ public abstract class PermissionsManagerModule
         }
 
         throw new IllegalStateException(
-            "Failed to initialize permissions! Install LuckPerms or Vault with a permission provider."
+            "Failed to initialize permissions! Install either LuckPerms or Vault with a permission provider."
         );
     }
 
