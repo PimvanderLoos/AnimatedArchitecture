@@ -28,7 +28,7 @@
         <version.fastutil>8.5.18</version.fastutil>
         <version.flogger>0.9</version.flogger>
         <version.flyway>11.13.3</version.flyway>
-        <version.git-commit-id>9.0.2</version.git-commit-id>
+        <version.git-commit-id>9.2.0</version.git-commit-id>
         <version.gson>2.13.2</version.gson>
         <version.intellij-annotations>26.0.2-1</version.intellij-annotations>
         <version.jacoco>0.8.14</version.jacoco>
