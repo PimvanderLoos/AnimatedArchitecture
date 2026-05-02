@@ -4,6 +4,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.ITextFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
+import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
 import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextType;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
@@ -29,19 +30,22 @@ public final class LoginMessageListener extends AbstractListener
     private final AnimatedArchitecturePlugin spigotPlugin;
     private final ITextFactory textFactory;
     private final @Nullable UpdateChecker updateChecker;
+    private final @Nullable IConfig config;
 
     @Inject
     public LoginMessageListener(
         AnimatedArchitecturePlugin javaPlugin,
         ITextFactory textFactory,
         @Nullable UpdateChecker updateChecker,
-        @Nullable RestartableHolder restartableHolder)
+        @Nullable RestartableHolder restartableHolder,
+        @Nullable IConfig config)
     {
         super(restartableHolder, javaPlugin);
 
         this.spigotPlugin = javaPlugin;
         this.textFactory = textFactory;
         this.updateChecker = updateChecker;
+        this.config = config;
 
         if (restartableHolder == null)
             register();
@@ -67,6 +71,7 @@ public final class LoginMessageListener extends AbstractListener
         final Text text = textFactory.newText();
 
         addErrorMessage(text);
+        addOldConfigWarning(text);
         addUpdateMessage(text);
 
         if (text.isEmpty())
@@ -74,6 +79,20 @@ public final class LoginMessageListener extends AbstractListener
 
         final Text header = textFactory.newText().append("[AnimatedArchitecture]", TextType.SUCCESS);
         player.spigot().sendMessage(header.append(text).render(new TextRendererSpigot()));
+    }
+
+    private void addOldConfigWarning(Text text)
+    {
+        if (config == null || !config.isOldConfigPresent())
+            return;
+        text.append("\nWARNING: ", TextType.ERROR)
+            .append(
+                "An old configuration file 'config.yml' was found! " +
+                    "The plugin now uses 'config.yaml' instead. " +
+                    "Your settings have NOT been migrated automatically. " +
+                    "Please migrate your settings manually and then remove the old file.",
+                TextType.INFO
+            );
     }
 
     private void addErrorMessage(Text text)

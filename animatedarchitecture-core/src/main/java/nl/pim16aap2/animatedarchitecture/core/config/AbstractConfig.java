@@ -41,21 +41,43 @@ public abstract class AbstractConfig implements IConfig
     @GuardedBy("this")
     private final List<ConfigSection<?>> sections = new ArrayList<>();
 
+    private final boolean oldConfigPresent;
+
     protected AbstractConfig(@Named("pluginBaseDirectory") Path baseDir)
     {
         this.configPath = baseDir.resolve("config.yaml");
         this.configLoader = initConfig();
-        checkIfOldConfigExists(baseDir);
+        this.oldConfigPresent = checkIfOldConfigExists(baseDir);
     }
 
-    private void checkIfOldConfigExists(Path baseDir)
+    /**
+     * Checks whether the old configuration file ({@code config.yml}) exists and logs a warning if it does.
+     *
+     * @param baseDir
+     *     The base directory to check for the old configuration file.
+     * @return {@code true} if the old configuration file was found.
+     */
+    private boolean checkIfOldConfigExists(Path baseDir)
     {
         final var oldConfigPath = baseDir.resolve("config.yml");
-        if (Files.exists(oldConfigPath))
-            log.atWarn().log("An old configuration file was found at %s. Please migrate it manually to %s.",
-                oldConfigPath.toAbsolutePath(),
-                configPath.toAbsolutePath()
-            );
+        if (!Files.exists(oldConfigPath))
+            return false;
+
+        log.atWarn().log(
+            "An old configuration file was found at '%s'! " +
+                "The plugin now uses '%s' instead. " +
+                "Your settings have NOT been migrated automatically. " +
+                "Please migrate your settings manually and then remove the old file.",
+            oldConfigPath.toAbsolutePath(),
+            configPath.toAbsolutePath()
+        );
+        return true;
+    }
+
+    @Override
+    public boolean isOldConfigPresent()
+    {
+        return oldConfigPresent;
     }
 
     /**

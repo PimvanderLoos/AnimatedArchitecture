@@ -161,6 +161,18 @@ public interface IConfig extends IRestartable
     void reloadConfig();
 
     /**
+     * Returns whether the old configuration file ({@code config.yml}) exists.
+     * <p>
+     * If it does, it means the user has not yet migrated their configuration to the new format ({@code config.yaml}).
+     *
+     * @return True if the old configuration file exists.
+     */
+    default boolean isOldConfigPresent()
+    {
+        return false;
+    }
+
+    /**
      * Gets the primary command name for the plugin.
      * <p>
      * This is the first alias in the command aliases list, or a default value if no aliases are configured.
