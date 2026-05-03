@@ -274,7 +274,7 @@ public final class AnimatedArchitecturePlugin extends JavaPlugin implements IAni
      */
     private void registerFailureLoginListener()
     {
-        new LoginMessageListener(this, new TextFactorySpigot(), null, null);
+        new LoginMessageListener(this, new TextFactorySpigot(), null, null, null);
     }
 
     @Override
