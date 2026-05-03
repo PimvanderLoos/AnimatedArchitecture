@@ -26,6 +26,7 @@ import org.bukkit.entity.Entity;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -66,6 +67,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         @Assisted @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
         @Assisted("startPosition") RotatedPosition startPosition,
         @Assisted("finalPosition") RotatedPosition finalPosition,
+        @Assisted @Nullable UUID animationRunUuid,
         @Assisted IWorld world,
         @Assisted boolean onEdge,
         @Assisted float radius,
@@ -92,11 +94,15 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
             this.startPosition.position().floor().toInteger()
         );
 
-        this.recoveryData = new IAnimatedBlockRecoveryData.AnimatedBlockRecoveryData(
-            bukkitWorld,
-            this.startPosition.position().floor().toInteger(),
-            this.blockData.getBlockData()
-        );
+        this.recoveryData = animationRunUuid == null ?
+            IAnimatedBlockRecoveryData.EMPTY :
+            new IAnimatedBlockRecoveryData.AnimatedBlockRecoveryData(
+                1,
+                bukkitWorld,
+                this.startPosition.position().floor().toInteger(),
+                this.blockData.getBlockData(),
+                animationRunUuid
+            );
 
         this.hooks = animatedBlockHookManager.instantiateHooks(this);
     }
@@ -280,6 +286,7 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
             @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
             @Assisted("startPosition") RotatedPosition startPosition,
             @Assisted("finalPosition") RotatedPosition finalPosition,
+            @Nullable UUID animationRunUuid,
             IWorld world,
             boolean onEdge,
             float radius

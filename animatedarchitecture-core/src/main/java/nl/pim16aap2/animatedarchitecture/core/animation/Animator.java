@@ -5,6 +5,7 @@ import lombok.CustomLog;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.ExtensionMethod;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRunManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlock;
@@ -23,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -113,6 +115,9 @@ public final class Animator implements IAnimator
     private final AnimationHookManager animationHookManager;
 
     @ToString.Exclude
+    private final AnimationRunManager animationRunManager;
+
+    @ToString.Exclude
     private final int serverTickTime;
 
     /**
@@ -191,6 +196,11 @@ public final class Animator implements IAnimator
     private volatile @Nullable Animation<IAnimatedBlock> animationData;
 
     /**
+     * The UUID of the persisted animation run that owns this animator's animated block entities.
+     */
+    private volatile @Nullable UUID animationRunUuid;
+
+    /**
      * Constructs a {@link Animator}.
      * <p>
      * Once created, the animation does not start immediately. Use {@link #startAnimation()} to start it.
@@ -203,16 +213,20 @@ public final class Animator implements IAnimator
      *     The animation component to use for the animation. This determines the type of animation.
      * @param animatedBlockContainer
      *     The manager of the animated blocks. This is responsible for handling the lifecycle of the animated blocks.
+     * @param animationRunUuid
+     *     The animation run UUID to store in animated block recovery data, if this animation is tracked.
      */
     public Animator(
         Structure structure,
         AnimationRequestData data,
         IAnimationComponent animationComponent,
-        IAnimatedBlockContainer animatedBlockContainer)
+        IAnimatedBlockContainer animatedBlockContainer,
+        @Nullable UUID animationRunUuid)
     {
         executor = data.getExecutor();
         structureActivityManager = data.getStructureActivityManager();
         animationHookManager = data.getAnimationHookManager();
+        animationRunManager = data.getAnimationRunManager();
         serverTickTime = data.getServerTickTime();
 
         this.structure = structure;
@@ -227,6 +241,7 @@ public final class Animator implements IAnimator
         this.cause = data.getCause();
         this.animationType = data.getAnimationType();
         this.actionType = data.getActionType();
+        this.animationRunUuid = animationRunUuid;
 
         // Some animation types may place constraints on the duration of the animation.
         // When this is the case, we limit the duration here.
@@ -342,11 +357,12 @@ public final class Animator implements IAnimator
 
         this.animationData = animation;
 
-        if (!animatedBlockContainer.createAnimatedBlocks(snapshot, animationComponent))
+        if (!animatedBlockContainer.createAnimatedBlocks(snapshot, animationComponent, animationRunUuid))
         {
             handleInitFailure();
             return;
         }
+        registerExpectedAnimatedBlockCount();
 
         final boolean animationSkipped = skipAnimation || getAnimatedBlocks().isEmpty();
         animation.setState(animationSkipped ? AnimationState.SKIPPED : AnimationState.ACTIVE);
@@ -356,6 +372,15 @@ public final class Animator implements IAnimator
             skipAnimation(animatedBlockContainer);
         else
             animateEntities(animation);
+    }
+
+    private void registerExpectedAnimatedBlockCount()
+    {
+        final UUID uuid = animationRunUuid;
+        if (uuid == null)
+            return;
+
+        animationRunManager.registerExpectedAnimatedBlockCount(uuid, getAnimatedBlocks().size());
     }
 
     /**
@@ -374,6 +399,7 @@ public final class Animator implements IAnimator
         }
 
         animatedBlockContainer.restoreBlocksOnFailure();
+        failAnimationRun("Animation initialization failed.");
         structureActivityManager.processFinishedAnimation(this);
     }
 
@@ -598,6 +624,7 @@ public final class Animator implements IAnimator
                 structure.withWriteLock(this::updateCoords);
 
             forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
+            finishAnimationRun();
 
             structureActivityManager.processFinishedAnimation(this);
         };
@@ -612,8 +639,27 @@ public final class Animator implements IAnimator
             restoreBlocks
                 .thenRun(updateStructure)
                 .handleExceptional(ex ->
-                    log.atError().withCause(ex).log("Failed to finish animation! IsAborted: %b", isAborted));
+                {
+                    failAnimationRun("Failed to finish animation: " + ex.getMessage());
+                    log.atError().withCause(ex).log("Failed to finish animation! IsAborted: %b", isAborted);
+                });
         }
+    }
+
+    private void finishAnimationRun()
+    {
+        final UUID uuid = animationRunUuid;
+        if (uuid == null)
+            return;
+
+        animationRunManager.registerRunCompletion(uuid);
+    }
+
+    private void failAnimationRun(String diagnosticMessage)
+    {
+        final UUID uuid = animationRunUuid;
+        if (uuid != null)
+            animationRunManager.registerRunFailure(uuid, diagnosticMessage);
     }
 
     /**
