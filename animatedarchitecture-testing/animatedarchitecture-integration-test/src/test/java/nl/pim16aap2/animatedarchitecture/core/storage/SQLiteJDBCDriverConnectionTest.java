@@ -5,6 +5,9 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongList;
 import nl.altindag.log.LogCaptor;
 import nl.pim16aap2.animatedarchitecture.core.UnitTestUtil;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRunStatus;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.PluginSessionStatus;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
@@ -12,6 +15,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IWorldFactory;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureDeletionManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
@@ -50,6 +54,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -256,6 +261,130 @@ public class SQLiteJDBCDriverConnectionTest
 
         partialIdentifiersFromIdWithProperty();
         resetLogCaptor(logCaptor);
+
+        animationRecoveryTracking_shouldPersistLifecycleAndApplyRetention();
+        resetLogCaptor(logCaptor);
+    }
+
+    public void animationRecoveryTracking_shouldPersistLifecycleAndApplyRetention()
+    {
+        // setup
+        final Instant oldSessionStart = Instant.parse("2026-01-01T00:00:00Z");
+        final Instant uncleanEnd = Instant.parse("2026-01-01T00:10:00Z");
+        final Instant cleanSessionStart = Instant.parse("2026-01-02T00:00:00Z");
+        final Instant cleanSessionEnd = Instant.parse("2026-01-02T00:30:00Z");
+        final Instant now = Instant.parse("2026-01-04T00:00:00Z");
+
+        final UUID uncleanSessionUuid = UUID.randomUUID();
+        final UUID cleanSessionUuid = UUID.randomUUID();
+        final UUID retainedRunUuid = UUID.randomUUID();
+        final UUID deletedRunUuid = UUID.randomUUID();
+        final UUID recoveredRunUuid = UUID.randomUUID();
+
+        // execute
+        final var uncleanSession = storage
+            .startPluginSession(
+                uncleanSessionUuid,
+                oldSessionStart,
+                "0.8.0-test",
+                "Spigot test",
+                "1.21.6",
+                "Spigot")
+            .orElseThrow();
+
+        final int markedUnclean = storage.markActivePluginSessionsUnclean(uncleanEnd);
+
+        final var cleanSession = storage
+            .startPluginSession(
+                cleanSessionUuid,
+                cleanSessionStart,
+                "0.8.0-test",
+                "Paper test",
+                "1.21.6",
+                "Paper")
+            .orElseThrow();
+        final boolean closedCleanly = storage.closePluginSession(cleanSessionUuid, cleanSessionEnd, "test shutdown");
+
+        final var retainedRun = storage.startAnimationRun(
+            retainedRunUuid,
+            uncleanSessionUuid,
+            1L,
+            StructureActionType.TOGGLE,
+            AnimationType.MOVE_BLOCKS,
+            oldSessionStart.plusSeconds(1)
+        ).orElseThrow();
+        Assertions.assertTrue(storage.updateAnimationRunExpectedAnimatedBlockCount(retainedRunUuid, 3));
+        storage.finishAnimationRun(
+            retainedRunUuid,
+            AnimationRunStatus.COMPLETED,
+            oldSessionStart.plusSeconds(10),
+            null
+        );
+
+        final var deletedRun = storage.startAnimationRun(
+            deletedRunUuid,
+            cleanSessionUuid,
+            2L,
+            StructureActionType.OPEN,
+            AnimationType.MOVE_BLOCKS,
+            cleanSessionStart.plusSeconds(1)
+        ).orElseThrow();
+        Assertions.assertTrue(storage.updateAnimationRunExpectedAnimatedBlockCount(deletedRunUuid, 5));
+        storage.finishAnimationRun(
+            deletedRunUuid,
+            AnimationRunStatus.COMPLETED,
+            cleanSessionStart.plusSeconds(10),
+            null
+        );
+
+        final var recoveredRun = storage.startAnimationRun(
+            recoveredRunUuid,
+            cleanSessionUuid,
+            3L,
+            StructureActionType.CLOSE,
+            AnimationType.MOVE_BLOCKS,
+            cleanSessionStart.plusSeconds(2)
+        ).orElseThrow();
+        Assertions.assertTrue(storage.updateAnimationRunExpectedAnimatedBlockCount(recoveredRunUuid, 2));
+        storage.finishAnimationRun(
+            recoveredRunUuid,
+            AnimationRunStatus.COMPLETED,
+            cleanSessionStart.plusSeconds(20),
+            null
+        );
+        final var partialRecoveryContext =
+            storage.addRecoveredBlockCount(recoveredRunUuid, 1, now.minusSeconds(1), "partial recovery");
+        final var completeRecoveryContext = storage.addRecoveredBlockCount(recoveredRunUuid, 1, now, "test recovery");
+
+        final int deleted = storage.deleteCompletedAnimationRuns(now.minusSeconds(86_400));
+
+        final var retainedContext = storage.getAnimationRecoveryContext(retainedRunUuid);
+        final var deletedContext = storage.getAnimationRecoveryContext(deletedRunUuid);
+        final var recoveredContext = storage.getAnimationRecoveryContext(recoveredRunUuid);
+
+        // verify
+        Assertions.assertEquals(PluginSessionStatus.ACTIVE, uncleanSession.status());
+        Assertions.assertEquals(1, markedUnclean);
+        Assertions.assertEquals(PluginSessionStatus.ACTIVE, cleanSession.status());
+        Assertions.assertTrue(closedCleanly);
+        Assertions.assertEquals(retainedRunUuid, retainedRun.uuid());
+        Assertions.assertEquals(deletedRunUuid, deletedRun.uuid());
+        Assertions.assertEquals(recoveredRunUuid, recoveredRun.uuid());
+        Assertions.assertEquals(1, deleted);
+        Assertions.assertTrue(retainedContext.isPresent());
+        Assertions.assertEquals(PluginSessionStatus.UNCLEAN, retainedContext.orElseThrow().pluginSession().status());
+        Assertions.assertTrue(deletedContext.isEmpty());
+        Assertions.assertTrue(partialRecoveryContext.isPresent());
+        Assertions.assertNull(partialRecoveryContext.orElseThrow().animationRun().recoveryCompletedAt());
+        Assertions.assertTrue(completeRecoveryContext.isPresent());
+        Assertions.assertTrue(recoveredContext.isPresent());
+        final var recoveredAnimationRun = recoveredContext.orElseThrow().animationRun();
+        Assertions.assertEquals(AnimationRunStatus.COMPLETED, recoveredAnimationRun.status());
+        Assertions.assertEquals(2, recoveredAnimationRun.expectedAnimatedBlockCount());
+        Assertions.assertEquals(2, recoveredAnimationRun.recoveredBlockCount());
+        Assertions.assertEquals(now, recoveredAnimationRun.lastRecoveredAt());
+        Assertions.assertEquals(now, recoveredAnimationRun.recoveryCompletedAt());
+        Assertions.assertEquals("test recovery", recoveredAnimationRun.diagnosticMessage());
     }
 
     private void insertBulkStructures()
