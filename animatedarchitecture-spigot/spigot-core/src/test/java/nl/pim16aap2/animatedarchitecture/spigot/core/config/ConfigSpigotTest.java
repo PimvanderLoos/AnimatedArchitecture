@@ -419,6 +419,31 @@ class ConfigSpigotTest
             .hasNoneWithMessageContaining("config.yml");
     }
 
+    @FileSystemTest
+    void reloadConfig_shouldUpdateOldConfigPresenceFlag(Path rootDirectory, LogCaptor logCaptor)
+        throws Exception
+    {
+        // setup
+        final Path pluginBaseDirectory = Files.createDirectory(rootDirectory.resolve("pluginBaseDirectory"));
+        final Path oldConfigFile = pluginBaseDirectory.resolve("config.yml");
+        Files.writeString(oldConfigFile, "# old config\n");
+
+        final ConfigSpigot config = new MockInjector<>(ConfigSpigot.class).createInstance(pluginBaseDirectory);
+        assertThat(config.isOldConfigPresent()).isTrue();
+
+        // remove the old config file and reload
+        logCaptor.clearLogs();
+        Files.delete(oldConfigFile);
+        config.reloadConfig();
+
+        // verify flag is cleared and no new warning is logged
+        assertThat(config.isOldConfigPresent()).isFalse();
+
+        assertThatLogCaptor(logCaptor)
+            .atWarn()
+            .hasNoneWithMessageContaining("config.yml");
+    }
+
     /**
      * Creates a new instance of {@link ConfigSpigot} with mocked dependencies.
      * <p>

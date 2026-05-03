@@ -164,8 +164,10 @@ public interface IConfig extends IRestartable
      * Returns whether the old configuration file ({@code config.yml}) exists.
      * <p>
      * If it does, it means the user has not yet migrated their configuration to the new format ({@code config.yaml}).
+     * <p>
+     * This value is re-evaluated on each config reload, so it reflects the current state of the file system.
      *
-     * @return True if the old configuration file exists.
+     * @return True if the old configuration file currently exists.
      */
     default boolean isOldConfigPresent()
     {

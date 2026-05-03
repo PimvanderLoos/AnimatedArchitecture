@@ -36,30 +36,30 @@ public abstract class AbstractConfig implements IConfig
     @Getter
     private final Path configPath;
 
+    private final Path oldConfigPath;
+
     private final YamlConfigurationLoader configLoader;
 
     @GuardedBy("this")
     private final List<ConfigSection<?>> sections = new ArrayList<>();
 
-    private final boolean oldConfigPresent;
+    private volatile boolean oldConfigPresent;
 
     protected AbstractConfig(@Named("pluginBaseDirectory") Path baseDir)
     {
         this.configPath = baseDir.resolve("config.yaml");
+        this.oldConfigPath = baseDir.resolve("config.yml");
         this.configLoader = initConfig();
-        this.oldConfigPresent = checkIfOldConfigExists(baseDir);
+        this.oldConfigPresent = checkIfOldConfigExists();
     }
 
     /**
      * Checks whether the old configuration file ({@code config.yml}) exists and logs a warning if it does.
      *
-     * @param baseDir
-     *     The base directory to check for the old configuration file.
      * @return {@code true} if the old configuration file was found.
      */
-    private boolean checkIfOldConfigExists(Path baseDir)
+    private boolean checkIfOldConfigExists()
     {
-        final var oldConfigPath = baseDir.resolve("config.yml");
         if (!Files.exists(oldConfigPath))
             return false;
 
@@ -97,6 +97,7 @@ public abstract class AbstractConfig implements IConfig
      */
     protected synchronized final void parseConfig(boolean silent)
     {
+        this.oldConfigPresent = checkIfOldConfigExists();
         try
         {
             final var root = configLoader.load();
