@@ -1,5 +1,7 @@
 package nl.pim16aap2.animatedarchitecture.core.animation.recovery;
 
+import lombok.Builder;
+
 /**
  * Metadata captured when an AnimatedArchitecture plugin session starts.
  *
@@ -12,6 +14,7 @@ package nl.pim16aap2.animatedarchitecture.core.animation.recovery;
  * @param serverSoftware
  *     The server software name.
  */
+@Builder
 public record PluginSessionMetadata(
     String pluginVersion,
     String serverVersion,

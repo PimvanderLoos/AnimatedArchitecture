@@ -557,9 +557,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Write("lock")
     public int markActivePluginSessionsUnclean(Instant endedAt)
     {
+        String endedAtString = endedAt.toString();
+
         return executeUpdate(SQLStatement.MARK_ACTIVE_PLUGIN_SESSIONS_UNCLEAN
             .constructDelayedPreparedStatement()
-            .setNextString(endedAt.toString()));
+            .setNextString(endedAtString)
+            .setNextString(endedAtString));
     }
 
     @Override

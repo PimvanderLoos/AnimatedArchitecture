@@ -282,7 +282,8 @@ public enum SQLStatement
         SET status = 'UNCLEAN',
             endedAt = COALESCE(endedAt, ?),
             endReason = COALESCE(endReason, 'plugin session did not close cleanly')
-        WHERE status = 'ACTIVE';
+        WHERE status = 'ACTIVE'
+          AND startedAt < ?;
         """
     ),
 
@@ -298,7 +299,8 @@ public enum SQLStatement
         SET status = 'CLEAN',
             endedAt = ?,
             endReason = ?
-        WHERE uuid = ? AND status = 'ACTIVE';
+        WHERE uuid = ?
+          AND status = 'ACTIVE';
         """
     ),
 
@@ -328,7 +330,8 @@ public enum SQLStatement
         SET status = ?,
             endedAt = ?,
             diagnosticMessage = ?
-        WHERE uuid = ?;
+        WHERE uuid = ?
+          AND status = 'ACTIVE';
         """
     ),
 

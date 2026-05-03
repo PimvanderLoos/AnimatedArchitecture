@@ -5,11 +5,11 @@ import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.util.StringUtil;
 import org.jspecify.annotations.Nullable;
+import org.spongepowered.configurate.util.CheckedConsumer;
 
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * Represents an object that can issue a restart or shutdown to {@link IRestartable} objects.
@@ -96,7 +96,10 @@ public final class RestartableHolder implements IDebuggable
             runForRestartable("shut down", IRestartable::shutDown, arr[idx]);
     }
 
-    private static void runForRestartable(String actionName, Consumer<IRestartable> action, IRestartable restartable)
+    private static void runForRestartable(
+        String actionName,
+        CheckedConsumer<IRestartable, Exception> action,
+        IRestartable restartable)
     {
         try
         {

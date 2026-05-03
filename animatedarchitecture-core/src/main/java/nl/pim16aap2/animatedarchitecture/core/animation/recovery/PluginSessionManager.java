@@ -1,15 +1,16 @@
 package nl.pim16aap2.animatedarchitecture.core.animation.recovery;
 
-import com.google.common.flogger.StackSize;
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.Restartable;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.util.CompletableFutureExtensions;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Singleton
 @CustomLog
+@ExtensionMethod(CompletableFutureExtensions.class)
 public final class PluginSessionManager extends Restartable implements IDebuggable
 {
     private static final String CLEAN_SHUTDOWN_REASON = "plugin disabled cleanly";
@@ -53,34 +55,48 @@ public final class PluginSessionManager extends Restartable implements IDebuggab
         DebuggableRegistry debuggableRegistry)
     {
         super(restartableHolder);
+
         this.databaseManager = databaseManager;
         this.metadataProvider = metadataProvider;
+
         debuggableRegistry.registerDebuggable(this);
+    }
+
+    private void markOldOpenSessionsAsUnclean(Instant timestamp)
+    {
+        databaseManager
+            .markActivePluginSessionsUnclean(timestamp)
+            .orTimeout(5, TimeUnit.SECONDS)
+            .thenAccept(uncleanCount ->
+            {
+                if (uncleanCount > 0)
+                {
+                    log.atWarn().log(
+                        "Marked %d previous plugin session(s) as unclean due to active sessions at startup.",
+                        uncleanCount
+                    );
+                }
+            })
+            .handleExceptional(ex -> log.atError().withCause(ex).log("Failed to close old sessions!"));
     }
 
     @Override
     public synchronized void initialize()
     {
-        final Instant now = Instant.now();
-        final PluginSessionMetadata metadata = metadataProvider.getMetadata();
-        final int uncleanCount = databaseManager
-            .markActivePluginSessionsUnclean(now)
-            .orTimeout(5, TimeUnit.SECONDS)
-            .join();
+        markOldOpenSessionsAsUnclean(Instant.now());
 
-        if (uncleanCount > 0)
-            log.atWarn().log("Marked %d previous plugin session(s) as unclean.", uncleanCount);
+        final PluginSessionMetadata metadata = metadataProvider.getMetadata();
 
         final UUID uuid = UuidCreator.getTimeOrderedEpoch();
         final Optional<PluginSession> session = databaseManager
             .startPluginSession(
                 uuid,
-                now,
+                Instant.now(),
                 metadata.pluginVersion(),
                 metadata.serverVersion(),
                 metadata.minecraftVersion(),
                 metadata.serverSoftware())
-            .orTimeout(5, TimeUnit.SECONDS)
+            .orTimeout(10, TimeUnit.SECONDS)
             .join();
 
         if (session.isEmpty())
@@ -92,12 +108,19 @@ public final class PluginSessionManager extends Restartable implements IDebuggab
 
     private void deleteOldCompletedAnimationRuns()
     {
-        final int count = databaseManager
+        databaseManager
             .deleteCompletedAnimationRuns(Instant.now().minus(COMPLETED_ANIMATION_RUN_RETENTION))
             .orTimeout(5, TimeUnit.SECONDS)
-            .join();
-        if (count > 0)
-            log.atInfo().log("Deleted %d old completed animation run(s).", count);
+            .thenAccept(deleted ->
+                {
+                    if (deleted > 0)
+                    {
+                        log.atInfo().log("Deleted %d old completed animation run(s).", deleted);
+                    }
+                }
+            ).handleExceptional(ex ->
+                log.atError().withCause(ex).log("Failed to delete old completed animation runs.")
+            );
     }
 
     @Override
@@ -106,18 +129,22 @@ public final class PluginSessionManager extends Restartable implements IDebuggab
         final UUID uuid = currentSessionUuid;
         if (uuid == null)
         {
-            log.atWarn().withStackTrace(StackSize.FULL).log("No active plugin session to close.");
-            return;
+            throw new IllegalStateException("No active plugin session to close.");
         }
 
-        final boolean closed = databaseManager
+        currentSessionUuid = null;
+
+        databaseManager
             .closePluginSession(uuid, Instant.now(), CLEAN_SHUTDOWN_REASON)
             .orTimeout(5, TimeUnit.SECONDS)
+            .thenAccept(closed ->
+            {
+                if (!closed)
+                {
+                    log.atWarn().log("Failed to close plugin session cleanly: %s", uuid);
+                }
+            })
             .join();
-
-        if (!closed)
-            log.atWarn().log("Failed to close plugin session cleanly: %s", uuid);
-        currentSessionUuid = null;
     }
 
     /**

@@ -42,8 +42,8 @@ public final class AnimatedBlockHelper
     /**
      * Attempts to recover animated blocks from a bounded set of entities.
      * <p>
-     * Each entity is handled independently so one failed recovery cannot prevent recovery of other entities in the
-     * same chunk.
+     * Each entity is handled independently so one failed recovery cannot prevent recovery of other entities in the same
+     * chunk.
      *
      * @param entities
      *     The entities to inspect.
@@ -68,7 +68,8 @@ public final class AnimatedBlockHelper
 
         final IAnimatedBlockRecoveryData recoveryData = entity.getPersistentDataContainer().get(
             recoveryKey,
-            AnimatedBlockRecoveryDataType.INSTANCE);
+            AnimatedBlockRecoveryDataType.INSTANCE
+        );
 
         if (recoveryData == null)
             return Optional.empty();

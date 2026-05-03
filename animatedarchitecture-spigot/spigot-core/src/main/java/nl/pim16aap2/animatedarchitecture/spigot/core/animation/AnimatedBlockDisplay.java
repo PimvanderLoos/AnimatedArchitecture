@@ -97,7 +97,6 @@ public final class AnimatedBlockDisplay implements IAnimatedBlockSpigot
         this.recoveryData = animationRunUuid == null ?
             IAnimatedBlockRecoveryData.EMPTY :
             new IAnimatedBlockRecoveryData.AnimatedBlockRecoveryData(
-                1,
                 bukkitWorld,
                 this.startPosition.position().floor().toInteger(),
                 this.blockData.getBlockData(),

@@ -47,8 +47,6 @@ public sealed interface IAnimatedBlockRecoveryData
      *
      * @param world
      *     The world the block exists in.
-     * @param schemaVersion
-     *     The recovery data schema version.
      * @param position
      *     The position of the block.
      * @param data
@@ -57,7 +55,6 @@ public sealed interface IAnimatedBlockRecoveryData
      *     The UUID of the animation run that created this animated block, if present.
      */
     record AnimatedBlockRecoveryData(
-        int schemaVersion,
         World world,
         Vector3Di position,
         BlockData data,

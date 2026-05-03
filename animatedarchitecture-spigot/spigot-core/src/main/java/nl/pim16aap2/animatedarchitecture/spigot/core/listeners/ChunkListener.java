@@ -18,7 +18,6 @@ import nl.pim16aap2.animatedarchitecture.core.util.Rectangle;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector2Di;
 import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.AnimatedBlockHelper;
-import org.bukkit.Bukkit;
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -67,20 +66,6 @@ public class ChunkListener extends AbstractListener
         this.structureActivityManager = structureActivityManager;
         this.animatedBlockHelper = animatedBlockHelper;
         this.executor = executor;
-    }
-
-    @Override
-    public void initialize()
-    {
-        super.initialize();
-        recoverAnimatedBlocksInLoadedChunks();
-    }
-
-    private void recoverAnimatedBlocksInLoadedChunks()
-    {
-        for (final World world : Bukkit.getWorlds())
-            for (final Chunk chunk : world.getLoadedChunks())
-                animatedBlockHelper.recoverAnimatedBlocks(List.of(chunk.getEntities()));
     }
 
     private void onChunkLoad(World world, Chunk chunk)

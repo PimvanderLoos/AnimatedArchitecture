@@ -179,7 +179,7 @@ public final class Animator implements IAnimator
     private final int animationDuration;
 
     /**
-     * The cuboid that describes the location of the structure after the blocks have been moved.
+     * The cuboid that describes the original location of the structure before the blocks have been moved.
      */
     private final Cuboid oldCuboid;
 
@@ -581,7 +581,9 @@ public final class Animator implements IAnimator
                 catch (Exception e)
                 {
                     // TODO: Stop animation etc.
-                    log.atError().withCause(e).log("Failed to execute animation step!");
+                    log.atError().atMostEvery(1, TimeUnit.SECONDS).withCause(e).log(
+                        "Failed to execute animation step!"
+                    );
                 }
             }
         };
@@ -631,8 +633,16 @@ public final class Animator implements IAnimator
 
         if (blocking)
         {
-            restoreBlocks.orTimeout(2, TimeUnit.SECONDS).join();
-            updateStructure.run();
+            try
+            {
+                restoreBlocks.orTimeout(2, TimeUnit.SECONDS).join();
+                updateStructure.run();
+            }
+            catch (Exception ex)
+            {
+                failAnimationRun("Failed to finish animation: " + ex.getMessage());
+                log.atError().withCause(ex).log("Failed to finish animation! IsAborted: %b", isAborted);
+            }
         }
         else
         {

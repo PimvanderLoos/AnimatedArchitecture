@@ -158,6 +158,8 @@ public final class AnimationRunManager
      *     The number of recovered blocks.
      * @param diagnosticMessage
      *     Diagnostic details.
+     * @throws IllegalArgumentException
+     *     When the recovered block count is {@code < 1}
      */
     public void recordRecoveredBlocks(UUID runUuid, int recoveredBlockCount, @Nullable String diagnosticMessage)
     {
