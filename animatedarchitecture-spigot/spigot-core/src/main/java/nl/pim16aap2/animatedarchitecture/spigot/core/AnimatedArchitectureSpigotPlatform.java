@@ -221,6 +221,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
                 "Failed to initialize AnimatedArchitecture database! Database state: " +
                     databaseManager.getDatabaseState().name()
             );
+        safeGetter(AnimatedArchitectureSpigotComponent::getPluginSessionManager);
 
         protectionHookManager = safeGetter(AnimatedArchitectureSpigotComponent::getProtectionHookManager);
         economyManager = safeGetter(AnimatedArchitectureSpigotComponent::getVaultManager);
@@ -240,7 +241,6 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
         delayedCommandInputManager = safeGetter(AnimatedArchitectureSpigotComponent::getDelayedCommandInputManager);
         animatedBlockHookManager = safeGetter(AnimatedArchitectureSpigotComponent::getAnimatedBlockHookManager);
         animationHookManager = safeGetter(AnimatedArchitectureSpigotComponent::getAnimationHookManager);
-
         locationFactory = safeGetter(AnimatedArchitectureSpigotComponent::getLocationFactory);
         worldFactory = safeGetter(AnimatedArchitectureSpigotComponent::getWorldFactory);
         playerFactory = safeGetter(AnimatedArchitectureSpigotComponent::getPlayerFactory);

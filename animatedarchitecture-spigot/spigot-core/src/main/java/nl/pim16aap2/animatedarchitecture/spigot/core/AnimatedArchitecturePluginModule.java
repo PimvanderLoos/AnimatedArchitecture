@@ -5,6 +5,7 @@ import dagger.Module;
 import dagger.Provides;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.IPluginSessionMetadataProvider;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitecturePlatformProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -21,6 +22,11 @@ public abstract class AnimatedArchitecturePluginModule
     @Singleton
     abstract IAnimatedArchitecturePlatformProvider getAnimatedArchitecturePlatformProvider(
         AnimatedArchitecturePlugin animatedArchitecturePlugin);
+
+    @Binds
+    @Singleton
+    abstract IPluginSessionMetadataProvider getPluginSessionMetadataProvider(
+        PluginSessionMetadataProviderSpigot pluginSessionMetadataProviderSpigot);
 
     @Provides
     @Singleton
