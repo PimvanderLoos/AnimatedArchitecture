@@ -27,6 +27,7 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -112,7 +113,7 @@ public class ChunkListener extends AbstractListener
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChunkLoadAnimatedBlockRecovery(ChunkLoadEvent event)
     {
-        animatedBlockHelper.recoverAnimatedBlocks(List.of(event.getChunk().getEntities()));
+        animatedBlockHelper.recoverAnimatedBlocks(Arrays.asList(event.getChunk().getEntities()));
     }
 
     /**

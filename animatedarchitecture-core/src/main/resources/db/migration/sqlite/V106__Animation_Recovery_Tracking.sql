@@ -1,8 +1,8 @@
 CREATE TABLE PluginSession (
     id               INTEGER PRIMARY KEY AUTOINCREMENT,
     uuid             TEXT    NOT NULL UNIQUE,
-    startedAt        TEXT    NOT NULL,
-    endedAt          TEXT,
+    startedAt        INTEGER NOT NULL,
+    endedAt          INTEGER,
     status           TEXT    NOT NULL,
     endReason        TEXT,
     pluginVersion    TEXT    NOT NULL,
@@ -18,13 +18,13 @@ CREATE TABLE AnimationRun (
     structureUid        INTEGER NOT NULL,
     actionType          TEXT    NOT NULL,
     animationType       TEXT    NOT NULL,
-    startedAt           TEXT    NOT NULL,
-    endedAt             TEXT,
+    startedAt           INTEGER NOT NULL,
+    endedAt             INTEGER,
     status              TEXT    NOT NULL,
     expectedAnimatedBlockCount INTEGER,
     recoveredBlockCount INTEGER NOT NULL DEFAULT 0,
-    lastRecoveredAt     TEXT,
-    recoveryCompletedAt TEXT,
+    lastRecoveredAt     INTEGER,
+    recoveryCompletedAt INTEGER,
     diagnosticMessage   TEXT
 );
 

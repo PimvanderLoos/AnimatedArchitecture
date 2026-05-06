@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -72,7 +73,7 @@ class AnimatedBlockHelperTest
         animatedBlockHelper.recoverAnimatedBlocks(List.of());
 
         // verify
-        verify(animationRunManager, never()).recordRecoveredBlocks(any(), any(int.class), any());
+        verify(animationRunManager, never()).recordRecoveredBlocks(any(), anyInt(), any());
     }
 
     @Test
@@ -86,7 +87,7 @@ class AnimatedBlockHelperTest
         animatedBlockHelper.recoverAnimatedBlocks(List.of(entity));
 
         // verify
-        verify(animationRunManager, never()).recordRecoveredBlocks(any(), any(int.class), any());
+        verify(animationRunManager, never()).recordRecoveredBlocks(any(), anyInt(), any());
         verify(entity, never()).remove();
     }
 
@@ -102,7 +103,7 @@ class AnimatedBlockHelperTest
 
         // verify
         verify(entity).remove();
-        verify(animationRunManager, never()).recordRecoveredBlocks(any(), any(int.class), any());
+        verify(animationRunManager, never()).recordRecoveredBlocks(any(), anyInt(), any());
     }
 
     @Test

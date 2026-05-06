@@ -557,12 +557,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Locked.Write("lock")
     public int markActivePluginSessionsUnclean(Instant endedAt)
     {
-        String endedAtString = endedAt.toString();
-
         return executeUpdate(SQLStatement.MARK_ACTIVE_PLUGIN_SESSIONS_UNCLEAN
             .constructDelayedPreparedStatement()
-            .setNextString(endedAtString)
-            .setNextString(endedAtString));
+            .setNextLong(endedAt.toEpochMilli())
+            .setNextLong(endedAt.toEpochMilli()));
     }
 
     @Override
@@ -578,7 +576,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final int updated = executeUpdate(SQLStatement.INSERT_PLUGIN_SESSION
             .constructDelayedPreparedStatement()
             .setNextString(uuid.toString())
-            .setNextString(startedAt.toString())
+            .setNextLong(startedAt.toEpochMilli())
             .setNextString(pluginVersion)
             .setNextString(serverVersion)
             .setNextString(minecraftVersion)
@@ -595,7 +593,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         return executeUpdate(SQLStatement.CLOSE_PLUGIN_SESSION
             .constructDelayedPreparedStatement()
-            .setNextString(endedAt.toString())
+            .setNextLong(endedAt.toEpochMilli())
             .setNextString(endReason)
             .setNextString(sessionUuid.toString())) > 0;
     }
@@ -628,7 +626,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             .setNextLong(structureUid)
             .setNextString(actionType.name())
             .setNextString(animationType.name())
-            .setNextString(startedAt.toString()));
+            .setNextLong(startedAt.toEpochMilli()));
 
         if (updated < 1)
             return Optional.empty();
@@ -656,7 +654,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         return executeUpdate(SQLStatement.FINISH_ANIMATION_RUN
             .constructDelayedPreparedStatement()
             .setNextString(status.name())
-            .setNextString(endedAt.toString())
+            .setNextLong(endedAt.toEpochMilli())
             .setNextString(diagnosticMessage)
             .setNextString(runUuid.toString())) > 0;
     }
@@ -685,9 +683,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final int updated = executeUpdate(SQLStatement.ADD_RECOVERED_BLOCK_COUNT
             .constructDelayedPreparedStatement()
             .setNextInt(recoveredBlockCount)
-            .setNextString(recoveredAt.toString())
+            .setNextLong(recoveredAt.toEpochMilli())
             .setNextInt(recoveredBlockCount)
-            .setNextString(recoveredAt.toString())
+            .setNextLong(recoveredAt.toEpochMilli())
             .setNextString(diagnosticMessage)
             .setNextString(runUuid.toString()));
 
@@ -700,7 +698,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         return executeUpdate(SQLStatement.DELETE_COMPLETED_ANIMATION_RUNS
             .constructDelayedPreparedStatement()
-            .setNextString(cutoff.toString()));
+            .setNextLong(cutoff.toEpochMilli()));
     }
 
     private PluginSession readPluginSession(ResultSet resultSet)
@@ -708,8 +706,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         return new PluginSession(
             UUID.fromString(resultSet.getString("uuid")),
-            Instant.parse(resultSet.getString("startedAt")),
-            parseNullableInstant(resultSet.getString("endedAt")),
+            Instant.ofEpochMilli(resultSet.getLong("startedAt")),
+            getNullableInstant(resultSet, "endedAt"),
             PluginSessionStatus.valueOf(resultSet.getString("status")),
             resultSet.getString("endReason"),
             resultSet.getString("pluginVersion"),
@@ -724,8 +722,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     {
         final PluginSession pluginSession = new PluginSession(
             UUID.fromString(resultSet.getString("sessionUuid")),
-            Instant.parse(resultSet.getString("sessionStartedAt")),
-            parseNullableInstant(resultSet.getString("sessionEndedAt")),
+            Instant.ofEpochMilli(resultSet.getLong("sessionStartedAt")),
+            getNullableInstant(resultSet, "sessionEndedAt"),
             PluginSessionStatus.valueOf(resultSet.getString("sessionStatus")),
             resultSet.getString("endReason"),
             resultSet.getString("pluginVersion"),
@@ -740,22 +738,24 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             resultSet.getLong("structureUid"),
             StructureActionType.valueOf(resultSet.getString("actionType")),
             AnimationType.valueOf(resultSet.getString("animationType")),
-            Instant.parse(resultSet.getString("animationStartedAt")),
-            parseNullableInstant(resultSet.getString("animationEndedAt")),
+            Instant.ofEpochMilli(resultSet.getLong("animationStartedAt")),
+            getNullableInstant(resultSet, "animationEndedAt"),
             AnimationRunStatus.valueOf(resultSet.getString("animationStatus")),
             getNullableInt(resultSet, "expectedAnimatedBlockCount"),
             resultSet.getInt("recoveredBlockCount"),
-            parseNullableInstant(resultSet.getString("lastRecoveredAt")),
-            parseNullableInstant(resultSet.getString("recoveryCompletedAt")),
+            getNullableInstant(resultSet, "lastRecoveredAt"),
+            getNullableInstant(resultSet, "recoveryCompletedAt"),
             resultSet.getString("diagnosticMessage")
         );
 
         return new AnimationRecoveryContext(pluginSession, animationRun);
     }
 
-    private static @Nullable Instant parseNullableInstant(@Nullable String value)
+    private static @Nullable Instant getNullableInstant(ResultSet resultSet, String columnName)
+        throws SQLException
     {
-        return value == null ? null : Instant.parse(value);
+        final long value = resultSet.getLong(columnName);
+        return resultSet.wasNull() ? null : Instant.ofEpochMilli(value);
     }
 
     private static @Nullable Integer getNullableInt(ResultSet resultSet, String columnName)

@@ -62,6 +62,7 @@ import java.util.UUID;
 
 import static nl.pim16aap2.animatedarchitecture.core.UnitTestUtil.newStructureBuilder;
 import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @WithLogCapture
@@ -280,6 +281,8 @@ public class SQLiteJDBCDriverConnectionTest
         final UUID retainedRunUuid = UUID.randomUUID();
         final UUID deletedRunUuid = UUID.randomUUID();
         final UUID recoveredRunUuid = UUID.randomUUID();
+        final UUID fractionalCutoffSessionUuid = UUID.randomUUID();
+        final UUID fractionalCutoffRunUuid = UUID.randomUUID();
 
         // execute
         final var uncleanSession = storage
@@ -356,11 +359,39 @@ public class SQLiteJDBCDriverConnectionTest
             storage.addRecoveredBlockCount(recoveredRunUuid, 1, now.minusSeconds(1), "partial recovery");
         final var completeRecoveryContext = storage.addRecoveredBlockCount(recoveredRunUuid, 1, now, "test recovery");
 
+        final Instant fractionalCutoffSessionStart = Instant.parse("2026-01-03T00:00:00Z");
+        final Instant fractionalCutoff = Instant.parse("2026-01-03T00:00:00.100Z");
+        final var fractionalCutoffSession = storage.startPluginSession(
+            fractionalCutoffSessionUuid,
+            fractionalCutoffSessionStart,
+            "0.8.0-test",
+            "Paper test",
+            "1.21.6",
+            "Paper"
+        ).orElseThrow();
+        final boolean fractionalCutoffSessionClosed =
+            storage.closePluginSession(fractionalCutoffSessionUuid, fractionalCutoffSessionStart, "test shutdown");
+        final var fractionalCutoffRun = storage.startAnimationRun(
+            fractionalCutoffRunUuid,
+            fractionalCutoffSessionUuid,
+            4L,
+            StructureActionType.TOGGLE,
+            AnimationType.MOVE_BLOCKS,
+            fractionalCutoffSessionStart
+        ).orElseThrow();
+        final boolean fractionalCutoffRunFinished = storage.finishAnimationRun(
+            fractionalCutoffRunUuid,
+            AnimationRunStatus.COMPLETED,
+            fractionalCutoffSessionStart,
+            null
+        );
         final int deleted = storage.deleteCompletedAnimationRuns(now.minusSeconds(86_400));
+        final int fractionalCutoffDeleted = storage.deleteCompletedAnimationRuns(fractionalCutoff);
 
         final var retainedContext = storage.getAnimationRecoveryContext(retainedRunUuid);
         final var deletedContext = storage.getAnimationRecoveryContext(deletedRunUuid);
         final var recoveredContext = storage.getAnimationRecoveryContext(recoveredRunUuid);
+        final var fractionalCutoffContext = storage.getAnimationRecoveryContext(fractionalCutoffRunUuid);
 
         // verify
         Assertions.assertEquals(PluginSessionStatus.ACTIVE, uncleanSession.status());
@@ -370,6 +401,12 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertEquals(retainedRunUuid, retainedRun.uuid());
         Assertions.assertEquals(deletedRunUuid, deletedRun.uuid());
         Assertions.assertEquals(recoveredRunUuid, recoveredRun.uuid());
+        assertThat(fractionalCutoffSession.uuid()).isEqualTo(fractionalCutoffSessionUuid);
+        assertThat(fractionalCutoffSessionClosed).isTrue();
+        assertThat(fractionalCutoffRun.uuid()).isEqualTo(fractionalCutoffRunUuid);
+        assertThat(fractionalCutoffRunFinished).isTrue();
+        assertThat(fractionalCutoffDeleted).isEqualTo(1);
+        assertThat(fractionalCutoffContext).isEmpty();
         Assertions.assertEquals(1, deleted);
         Assertions.assertTrue(retainedContext.isPresent());
         Assertions.assertEquals(PluginSessionStatus.UNCLEAN, retainedContext.orElseThrow().pluginSession().status());

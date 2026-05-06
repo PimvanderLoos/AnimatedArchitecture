@@ -1,5 +1,6 @@
 package nl.pim16aap2.animatedarchitecture.core.animation;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.flogger.StackSize;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -600,7 +601,8 @@ public final class Animator implements IAnimator
      *     <p>
      *     Note that this excludes database operations, which are always asynchronous.
      */
-    private void finishAnimation(boolean blocking)
+    @VisibleForTesting
+    void finishAnimation(boolean blocking)
     {
         // Only allow this method to be run once! If it can be run multiple times, it'll cause structure corruption
         // because while the blocks have already been placed, the coordinates can still be toggled!
@@ -618,17 +620,28 @@ public final class Animator implements IAnimator
         // However, updating the coordinates of the structure is best left to another thread, as it may block the
         // calling thread while it waits to acquire the write lock.
         final CompletableFuture<Void> restoreBlocks = executor.runOnMainThreadWithResponse(handler);
+        final AtomicBoolean processedFinishedAnimation = new AtomicBoolean(false);
+        final Runnable processFinishedAnimation = () ->
+        {
+            if (!processedFinishedAnimation.getAndSet(true))
+                structureActivityManager.processFinishedAnimation(this);
+        };
 
         final Runnable updateStructure = () ->
         {
-            if (!isAborted && animationType.requiresWriteAccess())
-                // Tell the structure object it has been opened and what its new coordinates are.
-                structure.withWriteLock(this::updateCoords);
+            try
+            {
+                if (!isAborted && animationType.requiresWriteAccess())
+                    // Tell the structure object it has been opened and what its new coordinates are.
+                    structure.withWriteLock(this::updateCoords);
 
-            forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
-            finishAnimationRun();
-
-            structureActivityManager.processFinishedAnimation(this);
+                forEachHook("onAnimationCompleted", IAnimationHook::onAnimationCompleted);
+                finishAnimationRun();
+            }
+            finally
+            {
+                processFinishedAnimation.run();
+            }
         };
 
         if (blocking)
@@ -642,6 +655,7 @@ public final class Animator implements IAnimator
             {
                 failAnimationRun("Failed to finish animation: " + ex.getMessage());
                 log.atError().withCause(ex).log("Failed to finish animation! IsAborted: %b", isAborted);
+                processFinishedAnimation.run();
             }
         }
         else
@@ -652,6 +666,7 @@ public final class Animator implements IAnimator
                 {
                     failAnimationRun("Failed to finish animation: " + ex.getMessage());
                     log.atError().withCause(ex).log("Failed to finish animation! IsAborted: %b", isAborted);
+                    processFinishedAnimation.run();
                 });
         }
     }
