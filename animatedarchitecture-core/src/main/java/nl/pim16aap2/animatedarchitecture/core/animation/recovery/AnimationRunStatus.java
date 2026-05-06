@@ -11,7 +11,7 @@ public enum AnimationRunStatus
     ACTIVE,
 
     /**
-     * The animation run completed through the normal path.
+     * The animation run completed through the normal path (or was successfully aborted).
      */
     COMPLETED,
 

@@ -655,6 +655,9 @@ public final class Animator implements IAnimator
             {
                 failAnimationRun("Failed to finish animation: " + ex.getMessage());
                 log.atError().withCause(ex).log("Failed to finish animation! IsAborted: %b", isAborted);
+            }
+            finally
+            {
                 processFinishedAnimation.run();
             }
         }

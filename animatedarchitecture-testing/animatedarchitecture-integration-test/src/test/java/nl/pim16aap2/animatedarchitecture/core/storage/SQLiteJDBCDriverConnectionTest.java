@@ -316,7 +316,7 @@ public class SQLiteJDBCDriverConnectionTest
             AnimationType.MOVE_BLOCKS,
             oldSessionStart.plusSeconds(1)
         ).orElseThrow();
-        Assertions.assertTrue(storage.updateAnimationRunExpectedAnimatedBlockCount(retainedRunUuid, 3));
+        assertThat(storage.updateAnimationRunExpectedAnimatedBlockCount(retainedRunUuid, 3)).isTrue();
         storage.finishAnimationRun(
             retainedRunUuid,
             AnimationRunStatus.COMPLETED,
@@ -332,7 +332,7 @@ public class SQLiteJDBCDriverConnectionTest
             AnimationType.MOVE_BLOCKS,
             cleanSessionStart.plusSeconds(1)
         ).orElseThrow();
-        Assertions.assertTrue(storage.updateAnimationRunExpectedAnimatedBlockCount(deletedRunUuid, 5));
+        assertThat(storage.updateAnimationRunExpectedAnimatedBlockCount(deletedRunUuid, 5)).isTrue();
         storage.finishAnimationRun(
             deletedRunUuid,
             AnimationRunStatus.COMPLETED,
@@ -348,7 +348,7 @@ public class SQLiteJDBCDriverConnectionTest
             AnimationType.MOVE_BLOCKS,
             cleanSessionStart.plusSeconds(2)
         ).orElseThrow();
-        Assertions.assertTrue(storage.updateAnimationRunExpectedAnimatedBlockCount(recoveredRunUuid, 2));
+        assertThat(storage.updateAnimationRunExpectedAnimatedBlockCount(recoveredRunUuid, 2)).isTrue();
         storage.finishAnimationRun(
             recoveredRunUuid,
             AnimationRunStatus.COMPLETED,
@@ -394,34 +394,34 @@ public class SQLiteJDBCDriverConnectionTest
         final var fractionalCutoffContext = storage.getAnimationRecoveryContext(fractionalCutoffRunUuid);
 
         // verify
-        Assertions.assertEquals(PluginSessionStatus.ACTIVE, uncleanSession.status());
-        Assertions.assertEquals(1, markedUnclean);
-        Assertions.assertEquals(PluginSessionStatus.ACTIVE, cleanSession.status());
-        Assertions.assertTrue(closedCleanly);
-        Assertions.assertEquals(retainedRunUuid, retainedRun.uuid());
-        Assertions.assertEquals(deletedRunUuid, deletedRun.uuid());
-        Assertions.assertEquals(recoveredRunUuid, recoveredRun.uuid());
+        assertThat(uncleanSession.status()).isEqualTo(PluginSessionStatus.ACTIVE);
+        assertThat(markedUnclean).isEqualTo(1);
+        assertThat(cleanSession.status()).isEqualTo(PluginSessionStatus.ACTIVE);
+        assertThat(closedCleanly).isTrue();
+        assertThat(retainedRun.uuid()).isEqualTo(retainedRunUuid);
+        assertThat(deletedRun.uuid()).isEqualTo(deletedRunUuid);
+        assertThat(recoveredRun.uuid()).isEqualTo(recoveredRunUuid);
         assertThat(fractionalCutoffSession.uuid()).isEqualTo(fractionalCutoffSessionUuid);
         assertThat(fractionalCutoffSessionClosed).isTrue();
         assertThat(fractionalCutoffRun.uuid()).isEqualTo(fractionalCutoffRunUuid);
         assertThat(fractionalCutoffRunFinished).isTrue();
         assertThat(fractionalCutoffDeleted).isEqualTo(1);
         assertThat(fractionalCutoffContext).isEmpty();
-        Assertions.assertEquals(1, deleted);
-        Assertions.assertTrue(retainedContext.isPresent());
-        Assertions.assertEquals(PluginSessionStatus.UNCLEAN, retainedContext.orElseThrow().pluginSession().status());
-        Assertions.assertTrue(deletedContext.isEmpty());
-        Assertions.assertTrue(partialRecoveryContext.isPresent());
-        Assertions.assertNull(partialRecoveryContext.orElseThrow().animationRun().recoveryCompletedAt());
-        Assertions.assertTrue(completeRecoveryContext.isPresent());
-        Assertions.assertTrue(recoveredContext.isPresent());
+        assertThat(deleted).isEqualTo(1);
+        assertThat(retainedContext).isPresent();
+        assertThat(retainedContext.orElseThrow().pluginSession().status()).isEqualTo(PluginSessionStatus.UNCLEAN);
+        assertThat(deletedContext).isEmpty();
+        assertThat(partialRecoveryContext).isPresent();
+        assertThat(partialRecoveryContext.orElseThrow().animationRun().recoveryCompletedAt()).isNull();
+        assertThat(completeRecoveryContext).isPresent();
+        assertThat(recoveredContext).isPresent();
         final var recoveredAnimationRun = recoveredContext.orElseThrow().animationRun();
-        Assertions.assertEquals(AnimationRunStatus.COMPLETED, recoveredAnimationRun.status());
-        Assertions.assertEquals(2, recoveredAnimationRun.expectedAnimatedBlockCount());
-        Assertions.assertEquals(2, recoveredAnimationRun.recoveredBlockCount());
-        Assertions.assertEquals(now, recoveredAnimationRun.lastRecoveredAt());
-        Assertions.assertEquals(now, recoveredAnimationRun.recoveryCompletedAt());
-        Assertions.assertEquals("test recovery", recoveredAnimationRun.diagnosticMessage());
+        assertThat(recoveredAnimationRun.status()).isEqualTo(AnimationRunStatus.COMPLETED);
+        assertThat(recoveredAnimationRun.expectedAnimatedBlockCount()).isEqualTo(2);
+        assertThat(recoveredAnimationRun.recoveredBlockCount()).isEqualTo(2);
+        assertThat(recoveredAnimationRun.lastRecoveredAt()).isEqualTo(now);
+        assertThat(recoveredAnimationRun.recoveryCompletedAt()).isEqualTo(now);
+        assertThat(recoveredAnimationRun.diagnosticMessage()).isEqualTo("test recovery");
     }
 
     private void insertBulkStructures()

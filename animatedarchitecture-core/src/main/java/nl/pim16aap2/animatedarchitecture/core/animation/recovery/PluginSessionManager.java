@@ -88,7 +88,7 @@ public final class PluginSessionManager extends Restartable implements IDebuggab
         final PluginSessionMetadata metadata = metadataProvider.getMetadata();
 
         final UUID uuid = UuidCreator.getTimeOrderedEpoch();
-        final Optional<PluginSession> session = databaseManager
+        databaseManager
             .startPluginSession(
                 uuid,
                 Instant.now(),
@@ -97,10 +97,8 @@ public final class PluginSessionManager extends Restartable implements IDebuggab
                 metadata.minecraftVersion(),
                 metadata.serverSoftware())
             .orTimeout(10, TimeUnit.SECONDS)
-            .join();
-
-        if (session.isEmpty())
-            throw new IllegalStateException("Failed to create plugin session: " + uuid);
+            .join()
+            .orElseThrow(() -> new IllegalStateException("Failed to create plugin session: " + uuid));
 
         currentSessionUuid = uuid;
         deleteOldCompletedAnimationRuns();
@@ -160,8 +158,7 @@ public final class PluginSessionManager extends Restartable implements IDebuggab
     @Override
     public String getDebugInformation()
     {
-        return String.format(
-            """
+        return String.format("""
                 CurrentSessionUuid: %s
                 CompletedAnimationRunRetention: %s
                 """,

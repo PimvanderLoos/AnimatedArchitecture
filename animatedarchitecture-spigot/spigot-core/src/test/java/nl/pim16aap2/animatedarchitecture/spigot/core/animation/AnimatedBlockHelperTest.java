@@ -17,18 +17,10 @@ import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockConstruction;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @Timeout(5)
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +33,9 @@ class AnimatedBlockHelperTest
     private AnimationRunManager animationRunManager;
 
     @Mock
-    private Entity entity;
+    private Entity entity0;
+    @Mock
+    private Entity entity1;
 
     @Mock
     private PersistentDataContainer entityContainer;
@@ -61,16 +55,13 @@ class AnimatedBlockHelperTest
         {
             animatedBlockHelper = new AnimatedBlockHelper(plugin, animationRunManager);
         }
-
-        // lenient: not needed for setRecoveryData tests which use blockDisplay, not entity
-        lenient().when(entity.getPersistentDataContainer()).thenReturn(entityContainer);
     }
 
     @Test
-    void recoverAnimatedBlocks_shouldDoNothingForEmptyList()
+    void recoverAnimatedBlocks_shouldDoNothingForNoEntities()
     {
         // execute
-        animatedBlockHelper.recoverAnimatedBlocks(List.of());
+        animatedBlockHelper.recoverAnimatedBlocks();
 
         // verify
         verify(animationRunManager, never()).recordRecoveredBlocks(any(), anyInt(), any());
@@ -80,29 +71,33 @@ class AnimatedBlockHelperTest
     void recoverAnimatedBlocks_shouldSkipEntityWithNoRecoveryData()
     {
         // setup
+        //noinspection DataFlowIssue
         when(entityContainer.get(any(NamespacedKey.class), eq(AnimatedBlockRecoveryDataType.INSTANCE)))
             .thenReturn(null);
+        when(entity0.getPersistentDataContainer()).thenReturn(entityContainer);
 
         // execute
-        animatedBlockHelper.recoverAnimatedBlocks(List.of(entity));
+        animatedBlockHelper.recoverAnimatedBlocks(entity0);
 
         // verify
         verify(animationRunManager, never()).recordRecoveredBlocks(any(), anyInt(), any());
-        verify(entity, never()).remove();
+        verify(entity0, never()).remove();
     }
 
     @Test
     void recoverAnimatedBlocks_shouldRemoveEntityAndSkipWhenRecoveryDataIsEmpty()
     {
         // setup
+        //noinspection DataFlowIssue
         when(entityContainer.get(any(NamespacedKey.class), eq(AnimatedBlockRecoveryDataType.INSTANCE)))
             .thenReturn(IAnimatedBlockRecoveryData.EMPTY);
+        when(entity0.getPersistentDataContainer()).thenReturn(entityContainer);
 
         // execute
-        animatedBlockHelper.recoverAnimatedBlocks(List.of(entity));
+        animatedBlockHelper.recoverAnimatedBlocks(entity0);
 
         // verify
-        verify(entity).remove();
+        verify(entity0).remove();
         verify(animationRunManager, never()).recordRecoveredBlocks(any(), anyInt(), any());
     }
 
@@ -112,14 +107,17 @@ class AnimatedBlockHelperTest
         // setup
         final UUID runUuid = UUID.randomUUID();
         final AnimatedBlockRecoveryData recoveryData = mockRecoveryData(runUuid, true);
+
+        //noinspection DataFlowIssue
         when(entityContainer.get(any(NamespacedKey.class), eq(AnimatedBlockRecoveryDataType.INSTANCE)))
             .thenReturn(recoveryData);
+        when(entity0.getPersistentDataContainer()).thenReturn(entityContainer);
 
         // execute
-        animatedBlockHelper.recoverAnimatedBlocks(List.of(entity));
+        animatedBlockHelper.recoverAnimatedBlocks(entity0);
 
         // verify
-        verify(entity).remove();
+        verify(entity0).remove();
         verify(animationRunManager).recordRecoveredBlocks(eq(runUuid), eq(1), any());
     }
 
@@ -128,18 +126,24 @@ class AnimatedBlockHelperTest
     {
         // setup
         final UUID runUuid = UUID.randomUUID();
-        final AnimatedBlockRecoveryData recoveryData = mockRecoveryData(runUuid, true);
-        final Entity entity2 = mock(Entity.class);
-        final PersistentDataContainer pdc2 = mock(PersistentDataContainer.class);
 
+        final AnimatedBlockRecoveryData recoveryData = mockRecoveryData(runUuid, true);
+
+        final Entity entity1 = mock();
+        final PersistentDataContainer pdc1 = mock();
+
+        //noinspection DataFlowIssue
         when(entityContainer.get(any(NamespacedKey.class), eq(AnimatedBlockRecoveryDataType.INSTANCE)))
             .thenReturn(recoveryData);
-        when(entity2.getPersistentDataContainer()).thenReturn(pdc2);
-        when(pdc2.get(any(NamespacedKey.class), eq(AnimatedBlockRecoveryDataType.INSTANCE)))
+        when(entity0.getPersistentDataContainer()).thenReturn(entityContainer);
+
+        //noinspection DataFlowIssue
+        when(pdc1.get(any(NamespacedKey.class), eq(AnimatedBlockRecoveryDataType.INSTANCE)))
             .thenReturn(recoveryData);
+        when(entity1.getPersistentDataContainer()).thenReturn(pdc1);
 
         // execute
-        animatedBlockHelper.recoverAnimatedBlocks(List.of(entity, entity2));
+        animatedBlockHelper.recoverAnimatedBlocks(entity0, entity1);
 
         // verify
         verify(animationRunManager).recordRecoveredBlocks(eq(runUuid), eq(2), any());
@@ -149,25 +153,30 @@ class AnimatedBlockHelperTest
     void recoverAnimatedBlocks_shouldGroupRecoveryByRunUuid()
     {
         // setup
+        final UUID runUuid0 = UUID.randomUUID();
         final UUID runUuid1 = UUID.randomUUID();
-        final UUID runUuid2 = UUID.randomUUID();
-        final AnimatedBlockRecoveryData recoveryData1 = mockRecoveryData(runUuid1, true);
-        final AnimatedBlockRecoveryData recoveryData2 = mockRecoveryData(runUuid2, true);
-        final Entity entity2 = mock(Entity.class);
-        final PersistentDataContainer pdc2 = mock(PersistentDataContainer.class);
 
+        final PersistentDataContainer pdc1 = mock();
+
+        final AnimatedBlockRecoveryData recoveryData1 = mockRecoveryData(runUuid0, true);
+        final AnimatedBlockRecoveryData recoveryData2 = mockRecoveryData(runUuid1, true);
+
+        //noinspection DataFlowIssue
         when(entityContainer.get(any(NamespacedKey.class), eq(AnimatedBlockRecoveryDataType.INSTANCE)))
             .thenReturn(recoveryData1);
-        when(entity2.getPersistentDataContainer()).thenReturn(pdc2);
-        when(pdc2.get(any(NamespacedKey.class), eq(AnimatedBlockRecoveryDataType.INSTANCE)))
+        when(entity0.getPersistentDataContainer()).thenReturn(entityContainer);
+
+        //noinspection DataFlowIssue
+        when(pdc1.get(any(NamespacedKey.class), eq(AnimatedBlockRecoveryDataType.INSTANCE)))
             .thenReturn(recoveryData2);
+        when(entity1.getPersistentDataContainer()).thenReturn(pdc1);
 
         // execute
-        animatedBlockHelper.recoverAnimatedBlocks(List.of(entity, entity2));
+        animatedBlockHelper.recoverAnimatedBlocks(entity0, entity1);
 
         // verify
+        verify(animationRunManager).recordRecoveredBlocks(eq(runUuid0), eq(1), any());
         verify(animationRunManager).recordRecoveredBlocks(eq(runUuid1), eq(1), any());
-        verify(animationRunManager).recordRecoveredBlocks(eq(runUuid2), eq(1), any());
     }
 
     @Test
@@ -175,21 +184,26 @@ class AnimatedBlockHelperTest
     {
         // setup
         final UUID runUuid = UUID.randomUUID();
+
+        final PersistentDataContainer pdc1 = mock();
+
         final AnimatedBlockRecoveryData failingData = mockRecoveryDataThrowing();
         final AnimatedBlockRecoveryData succeedingData = mockRecoveryData(runUuid, true);
-        final Entity entity2 = mock(Entity.class);
-        final PersistentDataContainer pdc2 = mock(PersistentDataContainer.class);
 
+        //noinspection DataFlowIssue
         when(entityContainer.get(any(NamespacedKey.class), eq(AnimatedBlockRecoveryDataType.INSTANCE)))
             .thenReturn(failingData);
-        when(entity2.getPersistentDataContainer()).thenReturn(pdc2);
-        when(pdc2.get(any(NamespacedKey.class), eq(AnimatedBlockRecoveryDataType.INSTANCE)))
+        when(entity0.getPersistentDataContainer()).thenReturn(entityContainer);
+
+        //noinspection DataFlowIssue
+        when(pdc1.get(any(NamespacedKey.class), eq(AnimatedBlockRecoveryDataType.INSTANCE)))
             .thenReturn(succeedingData);
+        when(entity1.getPersistentDataContainer()).thenReturn(pdc1);
 
         // execute
-        animatedBlockHelper.recoverAnimatedBlocks(List.of(entity, entity2));
+        animatedBlockHelper.recoverAnimatedBlocks(entity0, entity1);
 
-        // verify: the second entity is still recovered despite the first failing
+        // verify
         verify(animationRunManager).recordRecoveredBlocks(eq(runUuid), eq(1), any());
     }
 
@@ -198,6 +212,7 @@ class AnimatedBlockHelperTest
     {
         // setup
         final IAnimatedBlockRecoveryData recoveryData = IAnimatedBlockRecoveryData.EMPTY;
+
         when(blockDisplay.getPersistentDataContainer()).thenReturn(blockDisplayContainer);
 
         // execute
@@ -230,7 +245,7 @@ class AnimatedBlockHelperTest
 
     private static AnimatedBlockRecoveryData mockRecoveryData(UUID runUuid, boolean recoveryResult)
     {
-        final AnimatedBlockRecoveryData data = mock(AnimatedBlockRecoveryData.class);
+        final AnimatedBlockRecoveryData data = mock();
         when(data.recover()).thenReturn(recoveryResult);
         when(data.animationRunUuid()).thenReturn(runUuid);
         return data;
@@ -238,7 +253,7 @@ class AnimatedBlockHelperTest
 
     private static AnimatedBlockRecoveryData mockRecoveryDataThrowing()
     {
-        final AnimatedBlockRecoveryData data = mock(AnimatedBlockRecoveryData.class);
+        final AnimatedBlockRecoveryData data = mock();
         when(data.recover()).thenThrow(new RuntimeException("Recovery failed"));
         return data;
     }

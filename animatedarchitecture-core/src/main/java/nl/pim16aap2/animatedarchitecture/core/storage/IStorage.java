@@ -2,15 +2,15 @@ package nl.pim16aap2.animatedarchitecture.core.storage;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongList;
-import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
-import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRecoveryContext;
 import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRun;
 import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRunStatus;
 import nl.pim16aap2.animatedarchitecture.core.animation.recovery.PluginSession;
-import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
+import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
+import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
+import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -20,8 +20,8 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -410,7 +410,8 @@ public interface IStorage
         UUID runUuid,
         int recoveredBlockCount,
         Instant recoveredAt,
-        @Nullable String diagnosticMessage);
+        @Nullable String diagnosticMessage
+    );
 
     /**
      * Deletes completed animation runs whose clean owning sessions are older than the retention duration.

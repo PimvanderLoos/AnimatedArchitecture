@@ -21,12 +21,14 @@ public abstract class AnimatedArchitecturePluginModule
     @Binds
     @Singleton
     abstract IAnimatedArchitecturePlatformProvider getAnimatedArchitecturePlatformProvider(
-        AnimatedArchitecturePlugin animatedArchitecturePlugin);
+        AnimatedArchitecturePlugin animatedArchitecturePlugin
+    );
 
     @Binds
     @Singleton
     abstract IPluginSessionMetadataProvider getPluginSessionMetadataProvider(
-        PluginSessionMetadataProviderSpigot pluginSessionMetadataProviderSpigot);
+        PluginSessionMetadataProviderSpigot pluginSessionMetadataProviderSpigot
+    );
 
     @Provides
     @Singleton

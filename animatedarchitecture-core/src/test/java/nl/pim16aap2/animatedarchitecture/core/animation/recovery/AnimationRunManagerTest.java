@@ -5,10 +5,11 @@ import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -18,34 +19,30 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @Timeout(5)
 @ExtendWith(MockitoExtension.class)
 @WithLogCapture
 class AnimationRunManagerTest
 {
+    @InjectMocks
+    private AnimationRunManager animationRunManager;
+
     @Mock
     private DatabaseManager databaseManager;
-
     @Mock
     private PluginSessionManager pluginSessionManager;
 
-    private AnimationRunManager animationRunManager;
-
-    @BeforeEach
-    void setUp()
+    @AfterEach
+    void tearDown()
     {
-        animationRunManager = new AnimationRunManager(databaseManager, pluginSessionManager);
+        verifyNoMoreInteractions(
+            databaseManager,
+            pluginSessionManager
+        );
     }
 
     @Test
@@ -56,10 +53,11 @@ class AnimationRunManagerTest
 
         // execute & verify
         assertThatThrownBy(
-            () -> animationRunManager.registerRunStart(1L, StructureActionType.OPEN, AnimationType.MOVE_BLOCKS)
-        )
+            () -> animationRunManager.registerRunStart(1L, StructureActionType.OPEN, AnimationType.MOVE_BLOCKS))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Cannot start animation run without an active plugin session");
+
+        verify(pluginSessionManager).getCurrentSessionUuid();
     }
 
     @Test
@@ -81,6 +79,15 @@ class AnimationRunManagerTest
 
         // verify
         assertThat(resultUuid).isNotNull();
+
+        verify(pluginSessionManager).getCurrentSessionUuid();
+        verify(databaseManager).startAnimationRun(
+            any(),
+            eq(sessionUuid),
+            eq(1L),
+            eq(StructureActionType.OPEN),
+            eq(AnimationType.MOVE_BLOCKS), any()
+        );
     }
 
     @Test
@@ -96,11 +103,20 @@ class AnimationRunManagerTest
         assertThatThrownBy(
             () -> animationRunManager
                 .registerRunStart(1L, StructureActionType.OPEN, AnimationType.MOVE_BLOCKS)
-                .join()
-        )
+                .join())
             .cause()
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Failed to create animation run");
+
+        verify(pluginSessionManager).getCurrentSessionUuid();
+        verify(databaseManager).startAnimationRun(
+            any(),
+            eq(sessionUuid),
+            eq(1L),
+            eq(StructureActionType.OPEN),
+            eq(AnimationType.MOVE_BLOCKS),
+            any()
+        );
     }
 
     @Test
@@ -137,6 +153,8 @@ class AnimationRunManagerTest
         assertThatLogCaptor(logCaptor)
             .atWarn()
             .singleWithMessageContaining("was not updated with expected animated block count");
+
+        verify(databaseManager).updateAnimationRunExpectedAnimatedBlockCount(runUuid, 10);
     }
 
     @Test
@@ -158,6 +176,8 @@ class AnimationRunManagerTest
         assertThatLogCaptor(logCaptor)
             .atError()
             .singleWithMessageContaining("Failed to set expected animated block count");
+
+        verify(databaseManager).updateAnimationRunExpectedAnimatedBlockCount(runUuid, 10);
     }
 
     @Test
@@ -181,8 +201,8 @@ class AnimationRunManagerTest
         // setup
         final UUID runUuid = UUID.randomUUID();
         final String diagnosticMessage = "Something went wrong";
-        when(databaseManager.finishAnimationRun(
-            eq(runUuid), eq(AnimationRunStatus.FAILED), any(), eq(diagnosticMessage)))
+        when(databaseManager
+            .finishAnimationRun(eq(runUuid), eq(AnimationRunStatus.FAILED), any(), eq(diagnosticMessage)))
             .thenReturn(CompletableFuture.completedFuture(true));
 
         // execute
@@ -190,7 +210,11 @@ class AnimationRunManagerTest
 
         // verify
         verify(databaseManager).finishAnimationRun(
-            eq(runUuid), eq(AnimationRunStatus.FAILED), any(), eq(diagnosticMessage));
+            eq(runUuid),
+            eq(AnimationRunStatus.FAILED),
+            any(),
+            eq(diagnosticMessage)
+        );
     }
 
     @Test
@@ -211,6 +235,8 @@ class AnimationRunManagerTest
         assertThatLogCaptor(logCaptor)
             .atWarn()
             .singleWithMessageContaining("was not updated to");
+
+        verify(databaseManager).finishAnimationRun(eq(runUuid), eq(AnimationRunStatus.COMPLETED), any(), isNull());
     }
 
     @Test
@@ -268,6 +294,8 @@ class AnimationRunManagerTest
         assertThatLogCaptor(logCaptor)
             .atError()
             .singleWithMessageContaining("unknown animation run");
+
+        verify(databaseManager).addRecoveredBlockCount(eq(runUuid), eq(1), any(), eq("test"));
     }
 
     @Test
@@ -292,6 +320,8 @@ class AnimationRunManagerTest
         assertThatLogCaptor(logCaptor)
             .atError()
             .singleWithMessageContaining("exceeds the expected animated block count");
+
+        verify(databaseManager).addRecoveredBlockCount(eq(runUuid), eq(1), any(), eq("test"));
     }
 
     private static AnimationRun newAnimationRun(UUID uuid, UUID sessionUuid)

@@ -48,11 +48,13 @@ public final class AnimatedBlockHelper
      * @param entities
      *     The entities to inspect.
      */
-    public void recoverAnimatedBlocks(Iterable<Entity> entities)
+    public void recoverAnimatedBlocks(Entity... entities)
     {
         final Map<UUID, Integer> recoveredBlocks = new HashMap<>();
         for (final Entity entity : entities)
+        {
             recoverAnimatedBlock(entity).ifPresent(uuid -> recoveredBlocks.merge(uuid, 1, Integer::sum));
+        }
 
         recoveredBlocks.forEach((uuid, count) -> animationRunManager.recordRecoveredBlocks(
             uuid,
@@ -64,7 +66,9 @@ public final class AnimatedBlockHelper
     private Optional<UUID> recoverAnimatedBlock(@Nullable Entity entity)
     {
         if (entity == null)
+        {
             return Optional.empty();
+        }
 
         final IAnimatedBlockRecoveryData recoveryData = entity.getPersistentDataContainer().get(
             recoveryKey,
@@ -72,7 +76,9 @@ public final class AnimatedBlockHelper
         );
 
         if (recoveryData == null)
+        {
             return Optional.empty();
+        }
 
         try
         {
@@ -108,7 +114,9 @@ public final class AnimatedBlockHelper
     private Optional<UUID> getAnimationRunUuid(IAnimatedBlockRecoveryData recoveryData)
     {
         if (recoveryData instanceof IAnimatedBlockRecoveryData.AnimatedBlockRecoveryData data)
+        {
             return Optional.ofNullable(data.animationRunUuid());
+        }
         return Optional.empty();
     }
 

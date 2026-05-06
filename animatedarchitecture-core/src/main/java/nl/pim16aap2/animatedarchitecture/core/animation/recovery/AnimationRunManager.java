@@ -49,6 +49,9 @@ public final class AnimationRunManager
      * @param animationType
      *     The animation type.
      * @return The future animation run UUID.
+     *
+     * @throws IllegalStateException
+     *     if there is no active plugin session to associate the run with.
      */
     public CompletableFuture<UUID> registerRunStart(
         long structureUid,
@@ -58,7 +61,8 @@ public final class AnimationRunManager
         final UUID sessionUuid = pluginSessionManager
             .getCurrentSessionUuid()
             .orElseThrow(() ->
-                new IllegalStateException("Cannot start animation run without an active plugin session."));
+                new IllegalStateException("Cannot start animation run without an active plugin session.")
+            );
 
         final UUID runUuid = UuidCreator.getTimeOrderedEpoch();
         return databaseManager
@@ -73,7 +77,9 @@ public final class AnimationRunManager
             .thenApply(run ->
             {
                 if (run.isEmpty())
+                {
                     throw new IllegalStateException("Failed to create animation run: " + runUuid);
+                }
                 return runUuid;
             });
     }
@@ -96,7 +102,9 @@ public final class AnimationRunManager
                 if (throwable != null)
                 {
                     log.atError().withCause(throwable).log(
-                        "Failed to set expected animated block count for animation run %s.", runUuid);
+                        "Failed to set expected animated block count for animation run %s.",
+                        runUuid
+                    );
                 }
                 else if (!updated)
                 {
@@ -107,7 +115,7 @@ public final class AnimationRunManager
     }
 
     /**
-     * Marks an animation run as completed.
+     * Marks an animation run as completed (or successfully aborted).
      *
      * @param runUuid
      *     The animation run UUID.
@@ -139,10 +147,11 @@ public final class AnimationRunManager
                 .handle((updated, throwable) ->
                 {
                     if (throwable != null)
-                        log
-                            .atError()
-                            .withCause(throwable)
-                            .log("Failed to finish animation run %s as %s.", runUuid, status);
+                        log.atError().withCause(throwable).log(
+                            "Failed to finish animation run %s as %s.",
+                            runUuid,
+                            status
+                        );
                     else if (!updated)
                         log.atWarn().log("Animation run %s was not updated to %s.", runUuid, status);
                     return null;
@@ -177,14 +186,16 @@ public final class AnimationRunManager
                         log.atError().withCause(throwable).log(
                             "Failed to record %d recovered blocks for animation run %s.",
                             recoveredBlockCount,
-                            runUuid);
+                            runUuid
+                        );
                     }
                     else if (context.isEmpty())
                     {
                         log.atError().log(
                             "Recorded %d recovered block(s) for unknown animation run '%s'.",
                             recoveredBlockCount,
-                            runUuid);
+                            runUuid
+                        );
                     }
                     else
                     {

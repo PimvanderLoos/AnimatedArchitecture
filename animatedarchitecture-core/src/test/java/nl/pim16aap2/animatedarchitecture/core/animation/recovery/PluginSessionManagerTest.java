@@ -5,10 +5,11 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.testing.annotations.WithLogCapture;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -18,40 +19,33 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static nl.pim16aap2.testing.assertions.LogCaptorAssert.assertThatLogCaptor;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @Timeout(5)
 @ExtendWith(MockitoExtension.class)
 @WithLogCapture
 class PluginSessionManagerTest
 {
+    @InjectMocks
+    private PluginSessionManager pluginSessionManager;
+
     @Mock
     private RestartableHolder restartableHolder;
-
     @Mock
     private DatabaseManager databaseManager;
-
     @Mock
     private IPluginSessionMetadataProvider metadataProvider;
-
     @Mock
     private DebuggableRegistry debuggableRegistry;
 
-    private PluginSessionManager pluginSessionManager;
-
-    @BeforeEach
-    void setUp()
+    @AfterEach
+    void tearDown()
     {
-        pluginSessionManager = new PluginSessionManager(
-            restartableHolder,
+        verifyNoMoreInteractions(
             databaseManager,
-            metadataProvider,
-            debuggableRegistry
+            metadataProvider
         );
     }
 
@@ -81,6 +75,7 @@ class PluginSessionManagerTest
 
         // verify
         assertThat(pluginSessionManager.getCurrentSessionUuid()).isPresent();
+        verifySuccessfulInitialize();
     }
 
     @Test
@@ -94,6 +89,9 @@ class PluginSessionManagerTest
 
         // verify
         verify(databaseManager).markActivePluginSessionsUnclean(any());
+        verify(metadataProvider).getMetadata();
+        verify(databaseManager).startPluginSession(any(), any(), anyString(), anyString(), anyString(), anyString());
+        verify(databaseManager).deleteCompletedAnimationRuns(any());
     }
 
     @Test
@@ -107,6 +105,9 @@ class PluginSessionManagerTest
 
         // verify
         verify(databaseManager).deleteCompletedAnimationRuns(any());
+        verify(databaseManager).markActivePluginSessionsUnclean(any());
+        verify(metadataProvider).getMetadata();
+        verify(databaseManager).startPluginSession(any(), any(), anyString(), anyString(), anyString(), anyString());
     }
 
     @Test
@@ -124,6 +125,7 @@ class PluginSessionManagerTest
         assertThatLogCaptor(logCaptor)
             .atWarn()
             .singleWithMessageContaining("Marked 3 previous plugin session(s) as unclean");
+        verifySuccessfulInitialize();
     }
 
     @Test
@@ -141,6 +143,7 @@ class PluginSessionManagerTest
         assertThatLogCaptor(logCaptor)
             .atInfo()
             .singleWithMessageContaining("Deleted 5 old completed animation run(s)");
+        verifySuccessfulInitialize();
     }
 
     @Test
@@ -157,6 +160,9 @@ class PluginSessionManagerTest
         assertThatThrownBy(() -> pluginSessionManager.initialize())
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Failed to create plugin session");
+        verify(databaseManager).markActivePluginSessionsUnclean(any());
+        verify(metadataProvider).getMetadata();
+        verify(databaseManager).startPluginSession(any(), any(), anyString(), anyString(), anyString(), anyString());
     }
 
     @Test
@@ -175,6 +181,7 @@ class PluginSessionManagerTest
         // verify
         verify(databaseManager).closePluginSession(any(), any(), anyString());
         assertThat(pluginSessionManager.getCurrentSessionUuid()).isEmpty();
+        verifySuccessfulInitialize();
     }
 
     @Test
@@ -194,6 +201,8 @@ class PluginSessionManagerTest
         assertThatLogCaptor(logCaptor)
             .atWarn()
             .singleWithMessageContaining("Failed to close plugin session cleanly");
+        verifySuccessfulInitialize();
+        verify(databaseManager).closePluginSession(any(), any(), anyString());
     }
 
     @Test
@@ -226,6 +235,14 @@ class PluginSessionManagerTest
         when(metadataProvider.getMetadata()).thenReturn(newPluginSessionMetadata());
         when(databaseManager.startPluginSession(any(), any(), anyString(), anyString(), anyString(), anyString()))
             .thenReturn(CompletableFuture.completedFuture(Optional.of(session)));
+    }
+
+    private void verifySuccessfulInitialize()
+    {
+        verify(databaseManager).markActivePluginSessionsUnclean(any());
+        verify(metadataProvider).getMetadata();
+        verify(databaseManager).startPluginSession(any(), any(), anyString(), anyString(), anyString(), anyString());
+        verify(databaseManager).deleteCompletedAnimationRuns(any());
     }
 
     private static PluginSessionMetadata newPluginSessionMetadata()
