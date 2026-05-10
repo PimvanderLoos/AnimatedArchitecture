@@ -20,7 +20,6 @@
     <modules>
         <module>animatedarchitecture-integration-test-lib</module>
         <module>animatedarchitecture-integration-test</module>
-        <module>animatedarchitecture-lightkeeper-e2e</module>
     </modules>
 
     <dependencies>
