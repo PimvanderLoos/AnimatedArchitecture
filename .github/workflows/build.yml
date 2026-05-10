@@ -39,7 +39,19 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build the project and run static analysis tools.
-        run: mvn --batch-mode -P=errorprone clean test install checkstyle:checkstyle pmd:check -Dactions.run.id=$GITHUB_RUN_ID -Dactions.run.number=$GITHUB_RUN_NUMBER
+        run: mvn -U --batch-mode -P=errorprone clean test install checkstyle:checkstyle pmd:check -Dactions.run.id=$GITHUB_RUN_ID -Dactions.run.number=$GITHUB_RUN_NUMBER
+
+      - name: Upload LightKeeper diagnostics
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: failure()
+        with:
+          name: LightKeeper diagnostics
+          path: |
+            animatedarchitecture-testing/animatedarchitecture-lightkeeper-e2e/target/failsafe-reports/**
+            animatedarchitecture-testing/animatedarchitecture-lightkeeper-e2e/target/lightkeeper-server/**/logs/**
+            animatedarchitecture-testing/animatedarchitecture-lightkeeper-e2e/target/lightkeeper-server/**/crash-reports/**
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Build the javadocs
         run: mvn --batch-mode -P=docs -DskipTests install antrun:run lombok:delombok javadoc:javadoc javadoc:aggregate

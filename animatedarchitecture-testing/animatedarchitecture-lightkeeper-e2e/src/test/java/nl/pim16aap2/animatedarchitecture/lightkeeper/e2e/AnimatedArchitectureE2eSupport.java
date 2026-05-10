@@ -134,10 +134,24 @@ final class AnimatedArchitectureE2eSupport
         Vector3Di position,
         String expectedMaterial)
     {
-        framework.waitUntil(
-            () -> normalizeMaterial(world.blockTypeAt(position)).equals(normalizeMaterial(expectedMaterial)),
-            DEFAULT_WAIT_TIMEOUT
-        );
+        final String expected = normalizeMaterial(expectedMaterial);
+        try
+        {
+            framework.waitUntil(
+                () -> normalizeMaterial(world.blockTypeAt(position)).equals(expected),
+                DEFAULT_WAIT_TIMEOUT
+            );
+        }
+        catch (IllegalStateException exception)
+        {
+            final String actual = normalizeMaterial(world.blockTypeAt(position));
+            final String serverType = System.getProperty("animatedarchitecture.e2e.serverType", "unknown");
+            throw new IllegalStateException(
+                "Timed out waiting for block at %s in world '%s' on %s. Expected '%s', found '%s'."
+                    .formatted(position, world.name(), serverType, expected, actual),
+                exception
+            );
+        }
     }
 
     static MenuHandle clickMenuItemContaining(MenuHandle menu, String expectedDisplayName)
