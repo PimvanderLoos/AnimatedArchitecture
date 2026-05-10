@@ -88,7 +88,7 @@ public final class PluginSessionManager extends Restartable implements IDebuggab
         final PluginSessionMetadata metadata = metadataProvider.getMetadata();
 
         final UUID uuid = UuidCreator.getTimeOrderedEpoch();
-        databaseManager
+        final PluginSession pluginSession = databaseManager
             .startPluginSession(
                 uuid,
                 Instant.now(),
@@ -100,7 +100,7 @@ public final class PluginSessionManager extends Restartable implements IDebuggab
             .join()
             .orElseThrow(() -> new IllegalStateException("Failed to create plugin session: " + uuid));
 
-        currentSessionUuid = uuid;
+        currentSessionUuid = pluginSession.uuid();
         deleteOldCompletedAnimationRuns();
     }
 
