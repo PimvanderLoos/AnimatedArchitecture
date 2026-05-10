@@ -22,10 +22,11 @@
 
         <animatedarchitecture.e2e.serverVersion>latest-supported</animatedarchitecture.e2e.serverVersion>
         <animatedarchitecture.e2e.animatedArchitectureJar>${project.root-dir}/animatedarchitecture-spigot/spigot-packager/target/AnimatedArchitecture-Spigot.jar</animatedarchitecture.e2e.animatedArchitectureJar>
-        <animatedarchitecture.e2e.vaultJar></animatedarchitecture.e2e.vaultJar>
-        <animatedarchitecture.e2e.permissionsJar></animatedarchitecture.e2e.permissionsJar>
-        <animatedarchitecture.e2e.worldguardJar></animatedarchitecture.e2e.worldguardJar>
-        <animatedarchitecture.e2e.worldeditJar></animatedarchitecture.e2e.worldeditJar>
+        <animatedarchitecture.e2e.vaultUrl>https://github.com/MilkBowl/Vault/releases/download/1.7.3/Vault.jar</animatedarchitecture.e2e.vaultUrl>
+        <animatedarchitecture.e2e.vaultSha256>a6b5ed97f43a5cf5bbaf00a7c8cd23c5afc9bd003f849875af8b36e6cf77d01d</animatedarchitecture.e2e.vaultSha256>
+        <animatedarchitecture.e2e.luckPermsVersion>v5.5.17-bukkit</animatedarchitecture.e2e.luckPermsVersion>
+        <animatedarchitecture.e2e.worldEditVersion>7.4.2</animatedarchitecture.e2e.worldEditVersion>
+        <animatedarchitecture.e2e.worldGuardVersion>7.0.15</animatedarchitecture.e2e.worldGuardVersion>
 
         <lightkeeper.paper.runtime-manifest.path>${project.build.directory}/lightkeeper/paper-runtime-manifest.json</lightkeeper.paper.runtime-manifest.path>
         <lightkeeper.spigot.runtime-manifest.path>${project.build.directory}/lightkeeper/spigot-runtime-manifest.json</lightkeeper.spigot.runtime-manifest.path>
@@ -116,49 +117,9 @@
                                         </not>
                                     </or>
                                 </condition>
-                                <condition property="animatedarchitecture.e2e.vaultJar.missing">
-                                    <or>
-                                        <equals arg1="${animatedarchitecture.e2e.vaultJar}" arg2=""/>
-                                        <not>
-                                            <available file="${animatedarchitecture.e2e.vaultJar}" type="file"/>
-                                        </not>
-                                    </or>
-                                </condition>
-                                <condition property="animatedarchitecture.e2e.permissionsJar.missing">
-                                    <or>
-                                        <equals arg1="${animatedarchitecture.e2e.permissionsJar}" arg2=""/>
-                                        <not>
-                                            <available file="${animatedarchitecture.e2e.permissionsJar}" type="file"/>
-                                        </not>
-                                    </or>
-                                </condition>
-                                <condition property="animatedarchitecture.e2e.worldguardJar.missing">
-                                    <or>
-                                        <equals arg1="${animatedarchitecture.e2e.worldguardJar}" arg2=""/>
-                                        <not>
-                                            <available file="${animatedarchitecture.e2e.worldguardJar}" type="file"/>
-                                        </not>
-                                    </or>
-                                </condition>
-                                <condition property="animatedarchitecture.e2e.worldeditJar.missing">
-                                    <or>
-                                        <equals arg1="${animatedarchitecture.e2e.worldeditJar}" arg2=""/>
-                                        <not>
-                                            <available file="${animatedarchitecture.e2e.worldeditJar}" type="file"/>
-                                        </not>
-                                    </or>
-                                </condition>
 
                                 <fail if="animatedarchitecture.e2e.animatedArchitectureJar.missing"
                                       message="AnimatedArchitecture plugin jar was not found at '${animatedarchitecture.e2e.animatedArchitectureJar}'. Run the reactor package phase first."/>
-                                <fail if="animatedarchitecture.e2e.vaultJar.missing"
-                                      message="Set -Danimatedarchitecture.e2e.vaultJar=/path/to/Vault.jar for the LightKeeper e2e profile."/>
-                                <fail if="animatedarchitecture.e2e.permissionsJar.missing"
-                                      message="Set -Danimatedarchitecture.e2e.permissionsJar=/path/to/LuckPerms-Bukkit.jar for the LightKeeper e2e profile."/>
-                                <fail if="animatedarchitecture.e2e.worldguardJar.missing"
-                                      message="Set -Danimatedarchitecture.e2e.worldguardJar=/path/to/worldguard-bukkit.jar for the LightKeeper e2e profile."/>
-                                <fail if="animatedarchitecture.e2e.worldeditJar.missing"
-                                      message="Set -Danimatedarchitecture.e2e.worldeditJar=/path/to/worldedit-bukkit.jar or a compatible FAWE jar for the LightKeeper e2e profile."/>
                             </target>
                         </configuration>
                     </execution>
@@ -174,23 +135,30 @@
                     <configOverlayPath>${project.basedir}/src/test/resources/provisioning/overlay</configOverlayPath>
                     <plugins>
                         <plugin>
-                            <sourceType>path</sourceType>
-                            <path>${animatedarchitecture.e2e.vaultJar}</path>
+                            <sourceType>url</sourceType>
+                            <url>${animatedarchitecture.e2e.vaultUrl}</url>
+                            <sha256>${animatedarchitecture.e2e.vaultSha256}</sha256>
                             <renameTo>Vault.jar</renameTo>
                         </plugin>
                         <plugin>
-                            <sourceType>path</sourceType>
-                            <path>${animatedarchitecture.e2e.permissionsJar}</path>
+                            <sourceType>modrinth</sourceType>
+                            <modrinthProject>luckperms</modrinthProject>
+                            <modrinthVersion>${animatedarchitecture.e2e.luckPermsVersion}</modrinthVersion>
+                            <modrinthLoader>bukkit</modrinthLoader>
                             <renameTo>LuckPerms.jar</renameTo>
                         </plugin>
                         <plugin>
-                            <sourceType>path</sourceType>
-                            <path>${animatedarchitecture.e2e.worldeditJar}</path>
+                            <sourceType>modrinth</sourceType>
+                            <modrinthProject>worldedit</modrinthProject>
+                            <modrinthVersion>${animatedarchitecture.e2e.worldEditVersion}</modrinthVersion>
+                            <modrinthLoader>bukkit</modrinthLoader>
                             <renameTo>WorldEditOrFawe.jar</renameTo>
                         </plugin>
                         <plugin>
-                            <sourceType>path</sourceType>
-                            <path>${animatedarchitecture.e2e.worldguardJar}</path>
+                            <sourceType>modrinth</sourceType>
+                            <modrinthProject>worldguard</modrinthProject>
+                            <modrinthVersion>${animatedarchitecture.e2e.worldGuardVersion}</modrinthVersion>
+                            <modrinthLoader>bukkit</modrinthLoader>
                             <renameTo>WorldGuard.jar</renameTo>
                         </plugin>
                         <plugin>

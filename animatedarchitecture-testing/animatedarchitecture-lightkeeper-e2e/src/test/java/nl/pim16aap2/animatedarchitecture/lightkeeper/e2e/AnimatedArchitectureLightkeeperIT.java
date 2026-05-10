@@ -33,7 +33,7 @@ class AnimatedArchitectureLightkeeperIT
         final PlayerHandle player = AnimatedArchitectureE2eSupport.createAnimatedArchitecturePlayer(
             framework,
             world,
-            AnimatedArchitectureE2eSupport.uniqueName("cmd_player"),
+            AnimatedArchitectureE2eSupport.uniquePlayerName("cmd"),
             new Vector3Di(10, 100, 8)
         );
         AnimatedArchitectureE2eSupport.placePortcullisFixture(world, lowerBlock);
@@ -61,7 +61,7 @@ class AnimatedArchitectureLightkeeperIT
         nl.pim16aap2.lightkeeper.framework.assertions.LightkeeperAssertions.assertThat(world)
             .hasBlockAt(AnimatedArchitectureE2eSupport.offset(lowerBlock, 0, BLOCKS_TO_MOVE, 0))
             .ofType("minecraft:stone");
-        assertThat(player.receivedMessagesText()).contains("Portcullis");
+        assertThat(player.receivedMessagesText()).contains("structure.type.portcullis creation successful");
     }
 
     @Test
@@ -74,7 +74,7 @@ class AnimatedArchitectureLightkeeperIT
         final PlayerHandle player = AnimatedArchitectureE2eSupport.createAnimatedArchitecturePlayer(
             framework,
             world,
-            AnimatedArchitectureE2eSupport.uniqueName("gui_player"),
+            AnimatedArchitectureE2eSupport.uniquePlayerName("gui"),
             new Vector3Di(20, 100, 8)
         );
         AnimatedArchitectureE2eSupport.placePortcullisFixture(world, lowerBlock);
@@ -121,7 +121,7 @@ class AnimatedArchitectureLightkeeperIT
         final PlayerHandle player = AnimatedArchitectureE2eSupport.createAnimatedArchitecturePlayer(
             framework,
             world,
-            AnimatedArchitectureE2eSupport.uniqueName("wg_player"),
+            AnimatedArchitectureE2eSupport.uniquePlayerName("wg"),
             new Vector3Di(40, 100, 39)
         );
         AnimatedArchitectureE2eSupport.placePortcullisFixture(world, deniedLowerBlock);

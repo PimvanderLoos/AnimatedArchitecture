@@ -8,6 +8,8 @@ general:
     - AnimatedArchitecture
 redstone:
   allow_redstone: false
+  powerblock_types:
+    - GOLD_BLOCK
 animations:
   load_chunks_for_toggle: true
   skip_animations_by_default: true
@@ -20,3 +22,13 @@ limits:
 protection_hooks:
   WorldGuard:
     enabled: true
+structures: {}
+locale:
+  locale: en_US
+  allow_client_locale: false
+caching:
+  powerblock_cache_timeout: 120
+  head_cache_timeout: 120
+logging:
+  log_level: INFO
+  debug: false
