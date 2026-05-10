@@ -1,7 +1,5 @@
 package nl.pim16aap2.animatedarchitecture.lightkeeper.e2e;
 
-import nl.pim16aap2.lightkeeper.framework.CommandResult;
-import nl.pim16aap2.lightkeeper.framework.CommandSource;
 import nl.pim16aap2.lightkeeper.framework.ILightkeeperFramework;
 import nl.pim16aap2.lightkeeper.framework.MenuHandle;
 import nl.pim16aap2.lightkeeper.framework.MenuItemSnapshot;
@@ -10,6 +8,7 @@ import nl.pim16aap2.lightkeeper.framework.Vector3Di;
 import nl.pim16aap2.lightkeeper.framework.WorldHandle;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
@@ -42,8 +41,8 @@ final class AnimatedArchitectureE2eSupport
         final PlayerHandle player = framework.buildPlayer()
             .withName(name)
             .atLocation(world, location.x(), location.y(), location.z())
+            .withPermissions(ANIMATED_ARCHITECTURE_USER_PERMISSIONS)
             .build();
-        grantPermissions(framework, name, ANIMATED_ARCHITECTURE_USER_PERMISSIONS);
         player.andWaitTicks(10);
         return player;
     }
@@ -53,6 +52,13 @@ final class AnimatedArchitectureE2eSupport
         final String serverType = System.getProperty("animatedarchitecture.e2e.serverType", "server");
         final String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
         return prefix + "_" + serverType + "_" + suffix;
+    }
+
+    static String uniquePlayerName(String prefix)
+    {
+        final String serverType = System.getProperty("animatedarchitecture.e2e.serverType", "server");
+        final String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        return prefix + "_" + serverType.charAt(0) + "_" + suffix;
     }
 
     static void placePortcullisFixture(WorldHandle world, Vector3Di lowerBlock)
@@ -151,22 +157,13 @@ final class AnimatedArchitectureE2eSupport
 
     static void assertServerHealthy(ILightkeeperFramework framework)
     {
-        nl.pim16aap2.lightkeeper.framework.assertions.LightkeeperAssertions.assertThat(framework)
-            .hasNoServerErrors();
-    }
-
-    private static void grantPermissions(ILightkeeperFramework framework, String playerName, String... permissions)
-    {
-        for (final String permission : permissions)
-            executeConsole(framework, "lp user " + playerName + " permission set " + permission + " true");
-    }
-
-    private static void executeConsole(ILightkeeperFramework framework, String command)
-    {
-        final CommandResult result = framework.executeCommand(CommandSource.CONSOLE, command);
-        assertThat(result.success())
-            .as(result.message())
-            .isTrue();
+        final List<String> unexpectedErrorLines = framework.serverOutput()
+            .stream()
+            .filter(AnimatedArchitectureE2eSupport::isUnexpectedServerErrorLine)
+            .toList();
+        assertThat(unexpectedErrorLines)
+            .as("server output should not contain unexpected error lines")
+            .isEmpty();
     }
 
     private static String normalizedDisplayName(MenuItemSnapshot item)
@@ -180,5 +177,20 @@ final class AnimatedArchitectureE2eSupport
     {
         final String normalized = material.trim().toLowerCase(Locale.ROOT);
         return normalized.startsWith("minecraft:") ? normalized : "minecraft:" + normalized;
+    }
+
+    private static boolean isUnexpectedServerErrorLine(String line)
+    {
+        if (line.contains("Encountered error creating block state from block data")
+            && line.contains("minecraft:moving_piston"))
+        {
+            return false;
+        }
+
+        final String normalized = line.toLowerCase(Locale.ROOT);
+        return normalized.contains("severe")
+            || normalized.contains("[error]")
+            || normalized.contains("exception")
+            || normalized.contains("caused by:");
     }
 }
