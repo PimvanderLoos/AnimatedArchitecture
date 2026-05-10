@@ -18,7 +18,7 @@
         <project.root-dir>${project.basedir}/../..</project.root-dir>
 
         <version.lightkeeper>1.2.0-SNAPSHOT</version.lightkeeper>
-        <version.spigot-api>1.21.11-R0.2-SNAPSHOT</version.spigot-api>
+        <version.spigot-api>1.21-R0.1-SNAPSHOT</version.spigot-api>
 
         <animatedarchitecture.e2e.serverVersion>latest-supported</animatedarchitecture.e2e.serverVersion>
         <animatedarchitecture.e2e.animatedArchitectureJar>${project.root-dir}/animatedarchitecture-spigot/spigot-packager/target/AnimatedArchitecture-Spigot.jar</animatedarchitecture.e2e.animatedArchitectureJar>

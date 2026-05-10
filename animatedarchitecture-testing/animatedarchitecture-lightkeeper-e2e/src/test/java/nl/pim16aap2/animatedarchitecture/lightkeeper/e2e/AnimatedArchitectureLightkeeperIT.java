@@ -61,7 +61,7 @@ class AnimatedArchitectureLightkeeperIT
         nl.pim16aap2.lightkeeper.framework.assertions.LightkeeperAssertions.assertThat(world)
             .hasBlockAt(AnimatedArchitectureE2eSupport.offset(lowerBlock, 0, BLOCKS_TO_MOVE, 0))
             .ofType("minecraft:stone");
-        assertThat(player.receivedMessagesText()).contains("structure.type.portcullis creation successful");
+        assertThat(player.receivedMessagesText()).contains("Portcullis creation successful");
     }
 
     @Test
@@ -105,7 +105,7 @@ class AnimatedArchitectureLightkeeperIT
         nl.pim16aap2.lightkeeper.framework.assertions.LightkeeperAssertions.assertThat(world)
             .hasBlockAt(AnimatedArchitectureE2eSupport.offset(lowerBlock, 0, BLOCKS_TO_MOVE + 1, 0))
             .ofType("minecraft:stone");
-        assertThat(player.receivedMessagesText()).contains("creation successful");
+        assertThat(player.receivedMessagesText()).contains("Portcullis creation successful");
     }
 
     @Test
