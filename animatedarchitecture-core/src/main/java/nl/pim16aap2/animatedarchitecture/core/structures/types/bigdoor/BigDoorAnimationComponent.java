@@ -139,7 +139,7 @@ public class BigDoorAnimationComponent implements IAnimationComponent
     {
         final double deltaA = rotationPoint.xD() - xAxis;
         final double deltaB = rotationPoint.zD() - zAxis;
-        return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
+        return (float) Math.sqrt((deltaA * deltaA) + (deltaB * deltaB));
     }
 
     @Override

@@ -44,7 +44,7 @@ public class Clock implements IStructureComponent
         // The clock needs to be an odd-sized square, so the radius is always half the height (rounded up).
         final int circleRadius = MathUtil.ceil(cuboid.getDimensions().y() / 2.0D);
         // The distance to the corner of the box around the circle is just pythagoras with a == b.
-        final int boxRadius = MathUtil.ceil(Math.sqrt(2 * Math.pow(circleRadius, 2)));
+        final int boxRadius = MathUtil.ceil(Math.sqrt(2 * (circleRadius * circleRadius)));
         final int delta = boxRadius - circleRadius;
 
         return (isNorthSouthAnimated(structure) ?

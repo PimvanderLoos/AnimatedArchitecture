@@ -141,7 +141,7 @@ public class DrawbridgeAnimationComponent implements IAnimationComponent
         // When the rotation point is positioned along the NS axis, the Z values does not change.
         final double deltaA = rotationPoint.yD() - yAxis;
         final double deltaB = northSouthAligned ? (rotationPoint.zD() - zAxis) : (rotationPoint.xD() - xAxis);
-        return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
+        return (float) Math.sqrt((deltaA * deltaA) + (deltaB * deltaB));
     }
 
     @Override

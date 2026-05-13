@@ -17,7 +17,10 @@ final class Vector3DUtil
     @Contract(pure = true)
     static double getDistance(double x0, double y0, double z0, double x1, double y1, double z1)
     {
-        return Math.sqrt(Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2) + Math.pow(z0 - z1, 2));
+        final double dx = x0 - x1;
+        final double dy = y0 - y1;
+        final double dz = z0 - z1;
+        return Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
     }
 
     @CheckReturnValue

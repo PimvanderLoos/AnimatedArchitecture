@@ -91,7 +91,10 @@ public sealed interface IVector3D permits Vector3Dd, Vector3Di
     @Contract(pure = true)
     default double magnitude()
     {
-        return Math.sqrt(Math.pow(xD(), 2) + Math.pow(yD(), 2) + Math.pow(zD(), 2));
+        final double x = xD();
+        final double y = yD();
+        final double z = zD();
+        return Math.sqrt((x * x) + (y * y) + (z * z));
     }
 
     /**
