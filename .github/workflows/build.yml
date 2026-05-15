@@ -50,6 +50,7 @@ jobs:
         with:
           name: AnimatedArchitecture-Spigot
           path: animatedarchitecture-spigot/spigot-packager/target/AnimatedArchitecture-Spigot.jar
+          archive: false
           if-no-files-found: error
           compression-level: 0
 
