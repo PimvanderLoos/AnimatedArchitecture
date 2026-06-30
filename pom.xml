@@ -60,7 +60,7 @@
         <version.nullaway>0.13.4</version.nullaway>
         <version.pmd>7.22.0</version.pmd>
         <version.semver4j>6.0.0</version.semver4j>
-        <version.slf4j>2.0.17</version.slf4j>
+        <version.slf4j>2.0.18</version.slf4j>
         <version.surefire>3.5.5</version.surefire>
     </properties>
 
