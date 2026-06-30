@@ -1,5 +1,5 @@
 /**
- * Contains classes that are used to recover data from animated blocks in case they end up in a state4 where this plugin
+ * Contains classes that are used to recover data from animated blocks in case they end up in a state where this plugin
  * has lost track of them.
  */
 @NullMarked

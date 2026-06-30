@@ -15,6 +15,7 @@ import org.bukkit.Material;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -42,7 +43,8 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
         float radius,
         boolean onEdge,
         RotatedPosition finalPosition,
-        @Nullable Consumer<IAnimatedBlockData> blockDataRotator)
+        @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
+        @Nullable UUID animationRunUuid)
     {
         final Vector3Di pos = startPosition.position().floor().toInteger();
         final Material mat =
@@ -55,6 +57,7 @@ public class AnimatedBlockDisplayFactory implements IAnimatedBlockFactory
             blockDataRotator,
             startPosition,
             finalPosition,
+            animationRunUuid,
             world,
             onEdge,
             radius

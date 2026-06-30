@@ -277,6 +277,124 @@ public enum SQLStatement
         """
     ),
 
+    MARK_ACTIVE_PLUGIN_SESSIONS_UNCLEAN("""
+        UPDATE PluginSession
+        SET status = 'UNCLEAN',
+            endedAt = COALESCE(endedAt, ?),
+            endReason = COALESCE(endReason, 'plugin session did not close cleanly')
+        WHERE status = 'ACTIVE'
+          AND startedAt < ?;
+        """
+    ),
+
+    INSERT_PLUGIN_SESSION("""
+        INSERT INTO PluginSession
+        (uuid, startedAt, status, pluginVersion, serverVersion, minecraftVersion, serverSoftware)
+        VALUES (?, ?, 'ACTIVE', ?, ?, ?, ?);
+        """
+    ),
+
+    CLOSE_PLUGIN_SESSION("""
+        UPDATE PluginSession
+        SET status = 'CLEAN',
+            endedAt = ?,
+            endReason = ?
+        WHERE uuid = ?
+          AND status = 'ACTIVE';
+        """
+    ),
+
+    GET_PLUGIN_SESSION_BY_UUID("""
+        SELECT *
+        FROM PluginSession
+        WHERE uuid = ?;
+        """
+    ),
+
+    INSERT_ANIMATION_RUN("""
+        INSERT INTO AnimationRun
+        (uuid, sessionId, structureUid, actionType, animationType, startedAt, status)
+        VALUES (?, (SELECT id FROM PluginSession WHERE uuid = ?), ?, ?, ?, ?, 'ACTIVE');
+        """
+    ),
+
+    UPDATE_ANIMATION_RUN_EXPECTED_ANIMATED_BLOCK_COUNT("""
+        UPDATE AnimationRun
+        SET expectedAnimatedBlockCount = ?
+        WHERE uuid = ? AND expectedAnimatedBlockCount IS NULL;
+        """
+    ),
+
+    FINISH_ANIMATION_RUN("""
+        UPDATE AnimationRun
+        SET status = ?,
+            endedAt = ?,
+            diagnosticMessage = ?
+        WHERE uuid = ?
+          AND status = 'ACTIVE';
+        """
+    ),
+
+    GET_ANIMATION_RECOVERY_CONTEXT("""
+        SELECT
+            AR.uuid AS animationRunUuid,
+            AR.structureUid,
+            AR.actionType,
+            AR.animationType,
+            AR.startedAt AS animationStartedAt,
+            AR.endedAt AS animationEndedAt,
+            AR.status AS animationStatus,
+            AR.expectedAnimatedBlockCount,
+            AR.recoveredBlockCount,
+            AR.lastRecoveredAt,
+            AR.recoveryCompletedAt,
+            AR.diagnosticMessage,
+            PS.uuid AS sessionUuid,
+            PS.startedAt AS sessionStartedAt,
+            PS.endedAt AS sessionEndedAt,
+            PS.status AS sessionStatus,
+            PS.endReason,
+            PS.pluginVersion,
+            PS.serverVersion,
+            PS.minecraftVersion,
+            PS.serverSoftware
+        FROM AnimationRun AS AR
+        INNER JOIN PluginSession AS PS ON AR.sessionId = PS.id
+        WHERE AR.uuid = ?;
+        """
+    ),
+
+    ADD_RECOVERED_BLOCK_COUNT("""
+        UPDATE AnimationRun
+        SET recoveredBlockCount = recoveredBlockCount + ?,
+            lastRecoveredAt = ?,
+            recoveryCompletedAt = CASE
+                WHEN expectedAnimatedBlockCount IS NOT NULL
+                    AND recoveredBlockCount + ? >= expectedAnimatedBlockCount
+                    THEN COALESCE(recoveryCompletedAt, ?)
+                ELSE recoveryCompletedAt
+            END,
+            diagnosticMessage = COALESCE(?, diagnosticMessage)
+        WHERE uuid = ?;
+        """
+    ),
+
+    DELETE_COMPLETED_ANIMATION_RUNS("""
+        DELETE FROM AnimationRun
+        WHERE id IN (
+            SELECT AR.id
+            FROM AnimationRun AS AR
+            INNER JOIN PluginSession AS PS ON AR.sessionId = PS.id
+            WHERE AR.status = 'COMPLETED'
+              AND AR.recoveredBlockCount = 0
+              AND AR.recoveryCompletedAt IS NULL
+              AND PS.status = 'CLEAN'
+              AND PS.endedAt IS NOT NULL
+              AND PS.endedAt < ?
+        );
+        """
+    ),
+
     ;
 
     /**

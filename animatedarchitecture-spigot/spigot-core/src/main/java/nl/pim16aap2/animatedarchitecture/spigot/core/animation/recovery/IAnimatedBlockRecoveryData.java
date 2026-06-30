@@ -4,8 +4,10 @@ import nl.pim16aap2.animatedarchitecture.core.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.CheckReturnValue;
+import java.util.UUID;
 
 /**
  * Represents an object that stores recovery data for an animated block.
@@ -49,18 +51,21 @@ public sealed interface IAnimatedBlockRecoveryData
      *     The position of the block.
      * @param data
      *     The recovery data.
+     * @param animationRunUuid
+     *     The UUID of the animation run that created this animated block, if present.
      */
     record AnimatedBlockRecoveryData(
         World world,
         Vector3Di position,
-        BlockData data
+        BlockData data,
+        @Nullable UUID animationRunUuid
     ) implements IAnimatedBlockRecoveryData
     {
         public AnimatedBlockRecoveryData
         {
             // We need to make a deep copy of BlockData because it is mutable and
             // may be altered after this object is created.
-            Bukkit.createBlockData(data.getAsString());
+            data = Bukkit.createBlockData(data.getAsString());
         }
 
         @Override

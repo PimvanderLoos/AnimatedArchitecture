@@ -5,6 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.StructureSnapshot;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Represents a manager for animated blocks.
@@ -23,9 +24,16 @@ public interface IAnimatedBlockContainer
      *     The snapshot of the structure to create the animated blocks for.
      * @param animationComponent
      *     The animation component to use for retrieving additional information for the animated blocks.
+     * @param animationRunUuid
+     *     The UUID of the animation run that owns the animated blocks. May be null when no animated entities will be
+     *     spawned.
      * @return The result of the attempted creation of the animated blocks.
      */
-    boolean createAnimatedBlocks(StructureSnapshot snapshot, IAnimationComponent animationComponent);
+    boolean createAnimatedBlocks(
+        StructureSnapshot snapshot,
+        IAnimationComponent animationComponent,
+        @Nullable UUID animationRunUuid
+    );
 
     /**
      * Returns all the animated blocks that are part of this animation.

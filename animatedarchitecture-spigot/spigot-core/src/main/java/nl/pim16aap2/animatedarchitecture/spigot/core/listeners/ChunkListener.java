@@ -21,7 +21,6 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.animation.AnimatedBlockHelp
 import nl.pim16aap2.animatedarchitecture.spigot.util.SpigotAdapter;
 import org.bukkit.Chunk;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -113,8 +112,7 @@ public class ChunkListener extends AbstractListener
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChunkLoadAnimatedBlockRecovery(ChunkLoadEvent event)
     {
-        for (final Entity entity : event.getChunk().getEntities())
-            animatedBlockHelper.recoverAnimatedBlock(entity);
+        animatedBlockHelper.recoverAnimatedBlocks(event.getChunk().getEntities());
     }
 
     /**

@@ -5,6 +5,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -28,6 +29,8 @@ public interface IAnimatedBlockFactory
      *     finishes.
      * @param blockDataRotator
      *     The consumer used to rotate the block data of the animated block. May be null to disable this.
+     * @param animationRunUuid
+     *     The UUID of the animation run that owns the block. May be null when no animated entity will be spawned.
      * @return The {@link IAnimatedBlock} that was constructed if it could be constructed.
      */
     Optional<IAnimatedBlock> create(
@@ -36,6 +39,7 @@ public interface IAnimatedBlockFactory
         float radius,
         boolean onEdge,
         RotatedPosition finalPosition,
-        @Nullable Consumer<IAnimatedBlockData> blockDataRotator
+        @Nullable Consumer<IAnimatedBlockData> blockDataRotator,
+        @Nullable UUID animationRunUuid
     );
 }

@@ -10,6 +10,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.audio.IAudioPlayer;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRunManager;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionCause;
 import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.AnimationHookManager;
@@ -26,6 +27,7 @@ public final class AnimationRequestData
     private final IAudioPlayer audioPlayer;
     private final IExecutor executor;
     private final AnimationHookManager animationHookManager;
+    private final AnimationRunManager animationRunManager;
     private final HighlightedBlockSpawner glowingBlockSpawner;
     private final IConfig config;
     private final int serverTickTime;
@@ -45,6 +47,7 @@ public final class AnimationRequestData
         IAudioPlayer audioPlayer,
         IExecutor executor,
         AnimationHookManager animationHookManager,
+        AnimationRunManager animationRunManager,
         @Named("serverTickTime") int serverTickTime,
         HighlightedBlockSpawner glowingBlockSpawner,
         IConfig config,
@@ -62,6 +65,7 @@ public final class AnimationRequestData
         this.audioPlayer = audioPlayer;
         this.executor = executor;
         this.animationHookManager = animationHookManager;
+        this.animationRunManager = animationRunManager;
         this.glowingBlockSpawner = glowingBlockSpawner;
         this.config = config;
         this.serverTickTime = serverTickTime;

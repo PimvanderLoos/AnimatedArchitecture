@@ -7,15 +7,23 @@ public interface IRestartable
 {
     /**
      * Handles the initialization.
+     *
+     * @throws Exception
+     *     May throw an exception depending on the implementation.
      */
     default void initialize()
+        throws Exception
     {
     }
 
     /**
      * Handles a shutdown.
+     *
+     * @throws Exception
+     *     May throw an exception depending on the implementation.
      */
     default void shutDown()
+        throws Exception
     {
     }
 }
