@@ -2,8 +2,14 @@ package nl.pim16aap2.animatedarchitecture.core.storage;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongList;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRecoveryContext;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRun;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRunStatus;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.PluginSession;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.structures.IStructureConst;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
@@ -14,6 +20,7 @@ import nl.pim16aap2.animatedarchitecture.core.structures.properties.Property;
 import nl.pim16aap2.animatedarchitecture.core.util.IBitFlag;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -271,6 +278,149 @@ public interface IStorage
      * @return True if the update was successful.
      */
     boolean syncStructureData(IStructureConst structure);
+
+    /**
+     * Marks all previously active plugin sessions as unclean.
+     *
+     * @param endedAt
+     *     The time to record as end time for sessions that did not close cleanly.
+     * @return The number of sessions that were marked unclean.
+     */
+    int markActivePluginSessionsUnclean(Instant endedAt);
+
+    /**
+     * Creates a new active plugin session.
+     *
+     * @param uuid
+     *     The session UUID.
+     * @param startedAt
+     *     The session start time.
+     * @param pluginVersion
+     *     The plugin version.
+     * @param serverVersion
+     *     The server version.
+     * @param minecraftVersion
+     *     The Minecraft version.
+     * @param serverSoftware
+     *     The server software name.
+     * @return The stored plugin session if it was created successfully.
+     */
+    Optional<PluginSession> startPluginSession(
+        UUID uuid,
+        Instant startedAt,
+        String pluginVersion,
+        String serverVersion,
+        String minecraftVersion,
+        String serverSoftware
+    );
+
+    /**
+     * Marks a plugin session as cleanly ended.
+     *
+     * @param sessionUuid
+     *     The session UUID.
+     * @param endedAt
+     *     The session end time.
+     * @param endReason
+     *     The reason the session ended.
+     * @return True if the session was updated.
+     */
+    boolean closePluginSession(UUID sessionUuid, Instant endedAt, String endReason);
+
+    /**
+     * Creates a new active animation run.
+     *
+     * @param runUuid
+     *     The animation run UUID.
+     * @param sessionUuid
+     *     The plugin session UUID.
+     * @param structureUid
+     *     The UID of the structure being animated.
+     * @param actionType
+     *     The action type.
+     * @param animationType
+     *     The animation type.
+     * @param startedAt
+     *     The start time.
+     * @return The stored animation run if it was created successfully.
+     */
+    Optional<AnimationRun> startAnimationRun(
+        UUID runUuid,
+        UUID sessionUuid,
+        long structureUid,
+        StructureActionType actionType,
+        AnimationType animationType,
+        Instant startedAt
+    );
+
+    /**
+     * Stores the expected animated block count for an animation run.
+     *
+     * @param runUuid
+     *     The animation run UUID.
+     * @param expectedAnimatedBlockCount
+     *     The number of animated blocks that were created for the run.
+     * @return True if the animation run was updated.
+     */
+    boolean updateAnimationRunExpectedAnimatedBlockCount(UUID runUuid, int expectedAnimatedBlockCount);
+
+    /**
+     * Updates an animation run after it ends.
+     *
+     * @param runUuid
+     *     The animation run UUID.
+     * @param status
+     *     The new run status.
+     * @param endedAt
+     *     The end time.
+     * @param diagnosticMessage
+     *     Optional diagnostic details.
+     * @return True if the animation run was updated.
+     */
+    boolean finishAnimationRun(
+        UUID runUuid,
+        AnimationRunStatus status,
+        Instant endedAt,
+        @Nullable String diagnosticMessage
+    );
+
+    /**
+     * Retrieves recovery context for an animation run.
+     *
+     * @param runUuid
+     *     The animation run UUID.
+     * @return The recovery context if the run is known.
+     */
+    Optional<AnimationRecoveryContext> getAnimationRecoveryContext(UUID runUuid);
+
+    /**
+     * Adds recovered orphaned blocks to an animation run.
+     *
+     * @param runUuid
+     *     The animation run UUID.
+     * @param recoveredBlockCount
+     *     The number of blocks recovered.
+     * @param recoveredAt
+     *     The recovery time.
+     * @param diagnosticMessage
+     *     Optional diagnostic details.
+     * @return The recovery context after the update if the run is known.
+     */
+    Optional<AnimationRecoveryContext> addRecoveredBlockCount(
+        UUID runUuid,
+        int recoveredBlockCount,
+        Instant recoveredAt,
+        @Nullable String diagnosticMessage
+    );
+
+    /**
+     * Deletes completed animation runs whose clean owning sessions are older than the retention duration.
+     *
+     * @param cutoff
+     *     The cutoff time for cleanly ended sessions.
+     * @return The number of deleted animation runs.
+     */
+    int deleteCompletedAnimationRuns(Instant cutoff);
 
     /**
      * Retrieves all {@link DatabaseManager.StructureIdentifier}s that start with the provided input.

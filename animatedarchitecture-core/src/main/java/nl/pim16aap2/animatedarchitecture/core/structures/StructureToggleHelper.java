@@ -11,6 +11,7 @@ import nl.pim16aap2.animatedarchitecture.core.animation.Animator;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimatedBlockContainer;
 import nl.pim16aap2.animatedarchitecture.core.animation.IAnimationComponent;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRunManager;
 import nl.pim16aap2.animatedarchitecture.core.api.Color;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IBlockAnalyzer;
@@ -44,6 +45,7 @@ import org.slf4j.event.Level;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -69,6 +71,7 @@ final class StructureToggleHelper
     private final IAnimatedArchitectureEventCaller animatedArchitectureEventCaller;
     private final AnimatedBlockContainerFactory animatedBlockContainerFactory;
     private final AnimationRequestData.IFactory movementRequestDataFactory;
+    private final AnimationRunManager animationRunManager;
 
     @Inject
     StructureToggleHelper(
@@ -85,7 +88,8 @@ final class StructureToggleHelper
         LimitsManager limitsManager,
         IAnimatedArchitectureEventCaller animatedArchitectureEventCaller,
         AnimatedBlockContainerFactory animatedBlockContainerFactory,
-        AnimationRequestData.IFactory movementRequestDataFactory)
+        AnimationRequestData.IFactory movementRequestDataFactory,
+        AnimationRunManager animationRunManager)
     {
         this.structureActivityManager = structureActivityManager;
         this.config = config;
@@ -101,6 +105,7 @@ final class StructureToggleHelper
         this.animatedArchitectureEventCaller = animatedArchitectureEventCaller;
         this.animatedBlockContainerFactory = animatedBlockContainerFactory;
         this.movementRequestDataFactory = movementRequestDataFactory;
+        this.animationRunManager = animationRunManager;
     }
 
 
@@ -272,7 +277,7 @@ final class StructureToggleHelper
     }
 
     /**
-     * Registers a new block mover. Must be called from the main thread.
+     * Registers a new block mover and schedules it to start on the main thread.
      */
     private boolean registerBlockMover(
         Structure structure,
@@ -280,7 +285,8 @@ final class StructureToggleHelper
         IAnimationComponent component,
         @Nullable IPlayer player,
         AnimationType animationType,
-        long stamp)
+        long stamp,
+        @Nullable UUID animationRunUuid)
     {
         try
         {
@@ -288,7 +294,7 @@ final class StructureToggleHelper
                 animatedBlockContainerFactory.newContainer(animationType, player);
 
             final Animator blockMover =
-                new Animator(structure, data, component, animatedBlockContainer);
+                new Animator(structure, data, component, animatedBlockContainer, animationRunUuid);
 
             structureActivityManager.addAnimator(stamp, blockMover);
             executor.runOnMainThread(blockMover::startAnimation);
@@ -368,7 +374,7 @@ final class StructureToggleHelper
             );
 
         if (!animationType.requiresWriteAccess())
-            return toggle(stamp, targetStructure, data, component, player, animationType);
+            return toggle(stamp, targetStructure, data, component, messageReceiver, player, animationType, null);
 
         return canBreakBlocks(snapshot, snapshot.getCuboid(), data.getNewCuboid(), data.getResponsible())
             .thenCompose(canBreakBlocks ->
@@ -382,10 +388,55 @@ final class StructureToggleHelper
                         messageReceiver,
                         stamp
                     );
-                return toggle(stamp, targetStructure, data, component, player, animationType);
+                return startTrackedToggle(
+                    stamp, targetStructure, data, component, messageReceiver, player, animationType);
             });
 
 
+    }
+
+    private CompletableFuture<StructureToggleResult> startTrackedToggle(
+        long stamp,
+        Structure targetStructure,
+        AnimationRequestData data,
+        IAnimationComponent component,
+        IMessageable messageReceiver,
+        @Nullable IPlayer player,
+        AnimationType animationType)
+    {
+        if (!shouldTrackAnimation(data))
+            return toggle(stamp, targetStructure, data, component, messageReceiver, player, animationType, null);
+
+        return animationRunManager
+            .registerRunStart(targetStructure.getUid(), data.getActionType(), animationType)
+            .thenCompose(animationRunUuid ->
+                toggle(
+                    stamp,
+                    targetStructure,
+                    data,
+                    component,
+                    messageReceiver,
+                    player,
+                    animationType,
+                    animationRunUuid))
+            .exceptionallyCompose(throwable ->
+            {
+                log.atError().withCause(throwable).log(
+                    "Failed to start recovery tracking for structure %d.", targetStructure.getUid());
+                return abort(
+                    targetStructure,
+                    StructureToggleResult.ERROR,
+                    data.getCause(),
+                    data.getResponsible(),
+                    messageReceiver,
+                    stamp
+                );
+            });
+    }
+
+    private boolean shouldTrackAnimation(AnimationRequestData data)
+    {
+        return data.getAnimationType() == AnimationType.MOVE_BLOCKS && !data.isAnimationSkipped();
     }
 
     private CompletableFuture<StructureToggleResult> toggle(
@@ -393,14 +444,26 @@ final class StructureToggleHelper
         Structure targetStructure,
         AnimationRequestData data,
         IAnimationComponent component,
+        IMessageable messageReceiver,
         @Nullable IPlayer player,
-        AnimationType animationType)
+        AnimationType animationType,
+        @Nullable UUID animationRunUuid)
     {
-        final boolean scheduled = registerBlockMover(targetStructure, data, component, player, animationType, stamp);
+        final boolean scheduled =
+            registerBlockMover(targetStructure, data, component, player, animationType, stamp, animationRunUuid);
         if (!scheduled)
         {
             log.atError().log("Failed to schedule block mover for structure %d", targetStructure.getUid());
-            return CompletableFuture.completedFuture(StructureToggleResult.ERROR);
+            if (animationRunUuid != null)
+                animationRunManager.registerRunFailure(animationRunUuid, "Failed to schedule block mover.");
+            return abort(
+                targetStructure,
+                StructureToggleResult.ERROR,
+                data.getCause(),
+                data.getResponsible(),
+                messageReceiver,
+                stamp
+            );
         }
 
         executor.runAsync(() -> callToggleStartEvent(targetStructure, data));

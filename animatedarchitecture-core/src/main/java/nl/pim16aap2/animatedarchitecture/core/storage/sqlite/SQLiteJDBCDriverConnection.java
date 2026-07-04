@@ -11,6 +11,12 @@ import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Locked;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRecoveryContext;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRun;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRunStatus;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.PluginSession;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.PluginSessionStatus;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.IWorld;
 import nl.pim16aap2.animatedarchitecture.core.api.LimitContainer;
@@ -19,6 +25,7 @@ import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IWorldFactory;
 import nl.pim16aap2.animatedarchitecture.core.config.IConfig;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.StructureTypeManager;
 import nl.pim16aap2.animatedarchitecture.core.storage.DelayedPreparedStatement;
@@ -53,6 +60,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -543,6 +551,218 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             .setNextString(serializedProperties)
 
             .setNextLong(structure.getUid())) > 0;
+    }
+
+    @Override
+    @Locked.Write("lock")
+    public int markActivePluginSessionsUnclean(Instant endedAt)
+    {
+        return executeUpdate(SQLStatement.MARK_ACTIVE_PLUGIN_SESSIONS_UNCLEAN
+            .constructDelayedPreparedStatement()
+            .setNextLong(endedAt.toEpochMilli())
+            .setNextLong(endedAt.toEpochMilli()));
+    }
+
+    @Override
+    @Locked.Write("lock")
+    public Optional<PluginSession> startPluginSession(
+        UUID uuid,
+        Instant startedAt,
+        String pluginVersion,
+        String serverVersion,
+        String minecraftVersion,
+        String serverSoftware)
+    {
+        final int updated = executeUpdate(SQLStatement.INSERT_PLUGIN_SESSION
+            .constructDelayedPreparedStatement()
+            .setNextString(uuid.toString())
+            .setNextLong(startedAt.toEpochMilli())
+            .setNextString(pluginVersion)
+            .setNextString(serverVersion)
+            .setNextString(minecraftVersion)
+            .setNextString(serverSoftware));
+
+        if (updated < 1)
+            return Optional.empty();
+        return getPluginSession(uuid);
+    }
+
+    @Override
+    @Locked.Write("lock")
+    public boolean closePluginSession(UUID sessionUuid, Instant endedAt, String endReason)
+    {
+        return executeUpdate(SQLStatement.CLOSE_PLUGIN_SESSION
+            .constructDelayedPreparedStatement()
+            .setNextLong(endedAt.toEpochMilli())
+            .setNextString(endReason)
+            .setNextString(sessionUuid.toString())) > 0;
+    }
+
+    private Optional<PluginSession> getPluginSession(UUID sessionUuid)
+    {
+        return executeQuery(
+            SQLStatement.GET_PLUGIN_SESSION_BY_UUID
+                .constructDelayedPreparedStatement()
+                .setNextString(sessionUuid.toString()),
+            resultSet -> resultSet.next() ? Optional.of(readPluginSession(resultSet)) : Optional.empty(),
+            Optional.empty()
+        );
+    }
+
+    @Override
+    @Locked.Write("lock")
+    public Optional<AnimationRun> startAnimationRun(
+        UUID runUuid,
+        UUID sessionUuid,
+        long structureUid,
+        StructureActionType actionType,
+        AnimationType animationType,
+        Instant startedAt)
+    {
+        final int updated = executeUpdate(SQLStatement.INSERT_ANIMATION_RUN
+            .constructDelayedPreparedStatement()
+            .setNextString(runUuid.toString())
+            .setNextString(sessionUuid.toString())
+            .setNextLong(structureUid)
+            .setNextString(actionType.name())
+            .setNextString(animationType.name())
+            .setNextLong(startedAt.toEpochMilli()));
+
+        if (updated < 1)
+            return Optional.empty();
+        return getAnimationRecoveryContext(runUuid).map(AnimationRecoveryContext::animationRun);
+    }
+
+    @Override
+    @Locked.Write("lock")
+    public boolean updateAnimationRunExpectedAnimatedBlockCount(UUID runUuid, int expectedAnimatedBlockCount)
+    {
+        return executeUpdate(SQLStatement.UPDATE_ANIMATION_RUN_EXPECTED_ANIMATED_BLOCK_COUNT
+            .constructDelayedPreparedStatement()
+            .setNextInt(expectedAnimatedBlockCount)
+            .setNextString(runUuid.toString())) > 0;
+    }
+
+    @Override
+    @Locked.Write("lock")
+    public boolean finishAnimationRun(
+        UUID runUuid,
+        AnimationRunStatus status,
+        Instant endedAt,
+        @Nullable String diagnosticMessage)
+    {
+        return executeUpdate(SQLStatement.FINISH_ANIMATION_RUN
+            .constructDelayedPreparedStatement()
+            .setNextString(status.name())
+            .setNextLong(endedAt.toEpochMilli())
+            .setNextString(diagnosticMessage)
+            .setNextString(runUuid.toString())) > 0;
+    }
+
+    @Override
+    @Locked.Read("lock")
+    public Optional<AnimationRecoveryContext> getAnimationRecoveryContext(UUID runUuid)
+    {
+        return executeQuery(
+            SQLStatement.GET_ANIMATION_RECOVERY_CONTEXT
+                .constructDelayedPreparedStatement()
+                .setNextString(runUuid.toString()),
+            resultSet -> resultSet.next() ? Optional.of(readAnimationRecoveryContext(resultSet)) : Optional.empty(),
+            Optional.empty()
+        );
+    }
+
+    @Override
+    @Locked.Write("lock")
+    public Optional<AnimationRecoveryContext> addRecoveredBlockCount(
+        UUID runUuid,
+        int recoveredBlockCount,
+        Instant recoveredAt,
+        @Nullable String diagnosticMessage)
+    {
+        final int updated = executeUpdate(SQLStatement.ADD_RECOVERED_BLOCK_COUNT
+            .constructDelayedPreparedStatement()
+            .setNextInt(recoveredBlockCount)
+            .setNextLong(recoveredAt.toEpochMilli())
+            .setNextInt(recoveredBlockCount)
+            .setNextLong(recoveredAt.toEpochMilli())
+            .setNextString(diagnosticMessage)
+            .setNextString(runUuid.toString()));
+
+        return updated < 1 ? Optional.empty() : getAnimationRecoveryContext(runUuid);
+    }
+
+    @Override
+    @Locked.Write("lock")
+    public int deleteCompletedAnimationRuns(Instant cutoff)
+    {
+        return executeUpdate(SQLStatement.DELETE_COMPLETED_ANIMATION_RUNS
+            .constructDelayedPreparedStatement()
+            .setNextLong(cutoff.toEpochMilli()));
+    }
+
+    private PluginSession readPluginSession(ResultSet resultSet)
+        throws SQLException
+    {
+        return new PluginSession(
+            UUID.fromString(resultSet.getString("uuid")),
+            Instant.ofEpochMilli(resultSet.getLong("startedAt")),
+            getNullableInstant(resultSet, "endedAt"),
+            PluginSessionStatus.valueOf(resultSet.getString("status")),
+            resultSet.getString("endReason"),
+            resultSet.getString("pluginVersion"),
+            resultSet.getString("serverVersion"),
+            resultSet.getString("minecraftVersion"),
+            resultSet.getString("serverSoftware")
+        );
+    }
+
+    private AnimationRecoveryContext readAnimationRecoveryContext(ResultSet resultSet)
+        throws SQLException
+    {
+        final PluginSession pluginSession = new PluginSession(
+            UUID.fromString(resultSet.getString("sessionUuid")),
+            Instant.ofEpochMilli(resultSet.getLong("sessionStartedAt")),
+            getNullableInstant(resultSet, "sessionEndedAt"),
+            PluginSessionStatus.valueOf(resultSet.getString("sessionStatus")),
+            resultSet.getString("endReason"),
+            resultSet.getString("pluginVersion"),
+            resultSet.getString("serverVersion"),
+            resultSet.getString("minecraftVersion"),
+            resultSet.getString("serverSoftware")
+        );
+
+        final AnimationRun animationRun = new AnimationRun(
+            UUID.fromString(resultSet.getString("animationRunUuid")),
+            pluginSession.uuid(),
+            resultSet.getLong("structureUid"),
+            StructureActionType.valueOf(resultSet.getString("actionType")),
+            AnimationType.valueOf(resultSet.getString("animationType")),
+            Instant.ofEpochMilli(resultSet.getLong("animationStartedAt")),
+            getNullableInstant(resultSet, "animationEndedAt"),
+            AnimationRunStatus.valueOf(resultSet.getString("animationStatus")),
+            getNullableInt(resultSet, "expectedAnimatedBlockCount"),
+            resultSet.getInt("recoveredBlockCount"),
+            getNullableInstant(resultSet, "lastRecoveredAt"),
+            getNullableInstant(resultSet, "recoveryCompletedAt"),
+            resultSet.getString("diagnosticMessage")
+        );
+
+        return new AnimationRecoveryContext(pluginSession, animationRun);
+    }
+
+    private static @Nullable Instant getNullableInstant(ResultSet resultSet, String columnName)
+        throws SQLException
+    {
+        final long value = resultSet.getLong(columnName);
+        return resultSet.wasNull() ? null : Instant.ofEpochMilli(value);
+    }
+
+    private static @Nullable Integer getNullableInt(ResultSet resultSet, String columnName)
+        throws SQLException
+    {
+        final int value = resultSet.getInt(columnName);
+        return resultSet.wasNull() ? null : value;
     }
 
     @Override

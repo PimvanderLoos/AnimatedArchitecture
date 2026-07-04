@@ -221,6 +221,7 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
                 "Failed to initialize AnimatedArchitecture database! Database state: " +
                     databaseManager.getDatabaseState().name()
             );
+        safeGetter(AnimatedArchitectureSpigotComponent::getPluginSessionManager);
 
         protectionHookManager = safeGetter(AnimatedArchitectureSpigotComponent::getProtectionHookManager);
         economyManager = safeGetter(AnimatedArchitectureSpigotComponent::getVaultManager);

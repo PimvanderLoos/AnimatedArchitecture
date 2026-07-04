@@ -5,6 +5,7 @@ import dagger.Component;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.PluginSessionManager;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
@@ -233,4 +234,6 @@ interface AnimatedArchitectureSpigotComponent
     AnimatedBlockHookManager getAnimatedBlockHookManager();
 
     AnimationHookManager getAnimationHookManager();
+
+    PluginSessionManager getPluginSessionManager();
 }

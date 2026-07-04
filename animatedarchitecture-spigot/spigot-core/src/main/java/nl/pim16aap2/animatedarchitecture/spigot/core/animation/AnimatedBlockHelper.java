@@ -1,9 +1,9 @@
 package nl.pim16aap2.animatedarchitecture.spigot.core.animation;
 
-import com.google.common.flogger.LazyArgs;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.CustomLog;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRunManager;
 import nl.pim16aap2.animatedarchitecture.core.util.Constants;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.AnimatedBlockRecoveryDataType;
 import nl.pim16aap2.animatedarchitecture.spigot.core.animation.recovery.IAnimatedBlockRecoveryData;
@@ -13,7 +13,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Helper class for animated blocks.
@@ -26,54 +30,75 @@ public final class AnimatedBlockHelper
      * The key used to store the recovery data in the entity's persistent data container.
      */
     private final NamespacedKey recoveryKey;
+    private final AnimationRunManager animationRunManager;
 
     @Inject
-    AnimatedBlockHelper(JavaPlugin plugin)
+    AnimatedBlockHelper(JavaPlugin plugin, AnimationRunManager animationRunManager)
     {
         recoveryKey = new NamespacedKey(plugin, Constants.ANIMATED_ARCHITECTURE_ENTITY_RECOVERY_KEY);
+        this.animationRunManager = animationRunManager;
     }
 
     /**
-     * Attempts to recover an animated block from an entity.
+     * Attempts to recover animated blocks from a bounded set of entities.
      * <p>
-     * If the entity is not an animated block (or null), this method does nothing.
-     * <p>
-     * If the entity is an animated block, this method will attempt to perform a recovery action by calling
-     * {@link IAnimatedBlockRecoveryData#recover()}. If the recovery action is successful, the entity will be removed.
+     * Each entity is handled independently so one failed recovery cannot prevent recovery of other entities in the same
+     * chunk.
      *
-     * @param entity
-     *     The entity for which to attempt recovery.
+     * @param entities
+     *     The entities to inspect.
      */
-    public void recoverAnimatedBlock(@Nullable Entity entity)
+    public void recoverAnimatedBlocks(Entity... entities)
+    {
+        final Map<UUID, Integer> recoveredBlocks = new HashMap<>();
+        for (final Entity entity : entities)
+        {
+            recoverAnimatedBlock(entity).ifPresent(uuid -> recoveredBlocks.merge(uuid, 1, Integer::sum));
+        }
+
+        recoveredBlocks.forEach((uuid, count) -> animationRunManager.recordRecoveredBlocks(
+            uuid,
+            count,
+            "Recovered orphaned animated block entity/entities."
+        ));
+    }
+
+    private Optional<UUID> recoverAnimatedBlock(@Nullable Entity entity)
     {
         if (entity == null)
-            return;
+        {
+            return Optional.empty();
+        }
 
         final IAnimatedBlockRecoveryData recoveryData = entity.getPersistentDataContainer().get(
             recoveryKey,
-            AnimatedBlockRecoveryDataType.INSTANCE);
+            AnimatedBlockRecoveryDataType.INSTANCE
+        );
 
         if (recoveryData == null)
-            return;
-
-        log.atTrace().log(
-            "Attempting to recover animated block with recovery data '%s'",
-            LazyArgs.lazy(
-                () -> entity.getPersistentDataContainer().get(recoveryKey, AnimatedBlockRecoveryDataType.STRING))
-        );
+        {
+            return Optional.empty();
+        }
 
         try
         {
-            if (recoveryData.recover())
-                log.atWarn().log(
-                    "Recovered animated block with recovery data '%s'! " +
-                        "This is not intended behavior, please contact the author(s) of this plugin!",
-                    recoveryData
-                );
-            else
+            if (!recoveryData.recover())
+            {
                 log.atDebug().log("No recovery action required for data '%s'", recoveryData);
+                entity.remove();
+                return Optional.empty();
+            }
 
             entity.remove();
+            final Optional<UUID> animationRunUuid = getAnimationRunUuid(recoveryData);
+            if (animationRunUuid.isEmpty())
+            {
+                log.atWarn().log(
+                    "Recovered animated block without animation-run context. Recovery data: '%s'",
+                    recoveryData
+                );
+            }
+            return animationRunUuid;
         }
         catch (Exception e)
         {
@@ -82,7 +107,17 @@ public final class AnimatedBlockHelper
                 entity,
                 recoveryData
             );
+            return Optional.empty();
         }
+    }
+
+    private Optional<UUID> getAnimationRunUuid(IAnimatedBlockRecoveryData recoveryData)
+    {
+        if (recoveryData instanceof IAnimatedBlockRecoveryData.AnimatedBlockRecoveryData data)
+        {
+            return Optional.ofNullable(data.animationRunUuid());
+        }
+        return Optional.empty();
     }
 
     /**

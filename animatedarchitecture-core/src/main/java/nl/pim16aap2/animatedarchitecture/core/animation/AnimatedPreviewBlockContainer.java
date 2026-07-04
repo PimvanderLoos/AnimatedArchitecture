@@ -18,6 +18,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -62,7 +63,10 @@ public class AnimatedPreviewBlockContainer implements IAnimatedBlockContainer
     }
 
     @Override
-    public boolean createAnimatedBlocks(StructureSnapshot snapshot, IAnimationComponent animationComponent)
+    public boolean createAnimatedBlocks(
+        StructureSnapshot snapshot,
+        IAnimationComponent animationComponent,
+        @Nullable UUID animationRunUuid)
     {
         final List<IAnimatedBlock> animatedBlocksTmp = new ArrayList<>(snapshot.getBlockCount());
 

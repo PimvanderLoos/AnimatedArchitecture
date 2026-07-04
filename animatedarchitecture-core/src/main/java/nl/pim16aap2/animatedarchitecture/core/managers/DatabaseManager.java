@@ -11,6 +11,11 @@ import lombok.experimental.ExtensionMethod;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.animatedarchitecture.core.api.PlayerData;
+import nl.pim16aap2.animatedarchitecture.core.animation.AnimationType;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRecoveryContext;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRun;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.AnimationRunStatus;
+import nl.pim16aap2.animatedarchitecture.core.animation.recovery.PluginSession;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.IDebuggable;
 import nl.pim16aap2.animatedarchitecture.core.api.factories.IAnimatedArchitectureEventFactory;
@@ -21,6 +26,7 @@ import nl.pim16aap2.animatedarchitecture.core.events.ICancellableAnimatedArchite
 import nl.pim16aap2.animatedarchitecture.core.events.IStructureCreatedEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareCreateEvent;
 import nl.pim16aap2.animatedarchitecture.core.events.IStructurePrepareDeleteEvent;
+import nl.pim16aap2.animatedarchitecture.core.events.StructureActionType;
 import nl.pim16aap2.animatedarchitecture.core.storage.IStorage;
 import nl.pim16aap2.animatedarchitecture.core.structures.PermissionLevel;
 import nl.pim16aap2.animatedarchitecture.core.structures.Structure;
@@ -38,6 +44,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -111,6 +118,218 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     public IStorage.DatabaseState getDatabaseState()
     {
         return db.getDatabaseState();
+    }
+
+    /**
+     * Marks active plugin sessions as unclean.
+     *
+     * @param endedAt
+     *     The time to record as end time for unclean sessions.
+     * @return The number of sessions that were updated.
+     */
+    public CompletableFuture<Integer> markActivePluginSessionsUnclean(Instant endedAt)
+    {
+        return CompletableFuture
+            .supplyAsync(() -> db.markActivePluginSessionsUnclean(endedAt), threadPool)
+            .withExceptionContext("Marking active plugin sessions as unclean at %s", endedAt);
+    }
+
+    /**
+     * Starts a new plugin session.
+     *
+     * @param uuid
+     *     The session UUID.
+     * @param startedAt
+     *     The start time.
+     * @param pluginVersion
+     *     The plugin version.
+     * @param serverVersion
+     *     The server version.
+     * @param minecraftVersion
+     *     The Minecraft version.
+     * @param serverSoftware
+     *     The server software name.
+     * @return The created plugin session, if successful.
+     */
+    public CompletableFuture<Optional<PluginSession>> startPluginSession(
+        UUID uuid,
+        Instant startedAt,
+        String pluginVersion,
+        String serverVersion,
+        String minecraftVersion,
+        String serverSoftware)
+    {
+        return CompletableFuture
+            .supplyAsync(
+                () -> db.startPluginSession(
+                    uuid,
+                    startedAt,
+                    pluginVersion,
+                    serverVersion,
+                    minecraftVersion,
+                    serverSoftware),
+                threadPool)
+            .withExceptionContext("Starting plugin session %s", uuid);
+    }
+
+    /**
+     * Closes a plugin session cleanly.
+     *
+     * @param sessionUuid
+     *     The session UUID.
+     * @param endedAt
+     *     The end time.
+     * @param endReason
+     *     The end reason.
+     * @return True if the session was updated.
+     */
+    public CompletableFuture<Boolean> closePluginSession(UUID sessionUuid, Instant endedAt, String endReason)
+    {
+        return CompletableFuture
+            .supplyAsync(() -> db.closePluginSession(sessionUuid, endedAt, endReason), threadPool)
+            .withExceptionContext("Closing plugin session %s", sessionUuid);
+    }
+
+    /**
+     * Starts a new animation run.
+     *
+     * @param runUuid
+     *     The animation run UUID.
+     * @param sessionUuid
+     *     The plugin session UUID.
+     * @param structureUid
+     *     The UID of the structure being animated.
+     * @param actionType
+     *     The action type.
+     * @param animationType
+     *     The animation type.
+     * @param startedAt
+     *     The start time.
+     * @return The created animation run, if successful.
+     */
+    public CompletableFuture<Optional<AnimationRun>> startAnimationRun(
+        UUID runUuid,
+        UUID sessionUuid,
+        long structureUid,
+        StructureActionType actionType,
+        AnimationType animationType,
+        Instant startedAt)
+    {
+        return CompletableFuture
+            .supplyAsync(
+                () -> db.startAnimationRun(
+                    runUuid,
+                    sessionUuid,
+                    structureUid,
+                    actionType,
+                    animationType,
+                    startedAt),
+                threadPool)
+            .withExceptionContext("Starting animation run %s", runUuid);
+    }
+
+    /**
+     * Stores the expected animated block count for an animation run.
+     *
+     * @param runUuid
+     *     The animation run UUID.
+     * @param expectedAnimatedBlockCount
+     *     The number of animated blocks created for the run.
+     * @return True if the run was updated.
+     */
+    public CompletableFuture<Boolean> updateAnimationRunExpectedAnimatedBlockCount(
+        UUID runUuid,
+        int expectedAnimatedBlockCount)
+    {
+        return CompletableFuture
+            .supplyAsync(
+                () -> db.updateAnimationRunExpectedAnimatedBlockCount(runUuid, expectedAnimatedBlockCount),
+                threadPool)
+            .withExceptionContext(
+                "Updating expected animated block count for animation run %s to %d",
+                runUuid,
+                expectedAnimatedBlockCount);
+    }
+
+    /**
+     * Finishes an animation run.
+     *
+     * @param runUuid
+     *     The animation run UUID.
+     * @param status
+     *     The final status.
+     * @param endedAt
+     *     The end time.
+     * @param diagnosticMessage
+     *     Optional diagnostic details.
+     * @return True if the run was updated.
+     */
+    public CompletableFuture<Boolean> finishAnimationRun(
+        UUID runUuid,
+        AnimationRunStatus status,
+        Instant endedAt,
+        @Nullable String diagnosticMessage)
+    {
+        return CompletableFuture
+            .supplyAsync(() -> db.finishAnimationRun(runUuid, status, endedAt, diagnosticMessage), threadPool)
+            .withExceptionContext("Finishing animation run %s with status %s", runUuid, status);
+    }
+
+    /**
+     * Gets recovery context for an animation run.
+     *
+     * @param runUuid
+     *     The animation run UUID.
+     * @return The recovery context if present.
+     */
+    public CompletableFuture<Optional<AnimationRecoveryContext>> getAnimationRecoveryContext(UUID runUuid)
+    {
+        return CompletableFuture
+            .supplyAsync(() -> db.getAnimationRecoveryContext(runUuid), threadPool)
+            .withExceptionContext("Getting animation recovery context for %s", runUuid);
+    }
+
+    /**
+     * Adds recovered orphaned blocks to an animation run.
+     *
+     * @param runUuid
+     *     The animation run UUID.
+     * @param recoveredBlockCount
+     *     The number of blocks recovered.
+     * @param recoveredAt
+     *     The recovery time.
+     * @param diagnosticMessage
+     *     Optional diagnostic details.
+     * @return The recovery context after the update if the run is known.
+     */
+    public CompletableFuture<Optional<AnimationRecoveryContext>> addRecoveredBlockCount(
+        UUID runUuid,
+        int recoveredBlockCount,
+        Instant recoveredAt,
+        @Nullable String diagnosticMessage)
+    {
+        return CompletableFuture
+            .supplyAsync(
+                () -> db.addRecoveredBlockCount(runUuid, recoveredBlockCount, recoveredAt, diagnosticMessage),
+                threadPool)
+            .withExceptionContext(
+                "Adding %d recovered blocks to animation run %s",
+                recoveredBlockCount,
+                runUuid);
+    }
+
+    /**
+     * Deletes old completed animation runs owned by clean sessions.
+     *
+     * @param cutoff
+     *     The cutoff time for cleanly ended sessions.
+     * @return The number of deleted runs.
+     */
+    public CompletableFuture<Integer> deleteCompletedAnimationRuns(Instant cutoff)
+    {
+        return CompletableFuture
+            .supplyAsync(() -> db.deleteCompletedAnimationRuns(cutoff), threadPool)
+            .withExceptionContext("Deleting completed animation runs owned by clean sessions older than %s", cutoff);
     }
 
     @Override
