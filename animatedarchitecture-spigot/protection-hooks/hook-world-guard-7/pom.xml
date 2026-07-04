@@ -16,7 +16,7 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
-        <version.worldguard>7.0.16</version.worldguard>
+        <version.worldguard>7.0.17</version.worldguard>
     </properties>
 
     <dependencies>
