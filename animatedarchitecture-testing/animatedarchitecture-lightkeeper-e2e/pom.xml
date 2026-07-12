@@ -131,7 +131,7 @@
                 <artifactId>lightkeeper-maven-plugin</artifactId>
                 <version>${version.lightkeeper}</version>
                 <configuration>
-                    <userAgent>AnimatedArchitecture/${project.version} ([email protected])</userAgent>
+                    <userAgent>AnimatedArchitecture/${project.version} (+https://github.com/PimvanderLoos/AnimatedArchitecture)</userAgent>
                     <configOverlayPath>${project.basedir}/src/test/resources/provisioning/overlay</configOverlayPath>
                     <plugins>
                         <plugin>
