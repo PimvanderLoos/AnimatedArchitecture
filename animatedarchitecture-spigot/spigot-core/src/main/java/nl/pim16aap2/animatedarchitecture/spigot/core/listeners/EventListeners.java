@@ -4,6 +4,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
+import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
@@ -31,6 +32,10 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,6 +51,8 @@ public class EventListeners extends AbstractListener
     private final DatabaseManager databaseManager;
     private final ToolUserManager toolUserManager;
     private final DelayedCommandInputManager delayedCommandInputManager;
+
+    private volatile @Nullable ExecutorService executorService = null;
 
     @Inject
     EventListeners(
@@ -83,14 +90,19 @@ public class EventListeners extends AbstractListener
         if (!animatedArchitectureToolUtil.isPlayerHoldingTool(playerFactory.wrapPlayer(event.getPlayer())))
             return;
 
+        final ExecutorService executorService0 = Objects.requireNonNull(this.executorService);
+
         toolUserManager
             .getToolUser(event.getPlayer().getUniqueId())
             .ifPresent(toolUser ->
             {
                 event.setCancelled(true);
-                toolUser
-                    .handleInput(SpigotAdapter.wrapLocation(event.getClickedBlock().getLocation()))
-                    .orTimeout(100, TimeUnit.MILLISECONDS)
+
+                final ILocation location = SpigotAdapter.wrapLocation(event.getClickedBlock().getLocation());
+
+                CompletableFuture.completedFuture(null)
+                    .thenComposeAsync(ignored -> toolUser.handleInput(location), executorService0)
+                    .orTimeout(20, TimeUnit.SECONDS)
                     .handleExceptional(e -> log.atError().withCause(e).log(
                         "Failed to handle input for player %s clicking block %s",
                         event.getPlayer().getName(),
@@ -285,5 +297,25 @@ public class EventListeners extends AbstractListener
         {
             log.atError().withCause(e).log("Encountered an error while handling an InventoryMoveItemEvent");
         }
+    }
+
+    @Override
+    protected void unregister()
+    {
+        super.unregister();
+
+        final ExecutorService executorService0 = this.executorService;
+        if (executorService0 != null)
+        {
+            executorService0.shutdown();
+            this.executorService = null;
+        }
+    }
+
+    @Override
+    protected void register()
+    {
+        super.register();
+        this.executorService = Executors.newVirtualThreadPerTaskExecutor();
     }
 }
