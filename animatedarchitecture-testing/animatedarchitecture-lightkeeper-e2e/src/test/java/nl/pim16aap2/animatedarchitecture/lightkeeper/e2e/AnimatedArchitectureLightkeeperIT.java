@@ -6,6 +6,7 @@ import nl.pim16aap2.lightkeeper.framework.MenuHandle;
 import nl.pim16aap2.lightkeeper.framework.PlayerHandle;
 import nl.pim16aap2.lightkeeper.framework.Vector3Di;
 import nl.pim16aap2.lightkeeper.framework.WorldHandle;
+import nl.pim16aap2.lightkeeper.framework.assertions.LightkeeperAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,10 +56,10 @@ class AnimatedArchitectureLightkeeperIT
         );
 
         // verify
-        nl.pim16aap2.lightkeeper.framework.assertions.LightkeeperAssertions.assertThat(world)
+        LightkeeperAssertions.assertThat(world)
             .hasBlockAt(lowerBlock)
             .ofType("minecraft:air");
-        nl.pim16aap2.lightkeeper.framework.assertions.LightkeeperAssertions.assertThat(world)
+        LightkeeperAssertions.assertThat(world)
             .hasBlockAt(AnimatedArchitectureE2eSupport.offset(lowerBlock, 0, BLOCKS_TO_MOVE, 0))
             .ofType("minecraft:stone");
         assertThat(player.receivedMessagesText()).contains("Portcullis creation successful");
@@ -102,7 +103,7 @@ class AnimatedArchitectureLightkeeperIT
         );
 
         // verify
-        nl.pim16aap2.lightkeeper.framework.assertions.LightkeeperAssertions.assertThat(world)
+        LightkeeperAssertions.assertThat(world)
             .hasBlockAt(AnimatedArchitectureE2eSupport.offset(lowerBlock, 0, BLOCKS_TO_MOVE + 1, 0))
             .ofType("minecraft:stone");
         assertThat(player.receivedMessagesText()).contains("Portcullis creation successful");
@@ -151,7 +152,7 @@ class AnimatedArchitectureLightkeeperIT
 
         // verify
         assertThat(player.receivedMessagesText()).contains("not allowed to create structures in this region");
-        nl.pim16aap2.lightkeeper.framework.assertions.LightkeeperAssertions.assertThat(world)
+        LightkeeperAssertions.assertThat(world)
             .hasBlockAt(AnimatedArchitectureE2eSupport.offset(allowedLowerBlock, 0, BLOCKS_TO_MOVE, 0))
             .ofType("minecraft:stone");
     }
