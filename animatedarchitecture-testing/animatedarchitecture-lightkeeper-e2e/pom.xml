@@ -32,8 +32,6 @@
         <lightkeeper.spigot.runtime-manifest.path>${project.build.directory}/lightkeeper/spigot-runtime-manifest.json</lightkeeper.spigot.runtime-manifest.path>
         <lightkeeper.paper.server-work-directory>${project.build.directory}/lightkeeper-server/paper</lightkeeper.paper.server-work-directory>
         <lightkeeper.spigot.server-work-directory>${project.build.directory}/lightkeeper-server/spigot</lightkeeper.spigot.server-work-directory>
-        <lightkeeper.paper.socket-directory>${project.build.directory}/lightkeeper/sockets/paper</lightkeeper.paper.socket-directory>
-        <lightkeeper.spigot.socket-directory>${project.build.directory}/lightkeeper/sockets/spigot</lightkeeper.spigot.socket-directory>
     </properties>
 
     <repositories>
@@ -179,7 +177,6 @@
                             <serverVersion>${animatedarchitecture.e2e.serverVersion}</serverVersion>
                             <runtimeManifestPath>${lightkeeper.paper.runtime-manifest.path}</runtimeManifestPath>
                             <serverWorkDirectoryRoot>${lightkeeper.paper.server-work-directory}</serverWorkDirectoryRoot>
-                            <agentSocketDirectory>${lightkeeper.paper.socket-directory}</agentSocketDirectory>
                         </configuration>
                     </execution>
                     <execution>
@@ -192,7 +189,6 @@
                             <serverVersion>${animatedarchitecture.e2e.serverVersion}</serverVersion>
                             <runtimeManifestPath>${lightkeeper.spigot.runtime-manifest.path}</runtimeManifestPath>
                             <serverWorkDirectoryRoot>${lightkeeper.spigot.server-work-directory}</serverWorkDirectoryRoot>
-                            <agentSocketDirectory>${lightkeeper.spigot.socket-directory}</agentSocketDirectory>
                         </configuration>
                     </execution>
                     <execution>
