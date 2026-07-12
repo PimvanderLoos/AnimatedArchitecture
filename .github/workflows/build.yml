@@ -135,6 +135,7 @@ jobs:
             animatedarchitecture-testing/animatedarchitecture-lightkeeper-e2e/target/failsafe-reports/**
             animatedarchitecture-testing/animatedarchitecture-lightkeeper-e2e/target/lightkeeper-server/**/logs/**
             animatedarchitecture-testing/animatedarchitecture-lightkeeper-e2e/target/lightkeeper-server/**/crash-reports/**
+            animatedarchitecture-testing/animatedarchitecture-lightkeeper-e2e/target/lightkeeper-server/**/plugins/AnimatedArchitecture/*.log
           if-no-files-found: ignore
           retention-days: 7
 
