@@ -32,7 +32,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -90,7 +89,14 @@ public class EventListeners extends AbstractListener
         if (!animatedArchitectureToolUtil.isPlayerHoldingTool(playerFactory.wrapPlayer(event.getPlayer())))
             return;
 
-        final ExecutorService executorService0 = Objects.requireNonNull(this.executorService);
+        final @Nullable ExecutorService executorService0 = this.executorService;
+        if (executorService0 == null)
+        {
+            // Only possible while this listener is being unregistered; dropping the click is correct then.
+            log.atDebug().log("Ignoring tool click from player %s: listener is shutting down.",
+                event.getPlayer().getName());
+            return;
+        }
 
         toolUserManager
             .getToolUser(event.getPlayer().getUniqueId())
@@ -304,18 +310,32 @@ public class EventListeners extends AbstractListener
     {
         super.unregister();
 
-        final ExecutorService executorService0 = this.executorService;
-        if (executorService0 != null)
+        final @Nullable ExecutorService executorService0 = this.executorService;
+        this.executorService = null;
+        if (executorService0 == null)
+            return;
+
+        // In-flight input handling can block for a while (e.g. on the ToolUser lock), so interrupt
+        // it rather than letting it touch plugin state after the listener has been unregistered.
+        executorService0.shutdownNow();
+        try
         {
-            executorService0.shutdown();
-            this.executorService = null;
+            if (!executorService0.awaitTermination(5, TimeUnit.SECONDS))
+                log.atError().log("Timed out waiting for input-handling tasks to terminate!");
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
         }
     }
 
     @Override
     protected void register()
     {
+        // Create the executor before registering the listener, so that no event can observe a null
+        // executor. Reuse an existing executor to avoid leaking one on repeated registrations.
+        if (this.executorService == null)
+            this.executorService = Executors.newVirtualThreadPerTaskExecutor();
         super.register();
-        this.executorService = Executors.newVirtualThreadPerTaskExecutor();
     }
 }
