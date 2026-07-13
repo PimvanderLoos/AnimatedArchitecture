@@ -19,6 +19,7 @@
 
         <version.lightkeeper>1.2.0-SNAPSHOT</version.lightkeeper>
         <version.spigot-api>1.21-R0.1-SNAPSHOT</version.spigot-api>
+        <version.jspecify>1.0.0</version.jspecify>
 
         <animatedarchitecture.e2e.serverVersion>latest-supported</animatedarchitecture.e2e.serverVersion>
         <animatedarchitecture.e2e.animatedArchitectureJar>${project.root-dir}/animatedarchitecture-spigot/spigot-packager/target/AnimatedArchitecture-Spigot.jar</animatedarchitecture.e2e.animatedArchitectureJar>
@@ -83,6 +84,15 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>${version.spigot-api}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Used directly (@NullMarked in package-info); declared explicitly instead of
+             relying on the transitive dependency from lightkeeper-framework-junit. -->
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>${version.jspecify}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
