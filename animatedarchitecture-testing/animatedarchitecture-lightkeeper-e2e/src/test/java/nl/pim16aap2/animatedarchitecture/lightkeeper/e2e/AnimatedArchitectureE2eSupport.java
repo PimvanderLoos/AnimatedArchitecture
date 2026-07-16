@@ -38,7 +38,7 @@ final class AnimatedArchitectureE2eSupport
         String name,
         Vector3Di location)
     {
-        final PlayerHandle player = framework.buildPlayer()
+        final PlayerHandle player = framework.bots().builder()
             .withName(name)
             .atLocation(world, location.x(), location.y(), location.z())
             .withPermissions(ANIMATED_ARCHITECTURE_USER_PERMISSIONS)
@@ -84,13 +84,13 @@ final class AnimatedArchitectureE2eSupport
         Vector3Di lowerBlock,
         int blocksToMove)
     {
+        player.leftClickBlock(lowerBlock);
+        player.andWaitTicks(5);
+        player.leftClickBlock(offset(lowerBlock, 0, 1, 0));
+        player.andWaitTicks(5);
+        player.leftClickBlock(offset(lowerBlock, 0, -1, 0));
+        player.andWaitTicks(5);
         player
-            .leftClickBlock(lowerBlock)
-            .andWaitTicks(5)
-            .leftClickBlock(offset(lowerBlock, 0, 1, 0))
-            .andWaitTicks(5)
-            .leftClickBlock(offset(lowerBlock, 0, -1, 0))
-            .andWaitTicks(5)
             .executeCommand("aa setopenstatus Closed")
             .andWaitTicks(5)
             .executeCommand("aa setopendirection Up")
@@ -171,7 +171,7 @@ final class AnimatedArchitectureE2eSupport
 
     static void assertServerHealthy(ILightkeeperFramework framework)
     {
-        final List<String> unexpectedErrorLines = framework.serverOutput()
+        final List<String> unexpectedErrorLines = framework.server().output()
             .stream()
             .filter(AnimatedArchitectureE2eSupport::isUnexpectedServerErrorLine)
             .toList();

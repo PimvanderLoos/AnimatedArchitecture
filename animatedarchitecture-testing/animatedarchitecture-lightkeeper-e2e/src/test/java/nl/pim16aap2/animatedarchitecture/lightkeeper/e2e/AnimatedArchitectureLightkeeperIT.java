@@ -28,7 +28,7 @@ class AnimatedArchitectureLightkeeperIT
     void portcullisCommandFlow_shouldCreateToggleAndMoveBlocks(ILightkeeperFramework framework)
     {
         // setup
-        final WorldHandle world = framework.mainWorld();
+        final WorldHandle world = framework.worlds().main();
         final Vector3Di lowerBlock = new Vector3Di(10, 100, 10);
         final String structureName = AnimatedArchitectureE2eSupport.uniqueName("cmd_portcullis");
         final PlayerHandle player = AnimatedArchitectureE2eSupport.createAnimatedArchitecturePlayer(
@@ -69,7 +69,7 @@ class AnimatedArchitectureLightkeeperIT
     void createStructureMenu_shouldStartCreatorAndCreatePortcullis(ILightkeeperFramework framework)
     {
         // setup
-        final WorldHandle world = framework.mainWorld();
+        final WorldHandle world = framework.worlds().main();
         final Vector3Di lowerBlock = new Vector3Di(20, 100, 10);
         final String structureName = AnimatedArchitectureE2eSupport.uniqueName("gui_portcullis");
         final PlayerHandle player = AnimatedArchitectureE2eSupport.createAnimatedArchitecturePlayer(
@@ -114,7 +114,7 @@ class AnimatedArchitectureLightkeeperIT
         ILightkeeperFramework framework)
     {
         // setup
-        final WorldHandle world = framework.mainWorld();
+        final WorldHandle world = framework.worlds().main();
         final Vector3Di deniedLowerBlock = new Vector3Di(42, 100, 42);
         final Vector3Di allowedLowerBlock = new Vector3Di(60, 100, 42);
         final String deniedStructureName = AnimatedArchitectureE2eSupport.uniqueName("wg_denied");
@@ -130,9 +130,9 @@ class AnimatedArchitectureLightkeeperIT
 
         // execute
         player.executeCommand("aa newstructure portcullis " + deniedStructureName)
-            .andWaitTicks(5)
-            .leftClickBlock(deniedLowerBlock)
-            .andWaitTicks(10);
+            .andWaitTicks(5);
+        player.leftClickBlock(deniedLowerBlock);
+        player.andWaitTicks(10);
         player.executeCommand("aa cancel")
             .andWaitTicks(5);
         AnimatedArchitectureE2eSupport.createClosedUpwardPortcullis(
