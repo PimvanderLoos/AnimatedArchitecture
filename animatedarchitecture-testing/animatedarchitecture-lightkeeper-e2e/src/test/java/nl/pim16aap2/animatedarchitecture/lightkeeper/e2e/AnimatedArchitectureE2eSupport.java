@@ -4,7 +4,7 @@ import nl.pim16aap2.lightkeeper.framework.ILightkeeperFramework;
 import nl.pim16aap2.lightkeeper.framework.MenuHandle;
 import nl.pim16aap2.lightkeeper.framework.MenuItemSnapshot;
 import nl.pim16aap2.lightkeeper.framework.PlayerHandle;
-import nl.pim16aap2.lightkeeper.framework.Vector3Di;
+import nl.pim16aap2.lightkeeper.framework.BlockPos;
 import nl.pim16aap2.lightkeeper.framework.WorldHandle;
 
 import java.time.Duration;
@@ -36,7 +36,7 @@ final class AnimatedArchitectureE2eSupport
         ILightkeeperFramework framework,
         WorldHandle world,
         String name,
-        Vector3Di location)
+        BlockPos location)
     {
         final PlayerHandle player = framework.bots().builder()
             .withName(name)
@@ -61,7 +61,7 @@ final class AnimatedArchitectureE2eSupport
         return prefix + "_" + serverType.charAt(0) + "_" + suffix;
     }
 
-    static void placePortcullisFixture(WorldHandle world, Vector3Di lowerBlock)
+    static void placePortcullisFixture(WorldHandle world, BlockPos lowerBlock)
     {
         world.setBlockAt(lowerBlock, "minecraft:stone");
         world.setBlockAt(offset(lowerBlock, 0, 1, 0), "minecraft:stone");
@@ -71,7 +71,7 @@ final class AnimatedArchitectureE2eSupport
     static void createClosedUpwardPortcullis(
         PlayerHandle player,
         String structureName,
-        Vector3Di lowerBlock,
+        BlockPos lowerBlock,
         int blocksToMove)
     {
         player.executeCommand("aa newstructure portcullis " + structureName)
@@ -81,7 +81,7 @@ final class AnimatedArchitectureE2eSupport
 
     static void completeActivePortcullisCreator(
         PlayerHandle player,
-        Vector3Di lowerBlock,
+        BlockPos lowerBlock,
         int blocksToMove)
     {
         player.leftClickBlock(lowerBlock);
@@ -112,7 +112,7 @@ final class AnimatedArchitectureE2eSupport
         PlayerHandle player,
         WorldHandle world,
         String structureName,
-        Vector3Di lowerBlock,
+        BlockPos lowerBlock,
         int blocksToMove)
     {
         player.executeCommand("aa toggle " + structureName)
@@ -123,15 +123,15 @@ final class AnimatedArchitectureE2eSupport
         waitForBlock(framework, world, offset(lowerBlock, 0, 1, 0), "minecraft:air");
     }
 
-    static Vector3Di offset(Vector3Di vector, int x, int y, int z)
+    static BlockPos offset(BlockPos vector, int x, int y, int z)
     {
-        return new Vector3Di(vector.x() + x, vector.y() + y, vector.z() + z);
+        return new BlockPos(vector.x() + x, vector.y() + y, vector.z() + z);
     }
 
     static void waitForBlock(
         ILightkeeperFramework framework,
         WorldHandle world,
-        Vector3Di position,
+        BlockPos position,
         String expectedMaterial)
     {
         final String expected = normalizeMaterial(expectedMaterial);

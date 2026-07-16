@@ -4,7 +4,7 @@ import nl.pim16aap2.lightkeeper.framework.ILightkeeperFramework;
 import nl.pim16aap2.lightkeeper.framework.LightkeeperExtension;
 import nl.pim16aap2.lightkeeper.framework.MenuHandle;
 import nl.pim16aap2.lightkeeper.framework.PlayerHandle;
-import nl.pim16aap2.lightkeeper.framework.Vector3Di;
+import nl.pim16aap2.lightkeeper.framework.BlockPos;
 import nl.pim16aap2.lightkeeper.framework.WorldHandle;
 import nl.pim16aap2.lightkeeper.framework.assertions.LightkeeperAssertions;
 import org.junit.jupiter.api.AfterEach;
@@ -29,13 +29,13 @@ class AnimatedArchitectureLightkeeperIT
     {
         // setup
         final WorldHandle world = framework.worlds().main();
-        final Vector3Di lowerBlock = new Vector3Di(10, 100, 10);
+        final BlockPos lowerBlock = new BlockPos(10, 100, 10);
         final String structureName = AnimatedArchitectureE2eSupport.uniqueName("cmd_portcullis");
         final PlayerHandle player = AnimatedArchitectureE2eSupport.createAnimatedArchitecturePlayer(
             framework,
             world,
             AnimatedArchitectureE2eSupport.uniquePlayerName("cmd"),
-            new Vector3Di(10, 100, 8)
+            new BlockPos(10, 100, 8)
         );
         AnimatedArchitectureE2eSupport.placePortcullisFixture(world, lowerBlock);
 
@@ -70,13 +70,13 @@ class AnimatedArchitectureLightkeeperIT
     {
         // setup
         final WorldHandle world = framework.worlds().main();
-        final Vector3Di lowerBlock = new Vector3Di(20, 100, 10);
+        final BlockPos lowerBlock = new BlockPos(20, 100, 10);
         final String structureName = AnimatedArchitectureE2eSupport.uniqueName("gui_portcullis");
         final PlayerHandle player = AnimatedArchitectureE2eSupport.createAnimatedArchitecturePlayer(
             framework,
             world,
             AnimatedArchitectureE2eSupport.uniquePlayerName("gui"),
-            new Vector3Di(20, 100, 8)
+            new BlockPos(20, 100, 8)
         );
         AnimatedArchitectureE2eSupport.placePortcullisFixture(world, lowerBlock);
 
@@ -115,15 +115,15 @@ class AnimatedArchitectureLightkeeperIT
     {
         // setup
         final WorldHandle world = framework.worlds().main();
-        final Vector3Di deniedLowerBlock = new Vector3Di(42, 100, 42);
-        final Vector3Di allowedLowerBlock = new Vector3Di(60, 100, 42);
+        final BlockPos deniedLowerBlock = new BlockPos(42, 100, 42);
+        final BlockPos allowedLowerBlock = new BlockPos(60, 100, 42);
         final String deniedStructureName = AnimatedArchitectureE2eSupport.uniqueName("wg_denied");
         final String allowedStructureName = AnimatedArchitectureE2eSupport.uniqueName("wg_allowed");
         final PlayerHandle player = AnimatedArchitectureE2eSupport.createAnimatedArchitecturePlayer(
             framework,
             world,
             AnimatedArchitectureE2eSupport.uniquePlayerName("wg"),
-            new Vector3Di(40, 100, 39)
+            new BlockPos(40, 100, 39)
         );
         AnimatedArchitectureE2eSupport.placePortcullisFixture(world, deniedLowerBlock);
         AnimatedArchitectureE2eSupport.placePortcullisFixture(world, allowedLowerBlock);
