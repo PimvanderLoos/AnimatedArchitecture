@@ -1,8 +1,8 @@
 # Explicitly specify the JDK version to use + use the latest version of Maven
 before_install:
   - sdk update
-  - sdk install java 21-tem
-  - sdk default java 21-tem
+  - sdk install java 25-tem
+  - sdk default java 25-tem
   - sdk install maven
 install:
   - JAVA_HOME=~/.sdkman/candidates/java/current/ ~/.sdkman/candidates/maven/current/bin/mvn -v
