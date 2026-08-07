@@ -110,7 +110,7 @@ follow these steps:
 
 Compilation requirements:
 
-* Java 21+
+* Java 25+
 * Maven
 
 You can then compile the project by running the following command in this directory:
