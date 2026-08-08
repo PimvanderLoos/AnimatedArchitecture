@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import nl.pim16aap2.animatedarchitecture.core.api.IAnimatedArchitectureToolUtil;
+import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IPlayer;
 import nl.pim16aap2.util.reflection.ReflectionBuilder;
 import org.bukkit.Bukkit;
@@ -40,11 +41,13 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
         .get(null);
 
     private final NamespacedKey animatedArchitectureToolKey;
+    private final IExecutor executor;
 
     @Inject
-    public AnimatedArchitectureToolUtilSpigot(JavaPlugin javaPlugin)
+    public AnimatedArchitectureToolUtilSpigot(JavaPlugin javaPlugin, IExecutor executor)
     {
         animatedArchitectureToolKey = new NamespacedKey(javaPlugin, "ANIMATED_ARCHITECTURE_TOOL");
+        this.executor = executor;
     }
 
     @Override
@@ -74,12 +77,16 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         tool.setItemMeta(itemMeta);
 
-        // TODO: Make sure to give the item in their current slot, moving items if needed.
-        final int heldSlot = spigotPlayer.getInventory().getHeldItemSlot();
-        if (spigotPlayer.getInventory().getItem(heldSlot) == null)
-            spigotPlayer.getInventory().setItem(heldSlot, tool);
-        else
-            spigotPlayer.getInventory().addItem(tool);
+        // Inventory mutation must happen on the main thread; input handling may run off-main.
+        executor.runOnMainThread(() ->
+        {
+            // TODO: Make sure to give the item in their current slot, moving items if needed.
+            final int heldSlot = spigotPlayer.getInventory().getHeldItemSlot();
+            if (spigotPlayer.getInventory().getItem(heldSlot) == null)
+                spigotPlayer.getInventory().setItem(heldSlot, tool);
+            else
+                spigotPlayer.getInventory().addItem(tool);
+        });
     }
 
     @Override
@@ -92,11 +99,13 @@ public class AnimatedArchitectureToolUtilSpigot implements IAnimatedArchitecture
             return;
         }
 
-        spigotPlayer.getInventory().forEach(item ->
-        {
-            if (isTool(item))
-                item.setAmount(0);
-        });
+        // Inventory mutation must happen on the main thread; input handling may run off-main.
+        executor.runOnMainThread(() ->
+            spigotPlayer.getInventory().forEach(item ->
+            {
+                if (isTool(item))
+                    item.setAmount(0);
+            }));
     }
 
     public boolean isTool(@Nullable ItemStack item)

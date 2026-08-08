@@ -4,6 +4,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
+import nl.pim16aap2.animatedarchitecture.core.api.ILocation;
 import nl.pim16aap2.animatedarchitecture.core.api.restartable.RestartableHolder;
 import nl.pim16aap2.animatedarchitecture.core.managers.DatabaseManager;
 import nl.pim16aap2.animatedarchitecture.core.managers.DelayedCommandInputManager;
@@ -31,6 +32,9 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.Nullable;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,6 +50,8 @@ public class EventListeners extends AbstractListener
     private final DatabaseManager databaseManager;
     private final ToolUserManager toolUserManager;
     private final DelayedCommandInputManager delayedCommandInputManager;
+
+    private volatile @Nullable ExecutorService executorService = null;
 
     @Inject
     EventListeners(
@@ -83,14 +89,26 @@ public class EventListeners extends AbstractListener
         if (!animatedArchitectureToolUtil.isPlayerHoldingTool(playerFactory.wrapPlayer(event.getPlayer())))
             return;
 
+        final @Nullable ExecutorService executorService0 = this.executorService;
+        if (executorService0 == null)
+        {
+            // Only possible while this listener is being unregistered; dropping the click is correct then.
+            log.atDebug().log("Ignoring tool click from player %s: listener is shutting down.",
+                event.getPlayer().getName());
+            return;
+        }
+
         toolUserManager
             .getToolUser(event.getPlayer().getUniqueId())
             .ifPresent(toolUser ->
             {
                 event.setCancelled(true);
-                toolUser
-                    .handleInput(SpigotAdapter.wrapLocation(event.getClickedBlock().getLocation()))
-                    .orTimeout(100, TimeUnit.MILLISECONDS)
+
+                final ILocation location = SpigotAdapter.wrapLocation(event.getClickedBlock().getLocation());
+
+                CompletableFuture.completedFuture(null)
+                    .thenComposeAsync(ignored -> toolUser.handleInput(location), executorService0)
+                    .orTimeout(20, TimeUnit.SECONDS)
                     .handleExceptional(e -> log.atError().withCause(e).log(
                         "Failed to handle input for player %s clicking block %s",
                         event.getPlayer().getName(),
@@ -285,5 +303,39 @@ public class EventListeners extends AbstractListener
         {
             log.atError().withCause(e).log("Encountered an error while handling an InventoryMoveItemEvent");
         }
+    }
+
+    @Override
+    protected void unregister()
+    {
+        super.unregister();
+
+        final @Nullable ExecutorService executorService0 = this.executorService;
+        this.executorService = null;
+        if (executorService0 == null)
+            return;
+
+        // In-flight input handling can block for a while (e.g. on the ToolUser lock), so interrupt
+        // it rather than letting it touch plugin state after the listener has been unregistered.
+        executorService0.shutdownNow();
+        try
+        {
+            if (!executorService0.awaitTermination(5, TimeUnit.SECONDS))
+                log.atError().log("Timed out waiting for input-handling tasks to terminate!");
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    @Override
+    protected void register()
+    {
+        // Create the executor before registering the listener, so that no event can observe a null
+        // executor. Reuse an existing executor to avoid leaking one on repeated registrations.
+        if (this.executorService == null)
+            this.executorService = Executors.newVirtualThreadPerTaskExecutor();
+        super.register();
     }
 }

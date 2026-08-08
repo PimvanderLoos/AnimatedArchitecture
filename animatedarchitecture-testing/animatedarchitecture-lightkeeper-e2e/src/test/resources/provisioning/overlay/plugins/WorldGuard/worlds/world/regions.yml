@@ -1,0 +1,15 @@
+regions:
+    animatedarchitecture_e2e_denied:
+        min: {x: 40, y: 0, z: 40}
+        max: {x: 48, y: 255, z: 48}
+        members: {}
+        flags: {build: deny, block-break: deny, block-place: deny}
+        owners: {}
+        type: cuboid
+        priority: 10
+    __global__:
+        members: {}
+        flags: {}
+        owners: {}
+        type: global
+        priority: 0

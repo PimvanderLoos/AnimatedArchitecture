@@ -26,6 +26,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
@@ -105,15 +106,21 @@ public class ChunkListener extends AbstractListener
     }
 
     /**
-     * Listens to chunks being loaded and checks if there are any animated blocks in it that need to be recovered.
+     * Listens to entities being loaded and checks if there are any animated blocks among them that need to be
+     * recovered.
+     * <p>
+     * This uses {@link EntitiesLoadEvent} rather than {@link ChunkLoadEvent}: a chunk's entities are not guaranteed to
+     * be loaded yet when the chunk itself loads, and calling {@link Chunk#getEntities()} from within a chunk load
+     * event forces them to load synchronously. On Spigot, that re-enters the chunk system while it is dispatching the
+     * event, which can corrupt its internal state and crash the server.
      *
      * @param event
-     *     The chunk load event to process.
+     *     The entities load event to process.
      */
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onChunkLoadAnimatedBlockRecovery(ChunkLoadEvent event)
+    public void onEntitiesLoadAnimatedBlockRecovery(EntitiesLoadEvent event)
     {
-        for (final Entity entity : event.getChunk().getEntities())
+        for (final Entity entity : event.getEntities())
             animatedBlockHelper.recoverAnimatedBlock(entity);
     }
 
