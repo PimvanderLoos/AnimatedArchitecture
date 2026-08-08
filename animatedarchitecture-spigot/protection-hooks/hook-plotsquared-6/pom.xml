@@ -16,6 +16,7 @@
     <properties>
         <project.root-dir>${project.basedir}/../../..</project.root-dir>
 
+        <version.guice>5.1.0</version.guice>
         <version.plotsquared>6.11.1</version.plotsquared>
     </properties>
 
@@ -88,6 +89,13 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${version.guice}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
