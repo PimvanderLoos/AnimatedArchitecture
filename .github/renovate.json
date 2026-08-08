@@ -1,8 +1,12 @@
 {
   "extends": [
-    "config:recommended",
-    "schedule:monthly"
+    "config:recommended"
   ],
+  "schedule": [
+    "* * * * 1"
+  ],
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 2,
   "packageRules": [
     {
       "matchPackageNames": [
