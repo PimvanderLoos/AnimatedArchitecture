@@ -89,7 +89,7 @@ public final class TextArgumentFactory
      */
     public TextArgument localizedHighlight(StructureType structureType)
     {
-        return highlight(structureType.getLocalizationKey());
+        return localizedHighlight(structureType.getLocalizationKey());
     }
 
     /**
@@ -143,7 +143,7 @@ public final class TextArgumentFactory
      */
     public TextArgument localizedInfo(StructureType structureType)
     {
-        return info(structureType.getLocalizationKey());
+        return localizedInfo(structureType.getLocalizationKey());
     }
 
     /**
