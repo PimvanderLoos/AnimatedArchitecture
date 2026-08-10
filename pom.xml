@@ -25,7 +25,7 @@
         <version.errorprone>2.42.0</version.errorprone>
         <version.failsafe>3.2.5</version.failsafe>
         <version.fastjson>2.0.64</version.fastjson>
-        <version.fastutil>8.5.18</version.fastutil>
+        <version.fastutil>8.5.19</version.fastutil>
         <version.flogger>0.9</version.flogger>
         <version.flyway>11.13.3</version.flyway>
         <version.git-commit-id>10.0.0</version.git-commit-id>
