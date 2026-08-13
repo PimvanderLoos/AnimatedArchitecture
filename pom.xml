@@ -22,7 +22,7 @@
         <version.checkstyle>11.1.0</version.checkstyle>
         <version.configurate>feature~yaml-improvements-c31b5df773-1</version.configurate>
         <version.dagger>2.57.2</version.dagger>
-        <version.errorprone>2.42.0</version.errorprone>
+        <version.errorprone>2.50.0</version.errorprone>
         <version.failsafe>3.2.5</version.failsafe>
         <version.fastjson>2.0.64</version.fastjson>
         <version.fastutil>8.5.19</version.fastutil>
