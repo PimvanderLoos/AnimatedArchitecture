@@ -21,7 +21,7 @@
         <version.bytebuddy>1.18.8-jdk5</version.bytebuddy>
         <version.checkstyle>11.1.0</version.checkstyle>
         <version.configurate>feature~yaml-improvements-c31b5df773-1</version.configurate>
-        <version.dagger>2.57.2</version.dagger>
+        <version.dagger>2.60.1</version.dagger>
         <version.errorprone>2.50.0</version.errorprone>
         <version.failsafe>3.2.5</version.failsafe>
         <version.fastjson>2.0.64</version.fastjson>
