@@ -37,7 +37,7 @@
         <version.jimfs>1.3.2</version.jimfs>
         <version.junit>6.1.3</version.junit>
         <version.log4j>2.26.1</version.log4j>
-        <version.logcaptor>2.12.6</version.logcaptor>
+        <version.logcaptor>2.12.7</version.logcaptor>
         <version.lombok-plugin>1.18.20.0</version.lombok-plugin>
         <version.lombok>1.18.46</version.lombok>
         <version.maven-antrun>3.2.0</version.maven-antrun>
