@@ -224,13 +224,15 @@ class MainGui implements IGuiPage.IGuiStructureDeletionListener
                 addElementGroup(click.getGui());
                 ((StaticGuiElement) click.getElement()).setText(
                     localizer.getMessage(sortingMethod.next().getLocalizationKeySort()),
-                    localizer.getMessage(sortingMethod.getLocalizationKeySorted())
+                    localizer.getMessage(sortingMethod.getLocalizationKeySorted()),
+                    localizer.getMessage("gui.main_page.button.sort_lore")
                 );
                 click.getGui().draw(click.getWhoClicked(), true, false);
                 return true;
             },
             localizer.getMessage(sortingMethod.next().getLocalizationKeySort()),
-            localizer.getMessage(sortingMethod.getLocalizationKeySorted()))
+            localizer.getMessage(sortingMethod.getLocalizationKeySorted()),
+            localizer.getMessage("gui.main_page.button.sort_lore"))
         );
     }
 
