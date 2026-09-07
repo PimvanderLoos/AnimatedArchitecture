@@ -7,8 +7,10 @@ import jakarta.inject.Singleton;
 import nl.pim16aap2.animatedarchitecture.core.animation.StructureActivityManager;
 import nl.pim16aap2.animatedarchitecture.core.api.HighlightedBlockSpawner;
 import nl.pim16aap2.animatedarchitecture.core.api.IChunkLoader;
+import nl.pim16aap2.animatedarchitecture.core.api.IEconomyManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IExecutor;
 import nl.pim16aap2.animatedarchitecture.core.api.IMessageable;
+import nl.pim16aap2.animatedarchitecture.core.api.IPermissionsManager;
 import nl.pim16aap2.animatedarchitecture.core.api.IRedstoneManager;
 import nl.pim16aap2.animatedarchitecture.core.api.animatedblock.IAnimatedBlockFactory;
 import nl.pim16aap2.animatedarchitecture.core.api.debugging.DebugReporter;
@@ -67,10 +69,10 @@ import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginMessageListe
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.LoginResourcePackListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.RedstoneListener;
 import nl.pim16aap2.animatedarchitecture.spigot.core.listeners.WorldListener;
+import nl.pim16aap2.animatedarchitecture.spigot.core.managers.EconomyManagerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.HeadManager;
+import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PermissionsManagerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.core.managers.PowerBlockRedstoneManagerSpigotModule;
-import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManager;
-import nl.pim16aap2.animatedarchitecture.spigot.core.managers.VaultManagerModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.api.ISpigotSubPlatform;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.ExecutorModule;
 import nl.pim16aap2.animatedarchitecture.spigot.util.implementations.SpigotServerModule;
@@ -89,12 +91,14 @@ import org.semver4j.Semver;
         ChunkLoaderSpigotModule.class,
         ConfigSpigotModule.class,
         DebugReporterSpigotModule.class,
+        EconomyManagerModule.class,
         ExecutorModule.class,
         GuiFactorySpigotModule.class,
         HighlightedBlockSpawnerModule.class,
         LocalizationModule.class,
         LocationFactorySpigotModule.class,
         PlayerFactorySpigotModule.class,
+        PermissionsManagerModule.class,
         PowerBlockRedstoneManagerSpigotModule.class,
         ProtectionHookManagerModule.class,
         SQLiteStorageModule.class,
@@ -102,7 +106,6 @@ import org.semver4j.Semver;
         SpigotSubPlatformModule.class,
         TextComponentFactorySpigotModule.class,
         TextFactorySpigotModule.class,
-        VaultManagerModule.class,
         WorldFactorySpigotModule.class
     }
 )
@@ -169,7 +172,9 @@ interface AnimatedArchitectureSpigotComponent
 
     LoginMessageListener getLoginMessageListener();
 
-    VaultManager getVaultManager();
+    IEconomyManager getEconomyManager();
+
+    IPermissionsManager getPermissionsManager();
 
     HighlightedBlockSpawner getHighlightedBlockSpawner();
 
