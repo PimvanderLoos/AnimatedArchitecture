@@ -19,7 +19,7 @@
 
         <version.assertj>4.0.0-M1</version.assertj>
         <version.bytebuddy>1.18.12-jdk5</version.bytebuddy>
-        <version.checkstyle>11.1.0</version.checkstyle>
+        <version.checkstyle>14.1.0</version.checkstyle>
         <version.configurate>feature~yaml-improvements-c31b5df773-1</version.configurate>
         <version.dagger>2.60.1</version.dagger>
         <version.errorprone>2.50.0</version.errorprone>
