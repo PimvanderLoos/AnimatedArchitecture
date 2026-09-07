@@ -24,7 +24,7 @@
         <version.dagger>2.60.1</version.dagger>
         <version.errorprone>2.50.0</version.errorprone>
         <version.failsafe>3.2.5</version.failsafe>
-        <version.fastjson>2.0.64</version.fastjson>
+        <version.fastjson>2.0.65</version.fastjson>
         <version.fastutil>8.5.19</version.fastutil>
         <version.flogger>0.9</version.flogger>
         <version.flyway>13.5.0</version.flyway>
