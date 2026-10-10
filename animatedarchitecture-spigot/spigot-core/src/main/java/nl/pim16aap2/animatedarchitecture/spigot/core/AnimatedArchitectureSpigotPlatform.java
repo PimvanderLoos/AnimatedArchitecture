@@ -223,8 +223,8 @@ public final class AnimatedArchitectureSpigotPlatform implements IAnimatedArchit
             );
 
         protectionHookManager = safeGetter(AnimatedArchitectureSpigotComponent::getProtectionHookManager);
-        economyManager = safeGetter(AnimatedArchitectureSpigotComponent::getVaultManager);
-        permissionsManager = safeGetter(AnimatedArchitectureSpigotComponent::getVaultManager);
+        economyManager = safeGetter(AnimatedArchitectureSpigotComponent::getEconomyManager);
+        permissionsManager = safeGetter(AnimatedArchitectureSpigotComponent::getPermissionsManager);
         limitsManager = safeGetter(AnimatedArchitectureSpigotComponent::getLimitsManager);
         headManager = safeGetter(AnimatedArchitectureSpigotComponent::getHeadManager);
         powerBlockManager = safeGetter(AnimatedArchitectureSpigotComponent::getPowerBlockManager);
