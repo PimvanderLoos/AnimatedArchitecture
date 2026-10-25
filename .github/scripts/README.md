@@ -13,9 +13,9 @@ publication ordering, archived-document preservation, and generated navigation.
   version must match the root Maven project version exactly. Tag pushes alone,
   drafts, and prereleases do not publish documentation.
 - Future releases must contain this workflow and its publishing script. No changes
-  are needed on `release/0.7.x`: archive its existing 0.7.2 Javadocs manually on
-  `gh-pages` before merging this workflow, as described below. CI does not migrate
-  or regenerate old documentation.
+  are needed on `release/0.7.x`: its existing 0.7.2 Javadocs are already archived
+  on `gh-pages` under `/javadoc/release/0.7/`. CI does not migrate or regenerate
+  old documentation.
 - Every patch replaces only its release series. An older patch cannot replace a
   newer patch; an older master workflow run cannot replace a newer run. Rerunning
   a release with a different source commit is rejected.
@@ -36,8 +36,8 @@ series are sorted numerically, and `/javadoc/release/` redirects to the highest
 published release series, independent of publication order. `/javadoc/` redirects
 to the selector. These are HTML redirects with normal links as a fallback.
 
-Retain the old individual class pages and their assets at `/javadoc/...` during
-the manual migration, so existing deep links still refer to the frozen 0.7.2 docs.
+Class pages and assets live in their versioned directories. Old unversioned class
+URLs under `/javadoc/...` are no longer published.
 New versioned builds include a standard Javadoc `-top` banner identifying the
 version and linking back to the selector. `CNAME` is retained, and `.nojekyll`
 ensures the generated site is served directly.
@@ -47,20 +47,14 @@ Only the root aggregate report is generated: individual module reports cannot
 resolve every dependency in the shared delomboked source directory. The deploy
 step additionally requires `index.html` and `element-list`.
 
-## One-time manual archive of 0.7.2
+## Archived 0.7.2 documentation
 
-Before merging this workflow, use a clean checkout of `gh-pages` to copy the
-current Javadocs. Export them first so the destination is not copied into itself:
+The existing 0.7.2 Javadocs were manually archived at `javadoc/release/0.7/` on
+`gh-pages`. All 1,293 generated files were reused byte-for-byte, without invoking
+Maven or editing the 0.7 release branch. No manual migration setup remains.
 
-```bash
-migration_dir="$(mktemp -d)"
-git archive HEAD javadoc | tar -x -C "$migration_dir"
-mkdir -p javadoc/release/0.7
-cp -a "$migration_dir/javadoc/." javadoc/release/0.7/
-```
-
-Add `javadoc/release/0.7/javadoc-build.json` with the version and the date already
-present in the generated 0.7.2 HTML:
+`javadoc/release/0.7/javadoc-build.json` identifies the archived version and records
+the date from its generated HTML:
 
 ```json
 {
@@ -72,11 +66,11 @@ present in the generated 0.7.2 HTML:
 }
 ```
 
-Commit and publish the added `javadoc/release/0.7/` directory on `gh-pages`.
-Keep the original `javadoc/` files and `CNAME`. No Maven build or edits to the
-0.7 release branch are needed. The next master publication discovers the archived
-version through its metadata, includes it in the selector, and replaces only
-`javadoc/index.html` with the selector redirect. Later publications preserve it.
+After archiving, the original unversioned documentation and Markdown landing page
+were removed. The site now contains the HTML selector, entry redirects, versioned
+documentation, `.nojekyll`, and the original `CNAME`. The publisher discovers the
+archive through its metadata and preserves it during master and future release
+publications.
 
 ## Local verification
 
