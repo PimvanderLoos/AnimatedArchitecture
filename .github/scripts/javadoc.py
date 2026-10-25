@@ -76,36 +76,9 @@ def banner(info):
     )
 
 
-def write_info(directory, info):
-    """Store build provenance alongside the generated Javadocs."""
-    (directory / METADATA_FILE).write_text(json.dumps(info, indent=2) + "\n", encoding="utf-8")
-
-
 def read_info(directory):
     """Read provenance for one successfully published documentation directory."""
     return json.loads((directory / METADATA_FILE).read_text(encoding="utf-8"))
-
-
-def migrate_cached_release(site):
-    """Copy the existing 0.7.2 docs once, retaining old class URLs and their assets."""
-    legacy = site / "javadoc"
-    cached = legacy / "release/0.7"
-    if cached.exists() or not (legacy / "index.html").exists():
-        return
-    index = (legacy / "index.html").read_text(encoding="utf-8")
-    if index == redirect("../"):
-        return
-    if "animatedarchitecture 0.7.2 API" not in index:
-        raise ValueError("Expected the cached 0.7.2 Javadocs before migrating legacy URLs")
-    shutil.copytree(
-        legacy, cached,
-        ignore=lambda directory, names: ("master", "release") if Path(directory) == legacy else (),
-    )
-    date = re.search(r'<meta name="dc.created" content="([0-9-]+)">', index)
-    write_info(cached, {
-        "channel": "release", "version": "0.7.2", "commit": None,
-        "run_number": 0, "built_at": date.group(1) if date else None,
-    })
 
 
 def redirect(destination):
@@ -222,7 +195,6 @@ def publish(site, docs):
             print(f"Skipping superseded {info['channel']} documentation: {info['version']}")
             return False
 
-    migrate_cached_release(site)
     if target.exists():
         shutil.rmtree(target)
     shutil.copytree(docs, target)

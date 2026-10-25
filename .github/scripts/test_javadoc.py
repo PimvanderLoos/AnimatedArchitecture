@@ -46,7 +46,7 @@ class JavadocTest(unittest.TestCase):
         """Create the required generated documentation and its build metadata."""
         (self.docs / "index.html").write_text(content, encoding="utf-8")
         (self.docs / "element-list").write_text("example\n", encoding="utf-8")
-        javadoc.write_info(self.docs, info)
+        (self.docs / javadoc.METADATA_FILE).write_text(json.dumps(info), encoding="utf-8")
 
     def test_buildInfo_shouldAcceptMasterAndManualMasterBuilds(self):
         # setup
@@ -199,7 +199,7 @@ class JavadocTest(unittest.TestCase):
         self.assertLess(index.index("0.10 — release series"), index.index("0.9 — release series"))
         self.assertIn('url=1.0/', (self.site / "javadoc/release/index.html").read_text())
 
-    def test_publish_shouldMigrateCachedDocsAndPreserveOldClassLinksAndDomain(self):
+    def test_publish_shouldPreserveManuallyArchivedDocsAndOldClassLinksAndDomain(self):
         # setup
         legacy = self.site / "javadoc"
         legacy.mkdir()
@@ -207,31 +207,40 @@ class JavadocTest(unittest.TestCase):
         (legacy / "index.html").write_text(cached_index, encoding="utf-8")
         (legacy / "Example.html").write_text("cached class", encoding="utf-8")
         (legacy / "stylesheet.css").write_text("cached styles", encoding="utf-8")
+        cached = legacy / "release/0.7"
+        cached.mkdir(parents=True)
+        (cached / "index.html").write_text(cached_index, encoding="utf-8")
+        (cached / "stylesheet.css").write_text("cached styles", encoding="utf-8")
+        (cached / javadoc.METADATA_FILE).write_text(json.dumps({
+            "channel": "release", "version": "0.7.2", "commit": None,
+            "run_number": 0, "built_at": "2026-01-03",
+        }), encoding="utf-8")
         (self.site / "CNAME").write_text("animatedarchitecture.pim16aap2.nl", encoding="utf-8")
         self.artifact(self.master())
         # execute
         javadoc.publish(self.site, self.docs)
         javadoc.publish(self.site, self.docs)
         # verify
-        cached = legacy / "release/0.7"
         self.assertEqual(cached_index, (cached / "index.html").read_text())
         self.assertEqual("cached class", (legacy / "Example.html").read_text())
         self.assertEqual("cached styles", (cached / "stylesheet.css").read_text())
         self.assertEqual("2026-01-03", javadoc.read_info(cached)["built_at"])
+        self.assertIn("0.7 — release series", (self.site / "index.html").read_text())
         self.assertEqual("animatedarchitecture.pim16aap2.nl", (self.site / "CNAME").read_text())
 
-    def test_publish_shouldRejectUnidentifiedLegacyDocsBeforeReplacingThem(self):
+    def test_publish_shouldNotMigrateLegacyDocs(self):
         # setup
         legacy = self.site / "javadoc"
         legacy.mkdir()
-        (legacy / "index.html").write_text("unknown version", encoding="utf-8")
+        (legacy / "index.html").write_text("animatedarchitecture 0.7.2 API", encoding="utf-8")
+        (legacy / "Example.html").write_text("cached class", encoding="utf-8")
         self.artifact(self.master())
         # execute
-        with self.assertRaisesRegex(ValueError, "Expected the cached 0.7.2"):
-            javadoc.publish(self.site, self.docs)
+        javadoc.publish(self.site, self.docs)
         # verify
-        self.assertEqual("unknown version", (legacy / "index.html").read_text())
-        self.assertFalse((legacy / "master").exists())
+        self.assertEqual("cached class", (legacy / "Example.html").read_text())
+        self.assertTrue((legacy / "master/index.html").exists())
+        self.assertFalse((legacy / "release/0.7").exists())
 
     def test_publish_shouldRejectIncompleteArtifactWithoutChangingTheSite(self):
         # setup
