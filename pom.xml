@@ -720,7 +720,6 @@
                             <version>${version.maven-javadoc}</version>
                             <configuration>
                                 <quiet>true</quiet>
-                                <failOnError>false</failOnError>
                                 <doclint>none</doclint>
                                 <sourcepath>${delombok.output}</sourcepath>
 
@@ -822,7 +821,6 @@
                 <configuration>
                     <!-- Default configuration for all reports -->
                     <quiet>true</quiet>
-                    <failOnError>false</failOnError>
                     <doclint>none</doclint>
                     <sourcepath>${delombok.output}</sourcepath>
                     <sourceFileExcludes>
@@ -840,7 +838,6 @@
                         <id>non-aggregate</id>
                         <configuration>
                             <!-- Specific configuration for the non-aggregate report -->
-                            <failOnError>false</failOnError>
                             <doclint>none</doclint>
                         </configuration>
                         <reports>
@@ -849,9 +846,9 @@
                     </reportSet>
                     <reportSet>
                         <id>aggregate</id>
+                        <inherited>false</inherited>
                         <configuration>
                             <!-- Specific configuration for the aggregate report -->
-                            <failOnError>false</failOnError>
                             <doclint>none</doclint>
                         </configuration>
                         <reports>

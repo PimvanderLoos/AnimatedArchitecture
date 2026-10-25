@@ -172,4 +172,5 @@ dependencies {
 
 ### Documentation
 
-The javadocs for this project can be found [here](https://pimvanderloos.github.io/AnimatedArchitecture/javadoc/).
+Use the [master Javadocs](https://animatedarchitecture.pim16aap2.nl/javadoc/master/) for current development,
+or choose a published release from the [documentation version selector](https://animatedarchitecture.pim16aap2.nl/).
