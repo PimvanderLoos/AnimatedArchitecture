@@ -60,6 +60,15 @@
       "matchPackageNames": [
         "/^nl\\.pim16aap2\\.animatedarchitecture:/"
       ]
+    },
+    {
+      "matchPackageNames": [
+        "com.google.inject:guice"
+      ],
+      "matchFileNames": [
+        "animatedarchitecture-spigot/protection-hooks/hook-plotsquared-6/pom.xml"
+      ],
+      "enabled": false
     }
   ],
   "ignoreDeps": [
