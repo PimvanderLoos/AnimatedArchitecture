@@ -29,7 +29,7 @@
         <version.flogger>0.9</version.flogger>
         <version.flyway>13.11.1</version.flyway>
         <version.git-commit-id>10.0.1</version.git-commit-id>
-        <version.gson>2.14.0</version.gson>
+        <version.gson>2.15.0</version.gson>
         <version.intellij-annotations>26.1.0</version.intellij-annotations>
         <version.jacoco>0.8.16</version.jacoco>
         <version.jcalculator>3.0.0</version.jcalculator>
