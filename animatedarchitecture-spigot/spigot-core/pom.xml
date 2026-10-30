@@ -20,6 +20,7 @@
         <version.commodore>2.2</version.commodore>
         <version.cloud>1.8.4</version.cloud>
         <version.inventory-gui>1.6.5-SNAPSHOT</version.inventory-gui>
+        <version.luckperms-api>5.5</version.luckperms-api>
         <version.vault-api>1.7.1</version.vault-api>
     </properties>
 
@@ -91,6 +92,13 @@
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>${version.vault-api}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.luckperms</groupId>
+            <artifactId>api</artifactId>
+            <version>${version.luckperms-api}</version>
             <scope>provided</scope>
         </dependency>
 
