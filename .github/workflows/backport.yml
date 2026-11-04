@@ -12,7 +12,7 @@ jobs:
       state: ${{ steps.check.outputs.label_check }}
     steps:
       - id: check
-        uses: agilepathway/label-checker@e5e3846bc3669d7444c809a84fcc7d9b7e002f1a # v2.0.5
+        uses: agilepathway/label-checker@08c1c9d8c9880790d07f2bdde5bfe080f3c48e3f # v2.0.74
         with:
           prefix_mode: true
           any_of: backport-to-
