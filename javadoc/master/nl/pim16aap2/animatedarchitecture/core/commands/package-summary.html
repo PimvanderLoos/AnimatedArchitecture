@@ -19,7 +19,7 @@ loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
-<header role="banner"><div style="padding:0.75em;border-bottom:1px solid #888"><strong>Master — development build: 0.8.0-SNAPSHOT</strong> · 4f5cb06 · <a href="https://animatedarchitecture.pim16aap2.nl/">All versions</a></div>
+<header role="banner"><div style="padding:0.75em;border-bottom:1px solid #888"><strong>Master — development build: 0.8.0-SNAPSHOT</strong> · e6a4620 · <a href="https://animatedarchitecture.pim16aap2.nl/">All versions</a></div>
 <nav role="navigation">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="top-nav" id="navbar-top">
@@ -91,15 +91,14 @@ situation, you only know the target structure, but not yet the new 'blocksToMove
 the player to specify the new value.
 <p>
 For example:
-<pre><span class="invalid-tag">invalid input: '{@code
-public void setBlocksToMoveDelayed(
+<pre><code>public void setBlocksToMoveDelayed(
     CommandFactory commandFactory, ICommandSender commandSender, StructureRetriever retriever)
 {
     commandFactory
         .getSetBlocksToMoveDelayed()
         .runDelayed(commandSender, retriever)
         .exceptionally(ex -&gt; ...);
-}&lt;/pre&gt;'</span></div>
+}</code></pre></div>
 </section>
 </div>
 <section class="summary">
