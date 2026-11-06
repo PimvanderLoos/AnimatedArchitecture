@@ -132,7 +132,6 @@ public final class CompletableFutureExtensions
     private static Throwable unwrapCompletionException(Throwable throwable)
     {
         if ((throwable instanceof CompletionException || throwable instanceof ExecutionException) &&
-            throwable.getCause() != null &&
             throwable.getCause() instanceof ContextualOperationException)
         {
             return throwable.getCause();
