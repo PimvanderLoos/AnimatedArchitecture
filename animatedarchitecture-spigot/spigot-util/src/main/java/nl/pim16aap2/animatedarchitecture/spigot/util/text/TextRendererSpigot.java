@@ -3,14 +3,13 @@ package nl.pim16aap2.animatedarchitecture.spigot.util.text;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import nl.pim16aap2.animatedarchitecture.core.text.ITextRenderer;
-import nl.pim16aap2.animatedarchitecture.core.text.Text;
 import nl.pim16aap2.animatedarchitecture.core.text.TextComponent;
 
 /**
- * Implementation of a text renderer that can be used by a {@link Text} object to render the text to
- * {@link BaseComponent[]}.
+ * Implementation of a text renderer that can be used by a {@link nl.pim16aap2.animatedarchitecture.core.text.Text}
+ * object to render the text to {@link BaseComponent} array.
  * <p>
- * See {@link Text#render(ITextRenderer)}.
+ * See {@link nl.pim16aap2.animatedarchitecture.core.text.Text#render(ITextRenderer)}.
  * <p>
  * This renderer supports rendering any implementation of {@link ITextDecoratorSpigot}.
  */

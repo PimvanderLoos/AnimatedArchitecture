@@ -33,7 +33,7 @@
  *         .getSetBlocksToMoveDelayed()
  *         .runDelayed(commandSender, retriever)
  *         .exceptionally(ex -> ...);
- * }</pre>
+ * }}</pre>
  */
 @NullMarked
 package nl.pim16aap2.animatedarchitecture.core.commands;
