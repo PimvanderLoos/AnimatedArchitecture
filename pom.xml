@@ -36,6 +36,7 @@
         <version.jdbc-sqlite>3.54.1.0</version.jdbc-sqlite>
         <version.jimfs>1.3.2</version.jimfs>
         <version.junit>6.1.3</version.junit>
+        <version.lightkeeper>1.2.0-SNAPSHOT</version.lightkeeper>
         <version.log4j>2.26.1</version.log4j>
         <version.logcaptor>2.13.0</version.logcaptor>
         <version.lombok-plugin>1.18.20.0</version.lombok-plugin>
@@ -72,7 +73,18 @@
         <module>animatedarchitecture-testing</module>
     </modules>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>eldonexus-snapshots</id>
+            <url>https://eldonexus.de/repository/maven-snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <repositories>
+        <repository>
+            <id>eldonexus-snapshots</id>
+            <url>https://eldonexus.de/repository/maven-snapshots/</url>
+        </repository>
         <repository>
             <id>gitlab-maven</id>
             <url>https://gitlab.com/api/v4/projects/42502896/packages/maven</url>
@@ -338,6 +350,19 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>nl.pim16aap2.lightkeeper</groupId>
+                <artifactId>lightkeeper-maven-plugin</artifactId>
+                <version>${version.lightkeeper}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>lock-build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
