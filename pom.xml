@@ -59,7 +59,7 @@
         <version.mockito>5.24.0</version.mockito>
         <version.nullaway>0.14.4</version.nullaway>
         <version.pmd>7.29.0</version.pmd>
-        <version.semver4j>6.0.0</version.semver4j>
+        <version.semver4j>6.1.0</version.semver4j>
         <version.slf4j>2.0.20</version.slf4j>
         <version.surefire>3.6.1</version.surefire>
     </properties>
